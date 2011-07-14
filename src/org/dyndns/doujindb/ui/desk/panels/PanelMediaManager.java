@@ -294,35 +294,46 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		double size = Core.Datastore.size();
-		String label = "Byte";
-		if(size >= 1024)
+		/**
+		Can take some time to complete with big datastores: better make it asynchronous.
+		*/
+		new Thread(getClass().getName()+"/validateUI")
 		{
-			size = size / 1024;
-			label = "KB";
-		}
-		if(size >= 1024)
-		{
-			size = size / 1024;
-			label = "MB";
-		}
-		if(size >= 1024)
-		{
-			size = size / 1024;
-			label = "GB";
-		}
-		if(size >= 1024)
-		{
-			size = size / 1024;
-			label = "TB";
-		}
-		mediaManagerInfo.setText(String.format("%.2f ", size) + label);
-		Vector<Book> files = new Vector<Book>();
-		for(Book book : Database.getBooks())
-			files.add(book);
-		Iterable<Book> iterable = checkboxListMedia.getSelectedItems();
-		checkboxListMedia.setItems(files);
-		checkboxListMedia.setSelectedItems(iterable);
+			@Override
+			public void run()
+			{
+				super.setPriority(Thread.MIN_PRIORITY);
+				double size = Core.Datastore.size();
+				String label = "Byte";
+				if(size >= 1024)
+				{
+					size = size / 1024;
+					label = "KB";
+				}
+				if(size >= 1024)
+				{
+					size = size / 1024;
+					label = "MB";
+				}
+				if(size >= 1024)
+				{
+					size = size / 1024;
+					label = "GB";
+				}
+				if(size >= 1024)
+				{
+					size = size / 1024;
+					label = "TB";
+				}
+				mediaManagerInfo.setText(String.format("%.2f ", size) + label);
+				Vector<Book> files = new Vector<Book>();
+				for(Book book : Database.getBooks())
+					files.add(book);
+				Iterable<Book> iterable = checkboxListMedia.getSelectedItems();
+				checkboxListMedia.setItems(files);
+				checkboxListMedia.setSelectedItems(iterable);
+			}
+		}.start();
 	}
 	
 	@SuppressWarnings({"unchecked", "rawtypes","unused"})

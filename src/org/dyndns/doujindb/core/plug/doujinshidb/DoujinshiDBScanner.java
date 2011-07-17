@@ -107,7 +107,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getWeblink() {
-		return "http://doujindb.sf.net/";
+		return "http://doujindb.dyndns.org/";
 	}
 	@Override
 	public Component getUI() {

@@ -616,7 +616,7 @@ public void layoutContainer(Container parent)
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
 						"eMail : N/A<br>" +
-						"Website : <a href='http://doujindb.sf.net/'>http://doujindb.sf.net/</a><br>" +
+						"Website : <a href='http://doujindb.dyndns.org/'>http://doujindb.dyndns.org/</a><br>" +
 						"</span></body></html>");
 				JPanel bottom = new JPanel();
 				bottom.setLayout(new BorderLayout(5, 5));
@@ -651,7 +651,7 @@ public void layoutContainer(Container parent)
 			try
 			{
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-				desktop.browse(new URI("http://sourceforge.net/apps/trac/doujindb/newticket"));
+				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/list"));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 				Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));

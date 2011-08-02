@@ -6,11 +6,10 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Circle")
-final class ImplCircle extends ImplRecord implements DouzRecord, Circle, Serializable//, Comparable<Circle>
+final class ImplCircle extends ImplRecord implements Record, Circle, Serializable//, Comparable<Circle>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 

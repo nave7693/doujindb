@@ -7,7 +7,11 @@ package org.dyndns.doujindb.log;
 */
 public interface Logger
 {
-	public void log(LogEvent event);
+	public void log(String message, Level level);
+	
+	void log(Event event);
+	
 	public void loggerAttach(Logger logger);
+	
 	public void loggerDetach(Logger logger);
 }

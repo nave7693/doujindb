@@ -6,7 +6,7 @@ package org.dyndns.doujindb.log;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public class LogException extends RuntimeException
+public final class LogException extends RuntimeException
 {
 
 	public LogException() { }

@@ -35,7 +35,7 @@ public final class DouzPopupMenu implements ActionListener
 		});
 		JLabel lab = new JLabel(title);
 		lab.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-		lab.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+		lab.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 		popup.add(lab);
 		this.items = new JMenuItem[items.size()];
 		int k = 0;

@@ -3,12 +3,16 @@ package org.dyndns.doujindb.db.records;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.dyndns.doujindb.db.DouzRecord;
-import org.dyndns.doujindb.db.containers.HasArtist;
-import org.dyndns.doujindb.db.containers.HasBook;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.containers.ArtistContainer;
+import org.dyndns.doujindb.db.containers.BookContainer;
 
-
-public interface Circle extends DouzRecord, Serializable, HasArtist, HasBook
+/**  
+* Circle.java - Interface Circle.
+* @author nozomu
+* @version 1.0
+*/
+public interface Circle extends Record, Serializable, ArtistContainer, BookContainer
 {
 	public String getJapaneseName();
 	public String getTranslatedName();

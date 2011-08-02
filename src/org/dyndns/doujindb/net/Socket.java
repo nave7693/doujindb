@@ -1,5 +1,11 @@
 package org.dyndns.doujindb.net;
 
-public interface Socket {
+/**  
+* Socket.java - Still unused
+* @author  nozomu
+* @version 1.0
+*/
+public interface Socket
+{
 
 }

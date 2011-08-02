@@ -1,8 +1,5 @@
 package org.dyndns.doujindb.conf;
 
-import java.io.*;
-
-
 /**  
 * Properties.java - Manages all the settings
 * @author  nozomu
@@ -10,17 +7,15 @@ import java.io.*;
 */
 public interface Properties
 {
-	public Serializable getValue(String key) throws PropertyException;
+	public Property get(String key) throws PropertyException;
 	
-	public void setValue(String key, Serializable value) throws PropertyException;
+	public void add(String key) throws PropertyException;
 	
-	public void newValue(String key, Serializable value) throws PropertyException;
+	public void remove(String key) throws PropertyException;
 	
-	public Iterable<String> values();
+	public boolean contains(String key);
 	
-	public boolean containsValue(String key);
+	public Iterable<String> keys();
 	
-	public Serializable getDescription(String key) throws PropertyException;
-	
-	public void setDescription(String key, String value) throws PropertyException;
+	public Iterable<Property> values();
 }

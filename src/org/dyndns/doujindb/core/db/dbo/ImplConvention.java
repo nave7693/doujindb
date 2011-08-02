@@ -6,11 +6,10 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Convention")
-final class ImplConvention extends ImplRecord implements DouzRecord, Convention, Serializable//, Comparable<Convention>
+final class ImplConvention extends ImplRecord implements Record, Convention, Serializable//, Comparable<Convention>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 

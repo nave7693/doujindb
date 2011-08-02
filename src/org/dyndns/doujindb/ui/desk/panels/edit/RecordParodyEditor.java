@@ -8,7 +8,7 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
-import org.dyndns.doujindb.db.containers.HasParody;
+import org.dyndns.doujindb.db.containers.ParodyContainer;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
@@ -20,12 +20,12 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 @SuppressWarnings("serial")
 public class RecordParodyEditor extends JSplitPane implements Validable
 {
-	private HasParody tokenIParody;
+	private ParodyContainer tokenIParody;
 	private DouzCheckBoxList<Parody> checkboxList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordParodyEditor(HasParody token)
+	public RecordParodyEditor(ParodyContainer token)
 	{
 		super();
 		this.tokenIParody = token;

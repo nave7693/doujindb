@@ -3,11 +3,15 @@ package org.dyndns.doujindb.db.records;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.dyndns.doujindb.db.DouzRecord;
-import org.dyndns.doujindb.db.containers.HasBook;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.containers.BookContainer;
 
-
-public interface Parody extends DouzRecord, Serializable, HasBook
+/**  
+* Parody.java - Interface Parody.
+* @author nozomu
+* @version 1.0
+*/
+public interface Parody extends Record, Serializable, BookContainer
 {
 	public String getJapaneseName();
 	public String getTranslatedName();

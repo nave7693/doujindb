@@ -8,7 +8,7 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
-import org.dyndns.doujindb.db.containers.HasContent;
+import org.dyndns.doujindb.db.containers.ContentContainer;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
@@ -20,12 +20,12 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 @SuppressWarnings("serial")
 public class RecordContentEditor extends JSplitPane implements Validable
 {
-	private HasContent tokenIContent;
+	private ContentContainer tokenIContent;
 	private DouzCheckBoxList<Content> checkboxList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordContentEditor(HasContent token)
+	public RecordContentEditor(ContentContainer token)
 	{
 		super();
 		this.tokenIContent = token;

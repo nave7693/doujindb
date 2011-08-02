@@ -5,6 +5,7 @@ package org.dyndns.doujindb.net;
 * @author  nozomu
 * @version 1.0
 */
-public class TcpPacket {
+public class TcpPacket
+{
 
 }

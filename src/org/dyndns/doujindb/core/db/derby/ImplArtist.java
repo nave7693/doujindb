@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.records.*;
 
 
 @SuppressWarnings("serial")
-final class ImplArtist extends ImplRecord implements DouzRecord, Artist
+final class ImplArtist extends ImplRecord implements Record, Artist
 {
 	private Connection connection;
 	

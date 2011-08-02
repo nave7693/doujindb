@@ -7,7 +7,12 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 
-public final class DouzTheme extends DefaultMetalTheme
+/**  
+* Theme.java - DoujinDB theme/skin.
+* @author  nozomu
+* @version 1.0
+*/
+public final class Theme extends DefaultMetalTheme
 {
 	private final ColorUIResource prim1;
 	private final ColorUIResource prim2;
@@ -33,7 +38,7 @@ public final class DouzTheme extends DefaultMetalTheme
 	private FontUIResource userFont;
 	private FontUIResource smallFont;
 
-	public DouzTheme(Color color1, Color color2, Font font)
+	public Theme(Color color1, Color color2, Font font)
 	{
 		int r1 = color1.getRed();
 		int g1 = color1.getGreen();
@@ -92,7 +97,7 @@ public final class DouzTheme extends DefaultMetalTheme
 
 	public String getName()
 	{
-		return "org.dyndns.doujindb.ui.DouzTheme";
+		return "org.dyndns.doujindb.ui.Theme";
 	}
 
 	protected ColorUIResource getPrimary1()

@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
 
-final class ImplContent extends ImplRecord implements DouzRecord, Content
+final class ImplContent extends ImplRecord implements Record, Content
 {
 	private Connection connection;
 	

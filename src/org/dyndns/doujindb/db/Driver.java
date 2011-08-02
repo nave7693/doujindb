@@ -2,7 +2,12 @@ package org.dyndns.doujindb.db;
 
 import org.dyndns.doujindb.db.records.*;
 
-public interface DouzDriver
+/**  
+* Driver.java - DoujinDB database driver.
+* @author  nozomu
+* @version 1.0
+*/
+public interface Driver
 {
 	public String getConnection() throws DatabaseException;
 	
@@ -14,23 +19,23 @@ public interface DouzDriver
 	
 	public void setAutoCommit(boolean autoCommit) throws DatabaseException;
 	
-	public DouzTable<Book> getBooks() throws DatabaseException;
+	public Table<Book> getBooks() throws DatabaseException;
 
-	public DouzTable<Circle> getCircles() throws DatabaseException;
+	public Table<Circle> getCircles() throws DatabaseException;
 
-	public DouzTable<Artist> getArtists() throws DatabaseException;
+	public Table<Artist> getArtists() throws DatabaseException;
 
-	public DouzTable<Parody> getParodies() throws DatabaseException;
+	public Table<Parody> getParodies() throws DatabaseException;
 
-	public DouzTable<Content> getContents() throws DatabaseException;
+	public Table<Content> getContents() throws DatabaseException;
 
-	public DouzTable<Convention> getConventions() throws DatabaseException;
+	public Table<Convention> getConventions() throws DatabaseException;
 	
-	public DouzTable<DouzRecord> getDeleted() throws DatabaseException;
+	public Table<Record> getDeleted() throws DatabaseException;
 
-	public DouzTable<DouzRecord> getShared() throws DatabaseException;
+	public Table<Record> getShared() throws DatabaseException;
 
-	public DouzTable<DouzRecord> getUnchecked() throws DatabaseException;
+	public Table<Record> getUnchecked() throws DatabaseException;
 	
 	public Artist newArtist() throws DatabaseException;
 	

@@ -24,11 +24,11 @@ import org.dyndns.doujindb.conf.Properties;
 import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.log.Event;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DouzDesktop.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.rc.*;
-
 
 /**  
 * UI.java - DoujinDB graphical user interface.
@@ -47,7 +47,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private JComponent uiPanelGlass;
 	//TODO JDK6 private JLayer<JComponent> uiLayerPane;
-	//TODO JDK6 private DouzBlurLayerUI uiLayerPaneUI;
+	//TODO JDK6 private BlurLayerUI uiLayerPaneUI;
 	
 	private JFileChooser uiFileChooser = new JFileChooser();
 	
@@ -98,25 +98,25 @@ public UI(String title)
 	super.setBounds(0,0,550,550);
 	super.setMinimumSize(new Dimension(400,350));
 	super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
-	if(((Boolean)Core.Settings.getValue("org.dyndns.doujindb.ui.always_on_top")) == true)
+	if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
 		super.setAlwaysOnTop(true);
-	super.getContentPane().setBackground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
-	Core.Logger.log(new LogEvent("Basic user interface loaded.", LogLevel.MESSAGE));
+	super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+	Core.Logger.log("Basic user interface loaded.", Level.INFO);
 	try
 	{
-		DouzTheme theme = new DouzTheme(
-				(Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.color"),
-				(Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"),
+		Theme theme = new Theme(
+				Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
+				Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
 				Core.Resources.Font);
 		MetalLookAndFeel.setCurrentTheme(theme);
 		UIManager.setLookAndFeel(new MetalLookAndFeel());
 		SwingUtilities.updateComponentTreeUI(this);
 	}catch(Exception e)
 	{
-		Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+		Core.Logger.log(e.getMessage(), Level.ERROR);
 		return;
 	}
-	Core.Logger.log(new LogEvent("Theme loaded.", LogLevel.MESSAGE));
+	Core.Logger.log("Theme loaded.", Level.INFO);
 	uiPanelGlass = new JComponent()
     {
 		float ninth = 1.0f / 9.0f;
@@ -178,7 +178,7 @@ public UI(String title)
     uiPanelGlass.setEnabled(false);
     uiPanelGlass.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
 	setGlassPane(uiPanelGlass);
-	Core.Logger.log(new LogEvent("Glass panel added.", LogLevel.MESSAGE));
+	Core.Logger.log("Glass panel added.", Level.INFO);
 	
 	uiPanelTabbed = new JTabbedPane();
 	super.addWindowListener(this);
@@ -187,8 +187,8 @@ public UI(String title)
 	{
     	//UIManager.put("InternalFrame.icon",Core.Resources.get("Icon:IFrame.Icon"));
 		UIManager.put("ComboBox.selectionBackground", new Color(45,45,45));
-		UIManager.put("InternalFrame.font",(Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
-		UIManager.put("InternalFrame.titleFont",(Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+		UIManager.put("InternalFrame.font",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+		UIManager.put("InternalFrame.titleFont",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
     	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));
     	UIManager.put("InternalFrame.minimizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Minimize"));
     	UIManager.put("InternalFrame.maximizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Maximize"));
@@ -210,7 +210,7 @@ public UI(String title)
     	UIManager.put("Tree.expandedIcon",Core.Resources.Icons.get("JTree/Node-"));
     	UIManager.put("Tree.collapsedIcon",Core.Resources.Icons.get("JTree/Node+"));
     	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
-    	uiFileChooser.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+    	uiFileChooser.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
     	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
     	{
     		private Hashtable<String,ImageIcon> bundleIcon;
@@ -261,7 +261,7 @@ public UI(String title)
     	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     	uiFileChooser.setMultiSelectionEnabled(true);
     }
-	Core.Logger.log(new LogEvent("JFileChooser loaded.", LogLevel.MESSAGE));
+	Core.Logger.log("JFileChooser loaded.", Level.INFO);
 	
 	menuBar = new JMenuBar();
 	menuBar.setFont(Core.Resources.Font);
@@ -305,7 +305,7 @@ public UI(String title)
 	menuHelp.add(menuHelpBugtrack);
 	menuBar.add(menuHelp);
 	super.setJMenuBar(menuBar);
-	Core.Logger.log(new LogEvent("JMenuBar added.", LogLevel.MESSAGE));
+	Core.Logger.log("JMenuBar added.", Level.INFO);
 	
 	org.dyndns.doujindb.core.Plugins.init();
 	
@@ -445,7 +445,7 @@ public UI(String title)
 	uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("JFrame/Tab/Network"), bogus);
 	uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
 
-	Core.Logger.log(new LogEvent("JTabbedPane added.", LogLevel.MESSAGE));
+	Core.Logger.log("JTabbedPane added.", Level.INFO);
 	
 	if(SystemTray.isSupported())
 	{
@@ -469,15 +469,15 @@ public UI(String title)
 			}
 		});
 		uiTrayIcon.addActionListener(this);
-		Core.Logger.log(new LogEvent("SystemTray loaded.", LogLevel.MESSAGE));
+		Core.Logger.log("SystemTray loaded.", Level.INFO);
 	}else
-	Core.Logger.log(new LogEvent("SystemTray not supported.", LogLevel.WARNING));
+	Core.Logger.log("SystemTray not supported.", Level.WARNING);
 
 	uiPanelTabbed.setFont(Core.Resources.Font);
 	uiPanelTabbed.setFocusable(false);
 	
 	//TODO JDK6
-	/*uiLayerPaneUI = new DouzBlurLayerUI();
+	/*uiLayerPaneUI = new BlurLayerUI();
 	uiLayerPane = new JLayer<JComponent>(uiPanelTabbed, uiLayerPaneUI);	
 	super.add(uiLayerPane);*/
 	super.add(uiPanelTabbed);
@@ -573,11 +573,11 @@ public void layoutContainer(Container parent)
 			{
 				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
 				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(src));
-				out.writeObject(Core.Settings);
-				Core.Logger.log(new LogEvent("System settings saved.", LogLevel.MESSAGE));
+				out.writeObject(Core.Properties);
+				Core.Logger.log("System settings saved.", Level.INFO);
 			}catch(Exception e)
 			{
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+				Core.Logger.log(e.getMessage(), Level.ERROR);
 			}
 			return;
 		}
@@ -587,12 +587,12 @@ public void layoutContainer(Container parent)
 			{
 				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(src));
-				Core.Settings = (Properties) in.readObject();
+				Core.Properties = (Properties) in.readObject();
 				uiPanelSettings.reload();
-				Core.Logger.log(new LogEvent("System settings loaded.", LogLevel.MESSAGE));
+				Core.Logger.log("System settings loaded.", Level.INFO);
 			}catch(Exception e)
 			{
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+				Core.Logger.log(e.getMessage(), Level.ERROR);
 			}
 			return;
 		}
@@ -654,10 +654,10 @@ public void layoutContainer(Container parent)
 				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/list"));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
-				Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(ioe.getMessage(), Level.WARNING);
 			} catch (URISyntaxException use) {
 				use.printStackTrace();
-				Core.Logger.log(new LogEvent(use.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(use.getMessage(), Level.WARNING);
 			}
 			return;
 		}
@@ -680,7 +680,7 @@ public void layoutContainer(Container parent)
 				setState(JFrame.NORMAL);
 			}catch(Exception e){
 				e.printStackTrace();
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+				Core.Logger.log(e.getMessage(), Level.ERROR);
 			}
 			return;
 		}
@@ -716,7 +716,7 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getSource() == uiTrayPopupExit)
 		{
-			if(((Boolean)Core.Settings.getValue("org.dyndns.doujindb.data.save_on_exit")) == false)
+			if((Core.Properties.get("org.dyndns.doujindb.data.save_on_exit").asBoolean()) == false)
 				System.exit(0);
 			else
 				System.exit(0);
@@ -724,18 +724,18 @@ public void layoutContainer(Container parent)
 			{
 				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
 				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(src));
-				out.writeObject(Core.Settings);
-				Core.Logger.log(new LogEvent("System settings saved.", LogLevel.MESSAGE));
+				out.writeObject(Core.Properties);
+				Core.Logger.log("System settings saved.", Level.INFO);
 			}catch(Exception e)
 			{
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+				Core.Logger.log(e.getMessage(), Level.ERROR);
 			}
 			try
 			{
 				//TODO
 			}catch(Exception e)
 			{
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+				Core.Logger.log(e.getMessage(), Level.ERROR);
 			}
 			System.exit(0);
 		}
@@ -777,7 +777,7 @@ public void layoutContainer(Container parent)
 						Database.commit();
 					} catch (DatabaseException dbe)
 					{
-						Core.Logger.log(new LogEvent("" + dbe.getMessage(), LogLevel.ERROR));
+						Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 					}
 					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
@@ -794,7 +794,7 @@ public void layoutContainer(Container parent)
 						"Commit");
 			} catch (PropertyVetoException pve)
 			{
-				Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			return;
 		}
@@ -838,13 +838,13 @@ public void layoutContainer(Container parent)
 							Database.rollback();
 						} catch (DatabaseException dbe)
 						{
-							Core.Logger.log(new LogEvent("" + dbe.getMessage(), LogLevel.ERROR));
+							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 						validate();
 						repaint();
 					} catch (Exception e) {
-						Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+						Core.Logger.log(e.getMessage(), Level.ERROR);
 					}
 					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
@@ -861,7 +861,7 @@ public void layoutContainer(Container parent)
 						"Rollback");
 			} catch (PropertyVetoException pve)
 			{
-				Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			return;
 		}
@@ -875,7 +875,7 @@ public void layoutContainer(Container parent)
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 			} catch (DatabaseException dbe)
 			{
-				Core.Logger.log(new LogEvent("" + dbe.getMessage(), LogLevel.ERROR));
+				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 			}
 			Desktop.revalidate();
 		}
@@ -892,7 +892,7 @@ public void layoutContainer(Container parent)
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 			} catch (DatabaseException dbe)
 			{
-				Core.Logger.log(new LogEvent("" + dbe.getMessage(), LogLevel.ERROR));
+				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 			}
 			Desktop.revalidate();
 		}
@@ -904,7 +904,7 @@ public void layoutContainer(Container parent)
 	public void windowClosed(WindowEvent event){}
 	public void windowClosing(WindowEvent event)
 	{
-		if(((Boolean)Core.Settings.getValue("org.dyndns.doujindb.ui.tray_on_exit")) == false)
+		if((Core.Properties.get("org.dyndns.doujindb.ui.tray_on_exit").asBoolean()) == false)
 			System.exit(0);
 		setState(JFrame.ICONIFIED);
 		try
@@ -914,7 +914,7 @@ public void layoutContainer(Container parent)
 			setVisible(false);
 		}catch(AWTException awte){
 			awte.printStackTrace();
-			Core.Logger.log(new LogEvent(awte.getMessage(), LogLevel.ERROR));
+			Core.Logger.log(awte.getMessage(), Level.ERROR);
 		}
 	}
 	public void windowOpened(WindowEvent event){}
@@ -1072,11 +1072,11 @@ public void layoutContainer(Container parent)
 	}
 
 	@Override
-	public void log(LogEvent event)
+	public void log(Event event)
 	{
 		switch(event.getLevel())
 		{
-		case MESSAGE:
+		case INFO:
 			TableModel.addRow(new Object[]{"{Message}",
 					event.getSource(),
 					event.getMessage()});
@@ -1175,10 +1175,13 @@ public void layoutContainer(Container parent)
 	}
 
 	@Override
-	public void loggerAttach(Logger logger) {}
+	public void loggerAttach(Logger logger) { }
 	
 	@Override
-	public void loggerDetach(Logger logger) {}
+	public void loggerDetach(Logger logger) { }
+
+	@Override
+	public void log(String message, Level level) { }
 }
 	@SuppressWarnings("serial")
 	private static final class PanelSettings extends JSplitPane
@@ -1239,7 +1242,7 @@ public void layoutContainer(Container parent)
 	public void reload()
 	{
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new NodeValue(null, "org.dyndns.doujindb"));
-		for(String key : Core.Settings.values())
+		for(String key : Core.Properties.keys())
 		{
 			if(key.startsWith("org.dyndns.doujindb."))
 				addNode(root, key.substring("org.dyndns.doujindb.".length()));
@@ -1288,7 +1291,7 @@ public void layoutContainer(Container parent)
 			for(Object o : path_objects)
 				path += o + ".";
 			path = "org.dyndns.doujindb." + path.substring(0, path.length() - 1).substring("org.dyndns.doujindb.".length());
-			node2 = new DefaultMutableTreeNode(new NodeValue(Core.Settings.getValue(path+"."+key), key));
+			node2 = new DefaultMutableTreeNode(new NodeValue(Core.Properties.get(path + "." + key), key));
 			((DefaultMutableTreeNode)node).add(node2);
 		}
 	}
@@ -1391,19 +1394,19 @@ public void layoutContainer(Container parent)
 		private JButton editDiscard;
 		
 		private String key;
-		private Serializable value;
-		private Serializable valueNew;
+		private Object value;
+		private Object valueNew;
 		
 		public ValueEditor(String key2)
 		{
 			super();
 			setLayout(this);
 			this.key = key2;
-			this.value = Core.Settings.getValue(key);
+			this.value = Core.Properties.get(key).getValue();
 			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Core.Resources.Icons.get("JFrame/Tab/Settings/Tree/Value"), JLabel.LEFT);
 			title.setFont(Core.Resources.Font);
 			add(title);
-			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Core.Settings.getDescription(key) + "</body></html>");
+			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Core.Properties.get(key).getDescription() + "</body></html>");
 			description.setVerticalAlignment(JLabel.TOP);
 			description.setFont(Core.Resources.Font);
 			add(description);
@@ -1426,7 +1429,7 @@ public void layoutContainer(Container parent)
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					Core.Settings.setValue(key, valueNew);
+					Core.Properties.get(key).setValue(valueNew);
 				}
 			});
 			editApply.setFont(Core.Resources.Font);
@@ -2082,9 +2085,9 @@ public void layoutContainer(Container parent)
 			add(cpane);
 			setLayout(this);
 			setSize(cpane.getWidth()+5,cpane.getHeight()+20);
-			applyTheme(new DouzTheme(
-					(Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.color"),
-					(Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"),
+			applyTheme(new Theme(
+					Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
+					Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
 					Core.Resources.Font));
 			validate();
 			repaint();

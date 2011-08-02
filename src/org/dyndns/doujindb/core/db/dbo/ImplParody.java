@@ -6,11 +6,10 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Parody")
-final class ImplParody extends ImplRecord implements DouzRecord, Parody, Serializable//, Comparable<Parody>
+final class ImplParody extends ImplRecord implements Record, Parody, Serializable//, Comparable<Parody>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 

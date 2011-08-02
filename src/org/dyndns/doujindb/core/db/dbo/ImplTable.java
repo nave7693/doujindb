@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 
 
-public class ImplTable<T extends DouzRecord> implements DouzTable<T>, Serializable
+public class ImplTable<T extends Record> implements Table<T>, Serializable
 {
 	private static final long serialVersionUID = 1L;
 	

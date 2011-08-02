@@ -10,12 +10,13 @@ import javax.sql.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.Driver;
 import org.dyndns.doujindb.db.records.*;
 
 
 //import org.apache.derby.jdbc.*;
 
-public class ImplDriver implements DouzDriver
+public class ImplDriver implements Driver
 {
 	private final String TABLE_PREFIX = "DOUZ_";
 	
@@ -47,9 +48,9 @@ public class ImplDriver implements DouzDriver
 	private ImplTable<Content> tableContent;
 	private ImplTable<Convention> tableConvention;
 	private ImplTable<Parody> tableParody;
-	private ImplTable<DouzRecord> tableShared;
-	private ImplTable<DouzRecord> tableDeleted;
-	private ImplTable<DouzRecord> tableUnchecked;
+	private ImplTable<Record> tableShared;
+	private ImplTable<Record> tableDeleted;
+	private ImplTable<Record> tableUnchecked;
 	
 	public ImplDriver() throws SQLException
 	{
@@ -138,9 +139,9 @@ public class ImplDriver implements DouzDriver
 			tableContent = new ImplTable<Content>(TABLE_PREFIX + TABLE_CONTENT, connection);
 			tableConvention = new ImplTable<Convention>(TABLE_PREFIX + TABLE_CONVENTION, connection);
 			tableParody = new ImplTable<Parody>(TABLE_PREFIX + TABLE_PARODY, connection);
-			tableShared = new ImplTable<DouzRecord>(TABLE_PREFIX + TABLE_SHARED, connection);
-			tableDeleted = new ImplTable<DouzRecord>(TABLE_PREFIX + TABLE_DELETED, connection);
-			tableUnchecked = new ImplTable<DouzRecord>(TABLE_PREFIX + TABLE_UNCHECKED, connection);
+			tableShared = new ImplTable<Record>(TABLE_PREFIX + TABLE_SHARED, connection);
+			tableDeleted = new ImplTable<Record>(TABLE_PREFIX + TABLE_DELETED, connection);
+			tableUnchecked = new ImplTable<Record>(TABLE_PREFIX + TABLE_UNCHECKED, connection);
 			
 		} catch (InstantiationException e) {
 			throw new SQLException(e);
@@ -690,55 +691,55 @@ public class ImplDriver implements DouzDriver
 	}
 
 	@Override
-	public DouzTable<Book> getBooks() throws DatabaseException
+	public Table<Book> getBooks() throws DatabaseException
 	{
 		return tableBook;
 	}
 
 	@Override
-	public DouzTable<Circle> getCircles() throws DatabaseException
+	public Table<Circle> getCircles() throws DatabaseException
 	{
 		return tableCircle;
 	}
 
 	@Override
-	public DouzTable<Artist> getArtists() throws DatabaseException
+	public Table<Artist> getArtists() throws DatabaseException
 	{
 		return tableArtist;
 	}
 
 	@Override
-	public DouzTable<Parody> getParodies() throws DatabaseException
+	public Table<Parody> getParodies() throws DatabaseException
 	{
 		return tableParody;
 	}
 
 	@Override
-	public DouzTable<Content> getContents() throws DatabaseException
+	public Table<Content> getContents() throws DatabaseException
 	{
 		return tableContent;
 	}
 
 	@Override
-	public DouzTable<Convention> getConventions() throws DatabaseException
+	public Table<Convention> getConventions() throws DatabaseException
 	{
 		return tableConvention;
 	}
 
 	@Override
-	public DouzTable<DouzRecord> getDeleted() throws DatabaseException
+	public Table<Record> getDeleted() throws DatabaseException
 	{
 		return tableDeleted;
 	}
 
 	@Override
-	public DouzTable<DouzRecord> getShared() throws DatabaseException
+	public Table<Record> getShared() throws DatabaseException
 	{
 		return tableShared;
 	}
 
 	@Override
-	public DouzTable<DouzRecord> getUnchecked() throws DatabaseException
+	public Table<Record> getUnchecked() throws DatabaseException
 	{
 		return tableUnchecked;
 	}

@@ -1,0 +1,31 @@
+package org.dyndns.doujindb.util;
+
+import java.util.*;
+
+/**	 
+*	Hash.java - Hash methods.
+*	@author  nozomu
+*	@version 1.0
+*/
+public final class Hash
+{
+	public static String generateUUID()
+    {
+		return generateUUID(new TreeSet<String>());
+    }
+	
+    public static String generateUUID(Set<String> uuids)
+    {
+    	String uuid;
+		generate_uuid:
+		{
+			while(true)
+			{
+				uuid = "{" + java.util.UUID.randomUUID().toString() + "}";
+				if(!uuids.contains(uuid))
+					break generate_uuid;
+			}
+		}
+    	return uuid;
+    }
+}

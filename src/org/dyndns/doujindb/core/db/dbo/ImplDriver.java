@@ -6,41 +6,40 @@ import java.util.Hashtable;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Driver")
-public final class ImplDriver implements DouzDriver
+public final class ImplDriver implements Driver
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
 	private boolean autoCommit = false;
 	
 	@XmlElement(name="book", required=false)
-	private DouzTable<Book> books;
+	private Table<Book> books;
 	@XmlElement(name="circle", required=false)
-	private DouzTable<Circle> circles;
+	private Table<Circle> circles;
 	@XmlElement(name="artist", required=false)
-	private DouzTable<Artist> artists;
+	private Table<Artist> artists;
 	@XmlElement(name="parody", required=false)
-	private DouzTable<Parody> parodies;
+	private Table<Parody> parodies;
 	@XmlElement(name="content", required=false)
-	private DouzTable<Content> contents;
+	private Table<Content> contents;
 	@XmlElement(name="convention", required=false)
-	private DouzTable<Convention> conventions;
-	private DouzTable<DouzRecord> deleted;
-	private DouzTable<DouzRecord> shared;
-	private DouzTable<DouzRecord> unchecked;
+	private Table<Convention> conventions;
+	private Table<Record> deleted;
+	private Table<Record> shared;
+	private Table<Record> unchecked;
 	
-	public DouzTable<DouzRecord> getDeleted() {
+	public Table<Record> getDeleted() {
 		return deleted;
 	}
 
-	public DouzTable<DouzRecord> getShared() {
+	public Table<Record> getShared() {
 		return shared;
 	}
 
-	public DouzTable<DouzRecord> getUnchecked() {
+	public Table<Record> getUnchecked() {
 		return unchecked;
 	}
 
@@ -52,32 +51,32 @@ public final class ImplDriver implements DouzDriver
 		parodies = new ImplTable<Parody>();
 		contents = new ImplTable<Content>();
 		conventions = new ImplTable<Convention>();
-		deleted = new ImplTable<DouzRecord>();
-		shared = new ImplTable<DouzRecord>();
-		unchecked = new ImplTable<DouzRecord>();
+		deleted = new ImplTable<Record>();
+		shared = new ImplTable<Record>();
+		unchecked = new ImplTable<Record>();
 	}
 
-	public DouzTable<Book> getBooks() {
+	public Table<Book> getBooks() {
 		return books;
 	}
 
-	public DouzTable<Circle> getCircles() {
+	public Table<Circle> getCircles() {
 		return circles;
 	}
 
-	public DouzTable<Artist> getArtists() {
+	public Table<Artist> getArtists() {
 		return artists;
 	}
 
-	public DouzTable<Parody> getParodies() {
+	public Table<Parody> getParodies() {
 		return parodies;
 	}
 
-	public DouzTable<Content> getContents() {
+	public Table<Content> getContents() {
 		return contents;
 	}
 
-	public DouzTable<Convention> getConventions() {
+	public Table<Convention> getConventions() {
 		return conventions;
 	}
 
@@ -119,7 +118,7 @@ public final class ImplDriver implements DouzDriver
 		try
 		{
 			out = new ObjectOutputStream(new FileOutputStream(file));
-			Hashtable<String, DouzTable<? extends DouzRecord>> serialized = new Hashtable<String, DouzTable<? extends DouzRecord>>();
+			Hashtable<String, Table<? extends Record>> serialized = new Hashtable<String, Table<? extends Record>>();
 			serialized.put("Artist", artists);
 			serialized.put("Book", books);
 			serialized.put("Circle", circles);
@@ -168,47 +167,47 @@ public final class ImplDriver implements DouzDriver
 			if(!serialized.containsKey("Unchecked"))
 				throw new DatabaseException("Database load error : missing Unchecked table.");
 			try {
-				artists = (DouzTable<Artist>) serialized.get("Artist");
+				artists = (Table<Artist>) serialized.get("Artist");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Artist table.");
 			}
 			try {
-				books = (DouzTable<Book>) serialized.get("Book");
+				books = (Table<Book>) serialized.get("Book");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Book table.");
 			}
 			try {
-				circles = (DouzTable<Circle>) serialized.get("Circle");
+				circles = (Table<Circle>) serialized.get("Circle");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Circle table.");
 			}
 			try {
-				contents = (DouzTable<Content>) serialized.get("Content");
+				contents = (Table<Content>) serialized.get("Content");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Content table.");
 			}
 			try {
-				conventions = (DouzTable<Convention>) serialized.get("Convention");
+				conventions = (Table<Convention>) serialized.get("Convention");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Convention table.");
 			}
 			try {
-				parodies = (DouzTable<Parody>) serialized.get("Parody");
+				parodies = (Table<Parody>) serialized.get("Parody");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Parody table.");
 			}
 			try {
-				deleted = (DouzTable<DouzRecord>) serialized.get("Deleted");
+				deleted = (Table<Record>) serialized.get("Deleted");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Deleted table.");
 			}
 			try {
-				shared = (DouzTable<DouzRecord>) serialized.get("Shared");
+				shared = (Table<Record>) serialized.get("Shared");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Shared table.");
 			}
 			try {
-				unchecked = (DouzTable<DouzRecord>) serialized.get("Unchecked");
+				unchecked = (Table<Record>) serialized.get("Unchecked");
 			} catch (ClassCastException cce) {
 				throw new DatabaseException("Database load error : invalid Unchecked table.");
 			}

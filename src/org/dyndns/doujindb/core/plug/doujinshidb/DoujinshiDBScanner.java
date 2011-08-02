@@ -13,13 +13,13 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.core.*;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.LogEvent;
-import org.dyndns.doujindb.log.LogLevel;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -28,7 +28,11 @@ import org.dyndns.doujindb.ui.desk.panels.DouzPopupMenu;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
-
+/**  
+* DoujinshiDBScanner.java - Plugin to batch process media files thanks to the DoujinshiDB project APIs.
+* @author  nozomu
+* @version 1.0
+*/
 public final class DoujinshiDBScanner implements Plugin
 {
 	public String APIKEY = "";
@@ -58,26 +62,32 @@ public final class DoujinshiDBScanner implements Plugin
 	
 	public DoujinshiDBScanner()
 	{
-		if(Core.Settings.containsValue("org.dyndns.doujindb.plug.doujindb.apikey"))
-			APIKEY = (String) Core.Settings.getValue("org.dyndns.doujindb.plug.doujindb.apikey");
+		if(Core.Properties.contains("org.dyndns.doujindb.plug.doujindb.apikey"))
+			APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey").asString();
 		else
 		{
-			Core.Settings.newValue("org.dyndns.doujindb.plug.doujindb.apikey", (String) APIKEY);
-			Core.Settings.setDescription("org.dyndns.doujindb.plug.doujindb.apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>");
+			Core.Properties.add("org.dyndns.doujindb.plug.doujindb.apikey");
+			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey");
+			prop.setValue(APIKEY);
+			prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
 		}	
-		if(Core.Settings.containsValue("org.dyndns.doujindb.plug.doujindb.threshold"))
-			THRESHOLD = (Integer) Core.Settings.getValue("org.dyndns.doujindb.plug.doujindb.threshold");
+		if(Core.Properties.contains("org.dyndns.doujindb.plug.doujindb.threshold"))
+			THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.threshold").asNumber();
 		else
 		{
-			Core.Settings.newValue("org.dyndns.doujindb.plug.doujindb.threshold", (Integer) THRESHOLD);
-			Core.Settings.setDescription("org.dyndns.doujindb.plug.doujindb.threshold", "<html><body>Threshold limit for matching cover queries.</body></html>");
+			Core.Properties.add("org.dyndns.doujindb.plug.doujindb.threshold");
+			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.threshold");
+			prop.setValue(THRESHOLD);
+			prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
 		}
-		if(Core.Settings.containsValue("org.dyndns.doujindb.plug.doujindb.resize_cover"))
-			RESIZE_COVER = (Boolean) Core.Settings.getValue("org.dyndns.doujindb.plug.doujindb.resize_cover");
+		if(Core.Properties.contains("org.dyndns.doujindb.plug.doujindb.resize_cover"))
+			RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.resize_cover").asBoolean();
 		else
 		{
-			Core.Settings.newValue("org.dyndns.doujindb.plug.doujindb.resize_cover", (Boolean) RESIZE_COVER);
-			Core.Settings.setDescription("org.dyndns.doujindb.plug.doujindb.resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>");
+			Core.Properties.add("org.dyndns.doujindb.plug.doujindb.resize_cover");
+			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.doujindb.resize_cover");
+			prop.setValue(RESIZE_COVER);
+			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
 		}
 		UI = new PluginUI();
 	}
@@ -98,12 +108,16 @@ public final class DoujinshiDBScanner implements Plugin
 		return "DoujinshiDB Scanner";
 	}
 	@Override
+	public String getDescription() {
+		return "The DoujinshiDB plugin lets you batch process media files thanks to the DoujinshiDB APIs.";
+	}
+	@Override
 	public String getVersion() {
-		return "0.3a";
+		return "0.4b";
 	}
 	@Override
 	public String getAuthor() {
-		return "Yoshika";
+		return "Nozomu";
 	}
 	@Override
 	public String getWeblink() {
@@ -130,40 +144,40 @@ public final class DoujinshiDBScanner implements Plugin
 		
 		public static Book parseXML(InputStream in)
 		{
-			Hashtable<String, Set<DouzRecord>> imported = readXMLBook(in);
+			Hashtable<String, Set<Record>> imported = readXMLBook(in);
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").iterator().next();
 			Database.getBooks().insert(book);
-			for(DouzRecord r : imported.get("Artist://"))
+			for(Record r : imported.get("Artist://"))
 			{
 				Artist o = (Artist)r;
 				Database.getArtists().insert(o);
 				book.getArtists().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Circle://"))
+			for(Record r : imported.get("Circle://"))
 			{
 				Circle o = (Circle)r;
 				Database.getCircles().insert(o);
 				book.getCircles().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Convention://"))
+			for(Record r : imported.get("Convention://"))
 			{
 				Convention o = (Convention)r;
 				Database.getConventions().insert(o);
 				book.setConvention(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Content://"))
+			for(Record r : imported.get("Content://"))
 			{
 				Content o = (Content)r;
 				Database.getContents().insert(o);
 				book.getContents().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Parody://"))
+			for(Record r : imported.get("Parody://"))
 			{
 				Parody o = (Parody)r;
 				Database.getParodies().insert(o);
@@ -431,21 +445,21 @@ public final class DoujinshiDBScanner implements Plugin
 				public void changedUpdate(DocumentEvent de)
 				{
 					APIKEY = textApikey.getText();
-					Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.apikey", (String) APIKEY);
+					Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey").setValue(APIKEY);
 					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.doujindb.apikey"));
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
 					APIKEY = textApikey.getText();
-					Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.apikey", (String) APIKEY);
+					Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey").setValue(APIKEY);
 					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.doujindb.apikey"));
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
 					APIKEY = textApikey.getText();
-					Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.apikey", (String) APIKEY);
+					Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey").setValue(APIKEY);
 					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.doujindb.apikey"));
 				}				
 			});
@@ -464,7 +478,7 @@ public final class DoujinshiDBScanner implements Plugin
 					labelThreshold.setText("Threshold : " + THRESHOLD);
 					if(sliderThreshold.getValueIsAdjusting())
 						return;
-					Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.threshold", (Integer) THRESHOLD);
+					Core.Properties.get("org.dyndns.doujindb.plug.doujindb.threshold").setValue(THRESHOLD);
 					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.doujindb.threshold"));
 				}				
 			});
@@ -507,7 +521,7 @@ public final class DoujinshiDBScanner implements Plugin
 				public void stateChanged(ChangeEvent ce)
 				{
 					RESIZE_COVER = boxResizeImage.isSelected();
-					Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.resize_cover", (Boolean) RESIZE_COVER);
+					Core.Properties.get("org.dyndns.doujindb.plug.doujindb.resize_cover").setValue(RESIZE_COVER);
 					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.doujindb.resize_cover"));
 				}				
 			});
@@ -526,7 +540,7 @@ public final class DoujinshiDBScanner implements Plugin
 			listTasks.setModel(listModel);
 			listTasks.setCellRenderer(new TaskUI());
 			listTasks.setSelectionBackground(listTasks.getSelectionForeground());
-			listTasks.setSelectionForeground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
+			listTasks.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 			listTasks.addMouseListener(new MouseAdapter()
 			{
 				public void mouseClicked(MouseEvent me)
@@ -667,7 +681,7 @@ public final class DoujinshiDBScanner implements Plugin
 	   		});
 			listTasks.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			listTasks.setSelectionBackground(listTasks.getSelectionForeground());
-			listTasks.setSelectionForeground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
+			listTasks.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 			scrollTasks = new JScrollPane(listTasks);
 			bogus.add(scrollTasks);
 			tabs.addTab("Tasks", iconTasks, bogus);
@@ -789,8 +803,8 @@ public final class DoujinshiDBScanner implements Plugin
 							textUsername.setText(user.User);
 							textQueries.setText("" + user.Queries);
 							textImageQueries.setText("" + user.Image_Queries);
-							Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.apikey", (String) APIKEY);
-							Core.Settings.setValue("org.dyndns.doujindb.plug.doujindb.threshold", (Integer) THRESHOLD);
+							Core.Properties.get("org.dyndns.doujindb.plug.doujindb.apikey").setValue(APIKEY);
+							Core.Properties.get("org.dyndns.doujindb.plug.doujindb.threshold").setValue(THRESHOLD);
 						}else
 						{
 							textUserid.setText("");
@@ -959,7 +973,7 @@ public final class DoujinshiDBScanner implements Plugin
 								hi = (int) (hi * (double)wl/wi);
 								wi = (int) (wi * (double)wl/wi);
 							}
-							resized = Core.Utils.getScaledInstance(dest, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+							resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 						} catch (Exception e) {
 							description = e.getMessage();
 							status = TASK_ERROR;
@@ -1048,7 +1062,7 @@ public final class DoujinshiDBScanner implements Plugin
 												hi = (int) (hi * (double)wl/wi);
 												wi = (int) (wi * (double)wl/wi);
 											}
-											resized2 = Core.Utils.getScaledInstance(resized, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+											resized2 = org.dyndns.doujindb.util.Image.getScaledInstance(resized, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 											resized = resized2;
 										} catch (Exception e) {
 											description = e.getMessage();
@@ -1274,7 +1288,7 @@ public final class DoujinshiDBScanner implements Plugin
 								hi = (int) (hi * (double)wl/wi);
 								wi = (int) (wi * (double)wl/wi);
 							}
-						javax.imageio.ImageIO.write(Core.Utils.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+						javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
 						out.close();
 						if(status == TASK_WARNING)
 						{
@@ -1380,7 +1394,7 @@ public final class DoujinshiDBScanner implements Plugin
 				super();
 				setLayout(this);
 				status = new JLabel();
-				status.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+				status.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 				status.setOpaque(true);
 				super.add(status);
 				icon = new JLabel();
@@ -1437,16 +1451,16 @@ public final class DoujinshiDBScanner implements Plugin
 		}
 	}
 	
-	private static Hashtable<String, Set<DouzRecord>> readXMLBook(InputStream src)
+	private static Hashtable<String, Set<Record>> readXMLBook(InputStream src)
 	{
 		XMLBook doujin;
-		Hashtable<String, Set<DouzRecord>> parsed = new Hashtable<String, Set<DouzRecord>>();
-		parsed.put("Artist://", new HashSet<DouzRecord>());
-		parsed.put("Book://", new HashSet<DouzRecord>());
-		parsed.put("Circle://", new HashSet<DouzRecord>());
-		parsed.put("Convention://", new HashSet<DouzRecord>());
-		parsed.put("Content://", new HashSet<DouzRecord>());
-		parsed.put("Parody://", new HashSet<DouzRecord>());
+		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
+		parsed.put("Artist://", new HashSet<Record>());
+		parsed.put("Book://", new HashSet<Record>());
+		parsed.put("Circle://", new HashSet<Record>());
+		parsed.put("Convention://", new HashSet<Record>());
+		parsed.put("Content://", new HashSet<Record>());
+		parsed.put("Parody://", new HashSet<Record>());
 		//FIXME Serializer serializer = new Persister();
 		try
 		{
@@ -1457,7 +1471,7 @@ public final class DoujinshiDBScanner implements Plugin
 			doujin = (XMLBook) um.unmarshal(src);
 			System.out.println("<<<");
 		} catch (Exception e) {
-			Core.Logger.log(new LogEvent("Error parsing XML file (" + e.getMessage() + ").", LogLevel.WARNING));
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
 		Book book = Database.newBook();
@@ -1476,7 +1490,7 @@ public final class DoujinshiDBScanner implements Plugin
 		book.setInfo(doujin.Info);
 		parsed.get("Book://").add(book);
 		{
-			Vector<DouzRecord> temp = new Vector<DouzRecord>();
+			Vector<Record> temp = new Vector<Record>();
 			for(Convention convention : Database.getConventions())
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
@@ -1493,7 +1507,7 @@ public final class DoujinshiDBScanner implements Plugin
 		{
 			for(String japaneseName : doujin.artists)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Artist artist : Database.getArtists())
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
@@ -1511,7 +1525,7 @@ public final class DoujinshiDBScanner implements Plugin
 		{
 			for(String japaneseName : doujin.circles)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Circle circle : Database.getCircles())
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
@@ -1529,7 +1543,7 @@ public final class DoujinshiDBScanner implements Plugin
 		{
 			for(String tagName : doujin.contents)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Content content : Database.getContents())
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
@@ -1547,7 +1561,7 @@ public final class DoujinshiDBScanner implements Plugin
 		{
 			for(String japaneseName : doujin.parodies)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Parody parody : Database.getParodies())
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
@@ -1599,7 +1613,7 @@ public final class DoujinshiDBScanner implements Plugin
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			m.marshal(doujin, dest);
 		} catch (Exception e) {
-			Core.Logger.log(new LogEvent("Error parsing XML file (" + e.getMessage() + ").", LogLevel.WARNING));
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 		}
 	}
 	

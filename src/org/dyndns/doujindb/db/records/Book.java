@@ -4,15 +4,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-import org.dyndns.doujindb.db.DouzRecord;
-import org.dyndns.doujindb.db.containers.HasArtist;
-import org.dyndns.doujindb.db.containers.HasCircle;
-import org.dyndns.doujindb.db.containers.HasContent;
-import org.dyndns.doujindb.db.containers.HasConvention;
-import org.dyndns.doujindb.db.containers.HasParody;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.containers.ArtistContainer;
+import org.dyndns.doujindb.db.containers.CircleContainer;
+import org.dyndns.doujindb.db.containers.ContentContainer;
+import org.dyndns.doujindb.db.containers.ConventionContainer;
+import org.dyndns.doujindb.db.containers.ParodyContainer;
 
-
-public interface Book extends DouzRecord, Serializable, HasArtist, HasCircle, HasContent, HasConvention, HasParody
+/**  
+* Book.java - Interface Book.
+* @author nozomu
+* @version 1.0
+*/
+public interface Book extends Record, Serializable, ArtistContainer, CircleContainer, ContentContainer, ConventionContainer, ParodyContainer
 {
 	public enum Type implements Serializable
 	{

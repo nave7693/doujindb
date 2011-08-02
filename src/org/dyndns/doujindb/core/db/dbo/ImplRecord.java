@@ -2,11 +2,11 @@ package org.dyndns.doujindb.core.db.dbo;
 
 import java.io.Serializable;
 
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 
 
 @SuppressWarnings("serial")
-public abstract class ImplRecord implements DouzRecord, Serializable, Comparable<DouzRecord>
+public abstract class ImplRecord implements Record, Serializable, Comparable<Record>
 {
 	long ID;
 	
@@ -22,7 +22,7 @@ public abstract class ImplRecord implements DouzRecord, Serializable, Comparable
 	}
 	
 	@Override
-	public int compareTo(DouzRecord o)
+	public int compareTo(Record o)
 	{
 		if(this.getID() == null)
 			if(o.getID() == null)

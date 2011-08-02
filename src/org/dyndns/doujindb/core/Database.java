@@ -5,7 +5,7 @@ import org.dyndns.doujindb.db.records.*;
 
 public final class Database
 {
-	private static DouzDriver instance = null;
+	private static Driver instance = null;
 	
 	public final static String TYPE_DBO = "org.dyndns.doujindb.core.db.dbo.ImplDriver";
 	public final static String TYPE_DERBY = "org.dyndns.doujindb.core.db.derby.ImplDriver";
@@ -25,7 +25,7 @@ public final class Database
 		try
 		{
 			Class<?> clazz = Class.forName(DBType);
-			instance = (DouzDriver) clazz.newInstance();
+			instance = (Driver) clazz.newInstance();
 		} catch (ClassNotFoundException cnfe) {
 			throw new DatabaseException("Cannot connect to Database '" + DBType + "' : Class not found.");
 		} catch (InstantiationException ie) {
@@ -64,63 +64,63 @@ public final class Database
 		throw new CloneNotSupportedException();
 	}
 
-	public static DouzTable<Artist> getArtists() throws DatabaseException
+	public static Table<Artist> getArtists() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getArtists();
 	}
 	
-	public static DouzTable<Book> getBooks() throws DatabaseException
+	public static Table<Book> getBooks() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getBooks();
 	}
 
-	public static DouzTable<Circle> getCircles() throws DatabaseException
+	public static Table<Circle> getCircles() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getCircles();
 	}
 
-	public static DouzTable<Parody> getParodies() throws DatabaseException
+	public static Table<Parody> getParodies() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getParodies();
 	}
 
-	public static DouzTable<Content> getContents() throws DatabaseException
+	public static Table<Content> getContents() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getContents();
 	}
 
-	public static DouzTable<Convention> getConventions() throws DatabaseException
+	public static Table<Convention> getConventions() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getConventions();
 	}
 
-	public static DouzTable<DouzRecord> getDeleted() throws DatabaseException
+	public static Table<Record> getDeleted() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getDeleted();
 	}
 
-	public static DouzTable<DouzRecord> getShared() throws DatabaseException
+	public static Table<Record> getShared() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");
 		return instance.getShared();
 	}
 
-	public static DouzTable<DouzRecord> getUnchecked() throws DatabaseException
+	public static Table<Record> getUnchecked() throws DatabaseException
 	{
 		if(instance == null)
 			throw new DatabaseException("Database not connected.");

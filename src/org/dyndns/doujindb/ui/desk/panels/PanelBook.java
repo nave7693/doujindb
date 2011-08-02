@@ -28,9 +28,6 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-
-
-
 @SuppressWarnings("serial")
 public final class PanelBook implements Validable, LayoutManager, ActionListener
 {
@@ -38,7 +35,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private Book tokenBook;
 	private boolean isModify;
 	
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
@@ -115,7 +112,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					break _loadPreview;
 				}
 				//TODO
-				/*File root = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
+				/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
 				File entry = new File(root, ".preview");
 				if(entry.exists())
 				{
@@ -148,7 +145,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			} catch (NullPointerException npe) {
 			} catch (Exception e) {
 				e.printStackTrace();
-				//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+				//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 			}
 		}
 		labelPreview.addMouseListener(new MouseAdapter()
@@ -186,14 +183,14 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								Image img = null;
 								try { img = javax.imageio.ImageIO.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
-									Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
 								if(img == null)
 									return;
 								try
 								{
 									//TODO
-									/*File root = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
+									/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
 									File out = new File(root, ".preview");
 									root.mkdirs();
 									OutputStream out = null;
@@ -243,11 +240,11 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 											hi = (int) (hi * (double)wl/wi);
 											wi = (int) (wi * (double)wl/wi);
 										}
-									javax.imageio.ImageIO.write(Core.Utils.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+									javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
 									out.close();
 								} catch (Exception e) {
 									e.printStackTrace();
-									Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									Core.Logger.log(e.getMessage(), Level.WARNING);
 								}
 								try {
 									//TODO
@@ -273,7 +270,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								} catch (NullPointerException npe) {
 								} catch (IOException e) {
 									e.printStackTrace();
-									//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 								}
 								labelPreview.setName("preview");
 							}
@@ -306,7 +303,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								} catch (Exception e)
 								{
 									e.printStackTrace();
-									//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 								}
 								labelPreview.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
 								labelPreview.setName("no-preview");

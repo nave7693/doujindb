@@ -16,7 +16,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.dat.DataSource;
 import org.dyndns.doujindb.dat.DataStoreException;
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
@@ -60,12 +60,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		mediaManagerInfo.setFont(Core.Resources.Font);
 		panel1.add(mediaManagerInfo);
 		mediaManagerLabelInfo = new JLabel(" Media files");
-		mediaManagerLabelInfo.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		mediaManagerLabelInfo.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		mediaManagerLabelInfo.setOpaque(true);
 		mediaManagerLabelInfo.setFont(Core.Resources.Font);
 		panel1.add(mediaManagerLabelInfo);
 		mediaManagerLabelTasks = new JLabel(" Tasks");
-		mediaManagerLabelTasks.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		mediaManagerLabelTasks.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		mediaManagerLabelTasks.setOpaque(true);
 		mediaManagerLabelTasks.setFont(Core.Resources.Font);
 		panel1.add(mediaManagerLabelTasks);
@@ -339,7 +339,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	@SuppressWarnings({"unchecked", "rawtypes","unused"})
 	private final class DouzCheckBoxList<T> extends JPanel implements Validable, LayoutManager
 	{
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JScrollPane scrollPane;
 		private JList listData;
 		private JTextField filterField;
@@ -688,7 +688,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(progressbar_bytes);
@@ -719,8 +719,8 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				progress_overall_max = books.size();
 				for(Book book : books)
 				{
-					File zip = new File(dest, book + (String)Core.Settings.getValue("org.dyndns.doujindb.dat.file_extension"));
-					//TODO File src = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), book.getID());
+					File zip = new File(dest, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
+					//TODO File src = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), book.getID());
 					DataSource ds = Core.Datastore.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
@@ -743,20 +743,20 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 							zout.closeEntry();
 						} catch (IOException ioe) {
 							ioe.printStackTrace();
-							Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+							Core.Logger.log(ioe.getMessage(), Level.WARNING);
 						}
 						;
 						zip(PACKAGE_MEDIA, ds.children(), zout);
 						zout.close();
 					} catch (IOException ioe) {
 						zip.delete();
-						Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
 					}
 					progress_overall_current++;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(e.getMessage(), Level.WARNING);
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
@@ -787,7 +787,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						zout.closeEntry();
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
-						Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
 					}
 					zip(base + ds.getName() + "/", ds.children(), zout);
 				}else
@@ -814,7 +814,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						in.close();
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
-						Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
 					}
 				}
 			}
@@ -873,7 +873,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(progressbar_bytes);
@@ -920,7 +920,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 								/*String uuid = parseXML(zip.getInputStream(entry));
 								zip = new ZipFile(file);
 								uuid = "temp$";
-								File dest = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), parseXML(zip.getInputStream(entry)));*/
+								File dest = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), parseXML(zip.getInputStream(entry)));*/
 								DataSource ds = Core.Datastore.child(parseXML(zip.getInputStream(entry)));
 								ds.mkdirs();
 								;
@@ -983,7 +983,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				}
 			} catch (PropertyVetoException pve) {
 				pve.printStackTrace();
-				Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
@@ -1001,9 +1001,9 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+				list.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
+				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(Core.Resources.Font);
@@ -1036,41 +1036,41 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		
 		private String parseXML(InputStream in)
 		{
-			Hashtable<String, Set<DouzRecord>> imported = readXMLBook(in);
+			Hashtable<String, Set<Record>> imported = readXMLBook(in);
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").toArray()[0];
 			progressbar_overall.setString(book.toString());
 			Database.getBooks().insert(book);
-			for(DouzRecord r : imported.get("Artist://"))
+			for(Record r : imported.get("Artist://"))
 			{
 				Artist o = (Artist)r;
 				Database.getArtists().insert(o);
 				book.getArtists().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Circle://"))
+			for(Record r : imported.get("Circle://"))
 			{
 				Circle o = (Circle)r;
 				Database.getCircles().insert(o);
 				book.getCircles().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Convention://"))
+			for(Record r : imported.get("Convention://"))
 			{
 				Convention o = (Convention)r;
 				Database.getConventions().insert(o);
 				book.setConvention(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Content://"))
+			for(Record r : imported.get("Content://"))
 			{
 				Content o = (Content)r;
 				Database.getContents().insert(o);
 				book.getContents().add(o);
 				o.getBooks().add(book);
 			}
-			for(DouzRecord r : imported.get("Parody://"))
+			for(Record r : imported.get("Parody://"))
 			{
 				Parody o = (Parody)r;
 				Database.getParodies().insert(o);
@@ -1081,16 +1081,16 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
-	private Hashtable<String, Set<DouzRecord>> readXMLBook(InputStream src)
+	private Hashtable<String, Set<Record>> readXMLBook(InputStream src)
 	{
 		XMLBook doujin;
-		Hashtable<String, Set<DouzRecord>> parsed = new Hashtable<String, Set<DouzRecord>>();
-		parsed.put("Artist://", new HashSet<DouzRecord>());
-		parsed.put("Book://", new HashSet<DouzRecord>());
-		parsed.put("Circle://", new HashSet<DouzRecord>());
-		parsed.put("Convention://", new HashSet<DouzRecord>());
-		parsed.put("Content://", new HashSet<DouzRecord>());
-		parsed.put("Parody://", new HashSet<DouzRecord>());
+		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
+		parsed.put("Artist://", new HashSet<Record>());
+		parsed.put("Book://", new HashSet<Record>());
+		parsed.put("Circle://", new HashSet<Record>());
+		parsed.put("Convention://", new HashSet<Record>());
+		parsed.put("Content://", new HashSet<Record>());
+		parsed.put("Parody://", new HashSet<Record>());
 		//FIXME Serializer serializer = new Persister();
 		try
 		{
@@ -1099,7 +1099,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			Unmarshaller um = context.createUnmarshaller();
 			doujin = (XMLBook) um.unmarshal(src);
 		} catch (Exception e) {
-			Core.Logger.log(new LogEvent("Error parsing XML file (" + e.getMessage() + ").", LogLevel.WARNING));
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
 		Book book = Database.newBook();
@@ -1118,7 +1118,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		book.setInfo(doujin.Info);
 		parsed.get("Book://").add(book);
 		{
-			Vector<DouzRecord> temp = new Vector<DouzRecord>();
+			Vector<Record> temp = new Vector<Record>();
 			for(Convention convention : Database.getConventions())
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
@@ -1135,7 +1135,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		{
 			for(String japaneseName : doujin.artists)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Artist artist : Database.getArtists())
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
@@ -1153,7 +1153,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		{
 			for(String japaneseName : doujin.circles)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Circle circle : Database.getCircles())
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
@@ -1171,7 +1171,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		{
 			for(String tagName : doujin.contents)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Content content : Database.getContents())
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
@@ -1189,7 +1189,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		{
 			for(String japaneseName : doujin.parodies)
 			{
-				Vector<DouzRecord> temp = new Vector<DouzRecord>();
+				Vector<Record> temp = new Vector<Record>();
 				for(Parody parody : Database.getParodies())
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
@@ -1240,7 +1240,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			m.marshal(doujin, dest);
 		} catch (Exception e) {
-			Core.Logger.log(new LogEvent("Error parsing XML file (" + e.getMessage() + ").", LogLevel.WARNING));
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 		}
 	}
 	

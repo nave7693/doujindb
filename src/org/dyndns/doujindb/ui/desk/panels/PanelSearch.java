@@ -75,7 +75,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -149,7 +149,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -267,7 +267,7 @@ public final class PanelSearch extends JPanel implements Validable
 									a.getWeblink().matches(textWeblink.getText()) &&
 									!Database.getDeleted().contains(a))
 									((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (InterruptedException ie) { ; }
 							catch (java.util.regex.PatternSyntaxException pse) { ; }
@@ -299,7 +299,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -373,7 +373,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -489,7 +489,7 @@ public final class PanelSearch extends JPanel implements Validable
 									c.getWeblink().matches(textWeblink.getText()) &&
 									!Database.getDeleted().contains(c))
 									((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (InterruptedException ie) { ; }
 							catch (java.util.regex.PatternSyntaxException pse) { ; }
@@ -521,7 +521,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -638,7 +638,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -787,7 +787,7 @@ public final class PanelSearch extends JPanel implements Validable
 										!Database.getDeleted().contains(b)
 										)
 										((DefaultListModel<Book>)listResults.getModel()).add(0, b);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (NullPointerException npe) { npe.printStackTrace(); }
 							catch (InterruptedException ie) { ; }
@@ -820,7 +820,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelTagName;
 		private JTextField textTagName;
 		private JLabel labelResults;
@@ -867,7 +867,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -968,7 +968,7 @@ public final class PanelSearch extends JPanel implements Validable
 								if( ct.getTagName().matches(textTagName.getText()) &&
 										!Database.getDeleted().contains(ct))
 									((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (InterruptedException ie) { ; }
 							catch (java.util.regex.PatternSyntaxException pse) { ; }
@@ -1000,7 +1000,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelTagName;
 		private JTextField textTagName;
 		private JLabel labelResults;
@@ -1050,7 +1050,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -1151,7 +1151,7 @@ public final class PanelSearch extends JPanel implements Validable
 								if( cn.getTagName().matches(textTagName.getText()) &&
 										!Database.getDeleted().contains(cn))
 									((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (InterruptedException ie) { ; }
 							catch (java.util.regex.PatternSyntaxException pse) { ; }
@@ -1183,7 +1183,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private Thread process;
 		private boolean stopped = true;
 		
-		private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -1257,7 +1257,7 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final DouzRecord item = (DouzRecord)dlm.getElementAt(index);
+					final Record item = (Record)dlm.getElementAt(index);
 					listResults.ensureIndexIsVisible(index);
 					if(e.getClickCount() == 2)
 					{
@@ -1373,7 +1373,7 @@ public final class PanelSearch extends JPanel implements Validable
 									p.getWeblink().matches(textWeblink.getText()) &&
 									!Database.getDeleted().contains(p))
 									((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
-								sleep((Integer)(Core.Settings.getValue("org.dyndns.doujindb.ui.delay_threads")));
+								sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 							}
 							catch (InterruptedException ie) { ; }
 							catch (java.util.regex.PatternSyntaxException pse) { ; }

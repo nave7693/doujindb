@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
 
-public class ImplTable <T extends DouzRecord> implements DouzTable<T>
+public class ImplTable <T extends Record> implements Table<T>
 {
 	private String tableName;
 	private Connection connection;

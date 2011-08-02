@@ -5,14 +5,19 @@ import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 
+/**  
+* BlurLayerUI.java - Blurred layer, used in modal dialogs.
+* @author  nozomu
+* @version 1.0
+*/
 @SuppressWarnings("serial")
-final class DouzBlurLayerUI extends LayerUI<JComponent>
+final class BlurLayerUI extends LayerUI<JComponent>
 {
 	private BufferedImage mOffscreenImage;
 	private BufferedImageOp mOperation;
 	private boolean uiActive = false;
 	
-	public DouzBlurLayerUI()
+	public BlurLayerUI()
 	{
 		float ninth = 1.0f / 9.0f;
 	    float[] blurKernel = {

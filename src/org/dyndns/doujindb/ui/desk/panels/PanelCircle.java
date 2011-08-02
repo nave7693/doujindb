@@ -20,9 +20,6 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-
-
-
 @SuppressWarnings("serial")
 public final class PanelCircle implements Validable, LayoutManager, ActionListener
 {
@@ -30,7 +27,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	private Circle tokenCircle;
 	private boolean isModify;
 	
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
@@ -86,7 +83,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 					break _loadBanner;
 				}
 				//TODO
-				/*File root = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
+				/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
 				File entry = new File(root, ".banner");
 				if(entry.exists())
 				{
@@ -119,7 +116,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			} catch (NullPointerException npe) {
 			} catch (Exception e) {
 				e.printStackTrace();
-				//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+				//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 			}
 		}
 		labelBanner.addMouseListener(new MouseAdapter()
@@ -158,14 +155,14 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								Image img = null;
 								try { img = javax.imageio.ImageIO.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
-									Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
 								if(img == null)
 									return;
 								try
 								{
 									//TODO
-									/*File root = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
+									/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
 									File out = new File(root, ".banner");
 									out.getParentFile().mkdirs();
 									OutputStream out = null;
@@ -210,7 +207,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									out.close();
 								} catch (Exception e) {
 									e.printStackTrace();
-									Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									Core.Logger.log(e.getMessage(), Level.WARNING);
 								}
 								try {
 									//TODO
@@ -236,7 +233,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								} catch (NullPointerException npe) {
 								} catch (IOException e) {
 									e.printStackTrace();
-									//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 								}
 								labelBanner.setName("banner");
 							}
@@ -269,7 +266,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								} catch (Exception e)
 								{
 									e.printStackTrace();
-									//Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 								}
 								labelBanner.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
 								labelBanner.setName("no-banner");

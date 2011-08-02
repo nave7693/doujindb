@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
 
-final class ImplCircle extends ImplRecord implements DouzRecord, Circle
+final class ImplCircle extends ImplRecord implements Record, Circle
 {
 	private Connection connection;
 	

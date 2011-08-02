@@ -7,7 +7,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -21,9 +21,9 @@ import org.dyndns.doujindb.ui.desk.events.*;
 
 
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
-public final class DouzCheckBoxList<T extends DouzRecord> extends JPanel implements Validable, LayoutManager
+public final class DouzCheckBoxList<T extends Record> extends JPanel implements Validable, LayoutManager
 {
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
 	private JList listData;
 	private JTextField filterField;
@@ -75,27 +75,27 @@ public final class DouzCheckBoxList<T extends DouzRecord> extends JPanel impleme
         		Object token = item.getItem();
         		if(token instanceof Artist)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, (Record)token);
         		}
         		if(token instanceof Book)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, (Record)token);
         		}
         		if(token instanceof Circle)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, (Record)token);
         		}
         		if(token instanceof Convention)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, (Record)token);
         		}
         		if(token instanceof Content)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, (Record)token);
         		}
         		if(token instanceof Parody)
         		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, (DouzRecord)token);
+        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, (Record)token);
         		}
       		}
 		});

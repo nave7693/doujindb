@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
 
-final class ImplConvention extends ImplRecord implements DouzRecord, Convention
+final class ImplConvention extends ImplRecord implements Record, Convention
 {
 	private Connection connection;
 	

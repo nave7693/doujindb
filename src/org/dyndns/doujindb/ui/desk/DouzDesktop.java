@@ -73,7 +73,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 							wallpaper.setIcon(wallpaperImage);
 						} catch (Exception e) {
 							e.printStackTrace();
-							Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.WARNING));
+							Core.Logger.log(e.getMessage(), Level.WARNING);
 						}
 					}
 				}.start();
@@ -216,7 +216,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		} catch (PropertyVetoException pve)
 		{
 			pve.printStackTrace();
-			Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+			Core.Logger.log(pve.getMessage(), Level.WARNING);
 		}
 		return window;
 	}
@@ -236,7 +236,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		} catch (PropertyVetoException pve)
 		{
 			pve.printStackTrace();
-			Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+			Core.Logger.log(pve.getMessage(), Level.WARNING);
 		}
 		return window;
 	}
@@ -254,7 +254,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		} catch (PropertyVetoException pve)
 		{
 			pve.printStackTrace();
-			Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+			Core.Logger.log(pve.getMessage(), Level.WARNING);
 		}
 		return window;
 	}
@@ -274,7 +274,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 					} catch (PropertyVetoException pve)
 					{
 						pve.printStackTrace();
-						Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+						Core.Logger.log(pve.getMessage(), Level.WARNING);
 					}
 					return true;
 				}
@@ -289,7 +289,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 					} catch (PropertyVetoException pve)
 					{
 						pve.printStackTrace();
-						Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+						Core.Logger.log(pve.getMessage(), Level.WARNING);
 					}
 					return true;
 				}
@@ -356,7 +356,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
             	try { window.setSelected(true); } catch (PropertyVetoException pve)
             	{
         			pve.printStackTrace();
-        			Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+        			Core.Logger.log(pve.getMessage(), Level.WARNING);
         		}
             }
         });

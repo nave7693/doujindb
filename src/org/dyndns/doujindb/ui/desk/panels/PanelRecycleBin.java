@@ -12,7 +12,7 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.dat.DataStoreException;
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -23,9 +23,6 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
-
-
-
 
 public final class PanelRecycleBin implements Validable, LayoutManager, MouseListener
 {
@@ -69,12 +66,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		recycleInfo.setFont(Core.Resources.Font);
 		panel1.add(recycleInfo);
 		recycleLabelInfo = new JLabel(" Info");
-		recycleLabelInfo.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		recycleLabelInfo.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		recycleLabelInfo.setOpaque(true);
 		recycleLabelInfo.setFont(Core.Resources.Font);
 		panel1.add(recycleLabelInfo);
 		recycleLabelTasks = new JLabel(" Tasks");
-		recycleLabelTasks.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		recycleLabelTasks.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		recycleLabelTasks.setOpaque(true);
 		recycleLabelTasks.setFont(Core.Resources.Font);
 		panel1.add(recycleLabelTasks);
@@ -127,7 +124,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
-							Core.Logger.log(new LogEvent(aioobe.getMessage(), LogLevel.WARNING));
+							Core.Logger.log(aioobe.getMessage(), Level.WARNING);
 						}
 					}
 				};
@@ -312,7 +309,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										"Recycle Bin");
 							} catch (PropertyVetoException pve)
 							{
-								Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+								Core.Logger.log(pve.getMessage(), Level.WARNING);
 							} 
 						}
 					}
@@ -498,7 +495,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										"Recycle Bin");
 							} catch (PropertyVetoException pve)
 							{
-								Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+								Core.Logger.log(pve.getMessage(), Level.WARNING);
 							} 
 						}
 					}
@@ -514,7 +511,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(DouzRecord r : Database.getDeleted())
+		for(Record r : Database.getDeleted())
 		{
 			if(r instanceof Artist)
 			{
@@ -844,7 +841,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		/*Iterable<DouzRecord> it = checkboxList.getSelectedItems();
+		/*Iterable<Record> it = checkboxList.getSelectedItems();
 		checkboxList.setItems(Database.getDeleted());
 		checkboxList.setSelectedItems(it);*/
 		Vector<Artist> deleted_a = new Vector<Artist>();
@@ -853,7 +850,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(DouzRecord r : Database.getDeleted())
+		for(Record r : Database.getDeleted())
 		{
 			if(r instanceof Artist)
 			{

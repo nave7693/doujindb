@@ -22,8 +22,6 @@ import org.dyndns.doujindb.ui.desk.DouzDialog;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
 @SuppressWarnings("serial")
 public class PanelBookMedia extends JPanel implements Validable
 {
@@ -104,13 +102,13 @@ public class PanelBookMedia extends JPanel implements Validable
 //					Desktop desktop = Desktop.getDesktop();
 //					try
 //					{
-//						File file = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
+//						File file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
 //						if(!file.exists())
 //							file.mkdirs();
 //						desktop.open(file);
 //					} catch (IOException ioe) {
 //						ioe.printStackTrace();
-//						Core.Logger.log(new LogEvent(ioe.getMessage(), LogLevel.WARNING));
+//						Core.Logger.log(new Event(ioe.getMessage(), Level.WARNING));
 //					}
 //				}
 			}			
@@ -236,7 +234,7 @@ public class PanelBookMedia extends JPanel implements Validable
 								ds.delete();
 							} catch (Exception e) { e.printStackTrace(); }
 						} catch (Exception e) {
-							Core.Logger.log(new LogEvent(e.getMessage(), LogLevel.ERROR));
+							Core.Logger.log(e.getMessage(), Level.ERROR);
 						}
 						displayUI();
 						DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
@@ -254,7 +252,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							"Delete");
 				} catch (PropertyVetoException pve)
 				{
-					Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+					Core.Logger.log(pve.getMessage(), Level.WARNING);
 				}
 			}
 		});
@@ -302,7 +300,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			{
 				String root_id = "/";
 				MutableTreeNode root = new DefaultMutableTreeNode(root_id);
-				//String file = new File((File)Core.Settings.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
+				//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
 				//buildTree(file, root);
 				buildTree(Core.Datastore.child(tokenBook.getID()), root);
 				DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
@@ -528,7 +526,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -595,7 +593,7 @@ public class PanelBookMedia extends JPanel implements Validable
 				}
 			} catch (PropertyVetoException pve) {
 				pve.printStackTrace();
-				Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
@@ -613,9 +611,9 @@ public class PanelBookMedia extends JPanel implements Validable
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+				list.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
+				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(Core.Resources.Font);
@@ -741,7 +739,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -781,7 +779,7 @@ public class PanelBookMedia extends JPanel implements Validable
 				}
 			} catch (PropertyVetoException pve) {
 				pve.printStackTrace();
-				Core.Logger.log(new LogEvent(pve.getMessage(), LogLevel.WARNING));
+				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
@@ -799,9 +797,9 @@ public class PanelBookMedia extends JPanel implements Validable
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont((Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font"));
+				list.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background"));
+				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(Core.Resources.Font);

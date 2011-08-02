@@ -2,7 +2,7 @@ package org.dyndns.doujindb;
 
 /**  
 * Main.java - DoujinDB entry point.
-* @author yoshika
+* @author nozomu
 * @version 1.0
 * @see Core
 */

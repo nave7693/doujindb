@@ -23,7 +23,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	private Parody tokenParody;
 	private boolean isModify;
 	
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;

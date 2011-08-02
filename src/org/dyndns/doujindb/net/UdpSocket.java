@@ -1,12 +1,12 @@
 package org.dyndns.doujindb.net;
 
+import java.net.*;
+
 /**  
 * UdpSocket.java - Still unused
 * @author  nozomu
 * @version 1.0
 */
-import java.net.*;
-
 public class UdpSocket extends DatagramSocket
 {
 	public UdpSocket(int port) throws SocketException

@@ -23,7 +23,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private Convention tokenConvention;
 	private boolean isModify;
 	
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelTagName;
 	private JTextField textTagName;
 	private JLabel labelWeblink;

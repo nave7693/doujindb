@@ -18,6 +18,10 @@ public interface DataSource
 	
 	public boolean isFile() throws DataStoreException;
 	
+	public boolean canRead() throws DataStoreException;
+	
+	public boolean canWrite() throws DataStoreException;
+	
 	public long size() throws DataStoreException;
 	
 	public InputStream getInputStream() throws DataStoreException;

@@ -7,7 +7,7 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
-import org.dyndns.doujindb.db.containers.HasArtist;
+import org.dyndns.doujindb.db.containers.ArtistContainer;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
@@ -17,12 +17,12 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 @SuppressWarnings("serial")
 public class RecordArtistEditor extends JSplitPane implements Validable
 {
-	private HasArtist tokenIArtist;
+	private ArtistContainer tokenIArtist;
 	private DouzCheckBoxList<Artist> checkboxList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = (Font)Core.Settings.getValue("org.dyndns.doujindb.ui.font");
+	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordArtistEditor(HasArtist token)
+	public RecordArtistEditor(ArtistContainer token)
 	{
 		super();
 		this.tokenIArtist = token;

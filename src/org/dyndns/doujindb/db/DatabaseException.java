@@ -6,7 +6,7 @@ package org.dyndns.doujindb.db;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public class DatabaseException extends RuntimeException
+public final class DatabaseException extends RuntimeException
 {
 
 	public DatabaseException() { }

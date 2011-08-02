@@ -6,7 +6,7 @@ package org.dyndns.doujindb.plug;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public class PluginException extends Exception
+public final class PluginException extends Exception
 {
 	public PluginException() { }
 

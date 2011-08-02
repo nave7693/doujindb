@@ -6,11 +6,10 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Artist")
-final class ImplArtist extends ImplRecord implements DouzRecord, Artist, Serializable//, Comparable<Artist>
+final class ImplArtist extends ImplRecord implements Record, Artist, Serializable//, Comparable<Artist>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	

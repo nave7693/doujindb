@@ -9,7 +9,7 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -65,12 +65,12 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		sharedItemsInfo.setFont(Core.Resources.Font);
 		panel1.add(sharedItemsInfo);
 		sharedItemsLabelInfo = new JLabel(" Status");
-		sharedItemsLabelInfo.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		sharedItemsLabelInfo.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		sharedItemsLabelInfo.setOpaque(true);
 		sharedItemsLabelInfo.setFont(Core.Resources.Font);
 		panel1.add(sharedItemsLabelInfo);
 		sharedItemsLabelTasks = new JLabel(" Tasks");
-		sharedItemsLabelTasks.setBackground(((Color)Core.Settings.getValue("org.dyndns.doujindb.ui.theme.background")).darker().darker());
+		sharedItemsLabelTasks.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
 		sharedItemsLabelTasks.setOpaque(true);
 		sharedItemsLabelTasks.setFont(Core.Resources.Font);
 		panel1.add(sharedItemsLabelTasks);
@@ -104,7 +104,7 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(DouzRecord r : Database.getShared())
+		for(Record r : Database.getShared())
 		{
 			if(r instanceof Artist)
 			{
@@ -419,7 +419,7 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 			{
 				if(me.getClickCount() == 2)
 				{
-					DouzRecord item = (DouzRecord)dtm.getValueAt(sharedItemsItems.rowAtPoint(me.getPoint()), 1);
+					Record item = (Record)dtm.getValueAt(sharedItemsItems.rowAtPoint(me.getPoint()), 1);
 					if(item instanceof Artist)
 						Core.UI.Desktop.openWindow(ExWindowType.WINDOW_ARTIST, item);
 					if(item instanceof Circle)
@@ -592,7 +592,7 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(DouzRecord r : Database.getShared())
+		for(Record r : Database.getShared())
 		{
 			if(r instanceof Artist)
 			{

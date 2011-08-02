@@ -6,7 +6,7 @@ package org.dyndns.doujindb.net;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public class NetworkException extends RuntimeException
+public final class NetworkException extends RuntimeException
 {
 
 	public NetworkException() { }

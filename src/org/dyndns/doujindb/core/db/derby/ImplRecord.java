@@ -1,8 +1,8 @@
 package org.dyndns.doujindb.core.db.derby;
 
-import org.dyndns.doujindb.db.DouzRecord;
+import org.dyndns.doujindb.db.Record;
 
-public abstract class ImplRecord implements DouzRecord, Comparable<DouzRecord>
+public abstract class ImplRecord implements Record, Comparable<Record>
 {
 	long ID;
 	
@@ -18,7 +18,7 @@ public abstract class ImplRecord implements DouzRecord, Comparable<DouzRecord>
 	}
 	
 	@Override
-	public int compareTo(DouzRecord o)
+	public int compareTo(Record o)
 	{
 		if(this.getID() == null)
 			if(o.getID() == null)

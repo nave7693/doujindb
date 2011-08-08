@@ -18,4 +18,8 @@ public interface Properties
 	public Iterable<String> keys();
 	
 	public Iterable<Property> values();
+	
+	public void load() throws PropertyException;
+	
+	public void save() throws PropertyException;
 }

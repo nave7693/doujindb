@@ -7,8 +7,6 @@ package org.dyndns.doujindb.conf;
 */
 public interface Property
 {
-	public String getName();
-	
 	public String getDescription();
 	
 	public void setDescription(String description);

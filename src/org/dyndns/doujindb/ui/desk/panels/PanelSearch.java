@@ -533,7 +533,7 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelContents;
 		private JTextField textContents;
 		private JLabel labelType;
-		private JComboBox comboType;
+		private JComboBox<Book.Type> comboType;
 		private JCheckBox checkAdult;
 		private JCheckBox checkDecensored;
 		private JCheckBox checkTranslated;
@@ -570,7 +570,7 @@ public final class PanelSearch extends JPanel implements Validable
 			textContents.setFont(font);
 			labelType = new JLabel("Type");
 			labelType.setFont(font);
-			comboType = new JComboBox();
+			comboType = new JComboBox<Book.Type>();
 			comboType.setFont(font);
 			comboType.setFocusable(false);
 			for(Book.Type tokenType : Book.Type.values())

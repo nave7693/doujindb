@@ -51,9 +51,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private JLabel labelPages;
 	private JTextField textPages;
 	private JLabel labelType;
-	private JComboBox comboType;
+	private JComboBox<Book.Type> comboType;
 	private JLabel labelConvention;
-	private JComboBox comboConvention;
+	private JComboBox<Convention> comboConvention;
 	private JCheckBox checkAdult;
 	private JCheckBox checkDecensored;
 	private JCheckBox checkTranslated;
@@ -315,14 +315,14 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		});
 		labelType = new JLabel("Type");
 		labelType.setFont(font);
-		comboType = new JComboBox();
+		comboType = new JComboBox<Book.Type>();
 		comboType.setFont(font);
 		comboType.setFocusable(false);
 		for(Type tokenType : Type.values())
 			comboType.addItem(tokenType);
 		comboType.setSelectedItem(tokenBook.getType());
 		labelConvention = new JLabel("Convention");
-		comboConvention = new JComboBox();
+		comboConvention = new JComboBox<Convention>();
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);

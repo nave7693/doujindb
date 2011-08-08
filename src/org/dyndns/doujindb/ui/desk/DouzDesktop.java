@@ -11,7 +11,6 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.core.Database;
-import org.dyndns.doujindb.core.Plugins;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.events.DouzEvent;
@@ -166,7 +165,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		super.add(wallpaper);
 		
 		buttonPlugins = new Vector<JButton>();
-		for(Plugin plug : Plugins.getPlugins())
+		for(Plugin plug : Core.Plugins)
 		{
 			JButton buttonPlugin;
 			final Plugin plugin = plug;

@@ -25,6 +25,8 @@ import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.log.Event;
+import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DouzDesktop.*;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -102,14 +104,15 @@ public UI(String title)
 		super.setAlwaysOnTop(true);
 	super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 	Core.Logger.log("Basic user interface loaded.", Level.INFO);
+
 	try
 	{
 		Theme theme = new Theme(
 				Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
 				Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
 				Core.Resources.Font);
-		MetalLookAndFeel.setCurrentTheme(theme);
 		UIManager.setLookAndFeel(new MetalLookAndFeel());
+		MetalLookAndFeel.setCurrentTheme(theme);
 		SwingUtilities.updateComponentTreeUI(this);
 	}catch(Exception e)
 	{
@@ -117,6 +120,7 @@ public UI(String title)
 		return;
 	}
 	Core.Logger.log("Theme loaded.", Level.INFO);
+	
 	uiPanelGlass = new JComponent()
     {
 		float ninth = 1.0f / 9.0f;
@@ -307,7 +311,14 @@ public UI(String title)
 	super.setJMenuBar(menuBar);
 	Core.Logger.log("JMenuBar added.", Level.INFO);
 	
-	org.dyndns.doujindb.core.Plugins.init();
+	//org.dyndns.doujindb.core.Plugins.init();
+	try
+	{
+		Core.Plugins = new Vector<Plugin>();
+		Core.Plugins.add(new DoujinshiDBScanner());
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
 	
 	JPanel bogus;
 	
@@ -571,10 +582,8 @@ public void layoutContainer(Container parent)
 		{
 			try
 			{
-				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
-				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(src));
-				out.writeObject(Core.Properties);
-				Core.Logger.log("System settings saved.", Level.INFO);
+				Core.Properties.save();
+				Core.Logger.log("System properties saved.", Level.INFO);
 			}catch(Exception e)
 			{
 				Core.Logger.log(e.getMessage(), Level.ERROR);
@@ -585,11 +594,9 @@ public void layoutContainer(Container parent)
 		{
 			try
 			{
-				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(src));
-				Core.Properties = (Properties) in.readObject();
+				Core.Properties.load();
 				uiPanelSettings.reload();
-				Core.Logger.log("System settings loaded.", Level.INFO);
+				Core.Logger.log("System properties loaded.", Level.INFO);
 			}catch(Exception e)
 			{
 				Core.Logger.log(e.getMessage(), Level.ERROR);
@@ -613,6 +620,7 @@ public void layoutContainer(Container parent)
 						"<br>" +
 						"<span style='font-size:9px'>" +
 						"Doujin Database written in Java™<br>" +
+						"JVM Version : " + System.getProperty("java.runtime.version") + "<br>" +
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
 						"eMail : N/A<br>" +

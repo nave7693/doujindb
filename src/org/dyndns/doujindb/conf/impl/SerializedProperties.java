@@ -7,7 +7,7 @@ import java.util.*;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
 
-class SerializedProperties implements Properties
+final class SerializedProperties implements Properties
 {
 	private HashMap<String, Property> values;
 	

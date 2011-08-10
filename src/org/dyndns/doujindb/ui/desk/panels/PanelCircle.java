@@ -105,7 +105,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 				}*/
 				DataSource ds = Core.Datastore.child(tokenCircle.getID());
 				ds.mkdir();
-				ds = ds.child(".banner");
+				ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
 				if(ds.exists())
 				{
 					InputStream in = ds.getInputStream();
@@ -194,7 +194,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									}*/
 									DataSource ds = Core.Datastore.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = ds.child(".banner");
+									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -223,7 +223,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									}*/
 									DataSource ds = Core.Datastore.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = ds.child(".banner");
+									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -260,7 +260,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									}*/
 									DataSource ds = Core.Datastore.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = ds.child(".banner");
+									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

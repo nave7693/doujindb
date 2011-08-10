@@ -1277,7 +1277,7 @@ public final class DoujinshiDBScanner implements Plugin
 						description = "Creating preview into the Datastore  ...";
 						DataSource ds = Core.Datastore.child(importedBook.getID());
 						ds.mkdir();
-						ds = ds.child(".preview");
+						ds = Core.Datastore.getPreview(importedBook.getID()); //ds.child(".preview");
 						ds.touch();
 						OutputStream out = ds.getOutputStream();
 						BufferedImage image = javax.imageio.ImageIO.read(cover_image2);

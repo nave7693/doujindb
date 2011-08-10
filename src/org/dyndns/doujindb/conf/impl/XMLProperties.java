@@ -14,7 +14,7 @@ import javax.xml.bind.Unmarshaller;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
 
-class XMLProperties implements Properties
+final class XMLProperties implements Properties
 {
 	private HashMap<String, Property> values;
 	

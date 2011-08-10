@@ -9,12 +9,12 @@ import java.util.*;
 */
 public final class Hash
 {
-	public static String generateUUID()
+	public static String getUUID()
     {
-		return generateUUID(new TreeSet<String>());
+		return getUUID(new TreeSet<String>());
     }
 	
-    public static String generateUUID(Set<String> uuids)
+    public static String getUUID(Set<String> uuids)
     {
     	String uuid;
 		generate_uuid:

@@ -134,7 +134,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				}*/
 				DataSource ds = Core.Datastore.child(tokenBook.getID());
 				ds.mkdir();
-				ds = ds.child(".preview");
+				ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
 				if(ds.exists())
 				{
 					InputStream in = ds.getInputStream();
@@ -222,7 +222,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									}*/
 									DataSource ds = Core.Datastore.child(tokenBook.getID());
 									ds.mkdir();
-									ds = ds.child(".preview");
+									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -260,7 +260,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									}*/
 									DataSource ds = Core.Datastore.child(tokenBook.getID());
 									ds.mkdir();
-									ds = ds.child(".preview");
+									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -297,7 +297,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									}*/
 									DataSource ds = Core.Datastore.child(tokenBook.getID());
 									ds.mkdir();
-									ds = ds.child(".preview");
+									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

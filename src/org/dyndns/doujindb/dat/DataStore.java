@@ -20,4 +20,8 @@ public interface DataStore
 	public Set<DataSource> children() throws DataStoreException;
 	
 	public DataSource child(String name) throws DataStoreException;
+	
+	public DataSource getMetadata(String ID) throws DataStoreException;
+	
+	public DataSource getPreview(String ID) throws DataStoreException;
 }

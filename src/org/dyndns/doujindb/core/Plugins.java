@@ -2,8 +2,8 @@ package org.dyndns.doujindb.core;
 
 import java.util.Vector;
 
-import org.dyndns.doujindb.core.plug.doujinshidb.DoujinshiDBScanner;
 import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 
 
 /**  

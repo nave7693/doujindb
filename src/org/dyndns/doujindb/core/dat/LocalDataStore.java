@@ -13,7 +13,10 @@ import org.dyndns.doujindb.dat.*;
 */
 final class LocalDataStore implements DataStore
 {
-	private File Root ;
+	private final String METADATA = ".metadata";
+	private final String PREVIEW = ".preview";
+	
+	private File Root;
 	
 	LocalDataStore(File root)
 	{
@@ -63,6 +66,20 @@ final class LocalDataStore implements DataStore
 				size += ds.size();
 		}
 		return size;
+	}
+	
+	@Override
+	public DataSource getMetadata(String ID) throws DataStoreException
+	{
+		File file = new File(Root, METADATA);
+		return new ImplDataSource(file);
+	}
+
+	@Override
+	public DataSource getPreview(String ID) throws DataStoreException
+	{
+		File file = new File(Root, PREVIEW);
+		return new ImplDataSource(file);
 	}
 	
 	private final class ImplDataSource implements DataSource, Comparable<DataSource>

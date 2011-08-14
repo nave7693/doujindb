@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -104,7 +104,7 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Database.getShared())
+		for(Record r : Client.DB.getShared())
 		{
 			if(r instanceof Artist)
 			{
@@ -592,7 +592,7 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Database.getShared())
+		for(Record r : Client.DB.getShared())
 		{
 			if(r instanceof Artist)
 			{

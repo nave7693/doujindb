@@ -5,8 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -43,7 +43,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenArtist = Database.newArtist();
+			tokenArtist = Client.DB.newArtist();
 			tokenArtist.setJapaneseName("");
 			isModify = false;
 		}else
@@ -184,7 +184,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 				}
 				if(!isModify)
 				{
-					Database.getArtists().insert(tokenArtist);
+					Client.DB.getArtists().insert(tokenArtist);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenArtist));
 				}else
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenArtist));

@@ -14,7 +14,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.log.*;
@@ -291,7 +291,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	
 	private void displayUI()
 	{
-		if(!Database.getBooks().contains(tokenBook))
+		if(!Client.DB.getBooks().contains(tokenBook))
 			return;
 		SwingUtilities.invokeLater(new Runnable()
 		{

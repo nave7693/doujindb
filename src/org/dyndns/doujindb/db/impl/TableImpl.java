@@ -1,12 +1,11 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.Serializable;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 
-
-public class ImplTable<T extends Record> implements Table<T>, Serializable
+final class TableImpl<T extends Record> implements Table<T>, Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -14,7 +13,7 @@ public class ImplTable<T extends Record> implements Table<T>, Serializable
 	private Hashtable<Long,T> records = new Hashtable<Long,T>();
 	
 	@Override
-	public void insert(T row)
+	public synchronized void insert(T row)
 	{
 		if(records.containsValue(row))
 			return;
@@ -24,14 +23,14 @@ public class ImplTable<T extends Record> implements Table<T>, Serializable
 	}
 
 	@Override
-	public void delete(T row)
+	public synchronized void delete(T row)
 	{
 		if(records.containsValue(row))
 			records.values().remove(row);
 	}
 
 	@Override
-	public boolean contains(T row)
+	public synchronized boolean contains(T row)
 	{
 		if(row == null)
 			return false;
@@ -39,13 +38,13 @@ public class ImplTable<T extends Record> implements Table<T>, Serializable
 	}
 
 	@Override
-	public long count()
+	public synchronized long count()
 	{
 		return records.size();
 	}
 
 	@Override
-	public Iterator<T> iterator()
+	public synchronized Iterator<T> iterator()
 	{
 		Vector<T> v = new Vector<T>();
 		for(T item : records.values())

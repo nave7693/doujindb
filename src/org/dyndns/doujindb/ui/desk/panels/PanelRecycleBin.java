@@ -10,7 +10,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
@@ -92,32 +92,32 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 						{
 							for(Artist value : checkboxListArtist.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Book value : checkboxListBook.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Circle value : checkboxListCircle.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Convention value : checkboxListConvention.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Content value : checkboxListContent.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Parody value : checkboxListParody.getSelectedItems())
 							{
-								Database.getDeleted().delete(value);
+								Client.DB.getDeleted().delete(value);
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
@@ -203,8 +203,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											c.getArtists().remove(o);
 											//o.getCircles().remove(c);
 										}
-										Database.getArtists().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getArtists().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Book value : checkboxListBook.getSelectedItems())
 									{
@@ -231,8 +231,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										}
 										Convention c = o.getConvention();
 										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
-										Database.getBooks().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getBooks().delete(o);
+										Client.DB.getDeleted().delete(value);
 										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getSelectedItems())
@@ -248,8 +248,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											a.getCircles().remove(o);
 											//o.getArtists().remove(a);
 										}
-										Database.getCircles().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getCircles().delete(o);
+										Client.DB.getDeleted().delete(value);
 										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getSelectedItems())
@@ -260,8 +260,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.setConvention(null);
 											//o.getBooks().remove(b);
 										}
-										Database.getConventions().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getConventions().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Content value : checkboxListContent.getSelectedItems())
 									{
@@ -271,8 +271,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.getContents().remove(o);
 											//o.getBooks().remove(b);
 										}
-										Database.getContents().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getContents().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Parody value : checkboxListParody.getSelectedItems())
 									{
@@ -282,8 +282,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.getParodies().remove(o);
 											//o.getBooks().remove(b);
 										}
-										Database.getParodies().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getParodies().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									System.gc();
 									;
@@ -389,8 +389,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											c.getArtists().remove(o);
 											//o.getCircles().remove(c);
 										}
-										Database.getArtists().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getArtists().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Book value : checkboxListBook.getItems())
 									{
@@ -417,8 +417,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										}
 										Convention c = o.getConvention();
 										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
-										Database.getBooks().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getBooks().delete(o);
+										Client.DB.getDeleted().delete(value);
 										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getItems())
@@ -434,8 +434,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											a.getCircles().remove(o);
 											//o.getArtists().remove(a);
 										}
-										Database.getCircles().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getCircles().delete(o);
+										Client.DB.getDeleted().delete(value);
 										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getItems())
@@ -446,8 +446,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.setConvention(null);
 											//o.getBooks().remove(b);
 										}
-										Database.getConventions().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getConventions().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Content value : checkboxListContent.getItems())
 									{
@@ -457,8 +457,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.getContents().remove(o);
 											//o.getBooks().remove(b);
 										}
-										Database.getContents().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getContents().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									for(Parody value : checkboxListParody.getItems())
 									{
@@ -468,8 +468,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											b.getParodies().remove(o);
 											//o.getBooks().remove(b);
 										}
-										Database.getParodies().delete(o);
-										Database.getDeleted().delete(value);
+										Client.DB.getParodies().delete(o);
+										Client.DB.getDeleted().delete(value);
 									}
 									System.gc();
 									;
@@ -511,7 +511,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Database.getDeleted())
+		for(Record r : Client.DB.getDeleted())
 		{
 			if(r instanceof Artist)
 			{
@@ -842,7 +842,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 	public void validateUI(DouzEvent ve)
 	{
 		/*Iterable<Record> it = checkboxList.getSelectedItems();
-		checkboxList.setItems(Database.getDeleted());
+		checkboxList.setItems(Client.DB.getDeleted());
 		checkboxList.setSelectedItems(it);*/
 		Vector<Artist> deleted_a = new Vector<Artist>();
 		Vector<Book> deleted_b = new Vector<Book>();
@@ -850,7 +850,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Database.getDeleted())
+		for(Record r : Client.DB.getDeleted())
 		{
 			if(r instanceof Artist)
 			{
@@ -913,7 +913,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			checkboxListParody.setItems(deleted_p);
 			checkboxListParody.setSelectedItems(iterable);
 		}
-		long count = Database.getDeleted().count();
+		long count = Client.DB.getDeleted().count();
 		recycleInfo.setText((count==1)?("Item : 1"):("Items : "+count));
 		labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
 		labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");

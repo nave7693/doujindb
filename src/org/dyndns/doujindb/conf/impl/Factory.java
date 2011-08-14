@@ -3,11 +3,11 @@ package org.dyndns.doujindb.conf.impl;
 import org.dyndns.doujindb.conf.*;
 
 /**  
-* PropertiesFactory.java - DataStore service factory.
+* Factory.java - DataStore service factory.
 * @author  nozomu
 * @version 1.0
 */
-public final class PropertiesFactory
+public final class Factory
 {
 	public static Properties getService(String spec) throws Exception
 	{

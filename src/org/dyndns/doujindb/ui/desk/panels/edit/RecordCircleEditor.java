@@ -7,7 +7,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.containers.CircleContainer;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -43,7 +43,7 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Circle>(Database.getCircles(), searchField);
+		checkboxList = new DouzCheckBoxList<Circle>(Client.DB.getCircles(), searchField);
 		checkboxList.setSelectedItems(tokenICircle.getCircles());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);

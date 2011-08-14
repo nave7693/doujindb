@@ -7,7 +7,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.containers.ParodyContainer;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -43,7 +43,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Parody>(Database.getParodies(), searchField);
+		checkboxList = new DouzCheckBoxList<Parody>(Client.DB.getParodies(), searchField);
 		checkboxList.setSelectedItems(tokenIParody.getParodies());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);

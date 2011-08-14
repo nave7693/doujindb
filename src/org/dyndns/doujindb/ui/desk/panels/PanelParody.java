@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.ui.desk.*;
@@ -41,7 +41,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenParody = Database.newParody();
+			tokenParody = Client.DB.newParody();
 			tokenParody.setJapaneseName("");
 			isModify = false;
 		}else
@@ -165,7 +165,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 				}
 				if(!isModify)
 				{
-					Database.getParodies().insert(tokenParody);
+					Client.DB.getParodies().insert(tokenParody);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenParody));
 				}else
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenParody));				

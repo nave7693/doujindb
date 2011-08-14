@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.util.*;
@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Convention")
-final class ImplConvention extends ImplRecord implements Record, Convention, Serializable//, Comparable<Convention>
+final class ConventionImpl extends RecordImpl implements Record, Convention, Serializable//, Comparable<Convention>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -22,47 +22,47 @@ final class ImplConvention extends ImplRecord implements Record, Convention, Ser
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 	
-	public ImplConvention() { super(); }
+	public ConventionImpl() { super(); }
 
 	@Override
-	public String getTagName() {
+	public synchronized String getTagName() {
 		return tagName;
 	}
 
-	public void setTagName(String tagName) {
+	public synchronized void setTagName(String tagName) {
 		this.tagName = tagName;
 	}
 
 	@Override
-	public String getInfo() {
+	public synchronized String getInfo() {
 		return info;
 	}
 
-	public void setInfo(String info) {
+	public synchronized void setInfo(String info) {
 		this.info = info;
 	}	
 	
 	@Override
-	public String getWeblink() {
+	public synchronized String getWeblink() {
 		return weblink;
 	}
 
-	public void setWeblink(String weblink) {
+	public synchronized void setWeblink(String weblink) {
 		this.weblink = weblink;
 	}
 
 	@Override
-	public Set<Book> getBooks() {
+	public synchronized Set<Book> getBooks() {
 		return books;
 	}
 
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		return tagName;
 	}
 	
 	/*@Override
-	public int compareTo(Convention c) {
+	public synchronized int compareTo(Convention c) {
 		if(this.getID() == null)
 			if(c.getID() == null)
 				return 0;
@@ -77,7 +77,7 @@ final class ImplConvention extends ImplRecord implements Record, Convention, Ser
 	}*/
 	
 	@Override
-	public boolean equals(Object o) {
+	public synchronized boolean equals(Object o) {
 		if( o instanceof String)
 			return o.equals(this.tagName);
 		else
@@ -88,5 +88,5 @@ final class ImplConvention extends ImplRecord implements Record, Convention, Ser
 	}
 	
 	@Override
-	public String getID() { return (ID == -1L ? null : String.format("CN%016x", ID)); }
+	public synchronized String getID() { return (ID == -1L ? null : String.format("CN%016x", ID)); }
 }

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.util.*;
@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Parody")
-final class ImplParody extends ImplRecord implements Record, Parody, Serializable//, Comparable<Parody>
+final class ParodyImpl extends RecordImpl implements Record, Parody, Serializable//, Comparable<Parody>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -24,53 +24,53 @@ final class ImplParody extends ImplRecord implements Record, Parody, Serializabl
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 	
-	public ImplParody() { super(); }
+	public ParodyImpl() { super(); }
 	
 	@Override
-	public String getJapaneseName() {
+	public synchronized String getJapaneseName() {
 		return japaneseName;
 	}
 
-	public void setJapaneseName(String japaneseName) {
+	public synchronized void setJapaneseName(String japaneseName) {
 		this.japaneseName = japaneseName;
 	}
 
 	@Override
-	public String getTranslatedName() {
+	public synchronized String getTranslatedName() {
 		return translatedName;
 	}
 
-	public void setTranslatedName(String translatedName) {
+	public synchronized void setTranslatedName(String translatedName) {
 		this.translatedName = translatedName;
 	}
 
 	@Override
-	public String getRomanjiName() {
+	public synchronized String getRomanjiName() {
 		return romanjiName;
 	}
 
-	public void setRomanjiName(String romanjiName) {
+	public synchronized void setRomanjiName(String romanjiName) {
 		this.romanjiName = romanjiName;
 	}
 	
 	@Override
-	public String getWeblink()
+	public synchronized String getWeblink()
 	{
 		return weblink;
 	}
 
-	public void setWeblink(String weblink)
+	public synchronized void setWeblink(String weblink)
 	{
 		this.weblink = weblink;
 	}
 
 	@Override
-	public Set<Book> getBooks() {
+	public synchronized Set<Book> getBooks() {
 		return books;
 	}
 
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		return this.japaneseName;
 		/*return japaneseName + 
 			(romanjiName.equals("") ? "" : " ("+romanjiName+")") +
@@ -78,7 +78,7 @@ final class ImplParody extends ImplRecord implements Record, Parody, Serializabl
 	}
 
 	/*@Override
-	public int compareTo(Parody p) {
+	public synchronized int compareTo(Parody p) {
 		if(this.getID() == null)
 			if(p.getID() == null)
 				return 0;
@@ -93,7 +93,7 @@ final class ImplParody extends ImplRecord implements Record, Parody, Serializabl
 	}*/
 	
 	@Override
-	public boolean equals(Object o) {
+	public synchronized boolean equals(Object o) {
 		if( o instanceof String)
 			return o.equals(this.japaneseName);
 		else
@@ -104,5 +104,5 @@ final class ImplParody extends ImplRecord implements Record, Parody, Serializabl
 	}
 	
 	@Override
-	public String getID() { return (ID == -1L ? null : String.format("P%016x", ID)); }
+	public synchronized String getID() { return (ID == -1L ? null : String.format("P%016x", ID)); }
 }

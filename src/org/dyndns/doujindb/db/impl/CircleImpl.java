@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.util.*;
@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Circle")
-final class ImplCircle extends ImplRecord implements Record, Circle, Serializable//, Comparable<Circle>
+final class CircleImpl extends RecordImpl implements Record, Circle, Serializable//, Comparable<Circle>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -26,66 +26,66 @@ final class ImplCircle extends ImplRecord implements Record, Circle, Serializabl
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 	
-	public ImplCircle() { super(); }
+	public CircleImpl() { super(); }
 
 	@Override
-	public String getJapaneseName()
+	public synchronized String getJapaneseName()
 	{
 		return japaneseName;
 	}
 
-	public void setJapaneseName(String japaneseName)
+	public synchronized void setJapaneseName(String japaneseName)
 	{
 		this.japaneseName = japaneseName;
 	}
 
 	@Override
-	public String getTranslatedName()
+	public synchronized String getTranslatedName()
 	{
 		return translatedName;
 	}
 
-	public void setTranslatedName(String translatedName)
+	public synchronized void setTranslatedName(String translatedName)
 	{
 		this.translatedName = translatedName;
 	}
 
 	@Override
-	public String getRomanjiName()
+	public synchronized String getRomanjiName()
 	{
 		return romanjiName;
 	}
 
-	public void setRomanjiName(String romanjiName)
+	public synchronized void setRomanjiName(String romanjiName)
 	{
 		this.romanjiName = romanjiName;
 	}
 
 	@Override
-	public String getWeblink()
+	public synchronized String getWeblink()
 	{
 		return weblink;
 	}
 
-	public void setWeblink(String weblink)
+	public synchronized void setWeblink(String weblink)
 	{
 		this.weblink = weblink;
 	}
 
 	@Override
-	public Set<Artist> getArtists()
+	public synchronized Set<Artist> getArtists()
 	{
 		return artists;
 	}
 
 	@Override
-	public Set<Book> getBooks()
+	public synchronized Set<Book> getBooks()
 	{
 		return books;
 	}
 	
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		return this.japaneseName;
 		/*return japaneseName + 
 			(romanjiName.equals("") ? "" : " ("+romanjiName+")") +
@@ -93,7 +93,7 @@ final class ImplCircle extends ImplRecord implements Record, Circle, Serializabl
 	}
 
 	/*@Override
-	public int compareTo(Circle c) {
+	public synchronized int compareTo(Circle c) {
 		if(this.getID() == null)
 			if(c.getID() == null)
 				return 0;
@@ -108,7 +108,7 @@ final class ImplCircle extends ImplRecord implements Record, Circle, Serializabl
 	}*/
 	
 	@Override
-	public boolean equals(Object o) {
+	public synchronized boolean equals(Object o) {
 		if( o instanceof String)
 			return o.equals(this.japaneseName);
 		else
@@ -119,5 +119,5 @@ final class ImplCircle extends ImplRecord implements Record, Circle, Serializabl
 	}
 	
 	@Override
-	public String getID() { return (ID == -1L ? null : String.format("C%016x", ID)); }
+	public synchronized String getID() { return (ID == -1L ? null : String.format("C%016x", ID)); }
 }

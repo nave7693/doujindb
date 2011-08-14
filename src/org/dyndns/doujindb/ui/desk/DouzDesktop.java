@@ -9,8 +9,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.events.DouzEvent;
@@ -135,14 +135,14 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				buttonRecycleBin.setBounds(5,5,32,32);
 				buttonMediaManager.setBounds(5 + 40,5,32,32);
 				buttonSharedItems.setBounds(5 + 80,5,32,32);
-				buttonRecycleBin.setEnabled(Database.isConnected());
-				buttonMediaManager.setEnabled(Database.isConnected());
-				buttonSharedItems.setEnabled(Database.isConnected());
+				buttonRecycleBin.setEnabled(Client.isConnected());
+				buttonMediaManager.setEnabled(Client.isConnected());
+				buttonSharedItems.setEnabled(Client.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
 					plugin.setBounds(5 + spacing,5 + 40,32,32);
-					plugin.setEnabled(Database.isConnected());
+					plugin.setEnabled(Client.isConnected());
 					spacing += 40;
 				}					
 				buttonWallpaper.setBounds(width-20,1,20,20);
@@ -364,7 +364,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(!Database.isConnected())
+		if(!Client.isConnected())
 			return;
 		// TODO
 		/*switch(Core.Network.getStatus())
@@ -386,7 +386,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		{
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
 		}
-		if(Database.getDeleted().count() > 0)
+		if(Client.DB.getDeleted().count() > 0)
 			buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
 		else
 			buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));

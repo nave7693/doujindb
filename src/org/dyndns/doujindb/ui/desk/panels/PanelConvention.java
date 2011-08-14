@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.ui.desk.*;
@@ -40,7 +40,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenConvention = Database.newConvention();
+			tokenConvention = Client.DB.newConvention();
 			tokenConvention.setTagName("");
 			tokenConvention.setInfo("");
 			isModify = false;
@@ -157,7 +157,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 				}
 				if(!isModify)
 				{
-					Database.getConventions().insert(tokenConvention);
+					Client.DB.getConventions().insert(tokenConvention);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenConvention));
 				}else
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenConvention));			

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.Serializable;
 
@@ -6,23 +6,23 @@ import org.dyndns.doujindb.db.Record;
 
 
 @SuppressWarnings("serial")
-public abstract class ImplRecord implements Record, Serializable, Comparable<Record>
+abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 {
 	long ID;
 	
-	public ImplRecord()
+	public RecordImpl()
 	{
 		ID = -1L;
 	}
 	
 	@Override
-	public void setID(long id)
+	public synchronized void setID(long id)
 	{
 		ID = id;
 	}
 	
 	@Override
-	public int compareTo(Record o)
+	public synchronized int compareTo(Record o)
 	{
 		if(this.getID() == null)
 			if(o.getID() == null)

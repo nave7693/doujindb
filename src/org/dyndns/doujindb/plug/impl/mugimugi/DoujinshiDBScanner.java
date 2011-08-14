@@ -12,9 +12,9 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.core.*;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -154,39 +154,39 @@ public final class DoujinshiDBScanner implements Plugin
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").iterator().next();
-			Database.getBooks().insert(book);
+			Client.DB.getBooks().insert(book);
 			for(Record r : imported.get("Artist://"))
 			{
 				Artist o = (Artist)r;
-				Database.getArtists().insert(o);
+				Client.DB.getArtists().insert(o);
 				book.getArtists().add(o);
 				o.getBooks().add(book);
 			}
 			for(Record r : imported.get("Circle://"))
 			{
 				Circle o = (Circle)r;
-				Database.getCircles().insert(o);
+				Client.DB.getCircles().insert(o);
 				book.getCircles().add(o);
 				o.getBooks().add(book);
 			}
 			for(Record r : imported.get("Convention://"))
 			{
 				Convention o = (Convention)r;
-				Database.getConventions().insert(o);
+				Client.DB.getConventions().insert(o);
 				book.setConvention(o);
 				o.getBooks().add(book);
 			}
 			for(Record r : imported.get("Content://"))
 			{
 				Content o = (Content)r;
-				Database.getContents().insert(o);
+				Client.DB.getContents().insert(o);
 				book.getContents().add(o);
 				o.getBooks().add(book);
 			}
 			for(Record r : imported.get("Parody://"))
 			{
 				Parody o = (Parody)r;
-				Database.getParodies().insert(o);
+				Client.DB.getParodies().insert(o);
 				book.getParodies().add(o);
 				o.getBooks().add(book);
 			}
@@ -1245,7 +1245,7 @@ public final class DoujinshiDBScanner implements Plugin
 									throw new Exception("Error parsing XML data.");
 								}
 								
-								for(Book book_ : Database.getBooks())
+								for(Book book_ : Client.DB.getBooks())
 									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && importedBook != book_)
 									{
 										status = TASK_WARNING;
@@ -1480,7 +1480,7 @@ public final class DoujinshiDBScanner implements Plugin
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Database.newBook();
+		Book book = Client.DB.newBook();
 		book.setJapaneseName(doujin.JapaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.TranslatedName);
@@ -1497,15 +1497,15 @@ public final class DoujinshiDBScanner implements Plugin
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Database.getConventions())
+			for(Convention convention : Client.DB.getConventions())
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Database.newConvention();
+				Convention convention = Client.DB.newConvention();
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
-				Database.getUnchecked().insert(convention);
+				Client.DB.getUnchecked().insert(convention);
 			}			
 			else
 				parsed.get("Convention://").addAll(temp);
@@ -1514,15 +1514,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Database.getArtists())
+				for(Artist artist : Client.DB.getArtists())
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Database.newArtist();
+					Artist artist = Client.DB.newArtist();
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
-					Database.getUnchecked().insert(artist);
+					Client.DB.getUnchecked().insert(artist);
 				}			
 				else
 					parsed.get("Artist://").addAll(temp);
@@ -1532,15 +1532,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Database.getCircles())
+				for(Circle circle : Client.DB.getCircles())
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Database.newCircle();
+					Circle circle = Client.DB.newCircle();
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
-					Database.getUnchecked().insert(circle);
+					Client.DB.getUnchecked().insert(circle);
 				}			
 				else
 					parsed.get("Circle://").addAll(temp);
@@ -1550,15 +1550,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Database.getContents())
+				for(Content content : Client.DB.getContents())
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Database.newContent();
+					Content content = Client.DB.newContent();
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
-					Database.getUnchecked().insert(content);
+					Client.DB.getUnchecked().insert(content);
 				}			
 				else
 					parsed.get("Content://").addAll(temp);
@@ -1568,15 +1568,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Database.getParodies())
+				for(Parody parody : Client.DB.getParodies())
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Database.newParody();
+					Parody parody = Client.DB.newParody();
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
-					Database.getUnchecked().insert(parody);
+					Client.DB.getUnchecked().insert(parody);
 				}			
 				else
 					parsed.get("Parody://").addAll(temp);

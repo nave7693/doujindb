@@ -14,7 +14,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -72,7 +72,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenBook = Database.newBook();
+			tokenBook = Client.DB.newBook();
 			tokenBook.setJapaneseName("");
 			tokenBook.setType(Type.同人誌);
 			isModify = false;
@@ -326,7 +326,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		for(Convention conv : Database.getConventions())
+		for(Convention conv : Client.DB.getConventions())
 			comboConvention.addItem(conv);
 		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());
@@ -627,7 +627,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				}
 				if(!isModify)
 				{
-					Database.getBooks().insert(tokenBook);
+					Client.DB.getBooks().insert(tokenBook);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenBook));
 				}
 				else
@@ -641,10 +641,10 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(!Database.getConventions().contains((Convention)comboConvention.getSelectedItem()))
+		if(!Client.DB.getConventions().contains((Convention)comboConvention.getSelectedItem()))
 			comboConvention.setSelectedItem(null);
 		for(int i=0;i<comboConvention.getItemCount();i++)
-			if(!Database.getConventions().contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
+			if(!Client.DB.getConventions().contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
 				comboConvention.removeItemAt(i);
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{

@@ -21,7 +21,7 @@ import javax.swing.plaf.basic.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.log.Event;
@@ -512,7 +512,7 @@ public void layoutContainer(Container parent)
 		height = parent.getHeight();
 	//TODO JDK6 uiLayerPane.setBounds(0, 0, width, height);
 	uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
-	if(Database.isConnected())
+	if(Client.isConnected())
 	{
 		uiPanelDesktopShow.setBounds(1,1,20,20);
 		uiPanelDesktopSearch.setBounds(21,1,20,20);
@@ -522,7 +522,7 @@ public void layoutContainer(Container parent)
 		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
 		uiStatusBarConnect.setBounds(-1,-1,0,0);
 		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-		uiStatusBar.setText("Connected to " + Database.getConnection() + ".");
+		uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
 	}
 	else
 	{
@@ -619,7 +619,7 @@ public void layoutContainer(Container parent)
 						"</span><br>" +
 						"<br>" +
 						"<span style='font-size:9px'>" +
-						"Doujin Database written in Java™<br>" +
+						"Doujin Client.DB written in Java™<br>" +
 						"JVM Version : " + System.getProperty("java.runtime.version") + "<br>" +
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
@@ -752,7 +752,7 @@ public void layoutContainer(Container parent)
 			JPanel panel = new JPanel();
 			panel.setSize(250, 150);
 			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Save the Database replacing the previous version?<br/><i>(This cannot be undone)</i></body></html>");
+			JLabel lab = new JLabel("<html><body>Save the Client.DB replacing the previous version?<br/><i>(This cannot be undone)</i></body></html>");
 			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			lab.setFont(Core.Resources.Font);
 			panel.add(lab);
@@ -782,8 +782,8 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						Database.commit();
-					} catch (DatabaseException dbe)
+						Client.DB.commit();
+					} catch (DataBaseException dbe)
 					{
 						Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 					}
@@ -811,7 +811,7 @@ public void layoutContainer(Container parent)
 			JPanel panel = new JPanel();
 			panel.setSize(250, 150);
 			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Load the Database ignoring current changes?<br/><i>(This cannot be undone)</i></body></html>");
+			JLabel lab = new JLabel("<html><body>Load the Client.DB ignoring current changes?<br/><i>(This cannot be undone)</i></body></html>");
 			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			lab.setFont(Core.Resources.Font);
 			panel.add(lab);
@@ -843,8 +843,8 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
-							Database.rollback();
-						} catch (DatabaseException dbe)
+							Client.DB.rollback();
+						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
@@ -877,13 +877,14 @@ public void layoutContainer(Container parent)
 		{
 			try
 			{
-				Database.connect(Database.TYPE_DBO);
-				Database.rollback();
-				uiStatusBar.setText("Connected to " + Database.getConnection() + ".");
+				Client.connect();
+				Client.DB.rollback();
+				uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-			} catch (DatabaseException dbe)
+			} catch (DataBaseException dbe)
 			{
 				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
 			}
 			Desktop.revalidate();
 		}
@@ -891,14 +892,14 @@ public void layoutContainer(Container parent)
 		{
 			try
 			{
-				Database.disconnect();
+				Client.disconnect();
 				for(JInternalFrame jif : Desktop.getAllFrames())
 				{
 					try{ ((DouzWindow)jif).dispose(); }catch(Exception e) { e.printStackTrace(); }
 				}
 				uiStatusBar.setText("Disconnected.");
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-			} catch (DatabaseException dbe)
+			} catch (DataBaseException dbe)
 			{
 				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 			}

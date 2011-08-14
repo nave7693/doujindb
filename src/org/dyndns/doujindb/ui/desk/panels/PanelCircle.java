@@ -10,7 +10,7 @@ import javax.swing.Timer;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -47,7 +47,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenCircle = Database.newCircle();
+			tokenCircle = Client.DB.newCircle();
 			tokenCircle.setJapaneseName("");
 			isModify = false;
 		}else
@@ -394,7 +394,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 				}
 				if(!isModify)
 				{
-					Database.getCircles().insert(tokenCircle);
+					Client.DB.getCircles().insert(tokenCircle);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenCircle));
 				}
 				else

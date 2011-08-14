@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.util.*;
@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Book")
-final class ImplBook extends ImplRecord implements Record, Book, Serializable//, Comparable<Book>
+final class BookImpl extends RecordImpl implements Record, Book, Serializable//, Comparable<Book>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -48,147 +48,147 @@ final class ImplBook extends ImplRecord implements Record, Book, Serializable//,
 	@XmlElement(required=false)
 	private String info = "";	
 	
-	public ImplBook() { super(); }
+	public BookImpl() { super(); }
 
 	@Override
-	public String getJapaneseName() {
+	public synchronized String getJapaneseName() {
 		return japaneseName;
 	}
 
-	public void setJapaneseName(String japaneseName) {
+	public synchronized void setJapaneseName(String japaneseName) {
 		this.japaneseName = japaneseName;
 	}
 
 	@Override
-	public String getTranslatedName() {
+	public synchronized String getTranslatedName() {
 		return translatedName;
 	}
 
-	public void setTranslatedName(String translatedName) {
+	public synchronized void setTranslatedName(String translatedName) {
 		this.translatedName = translatedName;
 	}
 
 	@Override
-	public String getRomanjiName() {
+	public synchronized String getRomanjiName() {
 		return romanjiName;
 	}
 
-	public void setRomanjiName(String romanjiName) {
+	public synchronized void setRomanjiName(String romanjiName) {
 		this.romanjiName = romanjiName;
 	}
 
 	@Override
-	public Set<Artist> getArtists() {
+	public synchronized Set<Artist> getArtists() {
 		return artists;
 	}
 
 	@Override
-	public Set<Circle> getCircles() {
+	public synchronized Set<Circle> getCircles() {
 		return circles;
 	}
 
 	@Override
-	public Set<Parody> getParodies() {
+	public synchronized Set<Parody> getParodies() {
 		return parodies;
 	}
 
 	@Override
-	public Date getDate() {
+	public synchronized Date getDate() {
 		return released;
 	}
 
-	public void setDate(Date released) {
+	public synchronized void setDate(Date released) {
 		this.released = released;
 	}
 
 	@Override
-	public Type getType() {
+	public synchronized Type getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public synchronized void setType(Type type) {
 		this.type = type;
 	}
 
 	@Override
-	public boolean isAdult() {
+	public synchronized boolean isAdult() {
 		return adult;
 	}
 
-	public void setAdult(boolean adult) {
+	public synchronized void setAdult(boolean adult) {
 		this.adult = adult;
 	}
 
 	@Override
-	public boolean isDecensored() {
+	public synchronized boolean isDecensored() {
 		return decensored;
 	}
 
-	public void setDecensored(boolean decensored) {
+	public synchronized void setDecensored(boolean decensored) {
 		this.decensored = decensored;
 	}
 
 	@Override
-	public boolean isTranslated() {
+	public synchronized boolean isTranslated() {
 		return translated;
 	}
 
-	public void setTranslated(boolean translated) {
+	public synchronized void setTranslated(boolean translated) {
 		this.translated = translated;
 	}
 	
 	@Override
-	public boolean isColored() {
+	public synchronized boolean isColored() {
 		return colored;
 	}
 
-	public void setColored(boolean colored) {
+	public synchronized void setColored(boolean colored) {
 		this.colored = colored;
 	}
 
 	@Override
-	public Rating getRating() {
+	public synchronized Rating getRating() {
 		return rating;
 	}
 
-	public void setRating(Rating rating) {
+	public synchronized void setRating(Rating rating) {
 		this.rating = rating;
 	}
 	
 	@Override
-	public Set<Content> getContents() {
+	public synchronized Set<Content> getContents() {
 		return tags;
 	}
 
 	@Override
-	public int getPages() {
+	public synchronized int getPages() {
 		return pages;
 	}
 
-	public void setPages(int pages) {
+	public synchronized void setPages(int pages) {
 		this.pages = pages;
 	}
 
 	@Override
-	public Convention getConvention() {
+	public synchronized Convention getConvention() {
 		return convention;
 	}
 
-	public void setConvention(Convention convention) {
+	public synchronized void setConvention(Convention convention) {
 		this.convention = convention;
 	}
 
 	@Override
-	public String getInfo() {
+	public synchronized String getInfo() {
 		return info;
 	}
 
-	public void setInfo(String info) {
+	public synchronized void setInfo(String info) {
 		this.info = info;
 	}
 	
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		//return this.japaneseName;
 		return "("+(getConvention()==null?"不詳":getConvention())+") " +
 			"("+getType()+") " +
@@ -199,7 +199,7 @@ final class ImplBook extends ImplRecord implements Record, Book, Serializable//,
 	}
 
 	/*@Override
-	public int compareTo(Book b) {
+	public synchronized int compareTo(Book b) {
 		if(this.getID() == null)
 			if(b.getID() == null)
 				return 0;
@@ -214,7 +214,7 @@ final class ImplBook extends ImplRecord implements Record, Book, Serializable//,
 	}*/
 	
 	@Override
-	public boolean equals(Object o) {
+	public synchronized boolean equals(Object o) {
 		if( o instanceof String)
 			return o.equals(this.japaneseName);
 		else
@@ -225,5 +225,5 @@ final class ImplBook extends ImplRecord implements Record, Book, Serializable//,
 	}
 	
 	@Override
-	public String getID() { return (ID == -1L ? null : String.format("B%016x", ID)); }
+	public synchronized String getID() { return (ID == -1L ? null : String.format("B%016x", ID)); }
 }

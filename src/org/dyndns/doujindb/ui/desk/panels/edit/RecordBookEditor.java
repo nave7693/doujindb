@@ -7,7 +7,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -43,7 +43,7 @@ public class RecordBookEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Book>(Database.getBooks(), searchField);
+		checkboxList = new DouzCheckBoxList<Book>(Client.DB.getBooks(), searchField);
 		checkboxList.setSelectedItems(tokenIBook.getBooks());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);

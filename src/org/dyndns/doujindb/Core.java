@@ -36,8 +36,8 @@ public final class Core implements Runnable
 		new File(System.getProperty("user.home"), ".doujindb/log").mkdir();
 		try
 		{
-			Logger = org.dyndns.doujindb.log.impl.LoggerFactory.getService(
-					org.dyndns.doujindb.log.impl.LoggerFactory.Type.STDOUT);
+			Logger = org.dyndns.doujindb.log.impl.Factory.getService(
+					org.dyndns.doujindb.log.impl.Factory.Type.STDOUT);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -45,15 +45,15 @@ public final class Core implements Runnable
 		}
 		try
 		{
-			Logger = org.dyndns.doujindb.log.impl.LoggerFactory.getService(
-					org.dyndns.doujindb.log.impl.LoggerFactory.Type.FILE);
+			Logger = org.dyndns.doujindb.log.impl.Factory.getService(
+					org.dyndns.doujindb.log.impl.Factory.Type.FILE);
 		} catch (Exception e)
 		{
 			Logger.log("Cannot load file logger : " + e.getMessage() + ".", Level.ERROR);
 		}
 		try
 		{
-			Properties = org.dyndns.doujindb.conf.impl.PropertiesFactory.getService( null );
+			Properties = org.dyndns.doujindb.conf.impl.Factory.getService( null );
 			Properties.load();
 			Logger.log("System Properties loaded.", Level.INFO);
 		} catch (Exception e)
@@ -79,7 +79,7 @@ public final class Core implements Runnable
 		Core.Logger.log("System resources loaded.", Level.INFO);
 		try
 		{
-			Datastore = org.dyndns.doujindb.core.dat.ServiceFactory.getService(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString());
+			Datastore = org.dyndns.doujindb.dat.impl.Factory.getService(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString());
 		} catch (PropertyException pe) {
 			// TODO Auto-generated catch block
 			pe.printStackTrace();

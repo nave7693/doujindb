@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.core.Database;
+import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.ui.desk.*;
@@ -38,7 +38,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		parentWindow = parent;
 		if(token == null)
 		{
-			tokenContent = Database.newContent();
+			tokenContent = Client.DB.newContent();
 			tokenContent.setTagName("");
 			isModify = false;
 		}else
@@ -145,7 +145,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				}
 				if(!isModify)
 				{
-					Database.getContents().insert(tokenContent);
+					Client.DB.getContents().insert(tokenContent);
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenContent));
 				}else
 					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenContent));					

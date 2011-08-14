@@ -5,11 +5,11 @@ import java.io.*;
 import org.dyndns.doujindb.log.*;
 
 /**  
-* LoggerFactory.java - Logger service factory.
+* Factory.java - Logger service factory.
 * @author  nozomu
 * @version 1.0
 */
-public final class LoggerFactory
+public final class Factory
 {
 	public enum Type
 	{

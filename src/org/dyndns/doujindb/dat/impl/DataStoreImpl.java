@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.dat;
+package org.dyndns.doujindb.dat.impl;
 
 import java.io.*;
 import java.util.Set;
@@ -7,18 +7,18 @@ import java.util.TreeSet;
 import org.dyndns.doujindb.dat.*;
 
 /** 
-* LocalDataStore.java - DataStore on a local disk.
+* DataStoreImpl.java - DataStore on a local disk.
 * @author  nozomu
 * @version 1.0
 */
-final class LocalDataStore implements DataStore
+final class DataStoreImpl implements DataStore
 {
 	private final String METADATA = ".metadata";
 	private final String PREVIEW = ".preview";
 	
 	private File Root;
 	
-	LocalDataStore(File root)
+	DataStoreImpl(File root)
 	{
 		Root = root;
 	}
@@ -30,7 +30,7 @@ final class LocalDataStore implements DataStore
 		if(Root.listFiles() == null)
 			return ds;
 		for(File child : Root.listFiles())
-			ds.add(new ImplDataSource(child));
+			ds.add(new DataSourceImpl(child));
 		return ds;
 	}
 
@@ -38,7 +38,7 @@ final class LocalDataStore implements DataStore
 	public DataSource child(String name) throws DataStoreException
 	{
 		File file = new File(Root, name);
-		return new ImplDataSource(file);
+		return new DataSourceImpl(file);
 	}
 	
 	@Override
@@ -72,21 +72,21 @@ final class LocalDataStore implements DataStore
 	public DataSource getMetadata(String ID) throws DataStoreException
 	{
 		File file = new File(Root, METADATA);
-		return new ImplDataSource(file);
+		return new DataSourceImpl(file);
 	}
 
 	@Override
 	public DataSource getPreview(String ID) throws DataStoreException
 	{
 		File file = new File(Root, PREVIEW);
-		return new ImplDataSource(file);
+		return new DataSourceImpl(file);
 	}
 	
-	private final class ImplDataSource implements DataSource, Comparable<DataSource>
+	private final class DataSourceImpl implements DataSource, Comparable<DataSource>
 	{
 		private File DsFile;
 		
-		public ImplDataSource(File file)
+		public DataSourceImpl(File file)
 		{
 			DsFile = file;
 		}
@@ -165,7 +165,7 @@ final class LocalDataStore implements DataStore
 			if(DsFile.listFiles() == null)
 				return ds;
 			for(File child : DsFile.listFiles())
-				ds.add(new ImplDataSource(child));
+				ds.add(new DataSourceImpl(child));
 			return ds;
 		}
 		
@@ -173,7 +173,7 @@ final class LocalDataStore implements DataStore
 		public DataSource child(String name) throws DataStoreException
 		{
 			File file = new File(DsFile, name);
-			return new ImplDataSource(file);
+			return new DataSourceImpl(file);
 		}
 
 		@Override
@@ -245,9 +245,9 @@ final class LocalDataStore implements DataStore
 		public DataSource getParent() throws DataStoreException
 		{
 			if(!DsFile.equals(Root))
-				return new ImplDataSource(DsFile.getParentFile());
+				return new DataSourceImpl(DsFile.getParentFile());
 			else
-				return new ImplDataSource(Root);
+				return new DataSourceImpl(Root);
 		}
 
 		@Override

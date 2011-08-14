@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.core.db.dbo;
+package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.util.Hashtable;
@@ -8,8 +8,8 @@ import org.dyndns.doujindb.db.records.*;
 
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Driver")
-public final class ImplDriver implements Driver
+@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="DataBase")
+final class DataBaseImpl implements DataBase
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -31,87 +31,87 @@ public final class ImplDriver implements Driver
 	private Table<Record> shared;
 	private Table<Record> unchecked;
 	
-	public Table<Record> getDeleted() {
+	public synchronized Table<Record> getDeleted() {
 		return deleted;
 	}
 
-	public Table<Record> getShared() {
+	public synchronized Table<Record> getShared() {
 		return shared;
 	}
 
-	public Table<Record> getUnchecked() {
+	public synchronized Table<Record> getUnchecked() {
 		return unchecked;
 	}
 
-	public ImplDriver()
+	public DataBaseImpl()
 	{
-		books = new ImplTable<Book>();
-		circles = new ImplTable<Circle>();
-		artists = new ImplTable<Artist>();
-		parodies = new ImplTable<Parody>();
-		contents = new ImplTable<Content>();
-		conventions = new ImplTable<Convention>();
-		deleted = new ImplTable<Record>();
-		shared = new ImplTable<Record>();
-		unchecked = new ImplTable<Record>();
+		books = new TableImpl<Book>();
+		circles = new TableImpl<Circle>();
+		artists = new TableImpl<Artist>();
+		parodies = new TableImpl<Parody>();
+		contents = new TableImpl<Content>();
+		conventions = new TableImpl<Convention>();
+		deleted = new TableImpl<Record>();
+		shared = new TableImpl<Record>();
+		unchecked = new TableImpl<Record>();
 	}
 
-	public Table<Book> getBooks() {
+	public synchronized Table<Book> getBooks() {
 		return books;
 	}
 
-	public Table<Circle> getCircles() {
+	public synchronized Table<Circle> getCircles() {
 		return circles;
 	}
 
-	public Table<Artist> getArtists() {
+	public synchronized Table<Artist> getArtists() {
 		return artists;
 	}
 
-	public Table<Parody> getParodies() {
+	public synchronized Table<Parody> getParodies() {
 		return parodies;
 	}
 
-	public Table<Content> getContents() {
+	public synchronized Table<Content> getContents() {
 		return contents;
 	}
 
-	public Table<Convention> getConventions() {
+	public synchronized Table<Convention> getConventions() {
 		return conventions;
 	}
 
 	@Override
-	public Artist newArtist() {
-		return new ImplArtist();
+	public synchronized Artist newArtist() {
+		return new ArtistImpl();
 	}
 
 	@Override
-	public Book newBook() {
-		return new ImplBook();
+	public synchronized Book newBook() {
+		return new BookImpl();
 	}
 
 	@Override
-	public Circle newCircle() {
-		return new ImplCircle();
+	public synchronized Circle newCircle() {
+		return new CircleImpl();
 	}
 
 	@Override
-	public Content newContent() {
-		return new ImplContent();
+	public synchronized Content newContent() {
+		return new ContentImpl();
 	}
 
 	@Override
-	public Convention newConvention() {
-		return new ImplConvention();
+	public synchronized Convention newConvention() {
+		return new ConventionImpl();
 	}
 
 	@Override
-	public Parody newParody() {
-		return new ImplParody();
+	public synchronized Parody newParody() {
+		return new ParodyImpl();
 	}
 
 	@Override
-	public void commit() throws DatabaseException
+	public synchronized void commit() throws DataBaseException
 	{
 		File file = new File(System.getProperty("user.home"), ".doujindb/doujindb.dbo");
 		ObjectOutputStream out;
@@ -131,15 +131,15 @@ public final class ImplDriver implements Driver
 			out.writeObject(serialized);
 			out.close();
 		} catch (FileNotFoundException fnfe) {
-			throw new DatabaseException("Database file not found.");
+			throw new DataBaseException("Client.DB file not found.");
 		} catch (IOException ioe) {
-			throw new DatabaseException("Database I/O error (" + ioe.getMessage() + ").");
+			throw new DataBaseException("Client.DB I/O error (" + ioe.getMessage() + ").");
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void rollback() throws DatabaseException
+	public synchronized void rollback() throws DataBaseException
 	{
 		File file = new File(System.getProperty("user.home"), ".doujindb/doujindb.dbo");
 		ObjectInputStream in;
@@ -149,93 +149,93 @@ public final class ImplDriver implements Driver
 			Hashtable<String, Serializable> serialized = (Hashtable<String, Serializable>) in.readObject();
 			in.close();
 			if(!serialized.containsKey("Artist"))
-				throw new DatabaseException("Database load error : missing Artist table.");
+				throw new DataBaseException("Client.DB load error : missing Artist table.");
 			if(!serialized.containsKey("Book"))
-				throw new DatabaseException("Database load error : missing Book table.");
+				throw new DataBaseException("Client.DB load error : missing Book table.");
 			if(!serialized.containsKey("Circle"))
-				throw new DatabaseException("Database load error : missing Circle table.");
+				throw new DataBaseException("Client.DB load error : missing Circle table.");
 			if(!serialized.containsKey("Content"))
-				throw new DatabaseException("Database load error : missing Content table.");
+				throw new DataBaseException("Client.DB load error : missing Content table.");
 			if(!serialized.containsKey("Convention"))
-				throw new DatabaseException("Database load error : missing Convention table.");
+				throw new DataBaseException("Client.DB load error : missing Convention table.");
 			if(!serialized.containsKey("Parody"))
-				throw new DatabaseException("Database load error : missing Parody table.");
+				throw new DataBaseException("Client.DB load error : missing Parody table.");
 			if(!serialized.containsKey("Deleted"))
-				throw new DatabaseException("Database load error : missing Deleted table.");
+				throw new DataBaseException("Client.DB load error : missing Deleted table.");
 			if(!serialized.containsKey("Shared"))
-				throw new DatabaseException("Database load error : missing Shared table.");
+				throw new DataBaseException("Client.DB load error : missing Shared table.");
 			if(!serialized.containsKey("Unchecked"))
-				throw new DatabaseException("Database load error : missing Unchecked table.");
+				throw new DataBaseException("Client.DB load error : missing Unchecked table.");
 			try {
 				artists = (Table<Artist>) serialized.get("Artist");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Artist table.");
+				throw new DataBaseException("Client.DB load error : invalid Artist table.");
 			}
 			try {
 				books = (Table<Book>) serialized.get("Book");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Book table.");
+				throw new DataBaseException("Client.DB load error : invalid Book table.");
 			}
 			try {
 				circles = (Table<Circle>) serialized.get("Circle");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Circle table.");
+				throw new DataBaseException("Client.DB load error : invalid Circle table.");
 			}
 			try {
 				contents = (Table<Content>) serialized.get("Content");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Content table.");
+				throw new DataBaseException("Client.DB load error : invalid Content table.");
 			}
 			try {
 				conventions = (Table<Convention>) serialized.get("Convention");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Convention table.");
+				throw new DataBaseException("Client.DB load error : invalid Convention table.");
 			}
 			try {
 				parodies = (Table<Parody>) serialized.get("Parody");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Parody table.");
+				throw new DataBaseException("Client.DB load error : invalid Parody table.");
 			}
 			try {
 				deleted = (Table<Record>) serialized.get("Deleted");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Deleted table.");
+				throw new DataBaseException("Client.DB load error : invalid Deleted table.");
 			}
 			try {
 				shared = (Table<Record>) serialized.get("Shared");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Shared table.");
+				throw new DataBaseException("Client.DB load error : invalid Shared table.");
 			}
 			try {
 				unchecked = (Table<Record>) serialized.get("Unchecked");
 			} catch (ClassCastException cce) {
-				throw new DatabaseException("Database load error : invalid Unchecked table.");
+				throw new DataBaseException("Client.DB load error : invalid Unchecked table.");
 			}
 		} catch (FileNotFoundException fnfe) {
-			throw new DatabaseException("Database file not found.");
+			throw new DataBaseException("Client.DB file not found.");
 		} catch (IOException ioe) {
-			throw new DatabaseException("Database I/O error (" + ioe.getMessage() + ").");
+			throw new DataBaseException("Client.DB I/O error (" + ioe.getMessage() + ").");
 		} catch (ClassNotFoundException cnfe) {
-			throw new DatabaseException("Database cast error (" + cnfe.getMessage() + ").");
+			throw new DataBaseException("Client.DB cast error (" + cnfe.getMessage() + ").");
 		} catch (ClassCastException cce) {
-			throw new DatabaseException("Database cast error (" + cce.getMessage() + ").");
+			throw new DataBaseException("Client.DB cast error (" + cce.getMessage() + ").");
 		}
 	}
 
 	@Override
-	public boolean getAutoCommit() throws DatabaseException
+	public synchronized boolean getAutoCommit() throws DataBaseException
 	{
 		return autoCommit;
 	}
 
 	@Override
-	public void setAutoCommit(boolean autoCommit) throws DatabaseException
+	public synchronized void setAutoCommit(boolean autoCommit) throws DataBaseException
 	{
 		this.autoCommit = autoCommit;
 	}
 
 	@Override
-	public String getConnection() throws DatabaseException
+	public synchronized String getConnection() throws DataBaseException
 	{
 		return "dbo://admin:@localhost/ ";
 	}

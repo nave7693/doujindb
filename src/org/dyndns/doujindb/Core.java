@@ -90,6 +90,10 @@ public final class Core implements Runnable
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
 			Core.Logger.log("DataStore folder is the temporary system folder.", Level.WARNING);
 		Core.Logger.log("DataStore loaded.", Level.INFO);
+		
+		new Server();
+		new Client();
+		
 		String title = "DoujinDB v" + Core.class.getPackage().getSpecificationVersion();
 		UI = new UI(title);
 		Core.Logger.log("User interface loaded.", Level.INFO);

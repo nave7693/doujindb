@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.zip.*;
 import java.util.*;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
 import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
@@ -47,7 +49,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	private JScrollPane scrollListMedia;
 	private DouzCheckBoxList<Book> checkboxListMedia;
 	
-	public PanelMediaManager(DouzWindow parent, JComponent pane)
+	public PanelMediaManager(DouzWindow parent, JComponent pane) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
 		pane.setLayout(this);
@@ -201,7 +203,15 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 								{
 									for(Book key : checkboxListMedia.getSelectedItems())
 									{
-										try { Core.Datastore.child(key.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try {
+											Core.Datastore.child(key.getID()).delete();
+										} catch (DataStoreException dse) {
+											Core.Logger.log(dse.getMessage(), Level.ERROR);
+											dse.printStackTrace();
+										} catch (RemoteException re) {
+											Core.Logger.log(re.getMessage(), Level.ERROR);
+											re.printStackTrace();
+										}
 									}
 									;
 									validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
@@ -241,7 +251,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		    }
 		});
 		Vector<Book> files = new Vector<Book>();
-		for(Book book : Client.DB.getBooks())
+		for(Book book : Client.DB.getBooks().elements())
 			files.add(book);
 		checkboxListMedia = new DouzCheckBoxList<Book>(files, searchField);
 		scrollListMedia = new JScrollPane(checkboxListMedia);
@@ -327,8 +337,16 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				}
 				mediaManagerInfo.setText(String.format("%.2f ", size) + label);
 				Vector<Book> files = new Vector<Book>();
-				for(Book book : Client.DB.getBooks())
-					files.add(book);
+				try {
+					for(Book book : Client.DB.getBooks().elements())
+						files.add(book);
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 				Iterable<Book> iterable = checkboxListMedia.getSelectedItems();
 				checkboxListMedia.setItems(files);
 				checkboxListMedia.setSelectedItems(iterable);
@@ -1034,7 +1052,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			}
 		}
 		
-		private String parseXML(InputStream in)
+		private String parseXML(InputStream in) throws DataBaseException, RemoteException
 		{
 			Hashtable<String, Set<Record>> imported = readXMLBook(in);
 			if(imported == null)
@@ -1081,7 +1099,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
-	private Hashtable<String, Set<Record>> readXMLBook(InputStream src)
+	private Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException, RemoteException
 	{
 		XMLBook doujin;
 		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
@@ -1119,7 +1137,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.getConventions())
+			for(Convention convention : Client.DB.getConventions().elements())
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
@@ -1136,7 +1154,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.getArtists())
+				for(Artist artist : Client.DB.getArtists().elements())
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
@@ -1154,7 +1172,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.getCircles())
+				for(Circle circle : Client.DB.getCircles().elements())
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
@@ -1172,7 +1190,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.getContents())
+				for(Content content : Client.DB.getContents().elements())
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
@@ -1190,7 +1208,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.getParodies())
+				for(Parody parody : Client.DB.getParodies().elements())
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
@@ -1207,7 +1225,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		return parsed;
 	}
 	
-	private void writeXMLBook(Book book, OutputStream dest)
+	private void writeXMLBook(Book book, OutputStream dest) throws RemoteException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.JapaneseName = book.getJapaneseName();

@@ -2,6 +2,7 @@ package org.dyndns.doujindb.ui;
 
 import java.io.*;
 import java.net.*;
+import java.rmi.RemoteException;
 import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -522,7 +523,15 @@ public void layoutContainer(Container parent)
 		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
 		uiStatusBarConnect.setBounds(-1,-1,0,0);
 		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-		uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
+		try {
+			uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
+		}
 	}
 	else
 	{
@@ -675,7 +684,15 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getSource() == uiPanelDesktopSearch)
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_SEARCH, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_SEARCH, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getSource() == uiTrayIcon)
@@ -694,32 +711,80 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
-			Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null);
+			try {
+				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			return;
 		}
 		if(event.getSource() == uiTrayPopupExit)
@@ -785,7 +850,10 @@ public void layoutContainer(Container parent)
 						Client.DB.commit();
 					} catch (DataBaseException dbe)
 					{
-						Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					} catch (RemoteException re) {
+						Core.Logger.log(re.getMessage(), Level.ERROR);
+						re.printStackTrace();
 					}
 					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
@@ -883,8 +951,11 @@ public void layoutContainer(Container parent)
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 			} catch (DataBaseException dbe)
 			{
-				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
 			}
 			Desktop.revalidate();
 		}

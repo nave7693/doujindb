@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
@@ -26,7 +27,7 @@ final class CircleImpl extends RecordImpl implements Record, Circle, Serializabl
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 	
-	public CircleImpl() { super(); }
+	public CircleImpl() throws RemoteException { super(); }
 
 	@Override
 	public synchronized String getJapaneseName()

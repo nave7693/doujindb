@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
@@ -24,7 +25,7 @@ final class ParodyImpl extends RecordImpl implements Record, Parody, Serializabl
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 	
-	public ParodyImpl() { super(); }
+	public ParodyImpl() throws RemoteException { super(); }
 	
 	@Override
 	public synchronized String getJapaneseName() {

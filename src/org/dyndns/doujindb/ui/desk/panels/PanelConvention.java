@@ -2,13 +2,17 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.rmi.RemoteException;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
+import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
@@ -35,7 +39,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private RecordBookEditor editorWorks;
 	private JButton buttonConfirm;
 	
-	public PanelConvention(DouzWindow parent, JComponent pane, Convention token)
+	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
 		if(token == null)
@@ -136,33 +140,49 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			{
-				tokenConvention.setTagName(textTagName.getText());
-				tokenConvention.setWeblink(textWeblink.getText());
-				tokenConvention.setInfo(textInfo.getText());
-				for(Book b : tokenConvention.getBooks())
+			try {
 				{
-					if(!editorWorks.contains(b))
+					tokenConvention.setTagName(textTagName.getText());
+					tokenConvention.setWeblink(textWeblink.getText());
+					tokenConvention.setInfo(textInfo.getText());
+					for(Book b : tokenConvention.getBooks())
 					{
-						b.setConvention(null);
-						tokenConvention.getBooks().remove(b);
+						if(!editorWorks.contains(b))
+						{
+							b.setConvention(null);
+							tokenConvention.getBooks().remove(b);
+						}
 					}
+					java.util.Iterator<Book> books = editorWorks.iterator();
+					while(books.hasNext())
+					{
+						Book b = books.next();
+						b.setConvention(tokenConvention);
+						tokenConvention.getBooks().add(b);
+					}
+					if(!isModify)
+					{
+						try {
+							Client.DB.getConventions().insert(tokenConvention);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
+						}
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenConvention));
+					}else
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenConvention));			
 				}
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-				{
-					Book b = books.next();
-					b.setConvention(tokenConvention);
-					tokenConvention.getBooks().add(b);
-				}
-				if(!isModify)
-				{
-					Client.DB.getConventions().insert(tokenConvention);
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenConvention));
-				}else
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenConvention));			
+				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, tokenConvention, rect);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
 			}
-			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, tokenConvention, rect);
 		}
 		buttonConfirm.setEnabled(true);
 		buttonConfirm.setIcon(null);

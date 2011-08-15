@@ -5,12 +5,14 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.beans.*;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.events.DouzEvent;
@@ -90,7 +92,15 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_RECYCLEBIN, null);
+				try {
+					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_RECYCLEBIN, null);
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 			}
 		});
 		super.add(buttonRecycleBin);
@@ -105,7 +115,15 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_SHAREDITEMS, null);
+				try {
+					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_SHAREDITEMS, null);
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 			}
 		});
 		//TODO super.add(buttonSharedItems);
@@ -120,7 +138,15 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_MEDIAMANAGER, null);
+				try {
+					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_MEDIAMANAGER, null);
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 			}
 		});
 		super.add(buttonMediaManager);
@@ -183,7 +209,15 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					openWindow(DouzWindow.Type.WINDOW_PLUGIN, plugin);
+					try {
+						openWindow(DouzWindow.Type.WINDOW_PLUGIN, plugin);
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
+					} catch (RemoteException re) {
+						Core.Logger.log(re.getMessage(), Level.ERROR);
+						re.printStackTrace();
+					}
 				}
 			});
 			super.add(buttonPlugin);
@@ -200,7 +234,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			return super.add(comp);//throw new InvalidWindowStateException("Don't use Component.add(), use open() instead.");
 	}
 	
-	public DouzWindow openWindow(DouzWindow.Type type, Object param)
+	public DouzWindow openWindow(DouzWindow.Type type, Object param) throws DataBaseException, RemoteException
 	{
 		if(checkWindow(type,param))
 			return null;
@@ -219,7 +253,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds)
+	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds) throws DataBaseException, RemoteException
 	{
 		if(checkWindow(type,param))
 			return null;
@@ -239,7 +273,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title)
+	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title) throws DataBaseException, RemoteException
 	{
 		if(checkWindow(type,param))
 			return null;
@@ -386,10 +420,18 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		{
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
 		}
-		if(Client.DB.getDeleted().count() > 0)
-			buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
-		else
-			buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+		try {
+			if(Client.DB.getDeleted().count() > 0)
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
+			else
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
+		}
 		super.validate();
 	}
 }

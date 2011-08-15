@@ -2,6 +2,7 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.rmi.RemoteException;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -16,6 +18,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
@@ -104,38 +107,46 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Client.DB.getShared())
-		{
-			if(r instanceof Artist)
+		try {
+			for(Record r : Client.DB.getShared().elements())
 			{
-				deleted_a.add((Artist)r);
-				continue;
+				if(r instanceof Artist)
+				{
+					deleted_a.add((Artist)r);
+					continue;
+				}
+				if(r instanceof Book)
+				{
+					deleted_b.add((Book)r);
+					continue;
+				}
+				if(r instanceof Circle)
+				{
+					deleted_c.add((Circle)r);
+					continue;
+				}
+				if(r instanceof Convention)
+				{
+					deleted_cv.add((Convention)r);
+					continue;
+				}
+				if(r instanceof Content)
+				{
+					deleted_cn.add((Content)r);
+					continue;
+				}
+				if(r instanceof Parody)
+				{
+					deleted_p.add((Parody)r);
+					continue;
+				}
 			}
-			if(r instanceof Book)
-			{
-				deleted_b.add((Book)r);
-				continue;
-			}
-			if(r instanceof Circle)
-			{
-				deleted_c.add((Circle)r);
-				continue;
-			}
-			if(r instanceof Convention)
-			{
-				deleted_cv.add((Convention)r);
-				continue;
-			}
-			if(r instanceof Content)
-			{
-				deleted_cn.add((Content)r);
-				continue;
-			}
-			if(r instanceof Parody)
-			{
-				deleted_p.add((Parody)r);
-				continue;
-			}
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
 		}
 		JSplitPane splitListA = new JSplitPane();
 		JSplitPane splitListB = new JSplitPane();
@@ -592,38 +603,46 @@ public class PanelSharedItems implements Validable, LayoutManager, MouseListener
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Client.DB.getShared())
-		{
-			if(r instanceof Artist)
+		try {
+			for(Record r : Client.DB.getShared().elements())
 			{
-				deleted_a.add((Artist)r);
-				continue;
+				if(r instanceof Artist)
+				{
+					deleted_a.add((Artist)r);
+					continue;
+				}
+				if(r instanceof Book)
+				{
+					deleted_b.add((Book)r);
+					continue;
+				}
+				if(r instanceof Circle)
+				{
+					deleted_c.add((Circle)r);
+					continue;
+				}
+				if(r instanceof Convention)
+				{
+					deleted_cv.add((Convention)r);
+					continue;
+				}
+				if(r instanceof Content)
+				{
+					deleted_cn.add((Content)r);
+					continue;
+				}
+				if(r instanceof Parody)
+				{
+					deleted_p.add((Parody)r);
+					continue;
+				}
 			}
-			if(r instanceof Book)
-			{
-				deleted_b.add((Book)r);
-				continue;
-			}
-			if(r instanceof Circle)
-			{
-				deleted_c.add((Circle)r);
-				continue;
-			}
-			if(r instanceof Convention)
-			{
-				deleted_cv.add((Convention)r);
-				continue;
-			}
-			if(r instanceof Content)
-			{
-				deleted_cn.add((Content)r);
-				continue;
-			}
-			if(r instanceof Parody)
-			{
-				deleted_p.add((Parody)r);
-				continue;
-			}
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
 		}
 		{
 			Iterable<Artist> iterable = checkboxListArtist.getSelectedItems();

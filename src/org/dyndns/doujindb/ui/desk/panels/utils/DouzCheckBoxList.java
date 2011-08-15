@@ -2,11 +2,13 @@ package org.dyndns.doujindb.ui.desk.panels.utils;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -14,6 +16,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 
@@ -73,30 +76,38 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 					return;
 	  			CheckBoxItem<T> item = (CheckBoxItem<T>)listData.getModel().getElementAt(selectedIndex);
         		Object token = item.getItem();
-        		if(token instanceof Artist)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, (Record)token);
-        		}
-        		if(token instanceof Book)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, (Record)token);
-        		}
-        		if(token instanceof Circle)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, (Record)token);
-        		}
-        		if(token instanceof Convention)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, (Record)token);
-        		}
-        		if(token instanceof Content)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, (Record)token);
-        		}
-        		if(token instanceof Parody)
-        		{
-        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, (Record)token);
-        		}
+        		try {
+	        		if(token instanceof Artist)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, (Record)token);
+	        		}
+	        		if(token instanceof Book)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, (Record)token);
+	        		}
+	        		if(token instanceof Circle)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, (Record)token);
+	        		}
+	        		if(token instanceof Convention)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, (Record)token);
+	        		}
+	        		if(token instanceof Content)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, (Record)token);
+	        		}
+	        		if(token instanceof Parody)
+	        		{
+	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, (Record)token);
+	        		}
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
       		}
 		});
 		scrollPane = new JScrollPane();

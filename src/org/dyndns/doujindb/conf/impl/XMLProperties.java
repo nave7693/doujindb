@@ -81,6 +81,12 @@ final class XMLProperties implements Properties
 			prop.setDescription("<html><body>Temporary folder used to store session media files.</body></html>");
 			values.put("org.dyndns.doujindb.dat.temp", prop);			
 		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(1099);
+			prop.setDescription("<html><body>Network port used to accept incoming connections.</body></html>");
+			values.put("org.dyndns.doujindb.net.listen_port", prop);			
+		}
 	}
 	
 	public Iterable<String> keys()

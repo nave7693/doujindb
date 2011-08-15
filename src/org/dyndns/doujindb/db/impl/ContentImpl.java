@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
@@ -20,7 +21,7 @@ final class ContentImpl extends RecordImpl implements Record, Content, Serializa
 	@XmlElement(name="book", required=false)
 	private Set<Book> books = new HashSet<Book>();
 
-	public ContentImpl() { super(); }
+	public ContentImpl() throws RemoteException { super(); }
 	
 	@Override
 	public synchronized Set<Book> getBooks() {

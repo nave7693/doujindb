@@ -74,6 +74,12 @@ final class SerializedProperties implements Properties
 			prop.setDescription("<html><body>Temporary folder used to store session media files.</body></html>");
 			values.put("org.dyndns.doujindb.dat.temp", prop);			
 		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(1099);
+			prop.setDescription("<html><body>Network port used to accept incoming connections.</body></html>");
+			values.put("org.dyndns.doujindb.net.listen_port", prop);			
+		}
 		//values.put("org.dyndns.doujindb.dat.save_on_exit", false);
 		//descriptions.put("org.dyndns.doujindb.dat.save_on_exit", "<html><body>Whether the database should be saved on exit.</body></html>");
 		//values.put("org.dyndns.doujindb.dat.export_filename", false);

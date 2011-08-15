@@ -1,12 +1,14 @@
 package org.dyndns.doujindb.ui.desk;
 
 import java.awt.*;
+import java.rmi.RemoteException;
 import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
@@ -35,11 +37,11 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 		WINDOW_PARODY
 	}
 	
-	DouzWindow(Type type)
+	DouzWindow(Type type) throws DataBaseException, RemoteException
 	{
 		this(type, null);		
 	}
-	DouzWindow(Type type, Object param)
+	DouzWindow(Type type, Object param) throws DataBaseException, RemoteException
 	{
 		super("", true, true, true, true);
 		{

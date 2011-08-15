@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.TreeSet;
@@ -16,6 +17,7 @@ import javax.swing.tree.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.DouzDialog;
@@ -66,24 +68,30 @@ public class PanelBookMedia extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						JFileChooser fc = Core.UI.getFileChooser();
-						fc.setMultiSelectionEnabled(true);
-						int prev_option = fc.getFileSelectionMode();
-						fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-						if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+						try
 						{
+							JFileChooser fc = Core.UI.getFileChooser();
+							fc.setMultiSelectionEnabled(true);
+							int prev_option = fc.getFileSelectionMode();
+							fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							{
+								fc.setMultiSelectionEnabled(false);
+								fc.setFileSelectionMode(prev_option);
+								return;
+							}
+							File files[] = fc.getSelectedFiles();
+							DataSource up_folder = Core.Datastore.child(tokenBook.getID());
+							Thread uploader = new Uploader(up_folder, files);
+							uploader.start();
+							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							return;
+							displayUI();	
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
 						}
-						File files[] = fc.getSelectedFiles();
-						DataSource up_folder = Core.Datastore.child(tokenBook.getID());
-						Thread uploader = new Uploader(up_folder, files);
-						uploader.start();
-						try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
-						fc.setMultiSelectionEnabled(false);
-						fc.setFileSelectionMode(prev_option);
-						displayUI();
 					}
 				}.start();
 			}
@@ -129,44 +137,50 @@ public class PanelBookMedia extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						JFileChooser fc = Core.UI.getFileChooser();
-						fc.setMultiSelectionEnabled(false);
-						int prev_option = fc.getFileSelectionMode();
-						fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-						if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+						try
 						{
+							JFileChooser fc = Core.UI.getFileChooser();
+							fc.setMultiSelectionEnabled(false);
+							int prev_option = fc.getFileSelectionMode();
+							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							{
+								fc.setMultiSelectionEnabled(false);
+								fc.setFileSelectionMode(prev_option);
+								return;
+							}
+							File dl_folder = fc.getSelectedFile();
+							Set<DataSource> dss = new TreeSet<DataSource>();
+							{
+								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
+								DataSource root_ds = Core.Datastore.child(tokenBook.getID());
+								for(TreePath path : paths)
+								try
+								{
+									Object os[] = path.getPath();
+									DataSource ds;
+									if(os[0].toString().startsWith("/"))
+										ds = root_ds.child(os[0].toString().substring(1));
+									else
+										ds = root_ds.child(os[0].toString());
+									for(int k=1;k<os.length;k++)
+										if(os[k].toString().startsWith("/"))
+											ds = ds.child(os[k].toString().substring(1));
+										else
+											ds = ds.child(os[k].toString());
+									dss.add(ds);
+								} catch (Exception e) { e.printStackTrace(); }
+							}
+							Thread downloader = new Downloader(dl_folder, dss);
+							downloader.start();
+							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) { }
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							return;
+							displayUI();
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
 						}
-						File dl_folder = fc.getSelectedFile();
-						Set<DataSource> dss = new TreeSet<DataSource>();
-						{
-							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataSource root_ds = Core.Datastore.child(tokenBook.getID());
-							for(TreePath path : paths)
-							try
-							{
-								Object os[] = path.getPath();
-								DataSource ds;
-								if(os[0].toString().startsWith("/"))
-									ds = root_ds.child(os[0].toString().substring(1));
-								else
-									ds = root_ds.child(os[0].toString());
-								for(int k=1;k<os.length;k++)
-									if(os[k].toString().startsWith("/"))
-										ds = ds.child(os[k].toString().substring(1));
-									else
-										ds = ds.child(os[k].toString());
-								dss.add(ds);
-							} catch (Exception e) { e.printStackTrace(); }
-						}
-						Thread downloader = new Downloader(dl_folder, dss);
-						downloader.start();
-						try { while(downloader.isAlive()) sleep(10); } catch (Exception e) { }
-						fc.setMultiSelectionEnabled(false);
-						fc.setFileSelectionMode(prev_option);
-						displayUI();
 					}
 				}.start();				
 			}
@@ -291,28 +305,42 @@ public class PanelBookMedia extends JPanel implements Validable
 	
 	private void displayUI()
 	{
-		if(!Client.DB.getBooks().contains(tokenBook))
-			return;
+		try {
+			if(!Client.DB.getBooks().contains(tokenBook))
+				return;
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
+		}
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				String root_id = "/";
-				MutableTreeNode root = new DefaultMutableTreeNode(root_id);
-				//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
-				//buildTree(file, root);
-				buildTree(Core.Datastore.child(tokenBook.getID()), root);
-				DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
-				dtm.setRoot(root);
-				SwingUtilities.invokeLater(new Runnable()
+				try
 				{
-					@Override
-					public void run()
+					String root_id = "/";
+					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
+					//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
+					//buildTree(file, root);
+					buildTree(Core.Datastore.child(tokenBook.getID()), root);
+					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
+					dtm.setRoot(root);
+					SwingUtilities.invokeLater(new Runnable()
 					{
-						PanelBookMedia.super.validate();
-					}
-				});
+						@Override
+						public void run()
+						{
+							PanelBookMedia.super.validate();
+						}
+					});
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 			}
 		});
 	}
@@ -372,7 +400,12 @@ public class PanelBookMedia extends JPanel implements Validable
 	    if(tree.getModel().getRoot()==value)
 	    {
 	    	setIcon((ImageIcon)renderIcon.get("/"));
-	    	setText("datastore://" + tokenBook.getID());
+	    	try {
+				setText("datastore://" + tokenBook.getID());
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 	    	return this;
 	    }
 	    if(value.toString().endsWith("/"))

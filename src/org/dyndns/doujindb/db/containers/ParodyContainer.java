@@ -1,5 +1,7 @@
 package org.dyndns.doujindb.db.containers;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.Set;
 
 import org.dyndns.doujindb.db.records.Parody;
@@ -9,7 +11,7 @@ import org.dyndns.doujindb.db.records.Parody;
 * @author nozomu
 * @version 1.0
 */
-public interface ParodyContainer
+public interface ParodyContainer extends Remote
 {
-	public Set<Parody> getParodies();
+	public Set<Parody> getParodies() throws RemoteException;
 }

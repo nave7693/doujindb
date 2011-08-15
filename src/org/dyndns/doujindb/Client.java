@@ -1,5 +1,8 @@
 package org.dyndns.doujindb;
 
+import java.rmi.*;
+import java.net.MalformedURLException;
+
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -21,9 +24,49 @@ public final class Client
 	
 	public static void connect() throws DataBaseException
 	{
+		connect("localhost");
+	}
+	
+	public static void connect(String host) throws DataBaseException
+	{
+		connect(host, 1099);
+	}
+	
+	public static void connect(String host, int port) throws DataBaseException
+	{
 		if(DB != null)
 			throw new DataBaseException("Client already connected.");
-		//TODO RMI Magic
+        try { 
+        	DB = (DataBase)
+                           Naming.lookup(
+                 "rmi://" + host + ":" + port + "/DataBase");
+        } 
+        catch (MalformedURLException murle) { 
+            System.out.println(); 
+            System.out.println(
+              "MalformedURLException"); 
+            System.out.println(murle); 
+        } 
+        catch (RemoteException re) { 
+            System.out.println(); 
+            System.out.println(
+                        "RemoteException"); 
+            System.out.println(re); 
+        } 
+        catch (NotBoundException nbe) { 
+            System.out.println(); 
+            System.out.println(
+                       "NotBoundException"); 
+            System.out.println(nbe); 
+        } 
+        catch (
+            java.lang.ArithmeticException
+                                      ae) { 
+            System.out.println(); 
+            System.out.println(
+             "java.lang.ArithmeticException"); 
+            System.out.println(ae); 
+        }
 		/*try
 		{
 			Class<?> clazz = Class.forName(DBType);

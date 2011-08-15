@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
@@ -48,7 +49,7 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	@XmlElement(required=false)
 	private String info = "";	
 	
-	public BookImpl() { super(); }
+	public BookImpl() throws RemoteException { super(); }
 
 	@Override
 	public synchronized String getJapaneseName() {

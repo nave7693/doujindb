@@ -1,5 +1,8 @@
 package org.dyndns.doujindb.db.containers;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 import org.dyndns.doujindb.db.records.Convention;
 
 /**  
@@ -7,8 +10,8 @@ import org.dyndns.doujindb.db.records.Convention;
 * @author nozomu
 * @version 1.0
 */
-public interface ConventionContainer
+public interface ConventionContainer extends Remote
 {
-	public Convention getConvention();
-	public void setConvention(Convention convention);
+	public Convention getConvention() throws RemoteException;
+	public void setConvention(Convention convention) throws RemoteException;
 }

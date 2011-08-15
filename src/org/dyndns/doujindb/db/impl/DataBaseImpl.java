@@ -1,6 +1,8 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Hashtable;
 
 import org.dyndns.doujindb.db.*;
@@ -9,7 +11,7 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="DataBase")
-final class DataBaseImpl implements DataBase
+public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -43,7 +45,7 @@ final class DataBaseImpl implements DataBase
 		return unchecked;
 	}
 
-	public DataBaseImpl()
+	public DataBaseImpl() throws RemoteException
 	{
 		books = new TableImpl<Book>();
 		circles = new TableImpl<Circle>();
@@ -81,33 +83,57 @@ final class DataBaseImpl implements DataBase
 	}
 
 	@Override
-	public synchronized Artist newArtist() {
-		return new ArtistImpl();
+	public synchronized Artist newArtist() throws DataBaseException {
+		try {
+			return new ArtistImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
-	public synchronized Book newBook() {
-		return new BookImpl();
+	public synchronized Book newBook() throws DataBaseException {
+		try {
+			return new BookImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
-	public synchronized Circle newCircle() {
-		return new CircleImpl();
+	public synchronized Circle newCircle() throws DataBaseException {
+		try {
+			return new CircleImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
-	public synchronized Content newContent() {
-		return new ContentImpl();
+	public synchronized Content newContent() throws DataBaseException {
+		try {
+			return new ContentImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
-	public synchronized Convention newConvention() {
-		return new ConventionImpl();
+	public synchronized Convention newConvention() throws DataBaseException {
+		try {
+			return new ConventionImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
-	public synchronized Parody newParody() {
-		return new ParodyImpl();
+	public synchronized Parody newParody() throws DataBaseException {
+		try {
+			return new ParodyImpl();
+		} catch (RemoteException re) {
+			throw new DataBaseException(re);
+		}
 	}
 
 	@Override
@@ -131,9 +157,9 @@ final class DataBaseImpl implements DataBase
 			out.writeObject(serialized);
 			out.close();
 		} catch (FileNotFoundException fnfe) {
-			throw new DataBaseException("Client.DB file not found.");
+			throw new DataBaseException("DataBase file not found.");
 		} catch (IOException ioe) {
-			throw new DataBaseException("Client.DB I/O error (" + ioe.getMessage() + ").");
+			throw new DataBaseException("DataBase I/O error (" + ioe.getMessage() + ").");
 		}
 	}
 
@@ -149,76 +175,76 @@ final class DataBaseImpl implements DataBase
 			Hashtable<String, Serializable> serialized = (Hashtable<String, Serializable>) in.readObject();
 			in.close();
 			if(!serialized.containsKey("Artist"))
-				throw new DataBaseException("Client.DB load error : missing Artist table.");
+				throw new DataBaseException("DataBase load error : missing Artist table.");
 			if(!serialized.containsKey("Book"))
-				throw new DataBaseException("Client.DB load error : missing Book table.");
+				throw new DataBaseException("DataBase load error : missing Book table.");
 			if(!serialized.containsKey("Circle"))
-				throw new DataBaseException("Client.DB load error : missing Circle table.");
+				throw new DataBaseException("DataBase load error : missing Circle table.");
 			if(!serialized.containsKey("Content"))
-				throw new DataBaseException("Client.DB load error : missing Content table.");
+				throw new DataBaseException("DataBase load error : missing Content table.");
 			if(!serialized.containsKey("Convention"))
-				throw new DataBaseException("Client.DB load error : missing Convention table.");
+				throw new DataBaseException("DataBase load error : missing Convention table.");
 			if(!serialized.containsKey("Parody"))
-				throw new DataBaseException("Client.DB load error : missing Parody table.");
+				throw new DataBaseException("DataBase load error : missing Parody table.");
 			if(!serialized.containsKey("Deleted"))
-				throw new DataBaseException("Client.DB load error : missing Deleted table.");
+				throw new DataBaseException("DataBase load error : missing Deleted table.");
 			if(!serialized.containsKey("Shared"))
-				throw new DataBaseException("Client.DB load error : missing Shared table.");
+				throw new DataBaseException("DataBase load error : missing Shared table.");
 			if(!serialized.containsKey("Unchecked"))
-				throw new DataBaseException("Client.DB load error : missing Unchecked table.");
+				throw new DataBaseException("DataBase load error : missing Unchecked table.");
 			try {
 				artists = (Table<Artist>) serialized.get("Artist");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Artist table.");
+				throw new DataBaseException("DataBase load error : invalid Artist table.");
 			}
 			try {
 				books = (Table<Book>) serialized.get("Book");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Book table.");
+				throw new DataBaseException("DataBase load error : invalid Book table.");
 			}
 			try {
 				circles = (Table<Circle>) serialized.get("Circle");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Circle table.");
+				throw new DataBaseException("DataBase load error : invalid Circle table.");
 			}
 			try {
 				contents = (Table<Content>) serialized.get("Content");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Content table.");
+				throw new DataBaseException("DataBase load error : invalid Content table.");
 			}
 			try {
 				conventions = (Table<Convention>) serialized.get("Convention");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Convention table.");
+				throw new DataBaseException("DataBase load error : invalid Convention table.");
 			}
 			try {
 				parodies = (Table<Parody>) serialized.get("Parody");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Parody table.");
+				throw new DataBaseException("DataBase load error : invalid Parody table.");
 			}
 			try {
 				deleted = (Table<Record>) serialized.get("Deleted");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Deleted table.");
+				throw new DataBaseException("DataBase load error : invalid Deleted table.");
 			}
 			try {
 				shared = (Table<Record>) serialized.get("Shared");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Shared table.");
+				throw new DataBaseException("DataBase load error : invalid Shared table.");
 			}
 			try {
 				unchecked = (Table<Record>) serialized.get("Unchecked");
 			} catch (ClassCastException cce) {
-				throw new DataBaseException("Client.DB load error : invalid Unchecked table.");
+				throw new DataBaseException("DataBase load error : invalid Unchecked table.");
 			}
 		} catch (FileNotFoundException fnfe) {
-			throw new DataBaseException("Client.DB file not found.");
+			throw new DataBaseException("DataBase file not found.");
 		} catch (IOException ioe) {
-			throw new DataBaseException("Client.DB I/O error (" + ioe.getMessage() + ").");
+			throw new DataBaseException("DataBase I/O error (" + ioe.getMessage() + ").");
 		} catch (ClassNotFoundException cnfe) {
-			throw new DataBaseException("Client.DB cast error (" + cnfe.getMessage() + ").");
+			throw new DataBaseException("DataBase cast error (" + cnfe.getMessage() + ").");
 		} catch (ClassCastException cce) {
-			throw new DataBaseException("Client.DB cast error (" + cce.getMessage() + ").");
+			throw new DataBaseException("DataBase cast error (" + cce.getMessage() + ").");
 		}
 	}
 

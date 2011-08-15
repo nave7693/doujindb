@@ -1,7 +1,10 @@
 package org.dyndns.doujindb.ui.desk.panels;
 
+import java.rmi.RemoteException;
+
 import javax.swing.*;
 
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -19,11 +22,11 @@ public final class EditPanel extends JPanel implements Validable
 {
 	private Validable child;
 	
-	public EditPanel(DouzWindow parent, DouzWindow.Type type)
+	public EditPanel(DouzWindow parent, DouzWindow.Type type) throws DataBaseException, RemoteException
 	{
 		this(parent, type, null);
 	}
-	public EditPanel(DouzWindow parent, DouzWindow.Type type, Object token)
+	public EditPanel(DouzWindow parent, DouzWindow.Type type, Object token) throws DataBaseException, RemoteException
 	{
 		super();
 		switch(type)

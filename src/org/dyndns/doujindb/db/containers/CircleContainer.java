@@ -1,5 +1,7 @@
 package org.dyndns.doujindb.db.containers;
 
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.Set;
 
 import org.dyndns.doujindb.db.records.Circle;
@@ -9,7 +11,7 @@ import org.dyndns.doujindb.db.records.Circle;
 * @author nozomu
 * @version 1.0
 */
-public interface CircleContainer
+public interface CircleContainer extends Remote
 {
-	public Set<Circle> getCircles();
+	public Set<Circle> getCircles() throws RemoteException;
 }

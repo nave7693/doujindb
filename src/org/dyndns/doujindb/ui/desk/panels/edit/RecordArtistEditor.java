@@ -1,14 +1,17 @@
 package org.dyndns.doujindb.ui.desk.panels.edit;
 
 import java.awt.*;
+import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.containers.ArtistContainer;
 import org.dyndns.doujindb.db.records.Artist;
+import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
@@ -22,7 +25,7 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordArtistEditor(ArtistContainer token)
+	public RecordArtistEditor(ArtistContainer token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIArtist = token;
@@ -40,7 +43,7 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Artist>(Client.DB.getArtists(), searchField);
+		checkboxList = new DouzCheckBoxList<Artist>(Client.DB.getArtists().elements(), searchField);
 		checkboxList.setSelectedItems(tokenIArtist.getArtists());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -70,7 +73,12 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 			checkboxList.validateUI(ve);
 		else
 		{
-			checkboxList.setSelectedItems(tokenIArtist.getArtists());
+			try {
+				checkboxList.setSelectedItems(tokenIArtist.getArtists());
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 		}
 		validate();
 	}

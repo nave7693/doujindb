@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.records;
 
 import java.io.Serializable;
+import java.rmi.*;
 import java.util.Set;
 
 import org.dyndns.doujindb.db.Record;
@@ -11,13 +12,13 @@ import org.dyndns.doujindb.db.containers.BookContainer;
 * @author nozomu
 * @version 1.0
 */
-public interface Convention extends Record, Serializable, BookContainer
+public interface Convention extends Record, Remote, Serializable, BookContainer
 {
-	public String getTagName();
-	public String getInfo();
-	public String getWeblink();
-	public void setTagName(String tagName);
-	public void setInfo(String info);
-	public void setWeblink(String weblink);
-	public Set<Book> getBooks();
+	public String getTagName() throws RemoteException;
+	public String getInfo() throws RemoteException;
+	public String getWeblink() throws RemoteException;
+	public void setTagName(String tagName) throws RemoteException;
+	public void setInfo(String info) throws RemoteException;
+	public void setWeblink(String weblink) throws RemoteException;
+	public Set<Book> getBooks() throws RemoteException;
 }

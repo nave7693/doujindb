@@ -3,6 +3,7 @@ package org.dyndns.doujindb.ui.desk.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -12,6 +13,7 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -125,6 +127,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 						{
 							aioobe.printStackTrace();
 							Core.Logger.log(aioobe.getMessage(), Level.WARNING);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
 						}
 					}
 				};
@@ -189,6 +197,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleRestore.setEnabled(false);
 									recycleDelete.setEnabled(false);
 									recycleEmpty.setEnabled(false);
+									;
+									try {
 									;
 									for(Artist value : checkboxListArtist.getSelectedItems())
 									{
@@ -287,6 +297,14 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									}
 									System.gc();
 									;
+									} catch (DataBaseException dbe) {
+										Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										dbe.printStackTrace();
+									} catch (RemoteException re) {
+										Core.Logger.log(re.getMessage(), Level.ERROR);
+										re.printStackTrace();
+									}
+									;
 									recycleRestore.setEnabled(true);
 									recycleDelete.setEnabled(true);
 									recycleEmpty.setEnabled(true);
@@ -375,6 +393,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleRestore.setEnabled(false);
 									recycleDelete.setEnabled(false);
 									recycleEmpty.setEnabled(false);
+									;
+									try {
 									;
 									for(Artist value : checkboxListArtist.getItems())
 									{
@@ -473,6 +493,14 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									}
 									System.gc();
 									;
+									} catch (DataBaseException dbe) {
+										Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										dbe.printStackTrace();
+									} catch (RemoteException re) {
+										Core.Logger.log(re.getMessage(), Level.ERROR);
+										re.printStackTrace();
+									}
+									;
 									recycleRestore.setEnabled(true);
 									recycleDelete.setEnabled(true);
 									recycleEmpty.setEnabled(true);
@@ -511,38 +539,46 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Client.DB.getDeleted())
-		{
-			if(r instanceof Artist)
+		try {
+			for(Record r : Client.DB.getDeleted().elements())
 			{
-				deleted_a.add((Artist)r);
-				continue;
+				if(r instanceof Artist)
+				{
+					deleted_a.add((Artist)r);
+					continue;
+				}
+				if(r instanceof Book)
+				{
+					deleted_b.add((Book)r);
+					continue;
+				}
+				if(r instanceof Circle)
+				{
+					deleted_c.add((Circle)r);
+					continue;
+				}
+				if(r instanceof Convention)
+				{
+					deleted_cv.add((Convention)r);
+					continue;
+				}
+				if(r instanceof Content)
+				{
+					deleted_cn.add((Content)r);
+					continue;
+				}
+				if(r instanceof Parody)
+				{
+					deleted_p.add((Parody)r);
+					continue;
+				}
 			}
-			if(r instanceof Book)
-			{
-				deleted_b.add((Book)r);
-				continue;
-			}
-			if(r instanceof Circle)
-			{
-				deleted_c.add((Circle)r);
-				continue;
-			}
-			if(r instanceof Convention)
-			{
-				deleted_cv.add((Convention)r);
-				continue;
-			}
-			if(r instanceof Content)
-			{
-				deleted_cn.add((Content)r);
-				continue;
-			}
-			if(r instanceof Parody)
-			{
-				deleted_p.add((Parody)r);
-				continue;
-			}
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
 		}
 		JSplitPane splitListA = new JSplitPane();
 		JSplitPane splitListB = new JSplitPane();
@@ -850,38 +886,46 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Convention> deleted_cv = new Vector<Convention>();
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
-		for(Record r : Client.DB.getDeleted())
-		{
-			if(r instanceof Artist)
+		try {
+			for(Record r : Client.DB.getDeleted().elements())
 			{
-				deleted_a.add((Artist)r);
-				continue;
+				if(r instanceof Artist)
+				{
+					deleted_a.add((Artist)r);
+					continue;
+				}
+				if(r instanceof Book)
+				{
+					deleted_b.add((Book)r);
+					continue;
+				}
+				if(r instanceof Circle)
+				{
+					deleted_c.add((Circle)r);
+					continue;
+				}
+				if(r instanceof Convention)
+				{
+					deleted_cv.add((Convention)r);
+					continue;
+				}
+				if(r instanceof Content)
+				{
+					deleted_cn.add((Content)r);
+					continue;
+				}
+				if(r instanceof Parody)
+				{
+					deleted_p.add((Parody)r);
+					continue;
+				}
 			}
-			if(r instanceof Book)
-			{
-				deleted_b.add((Book)r);
-				continue;
-			}
-			if(r instanceof Circle)
-			{
-				deleted_c.add((Circle)r);
-				continue;
-			}
-			if(r instanceof Convention)
-			{
-				deleted_cv.add((Convention)r);
-				continue;
-			}
-			if(r instanceof Content)
-			{
-				deleted_cn.add((Content)r);
-				continue;
-			}
-			if(r instanceof Parody)
-			{
-				deleted_p.add((Parody)r);
-				continue;
-			}
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
 		}
 		{
 			Iterable<Artist> iterable = checkboxListArtist.getSelectedItems();
@@ -913,8 +957,17 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			checkboxListParody.setItems(deleted_p);
 			checkboxListParody.setSelectedItems(iterable);
 		}
-		long count = Client.DB.getDeleted().count();
-		recycleInfo.setText((count==1)?("Item : 1"):("Items : "+count));
+		long count;
+		try {
+			count = Client.DB.getDeleted().count();
+			recycleInfo.setText((count==1)?("Item : 1"):("Items : "+count));
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
+		}
 		labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
 		labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");
 		labelListCircle.setText("Circles (" + checkboxListCircle.getSelectedItemCount() + "/" + checkboxListCircle.getItemCount() + ")");

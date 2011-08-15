@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.desk.panels.edit;
 
 import java.awt.*;
+import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -8,8 +9,10 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
@@ -25,7 +28,7 @@ public class RecordBookEditor extends JSplitPane implements Validable
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordBookEditor(BookContainer token)
+	public RecordBookEditor(BookContainer token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIBook = token;
@@ -43,7 +46,7 @@ public class RecordBookEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Book>(Client.DB.getBooks(), searchField);
+		checkboxList = new DouzCheckBoxList<Book>(Client.DB.getBooks().elements(), searchField);
 		checkboxList.setSelectedItems(tokenIBook.getBooks());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -73,7 +76,12 @@ public class RecordBookEditor extends JSplitPane implements Validable
 			checkboxList.validateUI(ve);
 		else
 		{
-			checkboxList.setSelectedItems(tokenIBook.getBooks());
+			try {
+				checkboxList.setSelectedItems(tokenIBook.getBooks());
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 		}
 		validate();
 	}

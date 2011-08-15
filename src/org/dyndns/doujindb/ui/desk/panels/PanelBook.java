@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.Hashtable;
 
@@ -16,6 +17,7 @@ import javax.swing.border.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -67,7 +69,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
 	
-	public PanelBook(DouzWindow parent, JComponent pane, Book token)
+	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
 		if(token == null)
@@ -326,7 +328,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		for(Convention conv : Client.DB.getConventions())
+		for(Convention conv : Client.DB.getConventions().elements())
 			comboConvention.addItem(conv);
 		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());
@@ -513,6 +515,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				}
 			});
 			tmr.start();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
 		}
 		if(date == null && !textDate.getText().equals("--/--/----"))
 		{
@@ -543,97 +548,113 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			{
-				tokenBook.setJapaneseName(textJapaneseName.getText());
-				tokenBook.setTranslatedName(textTranslatedName.getText());
-				tokenBook.setRomanjiName(textRomanjiName.getText());
-				tokenBook.setInfo(textInfo.getText());
-				tokenBook.setDate(date);
-				tokenBook.setRating(editorRating.getRating());
-				tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
-				tokenBook.setType((Type)comboType.getSelectedItem());
-				tokenBook.setPages(pages);
-				tokenBook.setAdult(checkAdult.isSelected());
-				tokenBook.setDecensored(checkDecensored.isSelected());
-				tokenBook.setTranslated(checkTranslated.isSelected());
-				tokenBook.setColored(checkColored.isSelected());
+			try {
 				{
-					for(Artist b : tokenBook.getArtists())
+					tokenBook.setJapaneseName(textJapaneseName.getText());
+					tokenBook.setTranslatedName(textTranslatedName.getText());
+					tokenBook.setRomanjiName(textRomanjiName.getText());
+					tokenBook.setInfo(textInfo.getText());
+					tokenBook.setDate(date);
+					tokenBook.setRating(editorRating.getRating());
+					tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
+					tokenBook.setType((Type)comboType.getSelectedItem());
+					tokenBook.setPages(pages);
+					tokenBook.setAdult(checkAdult.isSelected());
+					tokenBook.setDecensored(checkDecensored.isSelected());
+					tokenBook.setTranslated(checkTranslated.isSelected());
+					tokenBook.setColored(checkColored.isSelected());
 					{
-						if(!editorArtist.contains(b))
+						for(Artist b : tokenBook.getArtists())
 						{
-							b.getBooks().remove(tokenBook);
-							tokenBook.getArtists().remove(b);
+							if(!editorArtist.contains(b))
+							{
+								b.getBooks().remove(tokenBook);
+								tokenBook.getArtists().remove(b);
+							}
+						}
+						java.util.Iterator<Artist> Artists = editorArtist.iterator();
+						while(Artists.hasNext())
+						{
+							Artist b = Artists.next();
+							b.getBooks().add(tokenBook);
+							tokenBook.getArtists().add(b);
 						}
 					}
-					java.util.Iterator<Artist> Artists = editorArtist.iterator();
-					while(Artists.hasNext())
 					{
-						Artist b = Artists.next();
-						b.getBooks().add(tokenBook);
-						tokenBook.getArtists().add(b);
-					}
-				}
-				{
-					for(Circle c : tokenBook.getCircles())
-					{
-						if(!editorCircles.contains(c))
+						for(Circle c : tokenBook.getCircles())
 						{
-							c.getBooks().remove(tokenBook);
-							tokenBook.getCircles().remove(c);
+							if(!editorCircles.contains(c))
+							{
+								c.getBooks().remove(tokenBook);
+								tokenBook.getCircles().remove(c);
+							}
+						}
+						java.util.Iterator<Circle> circles = editorCircles.iterator();
+						while(circles.hasNext())
+						{
+							Circle c = circles.next();
+							c.getBooks().add(tokenBook);
+							tokenBook.getCircles().add(c);
 						}
 					}
-					java.util.Iterator<Circle> circles = editorCircles.iterator();
-					while(circles.hasNext())
 					{
-						Circle c = circles.next();
-						c.getBooks().add(tokenBook);
-						tokenBook.getCircles().add(c);
-					}
-				}
-				{
-					for(Content c : tokenBook.getContents())
-					{
-						if(!editorContents.contains(c))
+						for(Content c : tokenBook.getContents())
 						{
-							c.getBooks().remove(tokenBook);
-							tokenBook.getContents().remove(c);
+							if(!editorContents.contains(c))
+							{
+								c.getBooks().remove(tokenBook);
+								tokenBook.getContents().remove(c);
+							}
+						}
+						java.util.Iterator<Content> contents = editorContents.iterator();
+						while(contents.hasNext())
+						{
+							Content c = contents.next();
+							c.getBooks().add(tokenBook);
+							tokenBook.getContents().add(c);
 						}
 					}
-					java.util.Iterator<Content> contents = editorContents.iterator();
-					while(contents.hasNext())
 					{
-						Content c = contents.next();
-						c.getBooks().add(tokenBook);
-						tokenBook.getContents().add(c);
-					}
-				}
-				{
-					for(Parody c : tokenBook.getParodies())
-					{
-						if(!editorParodies.contains(c))
+						for(Parody c : tokenBook.getParodies())
 						{
-							c.getBooks().remove(tokenBook);
-							tokenBook.getParodies().remove(c);
+							if(!editorParodies.contains(c))
+							{
+								c.getBooks().remove(tokenBook);
+								tokenBook.getParodies().remove(c);
+							}
+						}
+						java.util.Iterator<Parody> parodies = editorParodies.iterator();
+						while(parodies.hasNext())
+						{
+							Parody c = parodies.next();
+							c.getBooks().add(tokenBook);
+							tokenBook.getParodies().add(c);
 						}
 					}
-					java.util.Iterator<Parody> parodies = editorParodies.iterator();
-					while(parodies.hasNext())
+					if(!isModify)
 					{
-						Parody c = parodies.next();
-						c.getBooks().add(tokenBook);
-						tokenBook.getParodies().add(c);
+						try {
+							Client.DB.getBooks().insert(tokenBook);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
+						}
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenBook));
 					}
+					else
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
 				}
-				if(!isModify)
-				{
-					Client.DB.getBooks().insert(tokenBook);
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenBook));
-				}
-				else
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
+				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
 			}
-			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
 		}
 		buttonConfirm.setEnabled(true);
 		buttonConfirm.setIcon(null);
@@ -641,11 +662,27 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(!Client.DB.getConventions().contains((Convention)comboConvention.getSelectedItem()))
-			comboConvention.setSelectedItem(null);
+		try {
+			if(!Client.DB.getConventions().contains((Convention)comboConvention.getSelectedItem()))
+				comboConvention.setSelectedItem(null);
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		} catch (RemoteException re) {
+			Core.Logger.log(re.getMessage(), Level.ERROR);
+			re.printStackTrace();
+		}
 		for(int i=0;i<comboConvention.getItemCount();i++)
-			if(!Client.DB.getConventions().contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
-				comboConvention.removeItemAt(i);
+			try {
+				if(!Client.DB.getConventions().contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
+					comboConvention.removeItemAt(i);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Artist)

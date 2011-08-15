@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
@@ -12,6 +13,7 @@ import javax.swing.border.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -42,7 +44,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	private RecordArtistEditor editorArtists;
 	private JButton buttonConfirm;
 	
-	public PanelCircle(DouzWindow parent, JComponent pane, Circle token)
+	public PanelCircle(DouzWindow parent, JComponent pane, Circle token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
 		if(token == null)
@@ -357,50 +359,66 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			{
-				tokenCircle.setJapaneseName(textJapaneseName.getText());
-				tokenCircle.setTranslatedName(textTranslatedName.getText());
-				tokenCircle.setRomanjiName(textRomanjiName.getText());
-				tokenCircle.setWeblink(textWeblink.getText());
-				for(Book b : tokenCircle.getBooks())
+			try {
 				{
-					if(!editorWorks.contains(b))
+					tokenCircle.setJapaneseName(textJapaneseName.getText());
+					tokenCircle.setTranslatedName(textTranslatedName.getText());
+					tokenCircle.setRomanjiName(textRomanjiName.getText());
+					tokenCircle.setWeblink(textWeblink.getText());
+					for(Book b : tokenCircle.getBooks())
 					{
-						b.getCircles().remove(tokenCircle);
-						tokenCircle.getBooks().remove(b);
+						if(!editorWorks.contains(b))
+						{
+							b.getCircles().remove(tokenCircle);
+							tokenCircle.getBooks().remove(b);
+						}
 					}
-				}
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-				{
-					Book b = books.next();
-					b.getCircles().add(tokenCircle);
-					tokenCircle.getBooks().add(b);
-				}
-				for(Artist c : tokenCircle.getArtists())
-				{
-					if(!editorArtists.contains(c))
+					java.util.Iterator<Book> books = editorWorks.iterator();
+					while(books.hasNext())
 					{
-						c.getCircles().remove(tokenCircle);
-						tokenCircle.getArtists().remove(c);
+						Book b = books.next();
+						b.getCircles().add(tokenCircle);
+						tokenCircle.getBooks().add(b);
 					}
+					for(Artist c : tokenCircle.getArtists())
+					{
+						if(!editorArtists.contains(c))
+						{
+							c.getCircles().remove(tokenCircle);
+							tokenCircle.getArtists().remove(c);
+						}
+					}
+					java.util.Iterator<Artist> Artists = editorArtists.iterator();
+					while(Artists.hasNext())
+					{
+						Artist c = Artists.next();
+						c.getCircles().add(tokenCircle);
+						tokenCircle.getArtists().add(c);
+					}
+					if(!isModify)
+					{
+						try {
+							Client.DB.getCircles().insert(tokenCircle);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						} catch (RemoteException re) {
+							Core.Logger.log(re.getMessage(), Level.ERROR);
+							re.printStackTrace();
+						}
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenCircle));
+					}
+					else
+						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenCircle));				
 				}
-				java.util.Iterator<Artist> Artists = editorArtists.iterator();
-				while(Artists.hasNext())
-				{
-					Artist c = Artists.next();
-					c.getCircles().add(tokenCircle);
-					tokenCircle.getArtists().add(c);
-				}
-				if(!isModify)
-				{
-					Client.DB.getCircles().insert(tokenCircle);
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenCircle));
-				}
-				else
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenCircle));				
+				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
 			}
-			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
 		}
 		buttonConfirm.setEnabled(true);
 		buttonConfirm.setIcon(null);

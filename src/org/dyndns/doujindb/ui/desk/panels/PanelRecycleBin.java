@@ -203,12 +203,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Artist value : checkboxListArtist.getSelectedItems())
 									{
 										Artist o = (Artist)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getArtists().remove(o);
 											//o.getBooks().remove(b);
 										}
-										for(Circle c : o.getCircles())
+										for(Circle c : o.getCircles().elements())
 										{
 											c.getArtists().remove(o);
 											//o.getCircles().remove(c);
@@ -219,22 +219,22 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Book value : checkboxListBook.getSelectedItems())
 									{
 										Book o = (Book)value;
-										for(Circle c : o.getCircles())
+										for(Circle c : o.getCircles().elements())
 										{
 											c.getBooks().remove(o);
 											//o.getCircles().remove(c);
 										}
-										for(Artist a : o.getArtists())
+										for(Artist a : o.getArtists().elements())
 										{
 											a.getBooks().remove(o);
 											//o.getArtists().remove(a);
 										}
-										for(Content c : o.getContents())
+										for(Content c : o.getContents().elements())
 										{
 											c.getBooks().remove(o);
 											//o.getContents().remove(c);
 										}
-										for(Parody p : o.getParodies())
+										for(Parody p : o.getParodies().elements())
 										{
 											p.getBooks().remove(o);
 											//o.getParodies().remove(p);
@@ -248,12 +248,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Circle value : checkboxListCircle.getSelectedItems())
 									{
 										Circle o = (Circle)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getCircles().remove(o);
 											//o.getBooks().remove(b);
 										}
-										for(Artist a : o.getArtists())
+										for(Artist a : o.getArtists().elements())
 										{
 											a.getCircles().remove(o);
 											//o.getArtists().remove(a);
@@ -265,7 +265,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Convention value : checkboxListConvention.getSelectedItems())
 									{
 										Convention o = (Convention)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.setConvention(null);
 											//o.getBooks().remove(b);
@@ -276,7 +276,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Content value : checkboxListContent.getSelectedItems())
 									{
 										Content o = (Content)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getContents().remove(o);
 											//o.getBooks().remove(b);
@@ -287,7 +287,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Parody value : checkboxListParody.getSelectedItems())
 									{
 										Parody o = (Parody)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getParodies().remove(o);
 											//o.getBooks().remove(b);
@@ -399,12 +399,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Artist value : checkboxListArtist.getItems())
 									{
 										Artist o = (Artist)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getArtists().remove(o);
 											//o.getBooks().remove(b);
 										}
-										for(Circle c : o.getCircles())
+										for(Circle c : o.getCircles().elements())
 										{
 											c.getArtists().remove(o);
 											//o.getCircles().remove(c);
@@ -415,22 +415,22 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Book value : checkboxListBook.getItems())
 									{
 										Book o = (Book)value;
-										for(Circle c : o.getCircles())
+										for(Circle c : o.getCircles().elements())
 										{
 											c.getBooks().remove(o);
 											//o.getCircles().remove(c);
 										}
-										for(Artist a : o.getArtists())
+										for(Artist a : o.getArtists().elements())
 										{
 											a.getBooks().remove(o);
 											//o.getArtists().remove(a);
 										}
-										for(Content c : o.getContents())
+										for(Content c : o.getContents().elements())
 										{
 											c.getBooks().remove(o);
 											//o.getContents().remove(c);
 										}
-										for(Parody p : o.getParodies())
+										for(Parody p : o.getParodies().elements())
 										{
 											p.getBooks().remove(o);
 											//o.getParodies().remove(p);
@@ -444,12 +444,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Circle value : checkboxListCircle.getItems())
 									{
 										Circle o = (Circle)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getCircles().remove(o);
 											//o.getBooks().remove(b);
 										}
-										for(Artist a : o.getArtists())
+										for(Artist a : o.getArtists().elements())
 										{
 											a.getCircles().remove(o);
 											//o.getArtists().remove(a);
@@ -461,7 +461,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Convention value : checkboxListConvention.getItems())
 									{
 										Convention o = (Convention)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.setConvention(null);
 											//o.getBooks().remove(b);
@@ -472,7 +472,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Content value : checkboxListContent.getItems())
 									{
 										Content o = (Content)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getContents().remove(o);
 											//o.getBooks().remove(b);
@@ -483,7 +483,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									for(Parody value : checkboxListParody.getItems())
 									{
 										Parody o = (Parody)value;
-										for(Book b : o.getBooks())
+										for(Book b : o.getBooks().elements())
 										{
 											b.getParodies().remove(o);
 											//o.getBooks().remove(b);

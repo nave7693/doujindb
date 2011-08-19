@@ -153,7 +153,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 					tokenParody.setTranslatedName(textTranslatedName.getText());
 					tokenParody.setRomanjiName(textRomanjiName.getText());
 					tokenParody.setWeblink(textWeblink.getText());
-					for(Book b : tokenParody.getBooks())
+					for(Book b : tokenParody.getBooks().elements())
 					{
 						if(!editorWorks.contains(b))
 						{

@@ -2,9 +2,9 @@ package org.dyndns.doujindb.db.containers;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Set;
 
-import org.dyndns.doujindb.db.records.Artist;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * ArtistContainer.java - Interface every item in the DB containing artist(s) must implement.
@@ -13,5 +13,5 @@ import org.dyndns.doujindb.db.records.Artist;
 */
 public interface ArtistContainer extends Remote
 {
-	public Set<Artist> getArtists() throws RemoteException;
+	public RecordSet<Artist> getArtists() throws RemoteException;
 }

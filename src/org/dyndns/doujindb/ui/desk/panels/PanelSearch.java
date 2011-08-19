@@ -695,7 +695,14 @@ public final class PanelSearch extends JPanel implements Validable
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book"));
 					setBackground(UIManager.getColor("List.textBackground"));
 					final Book b = (Book) value;
-					setText(b.toString());
+					try {
+						setText(b.getJapaneseName() + 
+								(b.getRomanjiName().equals("") ? "" : " ("+b.getRomanjiName()+")") +
+								(b.getTranslatedName().equals("") ? "" : " ("+b.getTranslatedName()+")"));
+					} catch (RemoteException re) {
+						Core.Logger.log(re.getMessage(), Level.ERROR);
+						re.printStackTrace();
+					}
 					setFont(font);
 					try {
 						setToolTipText("<html><body>" +
@@ -985,7 +992,12 @@ public final class PanelSearch extends JPanel implements Validable
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
 					setBackground(UIManager.getColor("List.textBackground"));
 					Content ct = (Content) value;
-					setText(ct.toString());
+					try {
+						setText(ct.getTagName());
+					} catch (RemoteException re) {
+						Core.Logger.log(re.getMessage(), Level.ERROR);
+						re.printStackTrace();
+					}
 					setFont(font);
 					return this;
 				}
@@ -1201,7 +1213,7 @@ public final class PanelSearch extends JPanel implements Validable
 					setBackground(UIManager.getColor("List.textBackground"));
 					Convention cn = (Convention) value;
 					try {
-						setText(cn.getTagName() + " (" + cn.getInfo() + ")");
+						setText(cn.getTagName() + (cn.getInfo().equals("") ? "":" (" + cn.getInfo() + ")"));
 					} catch (RemoteException re) {
 						Core.Logger.log(re.getMessage(), Level.ERROR);
 						re.printStackTrace();

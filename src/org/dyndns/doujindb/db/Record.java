@@ -12,4 +12,5 @@ public interface Record extends Remote, Serializable
 {
 	public String getID() throws RemoteException;
 	void setID(long id) throws RemoteException;
+	public String getString() throws RemoteException;
 }

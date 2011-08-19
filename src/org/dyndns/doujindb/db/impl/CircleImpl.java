@@ -2,7 +2,6 @@ package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -23,9 +22,9 @@ final class CircleImpl extends RecordImpl implements Record, Circle, Serializabl
 	@XmlElement(required=false)
 	private String weblink = "";
 	@XmlElement(name="artist", required=false)
-	private Set<Artist> artists = new HashSet<Artist>();
+	private RecordSet<Artist> artists = new RecordSetImpl<Artist>();
 	@XmlElement(name="book", required=false)
-	private Set<Book> books = new HashSet<Book>();
+	private RecordSet<Book> books = new RecordSetImpl<Book>();
 	
 	public CircleImpl() throws RemoteException { super(); }
 
@@ -74,13 +73,13 @@ final class CircleImpl extends RecordImpl implements Record, Circle, Serializabl
 	}
 
 	@Override
-	public synchronized Set<Artist> getArtists()
+	public synchronized RecordSet<Artist> getArtists()
 	{
 		return artists;
 	}
 
 	@Override
-	public synchronized Set<Book> getBooks()
+	public synchronized RecordSet<Book> getBooks()
 	{
 		return books;
 	}
@@ -121,4 +120,10 @@ final class CircleImpl extends RecordImpl implements Record, Circle, Serializabl
 	
 	@Override
 	public synchronized String getID() { return (ID == -1L ? null : String.format("C%016x", ID)); }
+
+	@Override
+	public String getString() throws RemoteException
+	{
+		return this.japaneseName;
+	}
 }

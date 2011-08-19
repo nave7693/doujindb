@@ -2,11 +2,9 @@ package org.dyndns.doujindb.db.records;
 
 import java.io.Serializable;
 import java.rmi.*;
-import java.util.Set;
 
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.ArtistContainer;
-import org.dyndns.doujindb.db.containers.BookContainer;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.containers.*;
 
 /**  
 * Circle.java - Interface Circle.
@@ -23,6 +21,6 @@ public interface Circle extends Record, Remote, Serializable, ArtistContainer, B
 	public void setTranslatedName(String translatedName) throws RemoteException;
 	public void setRomanjiName(String romanjiName) throws RemoteException;
 	public void setWeblink(String weblink) throws RemoteException;
-	public Set<Artist> getArtists() throws RemoteException;
-	public Set<Book> getBooks() throws RemoteException;
+	public RecordSet<Artist> getArtists() throws RemoteException;
+	public RecordSet<Book> getBooks() throws RemoteException;
 }

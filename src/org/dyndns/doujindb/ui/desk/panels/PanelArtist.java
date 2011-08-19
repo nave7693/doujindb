@@ -18,9 +18,6 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-
-
-
 @SuppressWarnings("serial")
 public final class PanelArtist implements Validable, LayoutManager, ActionListener
 {
@@ -157,7 +154,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 					tokenArtist.setTranslatedName(textTranslatedName.getText());
 					tokenArtist.setRomanjiName(textRomanjiName.getText());
 					tokenArtist.setWeblink(textWeblink.getText());
-					for(Book b : tokenArtist.getBooks())
+					for(Book b : tokenArtist.getBooks().elements())
 					{
 						if(!editorWorks.contains(b))
 						{
@@ -172,7 +169,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 						b.getArtists().add(tokenArtist);
 						tokenArtist.getBooks().add(b);
 					}
-					for(Circle c : tokenArtist.getCircles())
+					for(Circle c : tokenArtist.getCircles().elements())
 					{
 						if(!editorCircles.contains(c))
 						{

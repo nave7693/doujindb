@@ -16,20 +16,20 @@ final class DataStoreImpl implements DataStore
 	private final String METADATA = ".metadata";
 	private final String PREVIEW = ".preview";
 	
-	private File Root;
+	private File DsRoot;
 	
 	DataStoreImpl(File root)
 	{
-		Root = root;
+		this.DsRoot = root;
 	}
 	
 	@Override
 	public Set<DataSource> children() throws DataStoreException
 	{
 		Set<DataSource> ds = new TreeSet<DataSource>();
-		if(Root.listFiles() == null)
+		if(DsRoot.listFiles() == null)
 			return ds;
-		for(File child : Root.listFiles())
+		for(File child : DsRoot.listFiles())
 			ds.add(new DataSourceImpl(child));
 		return ds;
 	}
@@ -37,7 +37,7 @@ final class DataStoreImpl implements DataStore
 	@Override
 	public DataSource child(String name) throws DataStoreException
 	{
-		File file = new File(Root, name);
+		File file = new File(DsRoot, name);
 		return new DataSourceImpl(file);
 	}
 	
@@ -71,14 +71,14 @@ final class DataStoreImpl implements DataStore
 	@Override
 	public DataSource getMetadata(String ID) throws DataStoreException
 	{
-		File file = new File(Root, METADATA);
+		File file = new File(DsRoot, METADATA);
 		return new DataSourceImpl(file);
 	}
 
 	@Override
 	public DataSource getPreview(String ID) throws DataStoreException
 	{
-		File file = new File(Root, PREVIEW);
+		File file = new File(DsRoot, PREVIEW);
 		return new DataSourceImpl(file);
 	}
 	
@@ -94,7 +94,7 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public String getName() throws DataStoreException
 		{
-			if(!DsFile.equals(Root))
+			if(!DsFile.equals(DsRoot))
 				return DsFile.getName();
 			else
 				return "/";
@@ -103,7 +103,7 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public String getPath() throws DataStoreException
 		{
-			if(!DsFile.equals(Root))
+			if(!DsFile.equals(DsRoot))
 				return getParent().getPath() + DsFile.getName() + (isDirectory()?"/":"");
 			else
 				return getName();
@@ -197,7 +197,7 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public void mkdirs() throws DataStoreException
 		{
-			if(!DsFile.equals(Root))
+			if(!DsFile.equals(DsRoot))
 				getParent().mkdirs();
 			mkdir();
 		}
@@ -205,7 +205,7 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public void delete() throws DataStoreException
 		{
-			if(!DsFile.equals(Root))
+			if(!DsFile.equals(DsRoot))
 			if(isDirectory())
 			{
 				_delete(children());
@@ -244,10 +244,10 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public DataSource getParent() throws DataStoreException
 		{
-			if(!DsFile.equals(Root))
+			if(!DsFile.equals(DsRoot))
 				return new DataSourceImpl(DsFile.getParentFile());
 			else
-				return new DataSourceImpl(Root);
+				return new DataSourceImpl(DsRoot);
 		}
 
 		@Override

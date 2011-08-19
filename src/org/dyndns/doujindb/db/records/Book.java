@@ -1,11 +1,10 @@
 package org.dyndns.doujindb.db.records;
 
+import java.util.Date;
 import java.io.Serializable;
 import java.rmi.*;
-import java.util.Date;
-import java.util.Set;
 
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
 /**  
@@ -54,10 +53,10 @@ public interface Book extends Record, Remote, Serializable, ArtistContainer, Cir
 	public String getInfo() throws RemoteException;
 	public void setRating(Rating rating) throws RemoteException;
 	public void setInfo(String info) throws RemoteException;
-	public Set<Artist> getArtists() throws RemoteException;
-	public Set<Circle> getCircles() throws RemoteException;
-	public Set<Content> getContents() throws RemoteException;
+	public RecordSet<Artist> getArtists() throws RemoteException;
+	public RecordSet<Circle> getCircles() throws RemoteException;
+	public RecordSet<Content> getContents() throws RemoteException;
 	public Convention getConvention() throws RemoteException;
 	public void setConvention(Convention convention) throws RemoteException;
-	public Set<Parody> getParodies() throws RemoteException;
+	public RecordSet<Parody> getParodies() throws RemoteException;
 }

@@ -1241,13 +1241,13 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		doujin.Translated = book.isTranslated();
 		doujin.Rating = book.getRating();
 		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists())
+		for(Artist a : book.getArtists().elements())
 			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles())
+		for(Circle c : book.getCircles().elements())
 			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies())
+		for(Parody p : book.getParodies().elements())
 			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents())
+		for(Content ct : book.getContents().elements())
 			doujin.contents.add(ct.getTagName());
 		//FIXME Serializer serializer = new Persister();
 		try

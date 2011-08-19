@@ -72,13 +72,13 @@ public final class Client
 			Class<?> clazz = Class.forName(DBType);
 			DB = (DataBase) clazz.newInstance();
 		} catch (ClassNotFoundException cnfe) {
-			throw new DataBaseException("Cannot connect to Client.DB '" + DBType + "' : Class not found.");
+			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Class not found.");
 		} catch (InstantiationException ie) {
-			throw new DataBaseException("Cannot connect to Client.DB '" + DBType + "' : Instantiation exception.");
+			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Instantiation exception.");
 		} catch (IllegalAccessException iae) {
-			throw new DataBaseException("Cannot connect to Client.DB '" + DBType + "' : Illegal access exception.");
+			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Illegal access exception.");
 		} catch (ClassCastException cce) {
-			throw new DataBaseException("Cannot connect to Client.DB '" + DBType + "' : Class cast exception.");
+			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Class cast exception.");
 		}*/
 	}
 	

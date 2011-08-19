@@ -20,9 +20,6 @@ import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 
-
-
-
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
 public final class DouzCheckBoxList<T extends Record> extends JPanel implements Validable, LayoutManager
 {
@@ -224,7 +221,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			case DouzEvent.DATABASE_ITEMREMOVED:
 				CheckBoxItem<?> removed = null;
 				for(CheckBoxItem<?> cbi : model.items)
-					if(cbi.getItem() == ve.getParameter())
+					if(cbi.getItem().equals(ve.getParameter()))
 					{
 						removed = cbi;
 						break;
@@ -249,7 +246,12 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		public Component getListCellRendererComponent(JList listBox, Object obj, int currentindex, boolean isChecked, boolean hasFocus)
 		{
 			setSelected(((CheckBoxItem<T>)obj).isChecked());
-			setText(((CheckBoxItem<T>)obj).getItem().toString());
+			try {
+				setText(((CheckBoxItem<T>)obj).getItem().getString());
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
 			setFont(font);
 			return this;
 		}
@@ -291,7 +293,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		for(T item : items)
 			for(CheckBoxItem<T> cb : model.items)
 			{
-				if(cb.getItem() == item)
+				if(cb.getItem().equals(item))
 					cb.setChecked(true);
 			}
 		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));

@@ -628,7 +628,7 @@ public void layoutContainer(Container parent)
 						"</span><br>" +
 						"<br>" +
 						"<span style='font-size:9px'>" +
-						"Doujin Client.DB written in Java™<br>" +
+						"Doujin Database written in Java™<br>" +
 						"JVM Version : " + System.getProperty("java.runtime.version") + "<br>" +
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
@@ -817,7 +817,7 @@ public void layoutContainer(Container parent)
 			JPanel panel = new JPanel();
 			panel.setSize(250, 150);
 			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Save the Client.DB replacing the previous version?<br/><i>(This cannot be undone)</i></body></html>");
+			JLabel lab = new JLabel("<html><body>Save the Database replacing the previous version?<br/><i>(This cannot be undone)</i></body></html>");
 			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			lab.setFont(Core.Resources.Font);
 			panel.add(lab);
@@ -879,7 +879,7 @@ public void layoutContainer(Container parent)
 			JPanel panel = new JPanel();
 			panel.setSize(250, 150);
 			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Load the Client.DB ignoring current changes?<br/><i>(This cannot be undone)</i></body></html>");
+			JLabel lab = new JLabel("<html><body>Load the Database ignoring current changes?<br/><i>(This cannot be undone)</i></body></html>");
 			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			lab.setFont(Core.Resources.Font);
 			panel.add(lab);
@@ -943,21 +943,29 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getSource() == uiStatusBarConnect)
 		{
-			try
+			new Thread(getClass().getName()+"/ActionPerformed/Connect")
 			{
-				Client.connect();
-				Client.DB.rollback();
-				uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
-				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-			} catch (DataBaseException dbe)
-			{
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
-			}
-			Desktop.revalidate();
+				@Override
+				public void run()
+				{
+					try
+					{
+						//Client.connect();
+						Client.connect("192.168.1.11", 1099);
+						Client.DB.rollback();
+						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
+						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+					} catch (DataBaseException dbe)
+					{
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
+					} catch (RemoteException re) {
+						Core.Logger.log(re.getMessage(), Level.ERROR);
+						re.printStackTrace();
+					}
+					Desktop.revalidate();
+				}
+			}.start();
 		}
 		if(event.getSource() == uiStatusBarDisconnect)
 		{

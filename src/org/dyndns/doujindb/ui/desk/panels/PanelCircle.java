@@ -365,7 +365,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 					tokenCircle.setTranslatedName(textTranslatedName.getText());
 					tokenCircle.setRomanjiName(textRomanjiName.getText());
 					tokenCircle.setWeblink(textWeblink.getText());
-					for(Book b : tokenCircle.getBooks())
+					for(Book b : tokenCircle.getBooks().elements())
 					{
 						if(!editorWorks.contains(b))
 						{
@@ -380,7 +380,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 						b.getCircles().add(tokenCircle);
 						tokenCircle.getBooks().add(b);
 					}
-					for(Artist c : tokenCircle.getArtists())
+					for(Artist c : tokenCircle.getArtists().elements())
 					{
 						if(!editorArtists.contains(c))
 						{

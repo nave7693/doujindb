@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
@@ -102,7 +102,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Artist");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_ARTIST, item);
 				root = ep;
 				validable.add(ep);
@@ -115,7 +115,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Book");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_BOOK, item);
 				root = ep;
 				validable.add(ep);
@@ -128,7 +128,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Circle");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CIRCLE, item);
 				root = ep;
 				validable.add(ep);
@@ -141,7 +141,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Content");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONTENT, item);
 				root = ep;
 				validable.add(ep);
@@ -154,7 +154,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Convention");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONVENTION, item);
 				root = ep;
 				validable.add(ep);
@@ -167,7 +167,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Parody");
 				else
-					setTitle(item.toString());
+					setTitle(((Record)item).getString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_PARODY, item);
 				root = ep;
 				validable.add(ep);

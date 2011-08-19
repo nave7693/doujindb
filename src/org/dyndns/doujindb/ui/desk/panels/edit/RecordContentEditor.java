@@ -47,7 +47,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		    }
 		});
 		checkboxList = new DouzCheckBoxList<Content>(Client.DB.getContents().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIContent.getContents());
+		checkboxList.setSelectedItems(tokenIContent.getContents().elements());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -77,7 +77,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIContent.getContents());
+				checkboxList.setSelectedItems(tokenIContent.getContents().elements());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

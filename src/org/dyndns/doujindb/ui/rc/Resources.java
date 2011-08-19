@@ -71,7 +71,7 @@ public final class Resources
 		iconKeys.put("FileView/Folder","fileview/folder.png");
 		iconKeys.put("FileView/Default","fileview/default.png");
 		iconKeys.put("FileView/Disk","fileview/disk.png");
-		iconKeys.put("FileView/Client.DB","fileview/database.png");
+		iconKeys.put("FileView/Database","fileview/database.png");
 		iconKeys.put("FileView/Archive","fileview/archive.png");
 		iconKeys.put("FileView/Image","fileview/image.png");
 		iconKeys.put("JDesktop/IFrame/Iconify","jdesktop/iframe/iconify.png");

@@ -47,7 +47,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		    }
 		});
 		checkboxList = new DouzCheckBoxList<Parody>(Client.DB.getParodies().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIParody.getParodies());
+		checkboxList.setSelectedItems(tokenIParody.getParodies().elements());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -77,7 +77,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIParody.getParodies());
+				checkboxList.setSelectedItems(tokenIParody.getParodies().elements());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

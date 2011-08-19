@@ -30,7 +30,7 @@ final class FileLogger implements Logger
 			writer.writeBytes(" " + new Date() + "\r\n");
 			writer.writeBytes("----------------------------\r\n");
 		} catch (IOException ioe) { }
-		new Thread()
+		new Thread(getClass().getName()+"/FileWriter")
 		{
 			@Override
 			public void run()

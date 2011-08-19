@@ -2,7 +2,6 @@ package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -21,7 +20,7 @@ final class ConventionImpl extends RecordImpl implements Record, Convention, Ser
 	@XmlElement(required=false)
 	private String weblink = "";
 	@XmlElement(name="book", required=false)
-	private Set<Book> books = new HashSet<Book>();
+	private RecordSet<Book> books = new RecordSetImpl<Book>();
 	
 	public ConventionImpl() throws RemoteException { super(); }
 
@@ -53,7 +52,7 @@ final class ConventionImpl extends RecordImpl implements Record, Convention, Ser
 	}
 
 	@Override
-	public synchronized Set<Book> getBooks() {
+	public synchronized RecordSet<Book> getBooks() {
 		return books;
 	}
 
@@ -90,4 +89,10 @@ final class ConventionImpl extends RecordImpl implements Record, Convention, Ser
 	
 	@Override
 	public synchronized String getID() { return (ID == -1L ? null : String.format("CN%016x", ID)); }
+
+	@Override
+	public String getString() throws RemoteException
+	{
+		return tagName;
+	}
 }

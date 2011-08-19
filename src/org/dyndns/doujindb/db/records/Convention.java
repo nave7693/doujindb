@@ -2,10 +2,9 @@ package org.dyndns.doujindb.db.records;
 
 import java.io.Serializable;
 import java.rmi.*;
-import java.util.Set;
 
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.BookContainer;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.containers.*;
 
 /**  
 * Convention.java - Interface Convention.
@@ -20,5 +19,5 @@ public interface Convention extends Record, Remote, Serializable, BookContainer
 	public void setTagName(String tagName) throws RemoteException;
 	public void setInfo(String info) throws RemoteException;
 	public void setWeblink(String weblink) throws RemoteException;
-	public Set<Book> getBooks() throws RemoteException;
+	public RecordSet<Book> getBooks() throws RemoteException;
 }

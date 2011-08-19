@@ -564,7 +564,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					tokenBook.setTranslated(checkTranslated.isSelected());
 					tokenBook.setColored(checkColored.isSelected());
 					{
-						for(Artist b : tokenBook.getArtists())
+						for(Artist b : tokenBook.getArtists().elements())
 						{
 							if(!editorArtist.contains(b))
 							{
@@ -581,7 +581,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 						}
 					}
 					{
-						for(Circle c : tokenBook.getCircles())
+						for(Circle c : tokenBook.getCircles().elements())
 						{
 							if(!editorCircles.contains(c))
 							{
@@ -598,7 +598,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 						}
 					}
 					{
-						for(Content c : tokenBook.getContents())
+						for(Content c : tokenBook.getContents().elements())
 						{
 							if(!editorContents.contains(c))
 							{
@@ -615,7 +615,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 						}
 					}
 					{
-						for(Parody c : tokenBook.getParodies())
+						for(Parody c : tokenBook.getParodies().elements())
 						{
 							if(!editorParodies.contains(c))
 							{

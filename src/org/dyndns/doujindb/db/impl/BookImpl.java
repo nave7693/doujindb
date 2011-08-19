@@ -21,11 +21,11 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	@XmlElement(required=false)
 	private String romanjiName = "";
 	@XmlElement(name="artist", required=false)
-	private Set<Artist> artists = new HashSet<Artist>();
+	private RecordSet<Artist> artists = new RecordSetImpl<Artist>();
 	@XmlElement(name="circle", required=false)
-	private Set<Circle> circles = new HashSet<Circle>();
+	private RecordSet<Circle> circles = new RecordSetImpl<Circle>();
 	@XmlElement(name="parody", required=false)
-	private Set<Parody> parodies = new HashSet<Parody>();
+	private RecordSet<Parody> parodies = new RecordSetImpl<Parody>();
 	@XmlElement(required=false)
 	private Convention convention;
 	@XmlElement(required=false)
@@ -45,7 +45,7 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	@XmlElement(required=false)
 	private Rating rating = Rating.UNRATED;
 	@XmlElement(name="content", required=false)
-	private Set<Content> tags = new HashSet<Content>();
+	private RecordSet<Content> tags = new RecordSetImpl<Content>();
 	@XmlElement(required=false)
 	private String info = "";	
 	
@@ -79,17 +79,17 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	}
 
 	@Override
-	public synchronized Set<Artist> getArtists() {
+	public synchronized RecordSet<Artist> getArtists() {
 		return artists;
 	}
 
 	@Override
-	public synchronized Set<Circle> getCircles() {
+	public synchronized RecordSet<Circle> getCircles() {
 		return circles;
 	}
 
 	@Override
-	public synchronized Set<Parody> getParodies() {
+	public synchronized RecordSet<Parody> getParodies() {
 		return parodies;
 	}
 
@@ -157,7 +157,7 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	}
 	
 	@Override
-	public synchronized Set<Content> getContents() {
+	public synchronized RecordSet<Content> getContents() {
 		return tags;
 	}
 
@@ -227,4 +227,15 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 	
 	@Override
 	public synchronized String getID() { return (ID == -1L ? null : String.format("B%016x", ID)); }
+
+	@Override
+	public String getString() throws RemoteException
+	{
+		return "("+(getConvention()==null?"不詳":getConvention())+") " +
+		"("+getType()+") " +
+		"["+getCircles().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／") +
+		"("+getArtists().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")] " +
+		""+getJapaneseName() + " " +
+		"("+getParodies().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")";
+	}
 }

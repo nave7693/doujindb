@@ -2,9 +2,9 @@ package org.dyndns.doujindb.db.containers;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Set;
 
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * ContentContainer.java - Interface every item in the DB containing content(s) [ok, i lol'd] must implement.
@@ -13,5 +13,5 @@ import org.dyndns.doujindb.db.records.Content;
 */
 public interface ContentContainer extends Remote
 {
-	public Set<Content> getContents() throws RemoteException;
+	public RecordSet<Content> getContents() throws RemoteException;
 }

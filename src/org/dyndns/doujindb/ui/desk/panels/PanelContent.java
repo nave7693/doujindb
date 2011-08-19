@@ -133,7 +133,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				{
 					tokenContent.setTagName(textTagName.getText());
 					tokenContent.setInfo(textInfo.getText());
-					for(Book b : tokenContent.getBooks())
+					for(Book b : tokenContent.getBooks().elements())
 					{
 						if(!editorWorks.contains(b))
 						{

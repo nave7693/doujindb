@@ -47,7 +47,7 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		    }
 		});
 		checkboxList = new DouzCheckBoxList<Circle>(Client.DB.getCircles().elements(), searchField);
-		checkboxList.setSelectedItems(tokenICircle.getCircles());
+		checkboxList.setSelectedItems(tokenICircle.getCircles().elements());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -77,7 +77,7 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenICircle.getCircles());
+				checkboxList.setSelectedItems(tokenICircle.getCircles().elements());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

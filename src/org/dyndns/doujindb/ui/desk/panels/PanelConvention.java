@@ -145,7 +145,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 					tokenConvention.setTagName(textTagName.getText());
 					tokenConvention.setWeblink(textWeblink.getText());
 					tokenConvention.setInfo(textInfo.getText());
-					for(Book b : tokenConvention.getBooks())
+					for(Book b : tokenConvention.getBooks().elements())
 					{
 						if(!editorWorks.contains(b))
 						{

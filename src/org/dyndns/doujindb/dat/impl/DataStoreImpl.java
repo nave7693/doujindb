@@ -1,30 +1,35 @@
 package org.dyndns.doujindb.dat.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.log.Level;
 
 /** 
 * DataStoreImpl.java - DataStore on a local disk.
 * @author  nozomu
 * @version 1.0
 */
-final class DataStoreImpl implements DataStore
+@SuppressWarnings("serial")
+public final class DataStoreImpl extends UnicastRemoteObject implements DataStore
 {
 	private final String METADATA = ".metadata";
 	private final String PREVIEW = ".preview";
 	
 	private File DsRoot;
 	
-	DataStoreImpl(File root)
+	public DataStoreImpl(File root) throws RemoteException
 	{
 		this.DsRoot = root;
 	}
 	
 	@Override
-	public Set<DataSource> children() throws DataStoreException
+	public Set<DataSource> children() throws DataStoreException, RemoteException
 	{
 		Set<DataSource> ds = new TreeSet<DataSource>();
 		if(DsRoot.listFiles() == null)
@@ -35,14 +40,14 @@ final class DataStoreImpl implements DataStore
 	}
 
 	@Override
-	public DataSource child(String name) throws DataStoreException
+	public DataSource child(String name) throws DataStoreException, RemoteException
 	{
 		File file = new File(DsRoot, name);
 		return new DataSourceImpl(file);
 	}
 	
 	@Override
-	public long size() throws DataStoreException
+	public long size() throws DataStoreException, RemoteException
 	{
 		long size = 0;
 		for(DataSource ds : children())
@@ -55,7 +60,7 @@ final class DataStoreImpl implements DataStore
 		return size;
 	}
 	
-	private long _size(DataSource source)
+	private long _size(DataSource source) throws DataStoreException, RemoteException
 	{
 		long size = 0;
 		for(DataSource ds : source.children())
@@ -69,30 +74,30 @@ final class DataStoreImpl implements DataStore
 	}
 	
 	@Override
-	public DataSource getMetadata(String ID) throws DataStoreException
+	public DataSource getMetadata(String ID) throws DataStoreException, RemoteException
 	{
 		File file = new File(DsRoot, METADATA);
 		return new DataSourceImpl(file);
 	}
 
 	@Override
-	public DataSource getPreview(String ID) throws DataStoreException
+	public DataSource getPreview(String ID) throws DataStoreException, RemoteException
 	{
 		File file = new File(DsRoot, PREVIEW);
 		return new DataSourceImpl(file);
 	}
 	
-	private final class DataSourceImpl implements DataSource, Comparable<DataSource>
+	private final class DataSourceImpl extends UnicastRemoteObject implements DataSource, Comparable<DataSource>
 	{
 		private File DsFile;
 		
-		public DataSourceImpl(File file)
+		public DataSourceImpl(File file) throws RemoteException
 		{
 			DsFile = file;
 		}
 		
 		@Override
-		public String getName() throws DataStoreException
+		public String getName() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.equals(DsRoot))
 				return DsFile.getName();
@@ -101,7 +106,7 @@ final class DataStoreImpl implements DataStore
 		}
 		
 		@Override
-		public String getPath() throws DataStoreException
+		public String getPath() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.equals(DsRoot))
 				return getParent().getPath() + DsFile.getName() + (isDirectory()?"/":"");
@@ -110,19 +115,19 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public boolean isDirectory() throws DataStoreException
+		public boolean isDirectory() throws DataStoreException, RemoteException
 		{
 			return DsFile.isDirectory();
 		}
 
 		@Override
-		public boolean isFile() throws DataStoreException
+		public boolean isFile() throws DataStoreException, RemoteException
 		{
 			return DsFile.isFile();
 		}
 
 		@Override
-		public long size() throws DataStoreException
+		public long size() throws DataStoreException, RemoteException
 		{
 			if(isDirectory())
 				return -1L;
@@ -131,13 +136,14 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public InputStream getInputStream() throws DataStoreException
+		public InputStream getInputStream() throws DataStoreException, RemoteException
 		{
 			if(isDirectory())
 				return null;
 			try
 			{
-				return new FileInputStream(DsFile);
+				return new RemoteInputStream(new RMIInputStreamImpl(new FileInputStream(DsFile)));
+				//return new FileInputStream(DsFile);
 			} catch (FileNotFoundException e)
 			{
 				throw new DataStoreException(e);
@@ -145,13 +151,14 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws DataStoreException
+		public OutputStream getOutputStream() throws DataStoreException, RemoteException
 		{
 			if(isDirectory())
 				return null;
 			try
 			{
-				return new FileOutputStream(DsFile);
+				return new RemoteOutputStream(new RMIOutputStreamImpl(new FileOutputStream(DsFile)));
+				//return new FileOutputStream(DsFile);
 			} catch (FileNotFoundException e)
 			{
 				throw new DataStoreException(e);
@@ -159,7 +166,7 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public Set<DataSource> children() throws DataStoreException
+		public Set<DataSource> children() throws DataStoreException, RemoteException
 		{
 			Set<DataSource> ds = new TreeSet<DataSource>();
 			if(DsFile.listFiles() == null)
@@ -170,14 +177,14 @@ final class DataStoreImpl implements DataStore
 		}
 		
 		@Override
-		public DataSource child(String name) throws DataStoreException
+		public DataSource child(String name) throws DataStoreException, RemoteException
 		{
 			File file = new File(DsFile, name);
 			return new DataSourceImpl(file);
 		}
 
 		@Override
-		public void touch() throws DataStoreException
+		public void touch() throws DataStoreException, RemoteException
 		{
 			try {
 				DsFile.createNewFile();
@@ -187,7 +194,7 @@ final class DataStoreImpl implements DataStore
 		}
 		
 		@Override
-		public void mkdir() throws DataStoreException
+		public void mkdir() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.mkdir())
 				if(!DsFile.exists())
@@ -195,7 +202,7 @@ final class DataStoreImpl implements DataStore
 		}
 		
 		@Override
-		public void mkdirs() throws DataStoreException
+		public void mkdirs() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.equals(DsRoot))
 				getParent().mkdirs();
@@ -203,7 +210,7 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public void delete() throws DataStoreException
+		public void delete() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.equals(DsRoot))
 			if(isDirectory())
@@ -217,7 +224,7 @@ final class DataStoreImpl implements DataStore
 				DsFile.deleteOnExit();
 		}
 		
-		private void _delete(Set<DataSource> dss) throws DataStoreException
+		private void _delete(Set<DataSource> dss) throws DataStoreException, RemoteException
 		{
 			for(DataSource ds : dss)
 				if(ds.isDirectory())
@@ -232,17 +239,26 @@ final class DataStoreImpl implements DataStore
 		@Override
 		public int compareTo(DataSource ds)
 		{
-			return getName().compareTo(ds.getName());
+			try {
+				return getName().compareTo(ds.getName());
+			} catch (DataStoreException dse) {
+				Core.Logger.log(dse.getMessage(), Level.ERROR);
+				dse.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.ERROR);
+				re.printStackTrace();
+			}
+			return -2;
 		}
 
 		@Override
-		public boolean exists() throws DataStoreException
+		public boolean exists() throws DataStoreException, RemoteException
 		{
 			return DsFile.exists();
 		}
 
 		@Override
-		public DataSource getParent() throws DataStoreException
+		public DataSource getParent() throws DataStoreException, RemoteException
 		{
 			if(!DsFile.equals(DsRoot))
 				return new DataSourceImpl(DsFile.getParentFile());
@@ -251,13 +267,13 @@ final class DataStoreImpl implements DataStore
 		}
 
 		@Override
-		public boolean canRead() throws DataStoreException
+		public boolean canRead() throws DataStoreException, RemoteException
 		{
 			return DsFile.canRead();
 		}
 
 		@Override
-		public boolean canWrite() throws DataStoreException
+		public boolean canWrite() throws DataStoreException, RemoteException
 		{
 			return DsFile.canWrite();
 		}

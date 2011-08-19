@@ -1272,13 +1272,13 @@ public final class DoujinshiDBScanner implements Plugin
 //					}
 					description = "Copying files into the Datastore ...";
 					for(File file : workpath.listFiles())
-						fileCopy(file, Core.Datastore.child(importedBook.getID()));
+						fileCopy(file, Client.DS.child(importedBook.getID()));
 					try
 					{
 						description = "Creating preview into the Datastore  ...";
-						DataSource ds = Core.Datastore.child(importedBook.getID());
+						DataSource ds = Client.DS.child(importedBook.getID());
 						ds.mkdir();
-						ds = Core.Datastore.getPreview(importedBook.getID()); //ds.child(".preview");
+						ds = Client.DS.getPreview(importedBook.getID()); //ds.child(".preview");
 						ds.touch();
 						OutputStream out = ds.getOutputStream();
 						BufferedImage image = javax.imageio.ImageIO.read(cover_image2);

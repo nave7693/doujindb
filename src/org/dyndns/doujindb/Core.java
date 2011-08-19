@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Vector;
 
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.*;
@@ -23,7 +22,6 @@ public final class Core implements Runnable
 	public static Resources Resources;
 	public static UI UI;
 	public static Vector<Plugin>  Plugins;
-	public static DataStore Datastore;
 
 	@Override
 	public void run()
@@ -77,22 +75,13 @@ public final class Core implements Runnable
 			return;
 		}
 		Core.Logger.log("System resources loaded.", Level.INFO);
-		try
-		{
-			Datastore = org.dyndns.doujindb.dat.impl.Factory.getService(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString());
-		} catch (PropertyException pe) {
-			// TODO Auto-generated catch block
-			pe.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
-			Core.Logger.log("DataStore folder is the temporary system folder.", Level.WARNING);
-		Core.Logger.log("DataStore loaded.", Level.INFO);
 		
 		new Server();
 		new Client();
+
+		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
+			Core.Logger.log("DataStore folder is the temporary system folder.", Level.WARNING);
+		Core.Logger.log("DataStore loaded.", Level.INFO);
 		
 		String title = "DoujinDB v" + Core.class.getPackage().getSpecificationVersion();
 		UI = new UI(title);

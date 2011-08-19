@@ -93,9 +93,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 					labelBanner.setName("banner");
 					break _loadBanner;
 				}
-				if(Core.Datastore.contains(tokenCircle.getID()))
+				if(Client.DS.contains(tokenCircle.getID()))
 				{
-					DataSource source = Core.Datastore.get(tokenCircle.getID());
+					DataSource source = Client.DS.get(tokenCircle.getID());
 					if(source.contains(".banner"))
 					{
 						InputStream in = source.get(".banner").getInputStream();
@@ -105,9 +105,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 						break _loadBanner;
 					}
 				}*/
-				DataSource ds = Core.Datastore.child(tokenCircle.getID());
+				DataSource ds = Client.DS.child(tokenCircle.getID());
 				ds.mkdir();
-				ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
+				ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 				if(ds.exists())
 				{
 					InputStream in = ds.getInputStream();
@@ -168,9 +168,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									File out = new File(root, ".banner");
 									out.getParentFile().mkdirs();
 									OutputStream out = null;
-									if(Core.Datastore.contains(tokenCircle.getID()))
+									if(Client.DS.contains(tokenCircle.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenCircle.getID());
+										DataSource source = Client.DS.get(tokenCircle.getID());
 										if(source.contains(".banner"))
 										{
 											out = source.get(".banner").getOutputStream();
@@ -182,8 +182,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 										}
 									}else
 									{
-										Core.Datastore.add(tokenCircle.getID());
-										DataSource source = Core.Datastore.get(tokenCircle.getID());
+										Client.DS.add(tokenCircle.getID());
+										DataSource source = Client.DS.get(tokenCircle.getID());
 										if(source.contains(".banner"))
 										{
 											out = source.get(".banner").getOutputStream();
@@ -194,9 +194,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 											out = source.get(".banner").getOutputStream();
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenCircle.getID());
+									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -213,9 +213,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								}
 								try {
 									//TODO
-									/*if(Core.Datastore.contains(tokenCircle.getID()))
+									/*if(Client.DS.contains(tokenCircle.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenCircle.getID());
+										DataSource source = Client.DS.get(tokenCircle.getID());
 										if(source.contains(".banner"))
 										{
 											InputStream in = source.get(".banner").getInputStream();
@@ -223,9 +223,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 											in.close();
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenCircle.getID());
+									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -244,25 +244,25 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								try
 								{
 									//TODO
-									/*if(Core.Datastore.contains(tokenCircle.getID()))
+									/*if(Client.DS.contains(tokenCircle.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenCircle.getID());
+										DataSource source = Client.DS.get(tokenCircle.getID());
 										if(source.contains(".banner"))
 										{
 											source.remove(".banner");
 										}
 									}else
 									{
-										Core.Datastore.add(tokenCircle.getID());
-										DataSource source = Core.Datastore.get(tokenCircle.getID());
+										Client.DS.add(tokenCircle.getID());
+										DataSource source = Client.DS.get(tokenCircle.getID());
 										if(source.contains(".banner"))
 										{
 											source.remove(".banner");
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenCircle.getID());
+									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

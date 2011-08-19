@@ -122,9 +122,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					labelPreview.setName("preview");
 					break _loadPreview;
 				}
-				if(Core.Datastore.contains(tokenBook.getID()))
+				if(Client.DS.contains(tokenBook.getID()))
 				{
-					DataSource source = Core.Datastore.get(tokenBook.getID());
+					DataSource source = Client.DS.get(tokenBook.getID());
 					if(source.contains(".preview"))
 					{
 						InputStream in = source.get(".preview").getInputStream();
@@ -134,9 +134,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 						break _loadPreview;
 					}
 				}*/
-				DataSource ds = Core.Datastore.child(tokenBook.getID());
+				DataSource ds = Client.DS.child(tokenBook.getID());
 				ds.mkdir();
-				ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
+				ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
 				if(ds.exists())
 				{
 					InputStream in = ds.getInputStream();
@@ -196,9 +196,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									File out = new File(root, ".preview");
 									root.mkdirs();
 									OutputStream out = null;
-									if(Core.Datastore.contains(tokenBook.getID()))
+									if(Client.DS.contains(tokenBook.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenBook.getID());
+										DataSource source = Client.DS.get(tokenBook.getID());
 										if(source.contains(".preview"))
 										{
 											out = source.get(".preview").getOutputStream();
@@ -210,8 +210,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 										}
 									}else
 									{
-										Core.Datastore.add(tokenBook.getID());
-										DataSource source = Core.Datastore.get(tokenBook.getID());
+										Client.DS.add(tokenBook.getID());
+										DataSource source = Client.DS.get(tokenBook.getID());
 										if(source.contains(".preview"))
 										{
 											out = source.get(".preview").getOutputStream();
@@ -222,9 +222,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 											out = source.get(".preview").getOutputStream();
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenBook.getID());
+									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -250,9 +250,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								}
 								try {
 									//TODO
-									/*if(Core.Datastore.contains(tokenBook.getID()))
+									/*if(Client.DS.contains(tokenBook.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenBook.getID());
+										DataSource source = Client.DS.get(tokenBook.getID());
 										if(source.contains(".preview"))
 										{
 											InputStream in = source.get(".preview").getInputStream();
@@ -260,9 +260,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 											in.close();
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenBook.getID());
+									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -281,25 +281,25 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								try
 								{
 									//TODO
-									/*if(Core.Datastore.contains(tokenBook.getID()))
+									/*if(Client.DS.contains(tokenBook.getID()))
 									{
-										DataSource source = Core.Datastore.get(tokenBook.getID());
+										DataSource source = Client.DS.get(tokenBook.getID());
 										if(source.contains(".preview"))
 										{
 											source.remove(".preview");
 										}
 									}else
 									{
-										Core.Datastore.add(tokenBook.getID());
-										DataSource source = Core.Datastore.get(tokenBook.getID());
+										Client.DS.add(tokenBook.getID());
+										DataSource source = Client.DS.get(tokenBook.getID());
 										if(source.contains(".preview"))
 										{
 											source.remove(".preview");
 										}
 									}*/
-									DataSource ds = Core.Datastore.child(tokenBook.getID());
+									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Datastore.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

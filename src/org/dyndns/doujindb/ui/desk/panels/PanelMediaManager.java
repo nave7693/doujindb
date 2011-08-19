@@ -204,7 +204,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 									for(Book key : checkboxListMedia.getSelectedItems())
 									{
 										try {
-											Core.Datastore.child(key.getID()).delete();
+											Client.DS.child(key.getID()).delete();
 										} catch (DataStoreException dse) {
 											Core.Logger.log(dse.getMessage(), Level.ERROR);
 											dse.printStackTrace();
@@ -313,7 +313,16 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			public void run()
 			{
 				super.setPriority(Thread.MIN_PRIORITY);
-				double size = Core.Datastore.size();
+				double size = -1L;
+				try {
+					size = Client.DS.size();
+				} catch (DataStoreException dse) {
+					Core.Logger.log(dse.getMessage(), Level.ERROR);
+					dse.printStackTrace();
+				} catch (RemoteException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
+				}
 				String label = "Byte";
 				if(size >= 1024)
 				{
@@ -739,7 +748,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				{
 					File zip = new File(dest, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
 					//TODO File src = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), book.getID());
-					DataSource ds = Core.Datastore.child(book.getID());
+					DataSource ds = Client.DS.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
 					progressbar_overall.setString(book.toString());
@@ -781,7 +790,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			window.dispose();
 		}
 		
-		private int count(DataSource ds_root)
+		private int count(DataSource ds_root) throws DataStoreException, RemoteException
 		{
 			int count = 0;
 			for(DataSource ds : ds_root.children())
@@ -939,7 +948,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 								zip = new ZipFile(file);
 								uuid = "temp$";
 								File dest = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), parseXML(zip.getInputStream(entry)));*/
-								DataSource ds = Core.Datastore.child(parseXML(zip.getInputStream(entry)));
+								DataSource ds = Client.DS.child(parseXML(zip.getInputStream(entry)));
 								ds.mkdirs();
 								;
 								entries = zip.entries();

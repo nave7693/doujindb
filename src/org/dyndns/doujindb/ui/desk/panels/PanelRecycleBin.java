@@ -243,7 +243,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
 										Client.DB.getBooks().delete(o);
 										Client.DB.getDeleted().delete(value);
-										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getSelectedItems())
 									{
@@ -260,7 +260,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										}
 										Client.DB.getCircles().delete(o);
 										Client.DB.getDeleted().delete(value);
-										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getSelectedItems())
 									{
@@ -439,7 +439,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
 										Client.DB.getBooks().delete(o);
 										Client.DB.getDeleted().delete(value);
-										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getItems())
 									{
@@ -456,7 +456,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										}
 										Client.DB.getCircles().delete(o);
 										Client.DB.getDeleted().delete(value);
-										try { Core.Datastore.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(o.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getItems())
 									{

@@ -44,6 +44,9 @@ public final class Server
 			DB = (DataBase) Class.forName("org.dyndns.doujindb.db.impl.DataBaseImpl").newInstance();
 			Naming.rebind("rmi://localhost:" + port + "/DataBase", DB);
 			Core.Logger.log("DataBase service loaded.", Level.INFO);
+			DS = new org.dyndns.doujindb.dat.impl.DataStoreImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
+			Naming.rebind("rmi://localhost:" + port + "/DataStore", DS);
+			Core.Logger.log("DataStore service loaded.", Level.INFO);
 		} catch (InstantiationException ie) {
 			// TODO Auto-generated catch block
 			ie.printStackTrace();

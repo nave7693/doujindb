@@ -721,8 +721,8 @@ public final class PanelSearch extends JPanel implements Validable
 									}
 								} +
 								"<br>." + //TODO Tooltip covers in search panel
-								((Core.Datastore.contains(b.getID() + "/.preview")) ?
-										"<br><table border='0'><tr><td><img src='file:///" + Core.Datastore.get(b.getID()).get(".preview") + "' /></td></tr></table>"
+								((Client.DS.contains(b.getID() + "/.preview")) ?
+										"<br><table border='0'><tr><td><img src='file:///" + Client.DS.get(b.getID()).get(".preview") + "' /></td></tr></table>"
 												:
 										"") +*/
 								"</body></html>");

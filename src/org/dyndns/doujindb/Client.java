@@ -38,8 +38,11 @@ public final class Client
 			throw new DataBaseException("Client already connected.");
         try { 
         	DB = (DataBase)
-                           Naming.lookup(
-                 "rmi://" + host + ":" + port + "/DataBase");
+        					Naming.lookup(
+        							"rmi://" + host + ":" + port + "/DataBase");
+        	DS = (DataStore)
+        					Naming.lookup(
+        							"rmi://" + host + ":" + port + "/DataStore");
         } 
         catch (MalformedURLException murle) { 
             System.out.println(); 
@@ -87,5 +90,6 @@ public final class Client
 		if(DB == null)
 			throw new DataBaseException("Client not connected.");
 		DB = null;
+		DS = null;
 	}
 }

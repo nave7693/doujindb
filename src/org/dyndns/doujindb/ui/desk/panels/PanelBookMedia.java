@@ -81,7 +81,7 @@ public class PanelBookMedia extends JPanel implements Validable
 								return;
 							}
 							File files[] = fc.getSelectedFiles();
-							DataSource up_folder = Core.Datastore.child(tokenBook.getID());
+							DataSource up_folder = Client.DS.child(tokenBook.getID());
 							Thread uploader = new Uploader(up_folder, files);
 							uploader.start();
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
@@ -153,7 +153,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							Set<DataSource> dss = new TreeSet<DataSource>();
 							{
 								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataSource root_ds = Core.Datastore.child(tokenBook.getID());
+								DataSource root_ds = Client.DS.child(tokenBook.getID());
 								for(TreePath path : paths)
 								try
 								{
@@ -230,7 +230,7 @@ public class PanelBookMedia extends JPanel implements Validable
 						try
 						{
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataSource root_ds = Core.Datastore.child(tokenBook.getID());
+							DataSource root_ds = Client.DS.child(tokenBook.getID());
 							for(TreePath path : paths)
 							try
 							{
@@ -326,7 +326,7 @@ public class PanelBookMedia extends JPanel implements Validable
 					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
 					//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
 					//buildTree(file, root);
-					buildTree(Core.Datastore.child(tokenBook.getID()), root);
+					buildTree(Client.DS.child(tokenBook.getID()), root);
 					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
 					dtm.setRoot(root);
 					SwingUtilities.invokeLater(new Runnable()
@@ -423,7 +423,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	}
 	}
 	
-	private void buildTree(DataSource dss, MutableTreeNode parent)
+	private void buildTree(DataSource dss, MutableTreeNode parent) throws DataStoreException, RemoteException
 	{
 		int k = 0; 
 		for(DataSource ds : dss.children())
@@ -488,7 +488,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			this.dss = dss;
 		}
 		
-		private int count(DataSource ds_root)
+		private int count(DataSource ds_root) throws DataStoreException, RemoteException
 		{
 			int count = 0;
 			for(DataSource ds : ds_root.children())
@@ -625,8 +625,14 @@ public class PanelBookMedia extends JPanel implements Validable
 					}*/
 				}
 			} catch (PropertyVetoException pve) {
-				pve.printStackTrace();
 				Core.Logger.log(pve.getMessage(), Level.WARNING);
+				pve.printStackTrace();
+			} catch (DataStoreException dse) {
+				Core.Logger.log(dse.getMessage(), Level.WARNING);
+				dse.printStackTrace();
+			} catch (RemoteException re) {
+				Core.Logger.log(re.getMessage(), Level.WARNING);
+				re.printStackTrace();
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();

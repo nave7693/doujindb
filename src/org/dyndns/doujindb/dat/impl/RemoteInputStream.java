@@ -1,8 +1,15 @@
-package org.dyndns.doujindb.dat;
+package org.dyndns.doujindb.dat.impl;
 
 import java.io.*;
 import java.rmi.*;
 
+import org.dyndns.doujindb.dat.rmi.RMIInputStream;
+
+/**  
+* RemoteInputStream.java - Remote InputStream.
+* @author  nozomu
+* @version 1.0
+*/
 @SuppressWarnings("serial")
 public class RemoteInputStream extends InputStream implements Serializable
 {

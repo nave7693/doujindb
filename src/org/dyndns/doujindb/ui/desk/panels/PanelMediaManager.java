@@ -314,15 +314,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			{
 				super.setPriority(Thread.MIN_PRIORITY);
 				double size = -1L;
-				try {
-					size = Client.DS.size();
-				} catch (DataStoreException dse) {
-					Core.Logger.log(dse.getMessage(), Level.ERROR);
-					dse.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
-				}
+				size = Client.DS.size();
 				String label = "Byte";
 				if(size >= 1024)
 				{

@@ -1,12 +1,15 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Hashtable;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.log.Level;
 
 import javax.xml.bind.annotation.*;
 
@@ -33,6 +36,8 @@ public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
 	private Table<Record> shared;
 	private Table<Record> unchecked;
 	
+	private String connID;
+	
 	public synchronized Table<Record> getDeleted() {
 		return deleted;
 	}
@@ -56,6 +61,15 @@ public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
 		deleted = new TableImpl<Record>();
 		shared = new TableImpl<Record>();
 		unchecked = new TableImpl<Record>();
+		
+		connID = "douz://" + "root" + "@";
+		try {
+			connID += java.net.InetAddress.getLocalHost().getHostName().toLowerCase() + ":" + "1099" + "/DataBase";
+		} catch (UnknownHostException uhe) {
+			Core.Logger.log(uhe.getMessage(), Level.ERROR);
+			connID += "~:1099/DataBase";
+			uhe.printStackTrace();
+		}
 	}
 
 	public synchronized Table<Book> getBooks() {
@@ -263,6 +277,6 @@ public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
 	@Override
 	public synchronized String getConnection() throws DataBaseException
 	{
-		return "dbo://admin:@localhost/ ";
+		return connID;
 	}
 }

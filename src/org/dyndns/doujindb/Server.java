@@ -1,9 +1,10 @@
 package org.dyndns.doujindb;
 
-import java.net.MalformedURLException;
+import java.net.*;
 import java.rmi.*;
 
-import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.dat.impl.*;
+import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.Level;
 
@@ -15,7 +16,7 @@ import org.dyndns.doujindb.log.Level;
 public final class Server
 {
 	public DataBase DB;
-	public DataStore DS;
+	public RMIDataStoreImpl DS;
 	
 	public Server()
 	{
@@ -31,6 +32,9 @@ public final class Server
 				{
 					java.rmi.registry.LocateRegistry.createRegistry(port);
 					Core.Logger.log("RMI Registry loaded.", Level.INFO);
+					//System.setProperty("java.rmi.server.hostname", "192.168.1.201");
+					//System.setProperty("java.rmi.server.useLocalHostname", "false");
+					//System.out.println(System.getProperty("java.rmi.server.hostname"));
 				} catch (RemoteException re) {
 					re.printStackTrace();
 				} catch (Exception e) {
@@ -44,7 +48,13 @@ public final class Server
 			DB = (DataBase) Class.forName("org.dyndns.doujindb.db.impl.DataBaseImpl").newInstance();
 			Naming.rebind("rmi://localhost:" + port + "/DataBase", DB);
 			Core.Logger.log("DataBase service loaded.", Level.INFO);
-			DS = new org.dyndns.doujindb.dat.impl.DataStoreImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
+			DS = //new RemoteDataStore(
+					new RMIDataStoreImpl(
+							new DataStoreImpl(
+									new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString())
+							)
+						//)
+					);
 			Naming.rebind("rmi://localhost:" + port + "/DataStore", DS);
 			Core.Logger.log("DataStore service loaded.", Level.INFO);
 		} catch (InstantiationException ie) {
@@ -66,7 +76,7 @@ public final class Server
 		
 //		try
 //		{
-//			DS = (DataStore) Class.forName("org.dyndns.doujindb.dat.impl.DataStoreImpl").newInstance();
+//			DS = (DataStore) Class.forName("org.dyndns.doujindb.dat.impl.RemoteDataStore").newInstance();
 //			Naming.rebind("rmi://localhost:7111/DataStore", DS);
 //			Core.Logger.log("DataStore service loaded.", Level.INFO);
 //		} catch (InstantiationException ie) {

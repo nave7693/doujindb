@@ -1,11 +1,12 @@
 package org.dyndns.doujindb;
 
 import java.rmi.*;
-import java.net.MalformedURLException;
+import java.net.*;
 
-import org.dyndns.doujindb.dat.DataStore;
-import org.dyndns.doujindb.db.DataBase;
-import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.dat.impl.*;
+import org.dyndns.doujindb.dat.rmi.*;
+import org.dyndns.doujindb.db.*;
 
 /**  
 * Client.java - DoujinDB Client.
@@ -22,53 +23,38 @@ public final class Client
 		return DB != null;
 	}
 	
-	public static void connect() throws DataBaseException
+	public static void connect() throws RemoteException
 	{
 		connect("localhost");
 	}
 	
-	public static void connect(String host) throws DataBaseException
+	public static void connect(String host) throws RemoteException
 	{
 		connect(host, 1099);
 	}
 	
-	public static void connect(String host, int port) throws DataBaseException
+	public static void connect(String host, int port) throws RemoteException
 	{
 		if(DB != null)
-			throw new DataBaseException("Client already connected.");
+			throw new RemoteException("Client already connected.");
         try { 
         	DB = (DataBase)
         					Naming.lookup(
         							"rmi://" + host + ":" + port + "/DataBase");
-        	DS = (DataStore)
+        	DS = new RemoteDataStore(
+        			(RMIDataStore)
         					Naming.lookup(
-        							"rmi://" + host + ":" + port + "/DataStore");
+        							"rmi://" + host + ":" + port + "/DataStore")
+        						);
         } 
         catch (MalformedURLException murle) { 
-            System.out.println(); 
-            System.out.println(
-              "MalformedURLException"); 
-            System.out.println(murle); 
-        } 
-        catch (RemoteException re) { 
-            System.out.println(); 
-            System.out.println(
-                        "RemoteException"); 
-            System.out.println(re); 
+            throw new RemoteException(murle.getMessage());
         } 
         catch (NotBoundException nbe) { 
-            System.out.println(); 
-            System.out.println(
-                       "NotBoundException"); 
-            System.out.println(nbe); 
+        	throw new RemoteException(nbe.getMessage());
         } 
-        catch (
-            java.lang.ArithmeticException
-                                      ae) { 
-            System.out.println(); 
-            System.out.println(
-             "java.lang.ArithmeticException"); 
-            System.out.println(ae); 
+        catch (java.lang.ArithmeticException ae) { 
+        	throw new RemoteException(ae.getMessage());
         }
 		/*try
 		{
@@ -85,10 +71,10 @@ public final class Client
 		}*/
 	}
 	
-	public static void disconnect() throws DataBaseException
+	public static void disconnect() throws RemoteException
 	{
 		if(DB == null)
-			throw new DataBaseException("Client not connected.");
+			throw new RemoteException("Client not connected.");
 		DB = null;
 		DS = null;
 	}

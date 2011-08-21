@@ -1,7 +1,14 @@
-package org.dyndns.doujindb.dat;
+package org.dyndns.doujindb.dat.rmi;
 
 import java.rmi.*;
 
+import org.dyndns.doujindb.dat.impl.StreamData;
+
+/**  
+* RMIInputStream.java - RMI InputStream.
+* @author  nozomu
+* @version 1.0
+*/
 public interface RMIInputStream extends Remote
 {
 	public int available() throws RemoteException;

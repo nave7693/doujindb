@@ -2,12 +2,12 @@ package org.dyndns.doujindb.dat.impl;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.log.Level;
 
 /** 
@@ -16,7 +16,7 @@ import org.dyndns.doujindb.log.Level;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public final class DataStoreImpl extends UnicastRemoteObject implements DataStore
+public final class DataStoreImpl implements DataStore, Serializable
 {
 	private final String METADATA = ".metadata";
 	private final String PREVIEW = ".preview";
@@ -29,25 +29,33 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 	}
 	
 	@Override
-	public Set<DataSource> children() throws DataStoreException, RemoteException
+	public Set<DataSource> children() throws DataStoreException
 	{
 		Set<DataSource> ds = new TreeSet<DataSource>();
 		if(DsRoot.listFiles() == null)
 			return ds;
 		for(File child : DsRoot.listFiles())
-			ds.add(new DataSourceImpl(child));
+			try {
+				ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
+			} catch (RemoteException re) {
+				throw new DataStoreException(re);
+			}
 		return ds;
 	}
 
 	@Override
-	public DataSource child(String name) throws DataStoreException, RemoteException
+	public DataSource child(String name) throws DataStoreException
 	{
 		File file = new File(DsRoot, name);
-		return new DataSourceImpl(file);
+		try {
+			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+		} catch (RemoteException re) {
+			throw new DataStoreException(re);
+		}
 	}
 	
 	@Override
-	public long size() throws DataStoreException, RemoteException
+	public long size() throws DataStoreException
 	{
 		long size = 0;
 		for(DataSource ds : children())
@@ -60,7 +68,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		return size;
 	}
 	
-	private long _size(DataSource source) throws DataStoreException, RemoteException
+	private long _size(DataSource source) throws DataStoreException
 	{
 		long size = 0;
 		for(DataSource ds : source.children())
@@ -74,30 +82,38 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 	}
 	
 	@Override
-	public DataSource getMetadata(String ID) throws DataStoreException, RemoteException
+	public DataSource getMetadata(String ID) throws DataStoreException
 	{
 		File file = new File(DsRoot, METADATA);
-		return new DataSourceImpl(file);
+		try {
+			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+		} catch (RemoteException re) {
+			throw new DataStoreException(re);
+		}
 	}
 
 	@Override
-	public DataSource getPreview(String ID) throws DataStoreException, RemoteException
+	public DataSource getPreview(String ID) throws DataStoreException
 	{
 		File file = new File(DsRoot, PREVIEW);
-		return new DataSourceImpl(file);
+		try {
+			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+		} catch (RemoteException re) {
+			throw new DataStoreException(re);
+		}
 	}
 	
-	private final class DataSourceImpl extends UnicastRemoteObject implements DataSource, Comparable<DataSource>
+	private final class DataSourceImpl implements DataSource, Comparable<DataSource>
 	{
 		private File DsFile;
 		
-		public DataSourceImpl(File file) throws RemoteException
+		public DataSourceImpl(File file) throws DataStoreException
 		{
 			DsFile = file;
 		}
 		
 		@Override
-		public String getName() throws DataStoreException, RemoteException
+		public String getName() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
 				return DsFile.getName();
@@ -106,7 +122,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 		
 		@Override
-		public String getPath() throws DataStoreException, RemoteException
+		public String getPath() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
 				return getParent().getPath() + DsFile.getName() + (isDirectory()?"/":"");
@@ -115,19 +131,19 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 
 		@Override
-		public boolean isDirectory() throws DataStoreException, RemoteException
+		public boolean isDirectory() throws DataStoreException
 		{
 			return DsFile.isDirectory();
 		}
 
 		@Override
-		public boolean isFile() throws DataStoreException, RemoteException
+		public boolean isFile() throws DataStoreException
 		{
 			return DsFile.isFile();
 		}
 
 		@Override
-		public long size() throws DataStoreException, RemoteException
+		public long size() throws DataStoreException
 		{
 			if(isDirectory())
 				return -1L;
@@ -136,7 +152,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 
 		@Override
-		public InputStream getInputStream() throws DataStoreException, RemoteException
+		public InputStream getInputStream() throws DataStoreException
 		{
 			if(isDirectory())
 				return null;
@@ -144,14 +160,15 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 			{
 				return new RemoteInputStream(new RMIInputStreamImpl(new FileInputStream(DsFile)));
 				//return new FileInputStream(DsFile);
-			} catch (FileNotFoundException e)
-			{
-				throw new DataStoreException(e);
+			} catch (FileNotFoundException fnfe) {
+				throw new DataStoreException(fnfe);
+			} catch (RemoteException re) {
+				throw new DataStoreException(re);
 			}
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws DataStoreException, RemoteException
+		public OutputStream getOutputStream() throws DataStoreException
 		{
 			if(isDirectory())
 				return null;
@@ -159,32 +176,41 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 			{
 				return new RemoteOutputStream(new RMIOutputStreamImpl(new FileOutputStream(DsFile)));
 				//return new FileOutputStream(DsFile);
-			} catch (FileNotFoundException e)
-			{
-				throw new DataStoreException(e);
+			} catch (FileNotFoundException fnfe) {
+				throw new DataStoreException(fnfe);
+			} catch (RemoteException re) {
+				throw new DataStoreException(re);
 			}
 		}
 
 		@Override
-		public Set<DataSource> children() throws DataStoreException, RemoteException
+		public Set<DataSource> children() throws DataStoreException
 		{
 			Set<DataSource> ds = new TreeSet<DataSource>();
 			if(DsFile.listFiles() == null)
 				return ds;
 			for(File child : DsFile.listFiles())
-				ds.add(new DataSourceImpl(child));
+				try {
+					ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
+				} catch (RemoteException re) {
+					throw new DataStoreException(re);
+				}
 			return ds;
 		}
 		
 		@Override
-		public DataSource child(String name) throws DataStoreException, RemoteException
+		public DataSource child(String name) throws DataStoreException
 		{
 			File file = new File(DsFile, name);
-			return new DataSourceImpl(file);
+			try {
+				return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+			} catch (RemoteException re) {
+				throw new DataStoreException(re);
+			}
 		}
 
 		@Override
-		public void touch() throws DataStoreException, RemoteException
+		public void touch() throws DataStoreException
 		{
 			try {
 				DsFile.createNewFile();
@@ -194,7 +220,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 		
 		@Override
-		public void mkdir() throws DataStoreException, RemoteException
+		public void mkdir() throws DataStoreException
 		{
 			if(!DsFile.mkdir())
 				if(!DsFile.exists())
@@ -202,7 +228,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 		
 		@Override
-		public void mkdirs() throws DataStoreException, RemoteException
+		public void mkdirs() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
 				getParent().mkdirs();
@@ -210,7 +236,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 		}
 
 		@Override
-		public void delete() throws DataStoreException, RemoteException
+		public void delete() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
 			if(isDirectory())
@@ -224,7 +250,7 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 				DsFile.deleteOnExit();
 		}
 		
-		private void _delete(Set<DataSource> dss) throws DataStoreException, RemoteException
+		private void _delete(Set<DataSource> dss) throws DataStoreException
 		{
 			for(DataSource ds : dss)
 				if(ds.isDirectory())
@@ -244,36 +270,41 @@ public final class DataStoreImpl extends UnicastRemoteObject implements DataStor
 			} catch (DataStoreException dse) {
 				Core.Logger.log(dse.getMessage(), Level.ERROR);
 				dse.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return -2;
 		}
 
 		@Override
-		public boolean exists() throws DataStoreException, RemoteException
+		public boolean exists() throws DataStoreException
 		{
 			return DsFile.exists();
 		}
 
 		@Override
-		public DataSource getParent() throws DataStoreException, RemoteException
+		public DataSource getParent() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
-				return new DataSourceImpl(DsFile.getParentFile());
+				try {
+					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile.getParentFile())));
+				} catch (RemoteException re) {
+					throw new DataStoreException(re);
+				}
 			else
-				return new DataSourceImpl(DsRoot);
+				try {
+					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile)));
+				} catch (RemoteException re) {
+					throw new DataStoreException(re);
+				}
 		}
 
 		@Override
-		public boolean canRead() throws DataStoreException, RemoteException
+		public boolean canRead() throws DataStoreException
 		{
 			return DsFile.canRead();
 		}
 
 		@Override
-		public boolean canWrite() throws DataStoreException, RemoteException
+		public boolean canWrite() throws DataStoreException
 		{
 			return DsFile.canWrite();
 		}

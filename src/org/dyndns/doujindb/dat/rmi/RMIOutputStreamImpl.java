@@ -1,10 +1,8 @@
-package org.dyndns.doujindb.dat.impl;
+package org.dyndns.doujindb.dat.rmi;
 
 import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
-
-import org.dyndns.doujindb.dat.*;
 
 @SuppressWarnings("serial")
 public class RMIOutputStreamImpl extends UnicastRemoteObject implements RMIOutputStream

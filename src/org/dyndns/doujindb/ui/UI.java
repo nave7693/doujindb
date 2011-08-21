@@ -398,6 +398,7 @@ public UI(String title)
 	uiStatusBarConnect.setBorder(null);
 	uiStatusBarConnect.setFocusable(false);
 	uiStatusBarConnect.setToolTipText("Connect");
+	uiStatusBarConnect.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
 	bogus.add(uiStatusBarConnect);
 	uiStatusBarDisconnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
 	uiStatusBarDisconnect.addActionListener(this);
@@ -943,6 +944,7 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getSource() == uiStatusBarConnect)
 		{
+			uiStatusBarConnect.setEnabled(false);
 			new Thread(getClass().getName()+"/ActionPerformed/Connect")
 			{
 				@Override
@@ -951,17 +953,23 @@ public void layoutContainer(Container parent)
 					try
 					{
 						//Client.connect();
-						Client.connect("192.168.1.11", 1099);
+						Client.connect("doujindb.dyndns.org", 1099);
+						/*try {
+							Client.connect(java.net.InetAddress.getLocalHost().getHostAddress(), 1099);
+						} catch (UnknownHostException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}*/
 						Client.DB.rollback();
 						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
+						Core.Logger.log("Connected to " + Client.DB.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-					} catch (DataBaseException dbe)
-					{
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
 					} catch (RemoteException re) {
 						Core.Logger.log(re.getMessage(), Level.ERROR);
 						re.printStackTrace();
+					} finally 
+					{
+						uiStatusBarConnect.setEnabled(true);
 					}
 					Desktop.revalidate();
 				}
@@ -972,15 +980,17 @@ public void layoutContainer(Container parent)
 			try
 			{
 				Client.disconnect();
+				Core.Logger.log("Disconnected from remote host.", Level.INFO);
 				for(JInternalFrame jif : Desktop.getAllFrames())
 				{
 					try{ ((DouzWindow)jif).dispose(); }catch(Exception e) { e.printStackTrace(); }
 				}
 				uiStatusBar.setText("Disconnected.");
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-			} catch (DataBaseException dbe)
+			} catch (RemoteException re)
 			{
-				Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
+				Core.Logger.log("" + re.getMessage(), Level.ERROR);
+				re.printStackTrace();
 			}
 			Desktop.revalidate();
 		}

@@ -43,6 +43,7 @@ public final class Resources
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Disconnect","jframe/tab/explorer/statusbar/disconnect.png");
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Connected","jframe/tab/explorer/statusbar/connected.png");
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Disconnected","jframe/tab/explorer/statusbar/disconnected.png");
+		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Connecting","jframe/tab/explorer/statusbar/connecting.gif");
 		iconKeys.put("JFrame/Tab/Logs","jframe/tab/logs.png");
 		iconKeys.put("JFrame/Tab/Logs/Message","jframe/tab/logs/message.png");
 		iconKeys.put("JFrame/Tab/Logs/Warning","jframe/tab/logs/warning.png");

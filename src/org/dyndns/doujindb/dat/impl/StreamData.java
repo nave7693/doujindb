@@ -1,9 +1,14 @@
-package org.dyndns.doujindb.dat;
+package org.dyndns.doujindb.dat.impl;
 
 import java.io.Serializable;
 
+/**  
+* StreamData.java - Used in RMI streams.
+* @author  nozomu
+* @version 1.0
+*/
 @SuppressWarnings("serial")
-public class StreamData implements Serializable
+public final class StreamData implements Serializable
 {
 	private byte[] data;
 	private int i;

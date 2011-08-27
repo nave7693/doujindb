@@ -201,6 +201,10 @@ public final class DataStoreImpl implements DataStore, Serializable
 		@Override
 		public DataSource child(String name) throws DataStoreException
 		{
+			// Fixed directory traversal exploit
+			// File file = new File(DsFile, name);
+			if(!new File(DsFile, name).getParentFile().equals(DsFile))
+				throw new DataStoreException("Specified file name '" + name + "' is not valid.");
 			File file = new File(DsFile, name);
 			try {
 				return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));

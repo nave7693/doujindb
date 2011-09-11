@@ -10,25 +10,21 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.containers.ContentContainer;
+import org.dyndns.doujindb.db.containers.CntContent;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
-
-
 @SuppressWarnings("serial")
 public class RecordContentEditor extends JSplitPane implements Validable
 {
-	private ContentContainer tokenIContent;
+	private CntContent tokenIContent;
 	private DouzCheckBoxList<Content> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordContentEditor(ContentContainer token) throws DataBaseException, RemoteException
+	public RecordContentEditor(CntContent token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIContent = token;
@@ -46,8 +42,8 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Content>(Client.DB.getContents().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIContent.getContents().elements());
+		checkboxList = new DouzCheckBoxList<Content>(Client.DB.getContents(null), searchField);
+		checkboxList.setSelectedItems(tokenIContent.getContents());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -59,7 +55,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 	{
 		boolean contains = false;
 		for(Object o : checkboxList.getSelectedItems())
-			if(o == item)
+			if(o.equals(item))
 				return true;
 		return contains;
 	}
@@ -77,7 +73,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIContent.getContents().elements());
+				checkboxList.setSelectedItems(tokenIContent.getContents());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

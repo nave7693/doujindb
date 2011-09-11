@@ -1,7 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
+import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -9,79 +9,70 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Content")
-final class ContentImpl extends RecordImpl implements Record, Content, Serializable//, Comparable<Content>
+final class ContentImpl extends RecordImpl implements Content, Serializable//, Comparable<Content>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
-	@XmlElement(required=true)
-	private String tagName;
-	@XmlElement(required=false)
-	private String info = "";
-	@XmlElement(name="book", required=false)
-	private RecordSet<Book> books = new RecordSetImpl<Book>();
-
-	public ContentImpl() throws RemoteException { super(); }
-	
-	@Override
-	public synchronized RecordSet<Book> getBooks() {
-		return books;
-	}
-
-	@Override
-	public synchronized String getTagName() {
-		return tagName;
-	}
-
-	public synchronized void setTagName(String tagName) {
-		this.tagName = tagName;
-	}
-
-	@Override
-	public synchronized String getInfo() {
-		return info;
-	}
-
-	public synchronized void setInfo(String info) {
-		this.info = info;
-	}
-	
-	@Override
-	public synchronized String toString() {
-		return tagName;
-	}
-
-	/*@Override
-	public synchronized int compareTo(Content c) {
-		if(this.getID() == null)
-			if(c.getID() == null)
-				return 0;
-			else
-				return -1;
-		if(c.getID() == null)
-			if(this.getID() == null)
-				return 0;
-			else
-				return -1;
-		return this.getID().compareTo(c.getID());
-	}*/
-	
-	@Override
-	public synchronized boolean equals(Object o) {
-		if( o instanceof String)
-			return o.equals(this.tagName);
-		else
-			if(o instanceof Content)
-				return compareTo((Content)o) == 0;
-			else
-				return false;
-	}
-	
-	@Override
-	public synchronized String getID() { return (ID == -1L ? null : String.format("CT%016x", ID)); }
-
-	@Override
-	public String getString() throws RemoteException
+	public ContentImpl(org.dyndns.doujindb.db.cayenne.Content ref)
 	{
-		return tagName;
+		this.ref = ref;
+	}
+
+	@Override
+	public synchronized String getTagName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getTagName();
+	}
+
+	@Override
+	public synchronized void setTagName(String tagName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Content)ref).setTagName(tagName);
+	}
+
+	@Override
+	public synchronized String getInfo()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getInfo();
+	}
+
+	@Override
+	public synchronized void setInfo(String info)
+	{
+		((org.dyndns.doujindb.db.cayenne.Content)ref).setInfo(info);
+	}
+	
+	@Override
+	public synchronized RecordSet<Book> getBooks()
+	{
+		Set<Book> set = new TreeSet<Book>();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getBooks();
+		for(org.dyndns.doujindb.db.cayenne.Book r : result)
+			set.add(new BookImpl(r));
+		return new RecordSetImpl<Book>(set);
+	}
+	
+	@Override
+	public synchronized String toString()
+	{
+		return this.getTagName();
+	}
+
+	@Override
+	public void addBook(Book book) {
+		if(getBooks().contains(book))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Content)ref).addToBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
+	}
+
+	@Override
+	public void removeBook(Book book) {
+		((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 }

@@ -87,6 +87,54 @@ final class XMLProperties implements Properties
 			prop.setDescription("<html><body>Network port used to accept incoming connections.</body></html>");
 			values.put("org.dyndns.doujindb.net.listen_port", prop);			
 		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(true);
+			prop.setDescription("<html><body>Logs messages.</body></html>");
+			values.put("org.dyndns.doujindb.log.info", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(true);
+			prop.setDescription("<html><body>Logs warnings.</body></html>");
+			values.put("org.dyndns.doujindb.log.warning", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(true);
+			prop.setDescription("<html><body>Logs errors.</body></html>");
+			values.put("org.dyndns.doujindb.log.error", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue("com.mysql.jdbc.Driver");
+			prop.setDescription("<html><body>SQL Driver full qualified class name.</body></html>");
+			values.put("org.dyndns.doujindb.db.driver", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue("jdbc:mysql://localhost/doujindb");
+			prop.setDescription("<html><body>SQL Connection URL</body></html>");
+			values.put("org.dyndns.doujindb.db.url", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue("admin");
+			prop.setDescription("<html><body>Database username.</body></html>");
+			values.put("org.dyndns.doujindb.db.username", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue("");
+			prop.setDescription("<html><body>Database password.</body></html>");
+			values.put("org.dyndns.doujindb.db.password", prop);			
+		}
+//		{
+//			Property prop = new PropertyImpl();
+//			prop.setValue(false);
+//			prop.setDescription("<html><body>Apache Cayenne (log4j) logging.</body></html>");
+//			values.put("org.dyndns.doujindb.log.cayenne", prop);			
+//		}
 	}
 	
 	public Iterable<String> keys()
@@ -132,7 +180,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void load() throws PropertyException
 	{
-		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
+		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "config.xml");
 		FileInputStream in = null;
 		try
 		{
@@ -199,7 +247,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void save() throws PropertyException
 	{
-		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
+		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "config.xml");
 		FileOutputStream out = null;
 		try
 		{

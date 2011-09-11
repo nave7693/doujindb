@@ -28,7 +28,6 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	private JButton buttonWallpaper;
 	
 	private JButton buttonRecycleBin;
-	private JButton buttonSharedItems;
 	private JButton buttonMediaManager;
 	
 	private Vector<JButton> buttonPlugins;
@@ -104,29 +103,6 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			}
 		});
 		super.add(buttonRecycleBin);
-		buttonSharedItems = new JButton(Core.Resources.Icons.get("JDesktop/SharedItems/Disconnected"));
-		buttonSharedItems.setDisabledIcon(Core.Resources.Icons.get("JDesktop/SharedItems/Disabled"));
-		buttonSharedItems.setToolTipText("Shared items");
-		buttonSharedItems.setFocusable(false);
-		buttonSharedItems.setContentAreaFilled(false);
-		buttonSharedItems.setBorder(null);
-		buttonSharedItems.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae)
-			{
-				try {
-					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_SHAREDITEMS, null);
-				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					dbe.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
-				}
-			}
-		});
-		//TODO super.add(buttonSharedItems);
 		buttonMediaManager = new JButton(Core.Resources.Icons.get("JDesktop/MediaManager/Enabled"));
 		buttonMediaManager.setDisabledIcon(Core.Resources.Icons.get("JDesktop/MediaManager/Disabled"));
 		buttonMediaManager.setToolTipText("Media files");
@@ -160,10 +136,8 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				buttonRecycleBin.setBounds(5,5,32,32);
 				buttonMediaManager.setBounds(5 + 40,5,32,32);
-				buttonSharedItems.setBounds(5 + 80,5,32,32);
 				buttonRecycleBin.setEnabled(Client.isConnected());
 				buttonMediaManager.setEnabled(Client.isConnected());
-				buttonSharedItems.setEnabled(Client.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
@@ -421,16 +395,13 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
 		}
 		try {
-			if(Client.DB.getDeleted().count() > 0)
+			if(Client.DB.getDeleted().size() > 0)
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
 			else
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
-		} catch (RemoteException re) {
-			Core.Logger.log(re.getMessage(), Level.ERROR);
-			re.printStackTrace();
 		}
 		super.validate();
 	}

@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
@@ -17,15 +16,11 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-
-
-
 @SuppressWarnings("serial")
 public final class PanelContent implements Validable, LayoutManager, ActionListener
 {
 	private DouzWindow parentWindow;
 	private Content tokenContent;
-	private boolean isModify;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelTagName;
@@ -40,16 +35,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 	public PanelContent(DouzWindow parent, JComponent pane, Content token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
-		if(token == null)
-		{
-			tokenContent = Client.DB.newContent();
-			tokenContent.setTagName("");
-			isModify = false;
-		}else
-		{
-			tokenContent = token;
-			isModify = true;
-		}
+		tokenContent = token;
 		pane.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
@@ -129,40 +115,17 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			try {
-				{
-					tokenContent.setTagName(textTagName.getText());
-					tokenContent.setInfo(textInfo.getText());
-					for(Book b : tokenContent.getBooks().elements())
-					{
-						if(!editorWorks.contains(b))
-						{
-							b.getContents().remove(tokenContent);
-							tokenContent.getBooks().remove(b);
-						}
-					}
-					java.util.Iterator<Book> books = editorWorks.iterator();
-					while(books.hasNext())
-					{
-						Book b = books.next();
-						b.getContents().add(tokenContent);
-						tokenContent.getBooks().add(b);
-					}
-					if(!isModify)
-					{
-						try {
-							Client.DB.getContents().insert(tokenContent);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
-						}
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenContent));
-					}else
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenContent));					
-				}
+			try
+			{
+				tokenContent.setTagName(textTagName.getText());
+				tokenContent.setInfo(textInfo.getText());
+				for(Book b : tokenContent.getBooks())
+					if(!editorWorks.contains(b))
+						tokenContent.removeBook(b);
+				java.util.Iterator<Book> books = editorWorks.iterator();
+				while(books.hasNext())
+					tokenContent.addBook(books.next());
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenContent));					
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, tokenContent, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);

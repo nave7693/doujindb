@@ -88,9 +88,9 @@ public class PanelBookMedia extends JPanel implements Validable
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();	
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
 						}
 					}
 				}.start();
@@ -177,9 +177,9 @@ public class PanelBookMedia extends JPanel implements Validable
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
 						}
 					}
 				}.start();				
@@ -306,14 +306,11 @@ public class PanelBookMedia extends JPanel implements Validable
 	private void displayUI()
 	{
 		try {
-			if(!Client.DB.getBooks().contains(tokenBook))
+			if(!Client.DB.getBooks(null).contains(tokenBook))
 				return;
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
-		} catch (RemoteException re) {
-			Core.Logger.log(re.getMessage(), Level.ERROR);
-			re.printStackTrace();
 		}
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -402,9 +399,9 @@ public class PanelBookMedia extends JPanel implements Validable
 	    	setIcon((ImageIcon)renderIcon.get("/"));
 	    	try {
 				setText("datastore://" + tokenBook.getID());
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
 			}
 	    	return this;
 	    }

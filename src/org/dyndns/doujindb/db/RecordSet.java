@@ -1,23 +1,21 @@
 package org.dyndns.doujindb.db;
-import java.util.*;
-import java.io.Serializable;
-import java.rmi.*;
 
-public interface RecordSet<T> extends Remote, Serializable
+import java.io.Serializable;
+
+public interface RecordSet<T> extends Serializable, Iterable<T>
 {
-	public boolean add(T e) throws RemoteException;
-	public boolean addAll(Collection<? extends T> c) throws RemoteException;
-	public void clear() throws RemoteException;
-	public boolean contains(Object o) throws RemoteException;
-	public boolean containsAll(Collection<?> c) throws RemoteException;
-	public boolean isEmpty() throws RemoteException;
-	public Iterator<T> iterator() throws RemoteException;
-	public boolean remove(Object o) throws RemoteException;
-	public boolean removeAll(Collection<?> c) throws RemoteException;
-	public boolean retainAll(Collection<?> c) throws RemoteException;
-	public int size() throws RemoteException;
-	public Object[] toArray() throws RemoteException;
-	public T[] toArray(T[] a) throws RemoteException;
-	public Iterable<T> elements() throws RemoteException;
-	public String getString() throws RemoteException;
+//	public boolean add(T e);
+//	public boolean addAll(Collection<? extends T> c);
+//	public void clear();
+	public boolean contains(Object o);
+//	public boolean containsAll(Collection<?> c);
+//	public boolean isEmpty();
+//	public Iterator<T> iterator();
+//	public boolean remove(Object o);
+//	public boolean removeAll(Collection<?> c);
+//	public boolean retainAll(Collection<?> c);
+	public int size();
+//	public Object[] toArray();
+//	public T[] toArray(T[] a);
+	
 }

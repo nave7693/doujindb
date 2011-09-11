@@ -208,9 +208,6 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 										} catch (DataStoreException dse) {
 											Core.Logger.log(dse.getMessage(), Level.ERROR);
 											dse.printStackTrace();
-										} catch (RemoteException re) {
-											Core.Logger.log(re.getMessage(), Level.ERROR);
-											re.printStackTrace();
 										}
 									}
 									;
@@ -251,7 +248,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		    }
 		});
 		Vector<Book> files = new Vector<Book>();
-		for(Book book : Client.DB.getBooks().elements())
+		for(Book book : Client.DB.getBooks(null))
 			files.add(book);
 		checkboxListMedia = new DouzCheckBoxList<Book>(files, searchField);
 		scrollListMedia = new JScrollPane(checkboxListMedia);
@@ -339,14 +336,11 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				mediaManagerInfo.setText(String.format("%.2f ", size) + label);
 				Vector<Book> files = new Vector<Book>();
 				try {
-					for(Book book : Client.DB.getBooks().elements())
+					for(Book book : Client.DB.getBooks(null))
 						files.add(book);
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
 				}
 				Iterable<Book> iterable = checkboxListMedia.getSelectedItems();
 				checkboxListMedia.setItems(files);
@@ -1060,41 +1054,29 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				return null;
 			Book book = (Book) imported.get("Book://").toArray()[0];
 			progressbar_overall.setString(book.toString());
-			Client.DB.getBooks().insert(book);
 			for(Record r : imported.get("Artist://"))
 			{
 				Artist o = (Artist)r;
-				Client.DB.getArtists().insert(o);
-				book.getArtists().add(o);
-				o.getBooks().add(book);
-			}
-			for(Record r : imported.get("Circle://"))
-			{
-				Circle o = (Circle)r;
-				Client.DB.getCircles().insert(o);
-				book.getCircles().add(o);
-				o.getBooks().add(book);
+				book.addArtist(o);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Convention://"))
 			{
 				Convention o = (Convention)r;
-				Client.DB.getConventions().insert(o);
 				book.setConvention(o);
-				o.getBooks().add(book);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Content://"))
 			{
 				Content o = (Content)r;
-				Client.DB.getContents().insert(o);
-				book.getContents().add(o);
-				o.getBooks().add(book);
+				book.addContent(o);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Parody://"))
 			{
 				Parody o = (Parody)r;
-				Client.DB.getParodies().insert(o);
-				book.getParodies().add(o);
-				o.getBooks().add(book);
+				book.addParody(o);
+				o.addBook(book);
 			}
 			return book.getID();
 		}
@@ -1121,7 +1103,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.newBook();
+		Book book = Client.DB.doInsert(Book.class);
 		book.setJapaneseName(doujin.JapaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.TranslatedName);
@@ -1138,15 +1120,14 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.getConventions().elements())
+			for(Convention convention : Client.DB.getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.newConvention();
+				Convention convention = Client.DB.doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
-				Client.DB.getUnchecked().insert(convention);
 			}			
 			else
 				parsed.get("Convention://").addAll(temp);
@@ -1155,15 +1136,14 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.getArtists().elements())
+				for(Artist artist : Client.DB.getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.newArtist();
+					Artist artist = Client.DB.doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
-					Client.DB.getUnchecked().insert(artist);
 				}			
 				else
 					parsed.get("Artist://").addAll(temp);
@@ -1173,15 +1153,14 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.getCircles().elements())
+				for(Circle circle : Client.DB.getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.newCircle();
+					Circle circle = Client.DB.doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
-					Client.DB.getUnchecked().insert(circle);
 				}			
 				else
 					parsed.get("Circle://").addAll(temp);
@@ -1191,15 +1170,14 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.getContents().elements())
+				for(Content content : Client.DB.getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.newContent();
+					Content content = Client.DB.doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
-					Client.DB.getUnchecked().insert(content);
 				}			
 				else
 					parsed.get("Content://").addAll(temp);
@@ -1209,15 +1187,14 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.getParodies().elements())
+				for(Parody parody : Client.DB.getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.newParody();
+					Parody parody = Client.DB.doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
-					Client.DB.getUnchecked().insert(parody);
 				}			
 				else
 					parsed.get("Parody://").addAll(temp);
@@ -1242,13 +1219,13 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		doujin.Translated = book.isTranslated();
 		doujin.Rating = book.getRating();
 		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists().elements())
+		for(Artist a : book.getArtists())
 			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles().elements())
+		for(Circle c : book.getCircles())
 			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies().elements())
+		for(Parody p : book.getParodies())
 			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents().elements())
+		for(Content ct : book.getContents())
 			doujin.contents.add(ct.getTagName());
 		//FIXME Serializer serializer = new Persister();
 		try

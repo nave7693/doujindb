@@ -15,8 +15,8 @@ import org.dyndns.doujindb.log.Level;
 */
 public final class Server
 {
-	public DataBase DB;
-	public RMIDataStoreImpl DS;
+	public static DataBase DB;
+	public static RMIDataStoreImpl DS;
 	
 	public Server()
 	{
@@ -32,9 +32,6 @@ public final class Server
 				{
 					java.rmi.registry.LocateRegistry.createRegistry(port);
 					Core.Logger.log("RMI Registry loaded.", Level.INFO);
-					//System.setProperty("java.rmi.server.hostname", "192.168.1.201");
-					//System.setProperty("java.rmi.server.useLocalHostname", "false");
-					//System.out.println(System.getProperty("java.rmi.server.hostname"));
 				} catch (RemoteException re) {
 					re.printStackTrace();
 				} catch (Exception e) {
@@ -45,49 +42,23 @@ public final class Server
 		
 		try
 		{
+			DB = new org.dyndns.doujindb.db.impl.DataBaseImpl();
+			/*
 			DB = (DataBase) Class.forName("org.dyndns.doujindb.db.impl.DataBaseImpl").newInstance();
 			Naming.rebind("rmi://localhost:" + port + "/DataBase", DB);
+			*/
 			Core.Logger.log("DataBase service loaded.", Level.INFO);
-			DS = //new RemoteDataStore(
-					new RMIDataStoreImpl(
-							new DataStoreImpl(
-									new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString())
-							)
-						//)
-					);
+			DS = new RMIDataStoreImpl(
+					new DataStoreImpl(
+						new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString())
+					)
+				);
 			Naming.rebind("rmi://localhost:" + port + "/DataStore", DS);
 			Core.Logger.log("DataStore service loaded.", Level.INFO);
-		} catch (InstantiationException ie) {
-			// TODO Auto-generated catch block
-			ie.printStackTrace();
-		} catch (IllegalAccessException iae) {
-			// TODO Auto-generated catch block
-			iae.printStackTrace();
-		} catch (ClassNotFoundException cnfe) {
-			// TODO Auto-generated catch block
-			cnfe.printStackTrace();
 		} catch (RemoteException re) {
-			// TODO Auto-generated catch block
 			re.printStackTrace();
 		} catch (MalformedURLException mue) {
-			// TODO Auto-generated catch block
 			mue.printStackTrace();
 		}
-		
-//		try
-//		{
-//			DS = (DataStore) Class.forName("org.dyndns.doujindb.dat.impl.RemoteDataStore").newInstance();
-//			Naming.rebind("rmi://localhost:7111/DataStore", DS);
-//			Core.Logger.log("DataStore service loaded.", Level.INFO);
-//		} catch (InstantiationException ie) {
-//			// TODO Auto-generated catch block
-//			ie.printStackTrace();
-//		} catch (IllegalAccessException iae) {
-//			// TODO Auto-generated catch block
-//			iae.printStackTrace();
-//		} catch (ClassNotFoundException cnfe) {
-//			// TODO Auto-generated catch block
-//			cnfe.printStackTrace();
-//		}
 	}
 }

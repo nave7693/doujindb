@@ -1,7 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
+import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -9,121 +9,107 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Circle")
-final class CircleImpl extends RecordImpl implements Record, Circle, Serializable//, Comparable<Circle>
+final class CircleImpl extends RecordImpl implements Circle, Serializable//, Comparable<Circle>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
-	@XmlElement(required=true)
-	private String japaneseName;
-	@XmlElement(required=false)
-	private String translatedName = "";
-	@XmlElement(required=false)
-	private String romanjiName = "";
-	@XmlElement(required=false)
-	private String weblink = "";
-	@XmlElement(name="artist", required=false)
-	private RecordSet<Artist> artists = new RecordSetImpl<Artist>();
-	@XmlElement(name="book", required=false)
-	private RecordSet<Book> books = new RecordSetImpl<Book>();
-	
-	public CircleImpl() throws RemoteException { super(); }
+	public CircleImpl(org.dyndns.doujindb.db.cayenne.Circle ref)
+	{
+		this.ref = ref;
+	}
 
 	@Override
 	public synchronized String getJapaneseName()
 	{
-		return japaneseName;
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getJapaneseName();
 	}
 
+	@Override
 	public synchronized void setJapaneseName(String japaneseName)
 	{
-		this.japaneseName = japaneseName;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setJapaneseName(japaneseName);
 	}
 
 	@Override
 	public synchronized String getTranslatedName()
 	{
-		return translatedName;
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getTranslatedName();
 	}
 
+	@Override
 	public synchronized void setTranslatedName(String translatedName)
 	{
-		this.translatedName = translatedName;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setTranslatedName(translatedName);
 	}
 
 	@Override
 	public synchronized String getRomanjiName()
 	{
-		return romanjiName;
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getRomanjiName();
 	}
 
+	@Override
 	public synchronized void setRomanjiName(String romanjiName)
 	{
-		this.romanjiName = romanjiName;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRomanjiName(romanjiName);
 	}
 
 	@Override
 	public synchronized String getWeblink()
 	{
-		return weblink;
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getWeblink();
 	}
 
+	@Override
 	public synchronized void setWeblink(String weblink)
 	{
-		this.weblink = weblink;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setWeblink(weblink);
 	}
 
 	@Override
 	public synchronized RecordSet<Artist> getArtists()
 	{
-		return artists;
+		Set<Artist> set = new TreeSet<Artist>();
+		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
+		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
+			set.add(new ArtistImpl(r));
+		return new RecordSetImpl<Artist>(set);
 	}
 
 	@Override
 	public synchronized RecordSet<Book> getBooks()
 	{
-		return books;
+		Set<Book> set = new TreeSet<Book>();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getBooks();
+		for(org.dyndns.doujindb.db.cayenne.Book r : result)
+			set.add(new BookImpl(r));
+		return new RecordSetImpl<Book>(set);
 	}
 	
 	@Override
-	public synchronized String toString() {
-		return this.japaneseName;
+	public synchronized String toString()
+	{
+		return this.getJapaneseName();
 		/*return japaneseName + 
 			(romanjiName.equals("") ? "" : " ("+romanjiName+")") +
 			(translatedName.equals("") ? "" : " ("+translatedName+")");*/
 	}
 
-	/*@Override
-	public synchronized int compareTo(Circle c) {
-		if(this.getID() == null)
-			if(c.getID() == null)
-				return 0;
-			else
-				return -1;
-		if(c.getID() == null)
-			if(this.getID() == null)
-				return 0;
-			else
-				return -1;
-		return this.getID().compareTo(c.getID());
-	}*/
-	
 	@Override
-	public synchronized boolean equals(Object o) {
-		if( o instanceof String)
-			return o.equals(this.japaneseName);
-		else
-			if(o instanceof Circle)
-				return compareTo((Circle)o) == 0;
-			else
-				return false;
+	public void addArtist(Artist artist) {
+		if(getArtists().contains(artist))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).addToArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
 	}
-	
-	@Override
-	public synchronized String getID() { return (ID == -1L ? null : String.format("C%016x", ID)); }
 
 	@Override
-	public String getString() throws RemoteException
-	{
-		return this.japaneseName;
+	public void removeArtist(Artist artist) {
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
 	}
 }

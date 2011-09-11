@@ -1,7 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
+import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -9,106 +9,97 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Parody")
-final class ParodyImpl extends RecordImpl implements Record, Parody, Serializable//, Comparable<Parody>
+final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Comparable<Parody>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
-	@XmlElement(required=true)
-	private String japaneseName;
-	@XmlElement(required=false)
-	private String translatedName = "";
-	@XmlElement(required=false)
-	private String romanjiName = "";
-	@XmlElement(required=false)
-	private String weblink = "";
-	@XmlElement(name="book", required=false)
-	private RecordSet<Book> books = new RecordSetImpl<Book>();
-	
-	public ParodyImpl() throws RemoteException { super(); }
-	
-	@Override
-	public synchronized String getJapaneseName() {
-		return japaneseName;
-	}
-
-	public synchronized void setJapaneseName(String japaneseName) {
-		this.japaneseName = japaneseName;
+	public ParodyImpl(org.dyndns.doujindb.db.cayenne.Parody ref)
+	{
+		this.ref = ref;
 	}
 
 	@Override
-	public synchronized String getTranslatedName() {
-		return translatedName;
-	}
-
-	public synchronized void setTranslatedName(String translatedName) {
-		this.translatedName = translatedName;
+	public synchronized String getJapaneseName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getJapaneseName();
 	}
 
 	@Override
-	public synchronized String getRomanjiName() {
-		return romanjiName;
+	public synchronized void setJapaneseName(String japaneseName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setJapaneseName(japaneseName);
 	}
 
-	public synchronized void setRomanjiName(String romanjiName) {
-		this.romanjiName = romanjiName;
+	@Override
+	public synchronized String getTranslatedName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getTranslatedName();
 	}
-	
+
+	@Override
+	public synchronized void setTranslatedName(String translatedName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setTranslatedName(translatedName);
+	}
+
+	@Override
+	public synchronized String getRomanjiName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getRomanjiName();
+	}
+
+	@Override
+	public synchronized void setRomanjiName(String romanjiName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRomanjiName(romanjiName);
+	}
+
 	@Override
 	public synchronized String getWeblink()
 	{
-		return weblink;
+		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getWeblink();
 	}
 
+	@Override
 	public synchronized void setWeblink(String weblink)
 	{
-		this.weblink = weblink;
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setWeblink(weblink);
 	}
 
 	@Override
-	public synchronized RecordSet<Book> getBooks() {
-		return books;
+	public synchronized RecordSet<Book> getBooks()
+	{
+		Set<Book> set = new TreeSet<Book>();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
+		for(org.dyndns.doujindb.db.cayenne.Book r : result)
+			set.add(new BookImpl(r));
+		return new RecordSetImpl<Book>(set);
 	}
 
 	@Override
-	public synchronized String toString() {
-		return this.japaneseName;
+	public synchronized String toString()
+	{
+		return this.getJapaneseName();
 		/*return japaneseName + 
 			(romanjiName.equals("") ? "" : " ("+romanjiName+")") +
 			(translatedName.equals("") ? "" : " ("+translatedName+")");*/
 	}
-
-	/*@Override
-	public synchronized int compareTo(Parody p) {
-		if(this.getID() == null)
-			if(p.getID() == null)
-				return 0;
-			else
-				return -1;
-		if(p.getID() == null)
-			if(this.getID() == null)
-				return 0;
-			else
-				return -1;
-		return this.getID().compareTo(p.getID());
-	}*/
 	
 	@Override
-	public synchronized boolean equals(Object o) {
-		if( o instanceof String)
-			return o.equals(this.japaneseName);
-		else
-			if(o instanceof Parody)
-				return compareTo((Parody)o) == 0;
-			else
-				return false;
+	public void addBook(Book book) {
+		if(getBooks().contains(book))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).addToBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
-	
-	@Override
-	public synchronized String getID() { return (ID == -1L ? null : String.format("P%016x", ID)); }
 
 	@Override
-	public String getString() throws RemoteException
-	{
-		return this.japaneseName;
+	public void removeBook(Book book) {
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 }

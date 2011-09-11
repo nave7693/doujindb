@@ -38,9 +38,11 @@ public final class Client
 		if(DB != null)
 			throw new RemoteException("Client already connected.");
         try { 
-        	DB = (DataBase)
-        					Naming.lookup(
-        							"rmi://" + host + ":" + port + "/DataBase");
+//        	DB = (DataBase)
+//        					Naming.lookup(
+//        							"rmi://" + host + ":" + port + "/DataBase");
+        	DB = Server.DB;
+        	
         	DS = new RemoteDataStore(
         			(RMIDataStore)
         					Naming.lookup(
@@ -56,19 +58,6 @@ public final class Client
         catch (java.lang.ArithmeticException ae) { 
         	throw new RemoteException(ae.getMessage());
         }
-		/*try
-		{
-			Class<?> clazz = Class.forName(DBType);
-			DB = (DataBase) clazz.newInstance();
-		} catch (ClassNotFoundException cnfe) {
-			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Class not found.");
-		} catch (InstantiationException ie) {
-			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Instantiation exception.");
-		} catch (IllegalAccessException iae) {
-			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Illegal access exception.");
-		} catch (ClassCastException cce) {
-			throw new DataBaseException("Cannot connect to Database '" + DBType + "' : Class cast exception.");
-		}*/
 	}
 	
 	public static void disconnect() throws RemoteException

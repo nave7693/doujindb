@@ -247,10 +247,10 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		{
 			setSelected(((CheckBoxItem<T>)obj).isChecked());
 			try {
-				setText(((CheckBoxItem<T>)obj).getItem().getString());
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
+				setText(((CheckBoxItem<T>)obj).getItem().toString());
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
 			}
 			setFont(font);
 			return this;

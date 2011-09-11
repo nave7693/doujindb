@@ -24,6 +24,7 @@ import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.log.Event;
 import org.dyndns.doujindb.plug.Plugin;
@@ -278,17 +279,17 @@ public UI(String title)
 	menuLogsMessage.setMnemonic(KeyEvent.VK_M);
 	menuLogsMessage.setFont(Core.Resources.Font);
 	menuLogsMessage.addActionListener(this);
-	menuLogsMessage.setSelected(true);
+	menuLogsMessage.setSelected(Core.Properties.get("org.dyndns.doujindb.log.info").asBoolean());
 	menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("JMenuBar/Logs/Warning"),true);
 	menuLogsWarning.setMnemonic(KeyEvent.VK_W);
 	menuLogsWarning.setFont(Core.Resources.Font);
 	menuLogsWarning.addActionListener(this);
-	menuLogsWarning.setSelected(true);
+	menuLogsWarning.setSelected(Core.Properties.get("org.dyndns.doujindb.log.warning").asBoolean());
 	menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("JMenuBar/Logs/Error"),true);
 	menuLogsError.setMnemonic(KeyEvent.VK_E);
 	menuLogsError.setFont(Core.Resources.Font);
 	menuLogsError.addActionListener(this);
-	menuLogsError.setSelected(true);
+	menuLogsError.setSelected(Core.Properties.get("org.dyndns.doujindb.log.error").asBoolean());
 	menuLogs.add(menuLogsMessage);
 	menuLogs.add(menuLogsWarning);
 	menuLogs.add(menuLogsError);
@@ -529,9 +530,6 @@ public void layoutContainer(Container parent)
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
-		} catch (RemoteException re) {
-			Core.Logger.log(re.getMessage(), Level.ERROR);
-			re.printStackTrace();
 		}
 	}
 	else
@@ -713,7 +711,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, Client.DB.doInsert(Artist.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -726,7 +724,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, Client.DB.doInsert(Book.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -739,7 +737,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, Client.DB.doInsert(Circle.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -752,7 +750,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, Client.DB.doInsert(Convention.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -765,7 +763,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, Client.DB.doInsert(Content.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -778,7 +776,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null);
+				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, Client.DB.doInsert(Parody.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -848,13 +846,10 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						Client.DB.commit();
+						Client.DB.doCommit();
 					} catch (DataBaseException dbe)
 					{
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
 					}
 					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
@@ -912,7 +907,7 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
-							Client.DB.rollback();
+							Client.DB.doRollback();
 						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
@@ -960,7 +955,7 @@ public void layoutContainer(Container parent)
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}*/
-						Client.DB.rollback();
+						Client.DB.doRollback();
 						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
 						Core.Logger.log("Connected to " + Client.DB.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));

@@ -9,23 +9,21 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.containers.ArtistContainer;
+import org.dyndns.doujindb.db.containers.CntArtist;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
 @SuppressWarnings("serial")
 public class RecordArtistEditor extends JSplitPane implements Validable
 {
-	private ArtistContainer tokenIArtist;
+	private CntArtist tokenIArtist;
 	private DouzCheckBoxList<Artist> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordArtistEditor(ArtistContainer token) throws DataBaseException, RemoteException
+	public RecordArtistEditor(CntArtist token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIArtist = token;
@@ -43,8 +41,8 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Artist>(Client.DB.getArtists().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIArtist.getArtists().elements());
+		checkboxList = new DouzCheckBoxList<Artist>(Client.DB.getArtists(null), searchField);
+		checkboxList.setSelectedItems(tokenIArtist.getArtists());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -56,7 +54,7 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 	{
 		boolean contains = false;
 		for(Object o : checkboxList.getSelectedItems())
-			if(o == item)
+			if(o.equals(item))
 				return true;
 		return contains;
 	}
@@ -74,7 +72,7 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIArtist.getArtists().elements());
+				checkboxList.setSelectedItems(tokenIArtist.getArtists());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

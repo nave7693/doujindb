@@ -26,7 +26,6 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 	{
 		WINDOW_SEARCH,
 		WINDOW_RECYCLEBIN,
-		WINDOW_SHAREDITEMS,
 		WINDOW_MEDIAMANAGER,
 		WINDOW_PLUGIN,
 		WINDOW_ARTIST,
@@ -102,7 +101,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Artist");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_ARTIST, item);
 				root = ep;
 				validable.add(ep);
@@ -115,7 +114,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Book");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_BOOK, item);
 				root = ep;
 				validable.add(ep);
@@ -128,7 +127,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Circle");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CIRCLE, item);
 				root = ep;
 				validable.add(ep);
@@ -141,7 +140,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Content");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONTENT, item);
 				root = ep;
 				validable.add(ep);
@@ -154,7 +153,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Convention");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONVENTION, item);
 				root = ep;
 				validable.add(ep);
@@ -167,7 +166,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				if(item == null)
 					setTitle("Add Parody");
 				else
-					setTitle(((Record)item).getString());
+					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_PARODY, item);
 				root = ep;
 				validable.add(ep);
@@ -179,16 +178,6 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"));
 				setTitle("Recycle Bin");
 				EditPanel ep = new EditPanel(this, Type.WINDOW_RECYCLEBIN, null);
-				root = ep;
-				validable.add(ep);
-				add(root);
-				break;
-			}
-			case WINDOW_SHAREDITEMS:
-			{
-				setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/SharedItems"));
-				setTitle("Shared items");
-				EditPanel ep = new EditPanel(this, Type.WINDOW_SHAREDITEMS, null);
 				root = ep;
 				validable.add(ep);
 				add(root);

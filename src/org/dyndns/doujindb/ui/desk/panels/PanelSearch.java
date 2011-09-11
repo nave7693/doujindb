@@ -132,9 +132,9 @@ public final class PanelSearch extends JPanel implements Validable
 						setText(a.getJapaneseName() + 
 								(a.getRomanjiName().equals("") ? "" : " ("+a.getRomanjiName()+")") +
 								(a.getTranslatedName().equals("") ? "" : " ("+a.getTranslatedName()+")"));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					try {
@@ -145,9 +145,9 @@ public final class PanelSearch extends JPanel implements Validable
 								"<br><b>Weblink</b> : " + a.getWeblink() +
 								"<br><b>Books</b> : " + a.getBooks().size() +
 								"</body></html>");
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					return this;
 				}
@@ -209,13 +209,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Artist a = ((RecordSet<Artist>)Client.DB.artists).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Artist>)listResults.getModel()).removeElementAt(index);
 									listResults.validate();
@@ -293,7 +290,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Artist>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Artist a : Client.DB.getArtists().elements())
+							for(Artist a : Client.DB.getArtists(null))
 							{
 								if(stopped)
 									break;
@@ -313,9 +310,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
@@ -401,9 +395,9 @@ public final class PanelSearch extends JPanel implements Validable
 						setText(c.getJapaneseName() + 
 								(c.getRomanjiName().equals("") ? "" : " ("+c.getRomanjiName()+")") +
 								(c.getTranslatedName().equals("") ? "" : " ("+c.getTranslatedName()+")"));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					try {
@@ -414,9 +408,9 @@ public final class PanelSearch extends JPanel implements Validable
 								"<br><b>Weblink</b> : " + c.getWeblink() +
 								"<br><b>Books</b> : " + c.getBooks().size() +
 								"</body></html>");
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					return this;
 				}
@@ -478,13 +472,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Circle c = ((RecordSet<Circle>)Client.DB.circles).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Circle>)listResults.getModel()).removeElementAt(index);
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
@@ -560,7 +551,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Circle>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Circle c : Client.DB.getCircles().elements())
+							for(Circle c : Client.DB.getCircles(null))
 							{
 								if(stopped)
 									break;
@@ -580,9 +571,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
@@ -668,6 +656,7 @@ public final class PanelSearch extends JPanel implements Validable
 			comboType.setFocusable(false);
 			for(Book.Type tokenType : Book.Type.values())
 				comboType.addItem(tokenType);
+			comboType.setSelectedItem(Book.Type.同人誌);
 			checkAdult = new JCheckBox("Adult", true);
 			checkAdult.setFont(font);
 			checkAdult.setFocusable(false);
@@ -699,9 +688,9 @@ public final class PanelSearch extends JPanel implements Validable
 						setText(b.getJapaneseName() + 
 								(b.getRomanjiName().equals("") ? "" : " ("+b.getRomanjiName()+")") +
 								(b.getTranslatedName().equals("") ? "" : " ("+b.getTranslatedName()+")"));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					try {
@@ -726,9 +715,9 @@ public final class PanelSearch extends JPanel implements Validable
 												:
 										"") +*/
 								"</body></html>");
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					return this;
 				}
@@ -790,13 +779,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Book b = ((RecordSet<Book>)Client.DB.works).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Book>)listResults.getModel()).removeElementAt(index);
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
@@ -887,8 +873,9 @@ public final class PanelSearch extends JPanel implements Validable
 					{
 						((DefaultListModel<Book>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							for(Book b : Client.DB.getBooks().elements())
+						try
+						{
+							for(Book b : Client.DB.getBooks(null))
 							{
 								if(stopped)
 									break;
@@ -899,21 +886,28 @@ public final class PanelSearch extends JPanel implements Validable
 									for(String tmp2 : tmp1)
 										if(tmp1.equals(""))
 										{
-											Content c = Client.DB.newContent();
-											c.setTagName(tmp2);
-											ct.add(c);
+//											Content c = Client.DB.newContent();
+//											c.setTagName(tmp2);
+//											ct.add(c);
 										}
+									//FIXME
+//									System.out.println(b);
+//									System.out.println("JapaneseName : " + b.getJapaneseName().matches(textJapaneseName.getText()));
+//									System.out.println("TranslatedName : " + b.getTranslatedName().matches(textTranslatedName.getText()));
+//									System.out.println("RomanjiName : " + b.getRomanjiName().matches(textRomanjiName.getText()));
+//									System.out.println("Convention : " + (b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()));
+//									System.out.println("Type : " + b.getType() == comboType.getSelectedItem());
+//									
 									if( b.getJapaneseName().matches(textJapaneseName.getText()) &&
 											b.getTranslatedName().matches(textTranslatedName.getText()) &&
 											b.getRomanjiName().matches(textRomanjiName.getText()) &&
-											(b.getConvention()+"").matches(textConvention.getText()) &&
+											(b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()) &&
 											b.getType() == comboType.getSelectedItem() &&
 											(checkAdult.isSelected()?b.isAdult():true) &&
 											(checkDecensored.isSelected()?b.isDecensored():true) &&
 											(checkTranslated.isSelected()?b.isTranslated():true) &&
 											(checkColored.isSelected()?b.isColored():true) &&
-											//b.isColored() == checkColored.isSelected() &&
-											b.getContents().containsAll(ct) &&
+											//FIXME b.getContents().containsAll(ct) &&
 											!Client.DB.getDeleted().contains(b)
 											)
 											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
@@ -926,9 +920,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
@@ -994,9 +985,9 @@ public final class PanelSearch extends JPanel implements Validable
 					Content ct = (Content) value;
 					try {
 						setText(ct.getTagName());
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					return this;
@@ -1059,13 +1050,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Content ct = ((RecordSet<Content>)Client.DB.contents).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Content>)listResults.getModel()).removeElementAt(index);
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
@@ -1129,7 +1117,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Content>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Content ct : Client.DB.getContents().elements())
+							for(Content ct : Client.DB.getContents(null))
 							{
 								if(stopped)
 									break;
@@ -1146,9 +1134,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
@@ -1214,18 +1199,18 @@ public final class PanelSearch extends JPanel implements Validable
 					Convention cn = (Convention) value;
 					try {
 						setText(cn.getTagName() + (cn.getInfo().equals("") ? "":" (" + cn.getInfo() + ")"));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					try {
 						setToolTipText("<html><body><b>" + cn.getTagName() + "</b><br>" + 
 								cn.getInfo() +
 								"</body></html>");
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					return this;
 				}
@@ -1287,13 +1272,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Convention cn = ((RecordSet<Convention>)Client.DB.conventions).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Convention>)listResults.getModel()).removeElementAt(index);
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
@@ -1357,7 +1339,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Convention>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Convention cn : Client.DB.getConventions().elements())
+							for(Convention cn : Client.DB.getConventions(null))
 							{
 								if(stopped)
 									break;
@@ -1374,9 +1356,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
@@ -1462,9 +1441,9 @@ public final class PanelSearch extends JPanel implements Validable
 						setText(p.getJapaneseName() + 
 								(p.getRomanjiName().equals("") ? "" : " ("+p.getRomanjiName()+")") +
 								(p.getTranslatedName().equals("") ? "" : " ("+p.getTranslatedName()+")"));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					setFont(font);
 					try {
@@ -1475,9 +1454,9 @@ public final class PanelSearch extends JPanel implements Validable
 								"<br><b>Weblink</b> : " + p.getWeblink() +
 								"<br><b>Books</b> : " + p.getBooks().size() +
 								"</body></html>");
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					}
 					return this;
 				}
@@ -1539,13 +1518,10 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Parody p = ((RecordSet<Parody>)Client.DB.parodies).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.getDeleted().insert(item);
+										Client.DB.doDelete(item);
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									((DefaultListModel<Parody>)listResults.getModel()).removeElementAt(index);
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
@@ -1621,7 +1597,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Parody>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Parody p : Client.DB.getParodies().elements())
+							for(Parody p : Client.DB.getParodies(null))
 							{
 								if(stopped)
 									break;
@@ -1641,9 +1617,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						} catch (PropertyException pe) {
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();

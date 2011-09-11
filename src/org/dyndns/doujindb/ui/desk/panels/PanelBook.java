@@ -35,7 +35,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 {
 	private DouzWindow parentWindow;
 	private Book tokenBook;
-	private boolean isModify;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
@@ -72,17 +71,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
-		if(token == null)
-		{
-			tokenBook = Client.DB.newBook();
-			tokenBook.setJapaneseName("");
-			tokenBook.setType(Type.同人誌);
-			isModify = false;
-		}else
-		{
-			tokenBook = token;
-			isModify = true;
-		}
+		tokenBook = token;
 		pane.setLayout(this);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -108,7 +97,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		_loadPreview:{
 			try
 			{
-				if(!isModify)
+				if(1==2)//FIXME
 				{
 					labelPreview.setEnabled(false);
 					break _loadPreview;
@@ -155,8 +144,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
-				if(!isModify)
-					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
 				{
 					JLabel lab = (JLabel) me.getSource();
@@ -328,7 +315,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		for(Convention conv : Client.DB.getConventions().elements())
+		for(Convention conv : Client.DB.getConventions(null))
 			comboConvention.addItem(conv);
 		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());
@@ -515,9 +502,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				}
 			});
 			tmr.start();
-		} catch (RemoteException re) {
-			Core.Logger.log(re.getMessage(), Level.ERROR);
-			re.printStackTrace();
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
 		if(date == null && !textDate.getText().equals("--/--/----"))
 		{
@@ -548,105 +535,40 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			try {
-				{
-					tokenBook.setJapaneseName(textJapaneseName.getText());
-					tokenBook.setTranslatedName(textTranslatedName.getText());
-					tokenBook.setRomanjiName(textRomanjiName.getText());
-					tokenBook.setInfo(textInfo.getText());
-					tokenBook.setDate(date);
-					tokenBook.setRating(editorRating.getRating());
-					tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
-					tokenBook.setType((Type)comboType.getSelectedItem());
-					tokenBook.setPages(pages);
-					tokenBook.setAdult(checkAdult.isSelected());
-					tokenBook.setDecensored(checkDecensored.isSelected());
-					tokenBook.setTranslated(checkTranslated.isSelected());
-					tokenBook.setColored(checkColored.isSelected());
-					{
-						for(Artist b : tokenBook.getArtists().elements())
-						{
-							if(!editorArtist.contains(b))
-							{
-								b.getBooks().remove(tokenBook);
-								tokenBook.getArtists().remove(b);
-							}
-						}
-						java.util.Iterator<Artist> Artists = editorArtist.iterator();
-						while(Artists.hasNext())
-						{
-							Artist b = Artists.next();
-							b.getBooks().add(tokenBook);
-							tokenBook.getArtists().add(b);
-						}
-					}
-					{
-						for(Circle c : tokenBook.getCircles().elements())
-						{
-							if(!editorCircles.contains(c))
-							{
-								c.getBooks().remove(tokenBook);
-								tokenBook.getCircles().remove(c);
-							}
-						}
-						java.util.Iterator<Circle> circles = editorCircles.iterator();
-						while(circles.hasNext())
-						{
-							Circle c = circles.next();
-							c.getBooks().add(tokenBook);
-							tokenBook.getCircles().add(c);
-						}
-					}
-					{
-						for(Content c : tokenBook.getContents().elements())
-						{
-							if(!editorContents.contains(c))
-							{
-								c.getBooks().remove(tokenBook);
-								tokenBook.getContents().remove(c);
-							}
-						}
-						java.util.Iterator<Content> contents = editorContents.iterator();
-						while(contents.hasNext())
-						{
-							Content c = contents.next();
-							c.getBooks().add(tokenBook);
-							tokenBook.getContents().add(c);
-						}
-					}
-					{
-						for(Parody c : tokenBook.getParodies().elements())
-						{
-							if(!editorParodies.contains(c))
-							{
-								c.getBooks().remove(tokenBook);
-								tokenBook.getParodies().remove(c);
-							}
-						}
-						java.util.Iterator<Parody> parodies = editorParodies.iterator();
-						while(parodies.hasNext())
-						{
-							Parody c = parodies.next();
-							c.getBooks().add(tokenBook);
-							tokenBook.getParodies().add(c);
-						}
-					}
-					if(!isModify)
-					{
-						try {
-							Client.DB.getBooks().insert(tokenBook);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
-						}
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenBook));
-					}
-					else
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
-				}
+			try
+			{
+				tokenBook.setJapaneseName(textJapaneseName.getText());
+				tokenBook.setTranslatedName(textTranslatedName.getText());
+				tokenBook.setRomanjiName(textRomanjiName.getText());
+				tokenBook.setInfo(textInfo.getText());
+				tokenBook.setDate(date);
+				tokenBook.setRating(editorRating.getRating());
+				tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
+				tokenBook.setType((Type)comboType.getSelectedItem());
+				tokenBook.setPages(pages);
+				tokenBook.setAdult(checkAdult.isSelected());
+				tokenBook.setDecensored(checkDecensored.isSelected());
+				tokenBook.setTranslated(checkTranslated.isSelected());
+				tokenBook.setColored(checkColored.isSelected());
+				for(Artist b : tokenBook.getArtists())
+					if(!editorArtist.contains(b))
+						tokenBook.removeArtist(b);
+				java.util.Iterator<Artist> Artists = editorArtist.iterator();
+				while(Artists.hasNext())
+					tokenBook.addArtist(Artists.next());
+				for(Content c : tokenBook.getContents())
+					if(!editorContents.contains(c))
+						tokenBook.removeContent(c);
+				java.util.Iterator<Content> contents = editorContents.iterator();
+				while(contents.hasNext())
+					tokenBook.addContent(contents.next());
+				for(Parody c : tokenBook.getParodies())
+					if(!editorParodies.contains(c))
+						tokenBook.removeParody(c);
+				java.util.Iterator<Parody> parodies = editorParodies.iterator();
+				while(parodies.hasNext())
+					tokenBook.addParody(parodies.next());
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -663,25 +585,19 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	public void validateUI(DouzEvent ve)
 	{
 		try {
-			if(!Client.DB.getConventions().contains((Convention)comboConvention.getSelectedItem()))
+			if(!Client.DB.getConventions(null).contains((Convention)comboConvention.getSelectedItem()))
 				comboConvention.setSelectedItem(null);
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
-		} catch (RemoteException re) {
-			Core.Logger.log(re.getMessage(), Level.ERROR);
-			re.printStackTrace();
 		}
 		for(int i=0;i<comboConvention.getItemCount();i++)
 			try {
-				if(!Client.DB.getConventions().contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
+				if(!Client.DB.getConventions(null).contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
 					comboConvention.removeItemAt(i);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{

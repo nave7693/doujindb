@@ -1,68 +1,74 @@
 package org.dyndns.doujindb.db.impl;
 
-import java.io.*;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.Hashtable;
+import java.sql.SQLException;
+import java.util.*;
 
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.access.*;
+import org.apache.cayenne.conf.*;
+import org.apache.cayenne.conn.PoolManager;
+import org.apache.cayenne.dba.*;
+import org.apache.cayenne.map.DataMap;
+import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="DataBase")
-public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
+public final class DataBaseImpl implements DataBase
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
-	private boolean autoCommit = false;
-	
-	@XmlElement(name="book", required=false)
-	private Table<Book> books;
-	@XmlElement(name="circle", required=false)
-	private Table<Circle> circles;
-	@XmlElement(name="artist", required=false)
-	private Table<Artist> artists;
-	@XmlElement(name="parody", required=false)
-	private Table<Parody> parodies;
-	@XmlElement(name="content", required=false)
-	private Table<Content> contents;
-	@XmlElement(name="convention", required=false)
-	private Table<Convention> conventions;
-	private Table<Record> deleted;
-	private Table<Record> shared;
-	private Table<Record> unchecked;
+	static ObjectContext context;
 	
 	private String connID;
 	
-	public synchronized Table<Record> getDeleted() {
-		return deleted;
-	}
-
-	public synchronized Table<Record> getShared() {
-		return shared;
-	}
-
-	public synchronized Table<Record> getUnchecked() {
-		return unchecked;
-	}
-
-	public DataBaseImpl() throws RemoteException
+	public DataBaseImpl() throws DataBaseException
 	{
-		books = new TableImpl<Book>();
-		circles = new TableImpl<Circle>();
-		artists = new TableImpl<Artist>();
-		parodies = new TableImpl<Parody>();
-		contents = new TableImpl<Content>();
-		conventions = new TableImpl<Convention>();
-		deleted = new TableImpl<Record>();
-		shared = new TableImpl<Record>();
-		unchecked = new TableImpl<Record>();
+		super();
 		
-		connID = "douz://" + "root" + "@";
+		DefaultConfiguration conf = new DefaultConfiguration();			
+		conf.addClassPath("org/dyndns/doujindb/db/cayenne/");
+		Configuration.initializeSharedConfiguration(conf);
+		
+		DataDomain domain = conf.getDomain("doujindb");
+		DataNode node = new DataNode("default");
+		node.setDataSourceFactory("org.apache.cayenne.conf.DriverDataSourceFactory");
+		node.setSchemaUpdateStrategy(new org.apache.cayenne.access.dbsync.ThrowOnPartialOrCreateSchemaStrategy());
+		for(DataMap map : domain.getDataMaps())
+		    node.addDataMap(map);
+		
+		try
+		{
+			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();
+			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
+			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
+			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
+			node.setDataSource(new PoolManager(driver,
+					url,
+			        1,
+			        1,
+			        username,
+			        password));
+		} catch (SQLException sqle) {
+			throw new DataBaseException(sqle);
+		}
+		
+		
+		JdbcAdapter adapter = new org.apache.cayenne.dba.mysql.MySQLAdapter();
+		adapter.setSupportsGeneratedKeys(true);
+		node.setAdapter(adapter);
+		
+		domain.addNode(node);
+		
+		context = domain.createDataContext();
+		
+		connID = "douz://" + System.getProperty("user.name") + "@";
 		try {
 			connID += java.net.InetAddress.getLocalHost().getHostName().toLowerCase() + ":" + "1099" + "/DataBase";
 		} catch (UnknownHostException uhe) {
@@ -72,211 +78,225 @@ public final class DataBaseImpl extends UnicastRemoteObject implements DataBase
 		}
 	}
 
-	public synchronized Table<Book> getBooks() {
-		return books;
-	}
-
-	public synchronized Table<Circle> getCircles() {
-		return circles;
-	}
-
-	public synchronized Table<Artist> getArtists() {
-		return artists;
-	}
-
-	public synchronized Table<Parody> getParodies() {
-		return parodies;
-	}
-
-	public synchronized Table<Content> getContents() {
-		return contents;
-	}
-
-	public synchronized Table<Convention> getConventions() {
-		return conventions;
-	}
-
-	@Override
-	public synchronized Artist newArtist() throws DataBaseException {
-		try {
-			return new ArtistImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized Book newBook() throws DataBaseException {
-		try {
-			return new BookImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized Circle newCircle() throws DataBaseException {
-		try {
-			return new CircleImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized Content newContent() throws DataBaseException {
-		try {
-			return new ContentImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized Convention newConvention() throws DataBaseException {
-		try {
-			return new ConventionImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized Parody newParody() throws DataBaseException {
-		try {
-			return new ParodyImpl();
-		} catch (RemoteException re) {
-			throw new DataBaseException(re);
-		}
-	}
-
-	@Override
-	public synchronized void commit() throws DataBaseException
+	private synchronized Artist newArtist() throws DataBaseException
 	{
-		File file = new File(System.getProperty("user.home"), ".doujindb/doujindb.dbo");
-		ObjectOutputStream out;
-		try
-		{
-			out = new ObjectOutputStream(new FileOutputStream(file));
-			Hashtable<String, Table<? extends Record>> serialized = new Hashtable<String, Table<? extends Record>>();
-			serialized.put("Artist", artists);
-			serialized.put("Book", books);
-			serialized.put("Circle", circles);
-			serialized.put("Content", contents);
-			serialized.put("Convention", conventions);
-			serialized.put("Parody", parodies);
-			serialized.put("Deleted", deleted);
-			serialized.put("Shared", shared);
-			serialized.put("Unchecked", unchecked);
-			out.writeObject(serialized);
-			out.close();
-		} catch (FileNotFoundException fnfe) {
-			throw new DataBaseException("DataBase file not found.");
-		} catch (IOException ioe) {
-			throw new DataBaseException("DataBase I/O error (" + ioe.getMessage() + ").");
-		}
+		org.dyndns.doujindb.db.cayenne.Artist o = context.newObject(org.dyndns.doujindb.db.cayenne.Artist.class);
+		return new ArtistImpl(o);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public synchronized void rollback() throws DataBaseException
+	private synchronized Book newBook() throws DataBaseException
 	{
-		File file = new File(System.getProperty("user.home"), ".doujindb/doujindb.dbo");
-		ObjectInputStream in;
-		try
-		{
-			in = new ObjectInputStream(new FileInputStream(file));
-			Hashtable<String, Serializable> serialized = (Hashtable<String, Serializable>) in.readObject();
-			in.close();
-			if(!serialized.containsKey("Artist"))
-				throw new DataBaseException("DataBase load error : missing Artist table.");
-			if(!serialized.containsKey("Book"))
-				throw new DataBaseException("DataBase load error : missing Book table.");
-			if(!serialized.containsKey("Circle"))
-				throw new DataBaseException("DataBase load error : missing Circle table.");
-			if(!serialized.containsKey("Content"))
-				throw new DataBaseException("DataBase load error : missing Content table.");
-			if(!serialized.containsKey("Convention"))
-				throw new DataBaseException("DataBase load error : missing Convention table.");
-			if(!serialized.containsKey("Parody"))
-				throw new DataBaseException("DataBase load error : missing Parody table.");
-			if(!serialized.containsKey("Deleted"))
-				throw new DataBaseException("DataBase load error : missing Deleted table.");
-			if(!serialized.containsKey("Shared"))
-				throw new DataBaseException("DataBase load error : missing Shared table.");
-			if(!serialized.containsKey("Unchecked"))
-				throw new DataBaseException("DataBase load error : missing Unchecked table.");
-			try {
-				artists = (Table<Artist>) serialized.get("Artist");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Artist table.");
-			}
-			try {
-				books = (Table<Book>) serialized.get("Book");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Book table.");
-			}
-			try {
-				circles = (Table<Circle>) serialized.get("Circle");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Circle table.");
-			}
-			try {
-				contents = (Table<Content>) serialized.get("Content");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Content table.");
-			}
-			try {
-				conventions = (Table<Convention>) serialized.get("Convention");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Convention table.");
-			}
-			try {
-				parodies = (Table<Parody>) serialized.get("Parody");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Parody table.");
-			}
-			try {
-				deleted = (Table<Record>) serialized.get("Deleted");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Deleted table.");
-			}
-			try {
-				shared = (Table<Record>) serialized.get("Shared");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Shared table.");
-			}
-			try {
-				unchecked = (Table<Record>) serialized.get("Unchecked");
-			} catch (ClassCastException cce) {
-				throw new DataBaseException("DataBase load error : invalid Unchecked table.");
-			}
-		} catch (FileNotFoundException fnfe) {
-			throw new DataBaseException("DataBase file not found.");
-		} catch (IOException ioe) {
-			throw new DataBaseException("DataBase I/O error (" + ioe.getMessage() + ").");
-		} catch (ClassNotFoundException cnfe) {
-			throw new DataBaseException("DataBase cast error (" + cnfe.getMessage() + ").");
-		} catch (ClassCastException cce) {
-			throw new DataBaseException("DataBase cast error (" + cce.getMessage() + ").");
-		}
+		org.dyndns.doujindb.db.cayenne.Book o = context.newObject(org.dyndns.doujindb.db.cayenne.Book.class);
+		return new BookImpl(o);
+	}
+
+	private synchronized Circle newCircle() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.Circle o = context.newObject(org.dyndns.doujindb.db.cayenne.Circle.class);
+		return new CircleImpl(o);
+	}
+
+	private synchronized Content newContent() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.Content o = context.newObject(org.dyndns.doujindb.db.cayenne.Content.class);
+		return new ContentImpl(o);
+	}
+
+	private synchronized Convention newConvention() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.Convention o = context.newObject(org.dyndns.doujindb.db.cayenne.Convention.class);
+		return new ConventionImpl(o);
+	}
+
+	private synchronized Parody newParody() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.Parody o = context.newObject(org.dyndns.doujindb.db.cayenne.Parody.class);
+		return new ParodyImpl(o);
+	}
+	
+	
+
+	@Override
+	public synchronized void doCommit() throws DataBaseException
+	{
+		context.commitChanges();
 	}
 
 	@Override
-	public synchronized boolean getAutoCommit() throws DataBaseException
+	public synchronized void doRollback() throws DataBaseException
 	{
-		return autoCommit;
-	}
-
-	@Override
-	public synchronized void setAutoCommit(boolean autoCommit) throws DataBaseException
-	{
-		this.autoCommit = autoCommit;
+		context.rollbackChanges();
 	}
 
 	@Override
 	public synchronized String getConnection() throws DataBaseException
 	{
 		return connID;
+	}
+	
+	@Override
+	public synchronized void doDelete(Record record) throws DataBaseException
+	{
+		context.deleteObject(((RecordImpl)record).ref);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class);
+		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
+		Set<Book> buff = new TreeSet<Book>();
+		for(org.dyndns.doujindb.db.cayenne.Book o : list)
+			buff.add(new BookImpl(o));
+		return new RecordSetImpl<Book>(buff);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class);
+		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
+		Set<Circle> buff = new TreeSet<Circle>();
+		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
+			buff.add(new CircleImpl(o));
+		return new RecordSetImpl<Circle>(buff);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class);
+		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
+		Set<Artist> buff = new TreeSet<Artist>();
+		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
+			buff.add(new ArtistImpl(o));
+		return new RecordSetImpl<Artist>(buff);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class);
+		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
+		Set<Parody> buff = new TreeSet<Parody>();
+		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
+			buff.add(new ParodyImpl(o));
+		return new RecordSetImpl<Parody>(buff);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class);
+		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
+		Set<Content> buff = new TreeSet<Content>();
+		for(org.dyndns.doujindb.db.cayenne.Content o : list)
+			buff.add(new ContentImpl(o));
+		return new RecordSetImpl<Content>(buff);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException
+	{
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class);
+		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
+		Set<Convention> buff = new TreeSet<Convention>();
+		for(org.dyndns.doujindb.db.cayenne.Convention o : list)
+			buff.add(new ConventionImpl(o));
+		return new RecordSetImpl<Convention>(buff);
+	}
+
+	@Override
+	public RecordSet<Record> getDeleted() throws DataBaseException
+	{
+		Collection<?> deleted0 = context.deletedObjects();
+		Set<Record> deleted1 = new TreeSet<Record>();
+		for(Object o : deleted0)
+		{
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)
+				deleted1.add(new ArtistImpl((org.dyndns.doujindb.db.cayenne.Artist)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Circle)
+				deleted1.add(new CircleImpl((org.dyndns.doujindb.db.cayenne.Circle)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Book)
+				deleted1.add(new BookImpl((org.dyndns.doujindb.db.cayenne.Book)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Content)
+				deleted1.add(new ContentImpl((org.dyndns.doujindb.db.cayenne.Content)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Convention)
+				deleted1.add(new ConventionImpl((org.dyndns.doujindb.db.cayenne.Convention)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Parody)
+				deleted1.add(new ParodyImpl((org.dyndns.doujindb.db.cayenne.Parody)o));
+		}
+		return new RecordSetImpl<Record>(deleted1);
+	}
+
+	@Override
+	public RecordSet<Record> getModified() throws DataBaseException
+	{
+		Collection<?> modified0 = context.modifiedObjects();
+		Set<Record> modified1 = new TreeSet<Record>();
+		for(Object o : modified0)
+		{
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)
+				modified1.add(new ArtistImpl((org.dyndns.doujindb.db.cayenne.Artist)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Circle)
+				modified1.add(new CircleImpl((org.dyndns.doujindb.db.cayenne.Circle)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Book)
+				modified1.add(new BookImpl((org.dyndns.doujindb.db.cayenne.Book)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Content)
+				modified1.add(new ContentImpl((org.dyndns.doujindb.db.cayenne.Content)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Convention)
+				modified1.add(new ConventionImpl((org.dyndns.doujindb.db.cayenne.Convention)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Parody)
+				modified1.add(new ParodyImpl((org.dyndns.doujindb.db.cayenne.Parody)o));
+		}
+		return new RecordSetImpl<Record>(modified1);
+	}
+
+	@Override
+	public RecordSet<Record> getUncommitted() throws DataBaseException
+	{
+		Collection<?> uncommitted0 = context.uncommittedObjects();
+		Set<Record> uncommitted1 = new TreeSet<Record>();
+		for(Object o : uncommitted0)
+		{
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)
+				uncommitted1.add(new ArtistImpl((org.dyndns.doujindb.db.cayenne.Artist)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Circle)
+				uncommitted1.add(new CircleImpl((org.dyndns.doujindb.db.cayenne.Circle)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Book)
+				uncommitted1.add(new BookImpl((org.dyndns.doujindb.db.cayenne.Book)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Content)
+				uncommitted1.add(new ContentImpl((org.dyndns.doujindb.db.cayenne.Content)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Convention)
+				uncommitted1.add(new ConventionImpl((org.dyndns.doujindb.db.cayenne.Convention)o));
+			if(o instanceof org.dyndns.doujindb.db.cayenne.Parody)
+				uncommitted1.add(new ParodyImpl((org.dyndns.doujindb.db.cayenne.Parody)o));
+		}
+		return new RecordSetImpl<Record>(uncommitted1);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException
+	{
+		if(clazz == Artist.class)
+			return (T) newArtist();
+		if(clazz == Book.class)
+			return (T) newBook();
+		if(clazz == Circle.class)
+			return (T) newCircle();
+		if(clazz == Content.class)
+			return (T) newContent();
+		if(clazz == Convention.class)
+			return (T) newConvention();
+		if(clazz == Parody.class)
+			return (T) newParody();
+		throw new DataBaseException("Invalid record class '" + clazz + "' specified.");
 	}
 }

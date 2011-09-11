@@ -27,7 +27,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 {
 	private DouzWindow parentWindow;
 	private Circle tokenCircle;
-	private boolean isModify;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
@@ -47,16 +46,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	public PanelCircle(DouzWindow parent, JComponent pane, Circle token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
-		if(token == null)
-		{
-			tokenCircle = Client.DB.newCircle();
-			tokenCircle.setJapaneseName("");
-			isModify = false;
-		}else
-		{
-			tokenCircle = token;
-			isModify = true;
-		}
+		tokenCircle = token;
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -79,7 +69,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		_loadBanner:{
 			try
 			{
-				if(!isModify)
+				if(1==2)//FIXME
 				{
 					labelBanner.setEnabled(false);
 					break _loadBanner;
@@ -126,8 +116,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
-				if(!isModify)
-					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
 				{
 					JLabel lab = (JLabel) me.getSource();
@@ -359,58 +347,19 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			try {
-				{
-					tokenCircle.setJapaneseName(textJapaneseName.getText());
-					tokenCircle.setTranslatedName(textTranslatedName.getText());
-					tokenCircle.setRomanjiName(textRomanjiName.getText());
-					tokenCircle.setWeblink(textWeblink.getText());
-					for(Book b : tokenCircle.getBooks().elements())
-					{
-						if(!editorWorks.contains(b))
-						{
-							b.getCircles().remove(tokenCircle);
-							tokenCircle.getBooks().remove(b);
-						}
-					}
-					java.util.Iterator<Book> books = editorWorks.iterator();
-					while(books.hasNext())
-					{
-						Book b = books.next();
-						b.getCircles().add(tokenCircle);
-						tokenCircle.getBooks().add(b);
-					}
-					for(Artist c : tokenCircle.getArtists().elements())
-					{
-						if(!editorArtists.contains(c))
-						{
-							c.getCircles().remove(tokenCircle);
-							tokenCircle.getArtists().remove(c);
-						}
-					}
-					java.util.Iterator<Artist> Artists = editorArtists.iterator();
-					while(Artists.hasNext())
-					{
-						Artist c = Artists.next();
-						c.getCircles().add(tokenCircle);
-						tokenCircle.getArtists().add(c);
-					}
-					if(!isModify)
-					{
-						try {
-							Client.DB.getCircles().insert(tokenCircle);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
-						}
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenCircle));
-					}
-					else
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenCircle));				
-				}
+			try
+			{
+				tokenCircle.setJapaneseName(textJapaneseName.getText());
+				tokenCircle.setTranslatedName(textTranslatedName.getText());
+				tokenCircle.setRomanjiName(textRomanjiName.getText());
+				tokenCircle.setWeblink(textWeblink.getText());
+				for(Artist c : tokenCircle.getArtists())
+					if(!editorArtists.contains(c))
+					tokenCircle.removeArtist(c);
+				java.util.Iterator<Artist> Artists = editorArtists.iterator();
+				while(Artists.hasNext())
+					tokenCircle.addArtist(Artists.next());
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenCircle));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);

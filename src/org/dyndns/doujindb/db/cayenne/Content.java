@@ -1,0 +1,8 @@
+package org.dyndns.doujindb.db.cayenne;
+
+import org.dyndns.doujindb.db.cayenne.auto._Content;
+
+@SuppressWarnings("serial")
+public class Content extends _Content {
+
+}

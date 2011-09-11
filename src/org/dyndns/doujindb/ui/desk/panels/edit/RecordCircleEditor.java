@@ -10,25 +10,21 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.containers.CircleContainer;
+import org.dyndns.doujindb.db.containers.CntCircle;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
-
-
 @SuppressWarnings("serial")
 public class RecordCircleEditor extends JSplitPane implements Validable
 {
-	private CircleContainer tokenICircle;
+	private CntCircle tokenICircle;
 	private DouzCheckBoxList<Circle> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordCircleEditor(CircleContainer token) throws DataBaseException, RemoteException
+	public RecordCircleEditor(CntCircle token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenICircle = token;
@@ -46,8 +42,8 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Circle>(Client.DB.getCircles().elements(), searchField);
-		checkboxList.setSelectedItems(tokenICircle.getCircles().elements());
+		checkboxList = new DouzCheckBoxList<Circle>(Client.DB.getCircles(null), searchField);
+		checkboxList.setSelectedItems(tokenICircle.getCircles());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -59,7 +55,7 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 	{
 		boolean contains = false;
 		for(Object o : checkboxList.getSelectedItems())
-			if(o == item)
+			if(o.equals(item))
 				return true;
 		return contains;
 	}
@@ -77,7 +73,7 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenICircle.getCircles().elements());
+				checkboxList.setSelectedItems(tokenICircle.getCircles());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

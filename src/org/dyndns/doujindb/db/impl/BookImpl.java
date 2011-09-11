@@ -1,7 +1,6 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
 import org.dyndns.doujindb.db.*;
@@ -10,186 +9,226 @@ import org.dyndns.doujindb.db.records.*;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Book")
-final class BookImpl extends RecordImpl implements Record, Book, Serializable//, Comparable<Book>
+final class BookImpl extends RecordImpl implements Book, Serializable//, Comparable<Book>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
-	@XmlElement(required=true)
-	private String japaneseName;
-	@XmlElement(required=false)
-	private String translatedName = "";
-	@XmlElement(required=false)
-	private String romanjiName = "";
-	@XmlElement(name="artist", required=false)
-	private RecordSet<Artist> artists = new RecordSetImpl<Artist>();
-	@XmlElement(name="circle", required=false)
-	private RecordSet<Circle> circles = new RecordSetImpl<Circle>();
-	@XmlElement(name="parody", required=false)
-	private RecordSet<Parody> parodies = new RecordSetImpl<Parody>();
-	@XmlElement(required=false)
-	private Convention convention;
-	@XmlElement(required=false)
-	private Date released;
-	@XmlElement(required=false)
-	private Type type;
-	@XmlElement(required=false)
-	private int pages = 0;
-	@XmlElement(required=false)
-	private boolean adult = true;
-	@XmlElement(required=false)
-	private boolean decensored = false;
-	@XmlElement(required=false)
-	private boolean translated = false;
-	@XmlElement(required=false)
-	private boolean colored = false;
-	@XmlElement(required=false)
-	private Rating rating = Rating.UNRATED;
-	@XmlElement(name="content", required=false)
-	private RecordSet<Content> tags = new RecordSetImpl<Content>();
-	@XmlElement(required=false)
-	private String info = "";	
-	
-	public BookImpl() throws RemoteException { super(); }
-
-	@Override
-	public synchronized String getJapaneseName() {
-		return japaneseName;
-	}
-
-	public synchronized void setJapaneseName(String japaneseName) {
-		this.japaneseName = japaneseName;
+	public BookImpl(org.dyndns.doujindb.db.cayenne.Book ref)
+	{
+		this.ref = ref;
+		setRating(Rating.UNRATED);
+		setType(Type.同人誌);
+		setAdult(true);
+		setColored(false);
+		setDecensored(false);
+		setTranslated(false);
+		setPages(0);
+		setDate(new Date());
 	}
 
 	@Override
-	public synchronized String getTranslatedName() {
-		return translatedName;
-	}
-
-	public synchronized void setTranslatedName(String translatedName) {
-		this.translatedName = translatedName;
+	public synchronized String getJapaneseName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getJapaneseName();
 	}
 
 	@Override
-	public synchronized String getRomanjiName() {
-		return romanjiName;
-	}
-
-	public synchronized void setRomanjiName(String romanjiName) {
-		this.romanjiName = romanjiName;
+	public synchronized void setJapaneseName(String japaneseName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setJapaneseName(japaneseName);
 	}
 
 	@Override
-	public synchronized RecordSet<Artist> getArtists() {
-		return artists;
-	}
-
-	@Override
-	public synchronized RecordSet<Circle> getCircles() {
-		return circles;
-	}
-
-	@Override
-	public synchronized RecordSet<Parody> getParodies() {
-		return parodies;
-	}
-
-	@Override
-	public synchronized Date getDate() {
-		return released;
-	}
-
-	public synchronized void setDate(Date released) {
-		this.released = released;
-	}
-
-	@Override
-	public synchronized Type getType() {
-		return type;
-	}
-
-	public synchronized void setType(Type type) {
-		this.type = type;
-	}
-
-	@Override
-	public synchronized boolean isAdult() {
-		return adult;
-	}
-
-	public synchronized void setAdult(boolean adult) {
-		this.adult = adult;
-	}
-
-	@Override
-	public synchronized boolean isDecensored() {
-		return decensored;
-	}
-
-	public synchronized void setDecensored(boolean decensored) {
-		this.decensored = decensored;
-	}
-
-	@Override
-	public synchronized boolean isTranslated() {
-		return translated;
-	}
-
-	public synchronized void setTranslated(boolean translated) {
-		this.translated = translated;
+	public synchronized String getTranslatedName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getTranslatedName();
 	}
 	
 	@Override
-	public synchronized boolean isColored() {
-		return colored;
-	}
-
-	public synchronized void setColored(boolean colored) {
-		this.colored = colored;
+	public synchronized void setTranslatedName(String translatedName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslatedName(translatedName);
 	}
 
 	@Override
-	public synchronized Rating getRating() {
-		return rating;
+	public synchronized String getRomanjiName()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRomanjiName();
 	}
 
-	public synchronized void setRating(Rating rating) {
-		this.rating = rating;
+	@Override
+	public synchronized void setRomanjiName(String romanjiName)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomanjiName(romanjiName);
+	}
+
+	@Override
+	public synchronized RecordSet<Artist> getArtists()
+	{
+		Set<Artist> set = new TreeSet<Artist>();
+		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
+		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
+			set.add(new ArtistImpl(r));
+		return new RecordSetImpl<Artist>(set);
+	}
+
+	@Override
+	public synchronized RecordSet<Circle> getCircles()
+	{
+		Set<Circle> set = new TreeSet<Circle>();
+		Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getCircles();
+		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
+			set.add(new CircleImpl(r));
+		return new RecordSetImpl<Circle>(set);
+	}
+
+	@Override
+	public synchronized RecordSet<Parody> getParodies()
+	{
+		Set<Parody> set = new TreeSet<Parody>();
+		Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
+		for(org.dyndns.doujindb.db.cayenne.Parody r : result)
+			set.add(new ParodyImpl(r));
+		return new RecordSetImpl<Parody>(set);
+	}
+
+	@Override
+	public synchronized Date getDate()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getPublished();
+	}
+
+	@Override
+	public synchronized void setDate(Date released)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setPublished(released);
+	}
+
+	@Override
+	public synchronized Type getType()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getType();
+	}
+
+	@Override
+	public synchronized void setType(Type type)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setType(type);
+	}
+
+	@Override
+	public synchronized boolean isAdult()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getAdult();
+	}
+
+	@Override
+	public synchronized void setAdult(boolean adult)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setAdult(adult);
+	}
+
+	@Override
+	public synchronized boolean isDecensored()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getDecensored();
+	}
+
+	@Override
+	public synchronized void setDecensored(boolean decensored)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setDecensored(decensored);
+	}
+
+	@Override
+	public synchronized boolean isTranslated()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getTranslated();
+	}
+
+	@Override
+	public synchronized void setTranslated(boolean translated)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslated(translated);
 	}
 	
 	@Override
-	public synchronized RecordSet<Content> getContents() {
-		return tags;
+	public synchronized boolean isColored()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getColor();
 	}
 
 	@Override
-	public synchronized int getPages() {
-		return pages;
-	}
-
-	public synchronized void setPages(int pages) {
-		this.pages = pages;
+	public synchronized void setColored(boolean colored)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setColor(colored);
 	}
 
 	@Override
-	public synchronized Convention getConvention() {
-		return convention;
-	}
-
-	public synchronized void setConvention(Convention convention) {
-		this.convention = convention;
+	public synchronized Rating getRating()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRating();
 	}
 
 	@Override
-	public synchronized String getInfo() {
-		return info;
-	}
-
-	public synchronized void setInfo(String info) {
-		this.info = info;
+	public synchronized void setRating(Rating rating)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setRating(rating);
 	}
 	
 	@Override
-	public synchronized String toString() {
+	public synchronized RecordSet<Content> getContents()
+	{
+		Set<Content> set = new TreeSet<Content>();
+		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
+		for(org.dyndns.doujindb.db.cayenne.Content r : result)
+			set.add(new ContentImpl(r));
+		return new RecordSetImpl<Content>(set);
+	}
+
+	@Override
+	public synchronized int getPages()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getPages();
+	}
+
+	@Override
+	public synchronized void setPages(int pages)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setPages(pages);
+	}
+
+	@Override
+	public synchronized Convention getConvention()
+	{
+		if(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof() == null)
+			return null;
+		return new ConventionImpl(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof());
+	}
+
+	@Override
+	public synchronized void setConvention(Convention convention)
+	{
+		if(convention == null)
+			return;
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
+	}
+
+	@Override
+	public synchronized String getInfo()
+	{
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getInfo();
+	}
+
+	@Override
+	public synchronized void setInfo(String info)
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setInfo(info);
+	}
+	
+	@Override
+	public synchronized String toString()
+	{
 		//return this.japaneseName;
 		return "("+(getConvention()==null?"不詳":getConvention())+") " +
 			"("+getType()+") " +
@@ -198,44 +237,58 @@ final class BookImpl extends RecordImpl implements Record, Book, Serializable//,
 			""+getJapaneseName() + " " +
 			"("+getParodies().toString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")";
 	}
-
-	/*@Override
-	public synchronized int compareTo(Book b) {
-		if(this.getID() == null)
-			if(b.getID() == null)
-				return 0;
-			else
-				return -1;
-		if(b.getID() == null)
-			if(this.getID() == null)
-				return 0;
-			else
-				return -1;
-		return this.getID().compareTo(b.getID());
-	}*/
 	
 	@Override
-	public synchronized boolean equals(Object o) {
-		if( o instanceof String)
-			return o.equals(this.japaneseName);
-		else
-			if(o instanceof Book)
-				return compareTo((Book)o) == 0;
-			else
-				return false;
+	public void addArtist(Artist artist) {
+		if(getArtists().contains(artist))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
 	}
-	
-	@Override
-	public synchronized String getID() { return (ID == -1L ? null : String.format("B%016x", ID)); }
 
 	@Override
-	public String getString() throws RemoteException
-	{
-		return "("+(getConvention()==null?"不詳":getConvention())+") " +
-		"("+getType()+") " +
-		"["+getCircles().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／") +
-		"("+getArtists().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")] " +
-		""+getJapaneseName() + " " +
-		"("+getParodies().getString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")";
+	public void removeArtist(Artist artist) {
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
+	}
+
+	@Override
+	public void addContent(Content content) {
+		if(getContents().contains(content))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToContents(
+			(org.dyndns.doujindb.db.cayenne.Content)
+			((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
+		);
+	}
+
+	@Override
+	public void addParody(Parody parody) {
+		if(getParodies().contains(parody))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToParodies(
+			(org.dyndns.doujindb.db.cayenne.Parody)
+			((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
+		);
+	}
+
+	@Override
+	public void removeContent(Content content) {
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(
+				(org.dyndns.doujindb.db.cayenne.Content)
+				((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
+			);
+	}
+
+	@Override
+	public void removeParody(Parody parody) {
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(
+				(org.dyndns.doujindb.db.cayenne.Parody)
+				((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
+			);
 	}
 }

@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
@@ -17,12 +16,10 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-@SuppressWarnings("serial")
 public final class PanelConvention implements Validable, LayoutManager, ActionListener
 {
 	private DouzWindow parentWindow;
 	private Convention tokenConvention;
-	private boolean isModify;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelTagName;
@@ -39,17 +36,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
-		if(token == null)
-		{
-			tokenConvention = Client.DB.newConvention();
-			tokenConvention.setTagName("");
-			tokenConvention.setInfo("");
-			isModify = false;
-		}else
-		{
-			tokenConvention = token;
-			isModify = true;
-		}
+		tokenConvention = token;
 		pane.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
@@ -109,6 +96,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	{
 	     return parent.getPreferredSize();
 	}
+	@SuppressWarnings("serial")
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
@@ -118,7 +106,8 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		{
 			final Border brd1 = textTagName.getBorder();
 			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
+			final Timer tmr = new Timer(100, new AbstractAction ()
+			{
 				boolean hasBorder = true;
 				int count = 0;
 				public void actionPerformed (ActionEvent e) {
@@ -137,41 +126,18 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			try {
-				{
-					tokenConvention.setTagName(textTagName.getText());
-					tokenConvention.setWeblink(textWeblink.getText());
-					tokenConvention.setInfo(textInfo.getText());
-					for(Book b : tokenConvention.getBooks().elements())
-					{
-						if(!editorWorks.contains(b))
-						{
-							b.setConvention(null);
-							tokenConvention.getBooks().remove(b);
-						}
-					}
-					java.util.Iterator<Book> books = editorWorks.iterator();
-					while(books.hasNext())
-					{
-						Book b = books.next();
-						b.setConvention(tokenConvention);
-						tokenConvention.getBooks().add(b);
-					}
-					if(!isModify)
-					{
-						try {
-							Client.DB.getConventions().insert(tokenConvention);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
-						}
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenConvention));
-					}else
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenConvention));			
-				}
+			try
+			{
+				tokenConvention.setTagName(textTagName.getText());
+				tokenConvention.setWeblink(textWeblink.getText());
+				tokenConvention.setInfo(textInfo.getText());
+				for(Book b : tokenConvention.getBooks())
+					if(!editorWorks.contains(b))
+						tokenConvention.removeBook(b);
+				java.util.Iterator<Book> books = editorWorks.iterator();
+				while(books.hasNext())
+					tokenConvention.addBook(books.next());
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenConvention));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, tokenConvention, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);

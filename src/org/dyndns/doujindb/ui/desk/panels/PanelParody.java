@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
@@ -17,15 +16,11 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 
-
-
-
 @SuppressWarnings("serial")
 public final class PanelParody implements Validable, LayoutManager, ActionListener
 {
 	private DouzWindow parentWindow;
 	private Parody tokenParody;
-	private boolean isModify;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelJapaneseName;
@@ -43,16 +38,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	public PanelParody(DouzWindow parent, JComponent pane, Parody token) throws DataBaseException, RemoteException
 	{
 		parentWindow = parent;
-		if(token == null)
-		{
-			tokenParody = Client.DB.newParody();
-			tokenParody.setJapaneseName("");
-			isModify = false;
-		}else
-		{
-			tokenParody = token;
-			isModify = true;
-		}
+		tokenParody = token;
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -147,42 +133,19 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 			Rectangle rect = parentWindow.getBounds();
 			parentWindow.dispose();
 			Core.UI.Desktop.remove(parentWindow);
-			try {
-				{
-					tokenParody.setJapaneseName(textJapaneseName.getText());
-					tokenParody.setTranslatedName(textTranslatedName.getText());
-					tokenParody.setRomanjiName(textRomanjiName.getText());
-					tokenParody.setWeblink(textWeblink.getText());
-					for(Book b : tokenParody.getBooks().elements())
-					{
-						if(!editorWorks.contains(b))
-						{
-							b.getParodies().remove(tokenParody);
-							tokenParody.getBooks().remove(b);
-						}
-					}
-					java.util.Iterator<Book> books = editorWorks.iterator();
-					while(books.hasNext())
-					{
-						Book b = books.next();
-						b.getParodies().add(tokenParody);
-						tokenParody.getBooks().add(b);
-					}
-					if(!isModify)
-					{
-						try {
-							Client.DB.getParodies().insert(tokenParody);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
-						}
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, tokenParody));
-					}else
-						Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenParody));				
-				}
+			try
+			{
+				tokenParody.setJapaneseName(textJapaneseName.getText());
+				tokenParody.setTranslatedName(textTranslatedName.getText());
+				tokenParody.setRomanjiName(textRomanjiName.getText());
+				tokenParody.setWeblink(textWeblink.getText());
+				for(Book b : tokenParody.getBooks())
+					if(!editorWorks.contains(b))
+						tokenParody.removeBook(b);
+				java.util.Iterator<Book> books = editorWorks.iterator();
+				while(books.hasNext())
+					tokenParody.addBook(books.next());
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenParody));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, tokenParody, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);

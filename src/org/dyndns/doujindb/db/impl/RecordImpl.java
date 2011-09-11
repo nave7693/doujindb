@@ -1,46 +1,44 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+
+import org.apache.cayenne.CayenneDataObject;
+import org.apache.cayenne.DataObjectUtils;
 
 import org.dyndns.doujindb.db.Record;
 
-
 @SuppressWarnings("serial")
-abstract class RecordImpl extends UnicastRemoteObject implements Record, Serializable, Comparable<Record>
+abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 {
-	long ID;
-	
-	public RecordImpl() throws RemoteException
+	protected CayenneDataObject ref;
+
+	public RecordImpl()
 	{
-		ID = -1L;
+		super();
 	}
-	
+
 	@Override
-	public synchronized void setID(long id) throws RemoteException
+	public synchronized String getID()
 	{
-		ID = id;
+		if(ref.getObjectId().isTemporary())
+			return String.format("TMP-%08x", (int)(Math.random() * 0xffff));
+		//Can't get primary key from temporary id.
+		else
+			return String.format("%08x", DataObjectUtils.intPKForObject(ref));
 	}
-	
+
 	@Override
 	public synchronized int compareTo(Record o)
 	{
-		try {
-			if(this.getID() == null)
-				if(o.getID() == null)
-					return 0;
-				else
-					return -1;
-		if(o.getID() == null)
-			if(this.getID() == null)
-				return 0;
-			else
-				return -1;
 		return this.getID().compareTo(o.getID());
-		} catch (RemoteException re) {
-			re.printStackTrace();
-			return -2;
-		}
+	}
+
+	@Override
+	public synchronized boolean equals(Object o)
+	{
+		if(o instanceof Record)
+			return compareTo((Record)o) == 0;
+		else
+			return false;
 	}
 }

@@ -16,7 +16,7 @@ final class TableImpl<T extends Record> extends UnicastRemoteObject implements T
 	
 	protected TableImpl() throws RemoteException
 	{
-		super();
+		super(1099);
 	}
 	
 	@Override
@@ -25,7 +25,7 @@ final class TableImpl<T extends Record> extends UnicastRemoteObject implements T
 		if(records.containsValue(row))
 			return;
 		index++;
-		row.setID(index);
+		//row.setID(index);
 		records.put(index, row);
 	}
 

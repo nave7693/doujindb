@@ -1,8 +1,8 @@
 package org.dyndns.doujindb.db;
 
 import java.io.Serializable;
-import java.rmi.*;
 
+import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 
 /**  
@@ -10,45 +10,33 @@ import org.dyndns.doujindb.db.records.*;
 * @author  nozomu
 * @version 1.0
 */
-public interface DataBase extends Remote, Serializable
+public interface DataBase extends Serializable
 {
-	public String getConnection() throws DataBaseException, RemoteException;
+	public String getConnection() throws DataBaseException;
 	
-	public void commit() throws DataBaseException, RemoteException;
+	public void doCommit() throws DataBaseException;
 	
-	public void rollback() throws DataBaseException, RemoteException;
+	public void doRollback() throws DataBaseException;
 	
-	public boolean getAutoCommit() throws DataBaseException, RemoteException;
-	
-	public void setAutoCommit(boolean autoCommit) throws DataBaseException, RemoteException;
-	
-	public Table<Book> getBooks() throws DataBaseException, RemoteException;
+	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException;
 
-	public Table<Circle> getCircles() throws DataBaseException, RemoteException;
+	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException;
 
-	public Table<Artist> getArtists() throws DataBaseException, RemoteException;
+	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException;
 
-	public Table<Parody> getParodies() throws DataBaseException, RemoteException;
+	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException;
 
-	public Table<Content> getContents() throws DataBaseException, RemoteException;
+	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException;
 
-	public Table<Convention> getConventions() throws DataBaseException, RemoteException;
+	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
 	
-	public Table<Record> getDeleted() throws DataBaseException, RemoteException;
+	public RecordSet<Record> getDeleted() throws DataBaseException;
 
-	public Table<Record> getShared() throws DataBaseException, RemoteException;
-
-	public Table<Record> getUnchecked() throws DataBaseException, RemoteException;
+	public RecordSet<Record> getModified() throws DataBaseException;
 	
-	public Artist newArtist() throws DataBaseException, RemoteException;
+	public RecordSet<Record> getUncommitted() throws DataBaseException;
 	
-	public Book newBook() throws DataBaseException, RemoteException;
+	public <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException;
 	
-	public Circle newCircle() throws DataBaseException, RemoteException;
-	
-	public Content newContent() throws DataBaseException, RemoteException;
-	
-	public Convention newConvention() throws DataBaseException, RemoteException;
-	
-	public Parody newParody() throws DataBaseException, RemoteException;
+	public void doDelete(Record record) throws DataBaseException;
 }

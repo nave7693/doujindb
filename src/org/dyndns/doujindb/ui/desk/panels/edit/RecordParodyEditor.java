@@ -10,25 +10,21 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.containers.ParodyContainer;
+import org.dyndns.doujindb.db.containers.CntParody;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
-
-
 @SuppressWarnings("serial")
 public class RecordParodyEditor extends JSplitPane implements Validable
 {
-	private ParodyContainer tokenIParody;
+	private CntParody tokenIParody;
 	private DouzCheckBoxList<Parody> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordParodyEditor(ParodyContainer token) throws DataBaseException, RemoteException
+	public RecordParodyEditor(CntParody token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIParody = token;
@@ -46,8 +42,8 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Parody>(Client.DB.getParodies().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIParody.getParodies().elements());
+		checkboxList = new DouzCheckBoxList<Parody>(Client.DB.getParodies(null), searchField);
+		checkboxList.setSelectedItems(tokenIParody.getParodies());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -59,7 +55,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 	{
 		boolean contains = false;
 		for(Object o : checkboxList.getSelectedItems())
-			if(o == item)
+			if(o.equals(item))
 				return true;
 		return contains;
 	}
@@ -77,7 +73,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIParody.getParodies().elements());
+				checkboxList.setSelectedItems(tokenIParody.getParodies());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

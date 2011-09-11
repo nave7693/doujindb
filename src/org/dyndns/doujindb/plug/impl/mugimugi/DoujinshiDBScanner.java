@@ -155,41 +155,34 @@ public final class DoujinshiDBScanner implements Plugin
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").iterator().next();
-			Client.DB.getBooks().insert(book);
 			for(Record r : imported.get("Artist://"))
 			{
 				Artist o = (Artist)r;
-				Client.DB.getArtists().insert(o);
-				book.getArtists().add(o);
-				o.getBooks().add(book);
+				book.addArtist(o);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Circle://"))
 			{
 				Circle o = (Circle)r;
-				Client.DB.getCircles().insert(o);
-				book.getCircles().add(o);
-				o.getBooks().add(book);
+				;
 			}
 			for(Record r : imported.get("Convention://"))
 			{
 				Convention o = (Convention)r;
-				Client.DB.getConventions().insert(o);
 				book.setConvention(o);
-				o.getBooks().add(book);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Content://"))
 			{
 				Content o = (Content)r;
-				Client.DB.getContents().insert(o);
-				book.getContents().add(o);
-				o.getBooks().add(book);
+				book.addContent(o);
+				o.addBook(book);
 			}
 			for(Record r : imported.get("Parody://"))
 			{
 				Parody o = (Parody)r;
-				Client.DB.getParodies().insert(o);
-				book.getParodies().add(o);
-				o.getBooks().add(book);
+				book.addParody(o);
+				o.addBook(book);
 			}
 			return book;
 		}
@@ -1246,7 +1239,7 @@ public final class DoujinshiDBScanner implements Plugin
 									throw new Exception("Error parsing XML data.");
 								}
 								
-								for(Book book_ : Client.DB.getBooks().elements())
+								for(Book book_ : Client.DB.getBooks(null))
 									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && importedBook != book_)
 									{
 										status = TASK_WARNING;
@@ -1497,7 +1490,7 @@ public final class DoujinshiDBScanner implements Plugin
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.newBook();
+		Book book = Client.DB.doInsert(Book.class);
 		book.setJapaneseName(doujin.JapaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.TranslatedName);
@@ -1514,15 +1507,15 @@ public final class DoujinshiDBScanner implements Plugin
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.getConventions().elements())
+			for(Convention convention : Client.DB.getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.newConvention();
+				Convention convention = Client.DB.doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
-				Client.DB.getUnchecked().insert(convention);
+				//Client.DB.getUnchecked().insert(convention);
 			}			
 			else
 				parsed.get("Convention://").addAll(temp);
@@ -1531,15 +1524,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.getArtists().elements())
+				for(Artist artist : Client.DB.getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.newArtist();
+					Artist artist = Client.DB.doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
-					Client.DB.getUnchecked().insert(artist);
+					//Client.DB.getUnchecked().insert(artist);
 				}			
 				else
 					parsed.get("Artist://").addAll(temp);
@@ -1549,15 +1542,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.getCircles().elements())
+				for(Circle circle : Client.DB.getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.newCircle();
+					Circle circle = Client.DB.doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
-					Client.DB.getUnchecked().insert(circle);
+					//Client.DB.getUnchecked().insert(circle);
 				}			
 				else
 					parsed.get("Circle://").addAll(temp);
@@ -1567,15 +1560,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.getContents().elements())
+				for(Content content : Client.DB.getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.newContent();
+					Content content = Client.DB.doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
-					Client.DB.getUnchecked().insert(content);
+					//Client.DB.getUnchecked().insert(content);
 				}			
 				else
 					parsed.get("Content://").addAll(temp);
@@ -1585,15 +1578,15 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.getParodies().elements())
+				for(Parody parody : Client.DB.getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.newParody();
+					Parody parody = Client.DB.doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
-					Client.DB.getUnchecked().insert(parody);
+					//Client.DB.getUnchecked().insert(parody);
 				}			
 				else
 					parsed.get("Parody://").addAll(temp);
@@ -1619,13 +1612,13 @@ public final class DoujinshiDBScanner implements Plugin
 		doujin.Translated = book.isTranslated();
 		doujin.Rating = book.getRating();
 		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists().elements())
+		for(Artist a : book.getArtists())
 			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles().elements())
+		for(Circle c : book.getCircles())
 			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies().elements())
+		for(Parody p : book.getParodies())
 			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents().elements())
+		for(Content ct : book.getContents())
 			doujin.contents.add(ct.getTagName());
 		//FIXME Serializer serializer = new Persister();
 		try

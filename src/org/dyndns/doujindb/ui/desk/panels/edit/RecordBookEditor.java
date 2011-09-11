@@ -10,25 +10,21 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.containers.BookContainer;
+import org.dyndns.doujindb.db.containers.CntBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-
-
-
-
 @SuppressWarnings("serial")
 public class RecordBookEditor extends JSplitPane implements Validable
 {
-	private BookContainer tokenIBook;
+	private CntBook tokenIBook;
 	private DouzCheckBoxList<Book> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordBookEditor(BookContainer token) throws DataBaseException, RemoteException
+	public RecordBookEditor(CntBook token) throws DataBaseException, RemoteException
 	{
 		super();
 		this.tokenIBook = token;
@@ -46,8 +42,8 @@ public class RecordBookEditor extends JSplitPane implements Validable
 		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Book>(Client.DB.getBooks().elements(), searchField);
-		checkboxList.setSelectedItems(tokenIBook.getBooks().elements());
+		checkboxList = new DouzCheckBoxList<Book>(Client.DB.getBooks(null), searchField);
+		checkboxList.setSelectedItems(tokenIBook.getBooks());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
@@ -59,7 +55,7 @@ public class RecordBookEditor extends JSplitPane implements Validable
 	{
 		boolean contains = false;
 		for(Object o : checkboxList.getSelectedItems())
-			if(o == item)
+			if(o.equals(item))
 				return true;
 		return contains;
 	}
@@ -77,7 +73,7 @@ public class RecordBookEditor extends JSplitPane implements Validable
 		else
 		{
 			try {
-				checkboxList.setSelectedItems(tokenIBook.getBooks().elements());
+				checkboxList.setSelectedItems(tokenIBook.getBooks());
 			} catch (RemoteException re) {
 				Core.Logger.log(re.getMessage(), Level.ERROR);
 				re.printStackTrace();

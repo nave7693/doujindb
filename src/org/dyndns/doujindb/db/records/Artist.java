@@ -1,7 +1,6 @@
 package org.dyndns.doujindb.db.records;
 
 import java.io.Serializable;
-import java.rmi.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
@@ -11,16 +10,20 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Artist extends Record, Remote, Serializable, BookContainer, CircleContainer
+public interface Artist extends Record, Serializable, CntBook, CntCircle
 {
-	public String getJapaneseName() throws RemoteException;
-	public String getTranslatedName() throws RemoteException;
-	public String getRomanjiName() throws RemoteException;
-	public String getWeblink() throws RemoteException;
-	public void setJapaneseName(String japaneseName) throws RemoteException;
-	public void setTranslatedName(String translatedName) throws RemoteException;
-	public void setRomanjiName(String romanjiName) throws RemoteException;
-	public void setWeblink(String weblink) throws RemoteException;
-	public RecordSet<Book> getBooks() throws RemoteException;
-	public RecordSet<Circle> getCircles() throws RemoteException;
+	public String getJapaneseName();
+	public String getTranslatedName();
+	public String getRomanjiName();
+	public String getWeblink();
+	public void setJapaneseName(String japaneseName);
+	public void setTranslatedName(String translatedName);
+	public void setRomanjiName(String romanjiName);
+	public void setWeblink(String weblink);
+	public RecordSet<Book> getBooks();
+	public RecordSet<Circle> getCircles();
+	public void addBook(Book book);
+	public void addCircle(Circle circle);
+	public void removeBook(Book book);
+	public void removeCircle(Circle circle);
 }

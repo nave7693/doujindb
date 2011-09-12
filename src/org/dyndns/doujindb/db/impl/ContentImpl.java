@@ -75,4 +75,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
 	}
+	
+	@Override
+	public synchronized String getID()
+	{
+		return "T" + super.getID();
+	}
 }

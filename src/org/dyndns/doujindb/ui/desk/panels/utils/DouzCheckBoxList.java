@@ -49,6 +49,8 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
    		{
 			public void mouseClicked(MouseEvent me)
    			{
+				if(!isEnabled())
+					return;
 				if(me.getButton() != MouseEvent.BUTTON1)
 					return;
    				int selectedIndex = listData.locationToIndex(me.getPoint());

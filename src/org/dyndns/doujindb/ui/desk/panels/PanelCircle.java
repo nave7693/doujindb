@@ -268,7 +268,17 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		});
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
+		
+		System.out.println("Artist : " + tokenCircle.getArtists().size());
+		System.out.println("" + tokenCircle.getArtists());
+		System.out.println("Books : " + tokenCircle.getBooks().size());
+		System.out.println("" + tokenCircle.getBooks());
+		System.out.println("Books (by Artist)");
+		for(Artist a : tokenCircle.getArtists())
+		System.out.println("" + a.getBooks());
+		
 		editorWorks = new RecordBookEditor(tokenCircle);
+		editorWorks.setEnabled(false);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);

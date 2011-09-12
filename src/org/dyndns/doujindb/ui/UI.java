@@ -947,8 +947,8 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						//Client.connect();
-						Client.connect("doujindb.dyndns.org", 1099);
+						Client.connect();
+						//Client.connect("doujindb.dyndns.org", 1099);
 						/*try {
 							Client.connect(java.net.InetAddress.getLocalHost().getHostAddress(), 1099);
 						} catch (UnknownHostException e) {

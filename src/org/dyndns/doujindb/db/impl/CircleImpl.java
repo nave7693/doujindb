@@ -80,7 +80,16 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	public synchronized RecordSet<Book> getBooks()
 	{
 		Set<Book> set = new TreeSet<Book>();
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getBooks();
+		/*
+		 * Flattened Relationships n0:m0 : n1:m1 are considered read-only.
+		 * There's a problem when updating data, these relations don't get updated, you have to rollback to see changes.
+		 * Let's fix that.
+		 * Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getBooks();
+		 */
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = new HashSet<org.dyndns.doujindb.db.cayenne.Book>();
+		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists())
+			for(org.dyndns.doujindb.db.cayenne.Book b : a.getBooks())
+				result.add(b);
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
@@ -111,5 +120,11 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
+	}
+	
+	@Override
+	public synchronized String getID()
+	{
+		return "C" + super.getID();
 	}
 }

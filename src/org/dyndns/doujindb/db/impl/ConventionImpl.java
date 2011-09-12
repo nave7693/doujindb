@@ -87,4 +87,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
 	}
+	
+	@Override
+	public synchronized String getID()
+	{
+		return "E" + super.getID();
+	}
 }

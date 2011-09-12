@@ -102,4 +102,10 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
 	}
+	
+	@Override
+	public synchronized String getID()
+	{
+		return "P" + super.getID();
+	}
 }

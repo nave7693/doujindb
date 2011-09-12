@@ -8,8 +8,6 @@ import javax.swing.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.records.Book.Rating;
 
-
-
 @SuppressWarnings("serial")
 public class BookRatingEditor extends JPanel
 {

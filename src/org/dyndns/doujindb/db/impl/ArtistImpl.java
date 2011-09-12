@@ -130,4 +130,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
 		);
 	}
+
+	@Override
+	public synchronized String getID()
+	{
+		return "A" + super.getID();
+	}
 }

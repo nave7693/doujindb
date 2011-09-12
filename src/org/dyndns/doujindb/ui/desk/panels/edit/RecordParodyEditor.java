@@ -47,7 +47,7 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
 		setDividerSize(0);
-		setEnabled(false);
+		super.setEnabled(false);
 		validate();
 	}
 	
@@ -82,4 +82,10 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		validate();
 	}
 	
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		checkboxList.setEnabled(enabled);
+		searchField.setEnabled(enabled);
+	}
 }

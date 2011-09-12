@@ -410,6 +410,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		editorArtist = new RecordArtistEditor(tokenBook);
 		tabLists.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtist);
 		editorCircles = new RecordCircleEditor(tokenBook);
+		editorCircles.setEnabled(false);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
 		editorContents = new RecordContentEditor(tokenBook);
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);

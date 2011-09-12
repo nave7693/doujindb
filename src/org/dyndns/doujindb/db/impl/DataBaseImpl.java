@@ -13,6 +13,7 @@ import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
@@ -32,9 +33,12 @@ public final class DataBaseImpl implements DataBase
 	{
 		super();
 		
-		DefaultConfiguration conf = new DefaultConfiguration();			
-		conf.addClassPath("org/dyndns/doujindb/db/cayenne/");
-		Configuration.initializeSharedConfiguration(conf);
+//		DefaultConfiguration conf = new DefaultConfiguration();
+//		conf.addClassPath("org/dyndns/doujindb/db/cayenne/");
+//		Configuration.initializeSharedConfiguration(conf);
+		
+		Configuration.initializeSharedConfiguration(EmbeddedConfiguration.class);
+		Configuration conf = Configuration.getSharedConfiguration();
 		
 		DataDomain domain = conf.getDomain("doujindb");
 		DataNode node = new DataNode("default");

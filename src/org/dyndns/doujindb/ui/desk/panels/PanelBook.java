@@ -94,50 +94,23 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		scrollInfo = new JScrollPane(textInfo);
 		labelPreview = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
 		labelPreview.setName("no-preview");
-		_loadPreview:{
-			try
+		try
+		{
+			DataSource ds = Client.DS.child(tokenBook.getID());
+			ds.mkdir();
+			ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
+			if(ds.exists())
 			{
-				if(1==2)//FIXME
-				{
-					labelPreview.setEnabled(false);
-					break _loadPreview;
-				}
-				//TODO
-				/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
-				File entry = new File(root, ".preview");
-				if(entry.exists())
-				{
-					labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(entry)));
-					labelPreview.setName("preview");
-					break _loadPreview;
-				}
-				if(Client.DS.contains(tokenBook.getID()))
-				{
-					DataSource source = Client.DS.get(tokenBook.getID());
-					if(source.contains(".preview"))
-					{
-						InputStream in = source.get(".preview").getInputStream();
-						labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-						in.close();
-						labelPreview.setName("preview");
-						break _loadPreview;
-					}
-				}*/
-				DataSource ds = Client.DS.child(tokenBook.getID());
-				ds.mkdir();
-				ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
-				if(ds.exists())
-				{
-					InputStream in = ds.getInputStream();
-					labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-					labelPreview.setName("preview");
-					in.close();
-				}
-			} catch (NullPointerException npe) {
-			} catch (Exception e) {
-				e.printStackTrace();
-				//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
+				InputStream in = ds.getInputStream();
+				labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+				labelPreview.setName("preview");
+				in.close();
 			}
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 		}
 		labelPreview.addMouseListener(new MouseAdapter()
 		{

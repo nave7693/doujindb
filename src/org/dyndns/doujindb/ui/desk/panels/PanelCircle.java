@@ -66,50 +66,23 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		textWeblink.setFont(font);
 		labelBanner = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
 		labelBanner.setName("no-banner");
-		_loadBanner:{
-			try
+		try
+		{
+			DataSource ds = Client.DS.child(tokenCircle.getID());
+			ds.mkdir();
+			ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
+			if(ds.exists())
 			{
-				if(1==2)//FIXME
-				{
-					labelBanner.setEnabled(false);
-					break _loadBanner;
-				}
-				//TODO
-				/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
-				File entry = new File(root, ".banner");
-				if(entry.exists())
-				{
-					labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(entry)));
-					labelBanner.setName("banner");
-					break _loadBanner;
-				}
-				if(Client.DS.contains(tokenCircle.getID()))
-				{
-					DataSource source = Client.DS.get(tokenCircle.getID());
-					if(source.contains(".banner"))
-					{
-						InputStream in = source.get(".banner").getInputStream();
-						labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-						in.close();
-						labelBanner.setName("banner");
-						break _loadBanner;
-					}
-				}*/
-				DataSource ds = Client.DS.child(tokenCircle.getID());
-				ds.mkdir();
-				ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
-				if(ds.exists())
-				{
-					InputStream in = ds.getInputStream();
-					labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-					labelBanner.setName("banner");
-					in.close();
-				}
-			} catch (NullPointerException npe) {
-			} catch (Exception e) {
-				e.printStackTrace();
-				//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
+				InputStream in = ds.getInputStream();
+				labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+				labelBanner.setName("banner");
+				in.close();
 			}
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
 		}
 		labelBanner.addMouseListener(new MouseAdapter()
 		{

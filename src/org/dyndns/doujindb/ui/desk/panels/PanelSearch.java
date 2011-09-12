@@ -881,23 +881,16 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								try
 								{
-									Collection<Content> ct = new Vector<Content>();
-									String[] tmp1 = textContents.getText().split(",");
-									for(String tmp2 : tmp1)
-										if(tmp1.equals(""))
-										{
-//											Content c = Client.DB.newContent();
-//											c.setTagName(tmp2);
-//											ct.add(c);
-										}
-									//FIXME
-//									System.out.println(b);
-//									System.out.println("JapaneseName : " + b.getJapaneseName().matches(textJapaneseName.getText()));
-//									System.out.println("TranslatedName : " + b.getTranslatedName().matches(textTranslatedName.getText()));
-//									System.out.println("RomanjiName : " + b.getRomanjiName().matches(textRomanjiName.getText()));
-//									System.out.println("Convention : " + (b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()));
-//									System.out.println("Type : " + b.getType() == comboType.getSelectedItem());
-//									
+									boolean containsAllTags = false;
+									Vector<String> tags0 = new Vector<String>();
+									for(String tag : textContents.getText().split(","))
+										if(!tag.equals(""))
+											tags0.add(tag.trim());
+									Vector<String> tags1 = new Vector<String>();
+									for(Content cnt : b.getContents())
+										tags1.add(cnt.getTagName());
+									if(tags1.containsAll(tags0))
+										containsAllTags = true;
 									if( b.getJapaneseName().matches(textJapaneseName.getText()) &&
 											b.getTranslatedName().matches(textTranslatedName.getText()) &&
 											b.getRomanjiName().matches(textRomanjiName.getText()) &&
@@ -907,7 +900,7 @@ public final class PanelSearch extends JPanel implements Validable
 											(checkDecensored.isSelected()?b.isDecensored():true) &&
 											(checkTranslated.isSelected()?b.isTranslated():true) &&
 											(checkColored.isSelected()?b.isColored():true) &&
-											//FIXME b.getContents().containsAll(ct) &&
+											containsAllTags &&
 											!Client.DB.getDeleted().contains(b)
 											)
 											((DefaultListModel<Book>)listResults.getModel()).add(0, b);

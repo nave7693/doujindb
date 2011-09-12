@@ -16,6 +16,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	public ContentImpl(org.dyndns.doujindb.db.cayenne.Content ref)
 	{
 		this.ref = ref;
+		doRestore();
 	}
 
 	@Override
@@ -80,5 +81,22 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	public synchronized String getID()
 	{
 		return "T" + super.getID();
+	}
+	
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getRecycled();
 	}
 }

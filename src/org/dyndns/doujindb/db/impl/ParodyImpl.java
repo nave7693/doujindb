@@ -16,6 +16,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	public ParodyImpl(org.dyndns.doujindb.db.cayenne.Parody ref)
 	{
 		this.ref = ref;
+		doRestore();
 	}
 
 	@Override
@@ -72,7 +73,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+			if(!r.getRecycled())
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 
@@ -107,5 +109,22 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	public synchronized String getID()
 	{
 		return "P" + super.getID();
+	}
+	
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getRecycled();
 	}
 }

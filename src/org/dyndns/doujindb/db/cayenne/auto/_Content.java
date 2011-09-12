@@ -17,6 +17,7 @@ public abstract class _Content extends CayenneDataObject {
     public static final String INFO_PROPERTY = "info";
     public static final String TAG_NAME_PROPERTY = "tagName";
     public static final String BOOKS_PROPERTY = "books";
+    public static final String RECYCLED_PROPERTY = "recycled";
 
     public static final String ID_PK_COLUMN = "ID";
 
@@ -45,5 +46,10 @@ public abstract class _Content extends CayenneDataObject {
         return (Set<Book>)readProperty("books");
     }
 
-
+    public void setRecycled(Boolean recycled) {
+        writeProperty("recycled", recycled);
+    }
+    public Boolean getRecycled() {
+        return (Boolean)readProperty("recycled");
+    }
 }

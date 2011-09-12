@@ -16,6 +16,7 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	public ArtistImpl(org.dyndns.doujindb.db.cayenne.Artist ref)
 	{
 		this.ref = ref;
+		doRestore();
 	}
 
 	@Override
@@ -72,7 +73,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+			if(!r.getRecycled())
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 	
@@ -82,7 +84,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 		Set<Circle> set = new TreeSet<Circle>();
 		Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getCircles();
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
-			set.add(new CircleImpl(r));
+			if(!r.getRecycled())
+				set.add(new CircleImpl(r));
 		return new RecordSetImpl<Circle>(set);
 	}
 
@@ -135,5 +138,22 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	public synchronized String getID()
 	{
 		return "A" + super.getID();
+	}
+
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Artist)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Artist)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Artist)ref).getRecycled();
 	}
 }

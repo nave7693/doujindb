@@ -93,32 +93,38 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 						{
 							for(Artist value : checkboxListArtist.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Book value : checkboxListBook.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Circle value : checkboxListCircle.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Convention value : checkboxListConvention.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Content value : checkboxListContent.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Parody value : checkboxListParody.getSelectedItems())
 							{
-								Client.DB.doDelete(value);
+								//FIXME Client.DB.doDelete(value);
+								value.doRecycle();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
@@ -197,98 +203,29 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									try {
 									;
 									for(Artist value : checkboxListArtist.getSelectedItems())
-									{//FIXME
-//										Artist o = (Artist)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getArtists().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										for(Circle c : o.getCircles().elements())
-//										{
-//											c.getArtists().remove(o);
-//											//o.getCircles().remove(c);
-//										}
-//										Client.DB.getArtists().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Book value : checkboxListBook.getSelectedItems())
-									{//FIXME
-//										Book o = (Book)value;
-//										for(Circle c : o.getCircles().elements())
-//										{
-//											c.getBooks().remove(o);
-//											//o.getCircles().remove(c);
-//										}
-//										for(Artist a : o.getArtists().elements())
-//										{
-//											a.getBooks().remove(o);
-//											//o.getArtists().remove(a);
-//										}
-//										for(Content c : o.getContents().elements())
-//										{
-//											c.getBooks().remove(o);
-//											//o.getContents().remove(c);
-//										}
-//										for(Parody p : o.getParodies().elements())
-//										{
-//											p.getBooks().remove(o);
-//											//o.getParodies().remove(p);
-//										}
-//										Convention c = o.getConvention();
-//										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
-//										Client.DB.getBooks().delete(o);
+									{
 										Client.DB.doDelete(value);
 										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getSelectedItems())
-									{//FIXME
-//										Circle o = (Circle)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getCircles().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										for(Artist a : o.getArtists().elements())
-//										{
-//											a.getCircles().remove(o);
-//											//o.getArtists().remove(a);
-//										}
-//										Client.DB.getCircles().delete(o);
+									{
 										Client.DB.doDelete(value);
 										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getSelectedItems())
-									{//FIXME
-//										Convention o = (Convention)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.setConvention(null);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getConventions().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Content value : checkboxListContent.getSelectedItems())
-									{//FIXME
-//										Content o = (Content)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getContents().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getContents().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Parody value : checkboxListParody.getSelectedItems())
-									{//FIXME
-//										Parody o = (Parody)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getParodies().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getParodies().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									System.gc();
@@ -390,98 +327,29 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									try {
 									;
 									for(Artist value : checkboxListArtist.getItems())
-									{//FIXME
-//										Artist o = (Artist)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getArtists().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										for(Circle c : o.getCircles().elements())
-//										{
-//											c.getArtists().remove(o);
-//											//o.getCircles().remove(c);
-//										}
-//										Client.DB.getArtists().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Book value : checkboxListBook.getItems())
-									{//FIXME
-//										Book o = (Book)value;
-//										for(Circle c : o.getCircles().elements())
-//										{
-//											c.getBooks().remove(o);
-//											//o.getCircles().remove(c);
-//										}
-//										for(Artist a : o.getArtists().elements())
-//										{
-//											a.getBooks().remove(o);
-//											//o.getArtists().remove(a);
-//										}
-//										for(Content c : o.getContents().elements())
-//										{
-//											c.getBooks().remove(o);
-//											//o.getContents().remove(c);
-//										}
-//										for(Parody p : o.getParodies().elements())
-//										{
-//											p.getBooks().remove(o);
-//											//o.getParodies().remove(p);
-//										}
-//										Convention c = o.getConvention();
-//										try { c.getBooks().remove(o); } catch (NullPointerException npe) { ; }
-//										Client.DB.getBooks().delete(o);
+									{
 										Client.DB.doDelete(value);
 										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getItems())
-									{//FIXME
-//										Circle o = (Circle)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getCircles().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										for(Artist a : o.getArtists().elements())
-//										{
-//											a.getCircles().remove(o);
-//											//o.getArtists().remove(a);
-//										}
-//										Client.DB.getCircles().delete(o);
+									{
 										Client.DB.doDelete(value);
 										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getItems())
-									{//FIXME
-//										Convention o = (Convention)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.setConvention(null);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getConventions().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Content value : checkboxListContent.getItems())
-									{//FIXME
-//										Content o = (Content)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getContents().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getContents().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									for(Parody value : checkboxListParody.getItems())
-									{//FIXME
-//										Parody o = (Parody)value;
-//										for(Book b : o.getBooks().elements())
-//										{
-//											b.getParodies().remove(o);
-//											//o.getBooks().remove(b);
-//										}
-//										Client.DB.getParodies().delete(o);
+									{
 										Client.DB.doDelete(value);
 									}
 									System.gc();
@@ -530,7 +398,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
 		try {
-			for(Record r : Client.DB.getDeleted())
+			for(Record r : Client.DB.getRecycled())
 			{
 				if(r instanceof Artist)
 				{
@@ -874,7 +742,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		Vector<Content> deleted_cn = new Vector<Content>();
 		Vector<Parody> deleted_p = new Vector<Parody>();
 		try {
-			for(Record r : Client.DB.getDeleted())
+			for(Record r : Client.DB.getRecycled())
 			{
 				if(r instanceof Artist)
 				{
@@ -943,7 +811,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		}
 		long count;
 		try {
-			count = Client.DB.getDeleted().size();
+			count = Client.DB.getRecycled().size();
 			recycleInfo.setText((count==1)?("Item : 1"):("Items : "+count));
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);

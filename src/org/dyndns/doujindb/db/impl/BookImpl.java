@@ -24,6 +24,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		setTranslated(false);
 		setPages(0);
 		setDate(new Date());
+		doRestore();
 	}
 
 	@Override
@@ -68,7 +69,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
-			set.add(new ArtistImpl(r));
+			if(!r.getRecycled())
+				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
 
@@ -84,8 +86,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		 */
 		Set<org.dyndns.doujindb.db.cayenne.Circle> result = new HashSet<org.dyndns.doujindb.db.cayenne.Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists())
-			for(org.dyndns.doujindb.db.cayenne.Circle c : a.getCircles())
-				result.add(c);
+			if(!a.getRecycled())
+				for(org.dyndns.doujindb.db.cayenne.Circle c : a.getCircles())
+					if(!c.getRecycled())
+						result.add(c);
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
 			set.add(new CircleImpl(r));
 		return new RecordSetImpl<Circle>(set);
@@ -97,7 +101,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Parody> set = new TreeSet<Parody>();
 		Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
 		for(org.dyndns.doujindb.db.cayenne.Parody r : result)
-			set.add(new ParodyImpl(r));
+			if(!r.getRecycled())
+				set.add(new ParodyImpl(r));
 		return new RecordSetImpl<Parody>(set);
 	}
 
@@ -191,7 +196,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Content> set = new TreeSet<Content>();
 		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
 		for(org.dyndns.doujindb.db.cayenne.Content r : result)
-			set.add(new ContentImpl(r));
+			if(!r.getRecycled())
+				set.add(new ContentImpl(r));
 		return new RecordSetImpl<Content>(set);
 	}
 
@@ -305,5 +311,22 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public synchronized String getID()
 	{
 		return "B" + super.getID();
+	}
+	
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRecycled();
 	}
 }

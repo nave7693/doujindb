@@ -16,6 +16,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	public CircleImpl(org.dyndns.doujindb.db.cayenne.Circle ref)
 	{
 		this.ref = ref;
+		doRestore();
 	}
 
 	@Override
@@ -72,7 +73,8 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
-			set.add(new ArtistImpl(r));
+			if(!r.getRecycled())
+				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
 
@@ -88,8 +90,10 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		 */
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = new HashSet<org.dyndns.doujindb.db.cayenne.Book>();
 		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists())
-			for(org.dyndns.doujindb.db.cayenne.Book b : a.getBooks())
-				result.add(b);
+			if(!a.getRecycled())
+				for(org.dyndns.doujindb.db.cayenne.Book b : a.getBooks())
+					if(!b.getRecycled())
+						result.add(b);
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
@@ -126,5 +130,22 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	public synchronized String getID()
 	{
 		return "C" + super.getID();
+	}
+	
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getRecycled();
 	}
 }

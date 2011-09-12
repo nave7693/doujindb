@@ -21,6 +21,7 @@ public abstract class _Circle extends CayenneDataObject {
     public static final String WEBLINK_PROPERTY = "weblink";
     public static final String ARTISTS_PROPERTY = "artists";
     public static final String BOOKS_PROPERTY = "books";
+    public static final String RECYCLED_PROPERTY = "recycled";
 
     public static final String ID_PK_COLUMN = "ID";
 
@@ -69,5 +70,10 @@ public abstract class _Circle extends CayenneDataObject {
         return (Set<Book>)readProperty("books");
     }
 
-
+    public void setRecycled(Boolean recycled) {
+        writeProperty("recycled", recycled);
+    }
+    public Boolean getRecycled() {
+        return (Boolean)readProperty("recycled");
+    }
 }

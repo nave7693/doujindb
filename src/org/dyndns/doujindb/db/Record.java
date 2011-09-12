@@ -10,4 +10,6 @@ import java.io.Serializable;
 public interface Record extends Serializable
 {
 	public String getID();
+	public void doRecycle();
+	public void doRestore();
 }

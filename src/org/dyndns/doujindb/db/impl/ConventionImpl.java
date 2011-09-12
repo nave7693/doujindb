@@ -16,6 +16,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public ConventionImpl(org.dyndns.doujindb.db.cayenne.Convention ref)
 	{
 		this.ref = ref;
+		doRestore();
 	}
 
 	@Override
@@ -60,7 +61,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+			if(!r.getRecycled())
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 
@@ -92,5 +94,22 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public synchronized String getID()
 	{
 		return "E" + super.getID();
+	}
+	
+	@Override
+	public void doRecycle()
+	{
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(true);
+	}
+
+	@Override
+	public void doRestore()
+	{
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(false);
+	}
+
+	@Override
+	boolean isRecycled() {
+		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getRecycled();
 	}
 }

@@ -209,7 +209,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Artist a = ((RecordSet<Artist>)Client.DB.artists).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -299,8 +300,8 @@ public final class PanelSearch extends JPanel implements Validable
 									if( a.getJapaneseName().matches(textJapaneseName.getText()) &&
 										a.getTranslatedName().matches(textTranslatedName.getText()) &&
 										a.getRomanjiName().matches(textRomanjiName.getText()) &&
-										a.getWeblink().matches(textWeblink.getText()) &&
-										!Client.DB.getDeleted().contains(a))
+										a.getWeblink().matches(textWeblink.getText()) /*&&
+										//FIXME !Client.DB.getDeleted().contains(a)*/)
 										((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -472,7 +473,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Circle c = ((RecordSet<Circle>)Client.DB.circles).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -560,8 +562,8 @@ public final class PanelSearch extends JPanel implements Validable
 									if( c.getJapaneseName().matches(textJapaneseName.getText()) &&
 										c.getTranslatedName().matches(textTranslatedName.getText()) &&
 										c.getRomanjiName().matches(textRomanjiName.getText()) &&
-										c.getWeblink().matches(textWeblink.getText()) &&
-										!Client.DB.getDeleted().contains(c))
+										c.getWeblink().matches(textWeblink.getText()) /*&&
+										//FIXME !Client.DB.getDeleted().contains(c)*/)
 										((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -779,7 +781,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Book b = ((RecordSet<Book>)Client.DB.works).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -900,8 +903,8 @@ public final class PanelSearch extends JPanel implements Validable
 											(checkDecensored.isSelected()?b.isDecensored():true) &&
 											(checkTranslated.isSelected()?b.isTranslated():true) &&
 											(checkColored.isSelected()?b.isColored():true) &&
-											containsAllTags &&
-											!Client.DB.getDeleted().contains(b)
+											containsAllTags /*&&
+											//FIXME !Client.DB.getDeleted().contains(b)*/
 											)
 											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
@@ -1043,7 +1046,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Content ct = ((RecordSet<Content>)Client.DB.contents).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -1116,8 +1120,8 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								try
 								{
-									if( ct.getTagName().matches(textTagName.getText()) &&
-											!Client.DB.getDeleted().contains(ct))
+									if( ct.getTagName().matches(textTagName.getText()) /*&&
+											//FIXME !Client.DB.getDeleted().contains(ct)*/)
 										((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -1265,7 +1269,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Convention cn = ((RecordSet<Convention>)Client.DB.conventions).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -1338,8 +1343,8 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								try
 								{
-									if( cn.getTagName().matches(textTagName.getText()) &&
-											!Client.DB.getDeleted().contains(cn))
+									if( cn.getTagName().matches(textTagName.getText()) /*&&
+											//FIXME !Client.DB.getDeleted().contains(cn)*/)
 										((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -1511,7 +1516,8 @@ public final class PanelSearch extends JPanel implements Validable
 									//TODO Parody p = ((RecordSet<Parody>)Client.DB.parodies).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										Client.DB.doDelete(item);
+										//FIXME Client.DB.doDelete(item);
+										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
@@ -1599,8 +1605,8 @@ public final class PanelSearch extends JPanel implements Validable
 									if( p.getJapaneseName().matches(textJapaneseName.getText()) &&
 										p.getTranslatedName().matches(textTranslatedName.getText()) &&
 										p.getRomanjiName().matches(textRomanjiName.getText()) &&
-										p.getWeblink().matches(textWeblink.getText()) &&
-										!Client.DB.getDeleted().contains(p))
+										p.getWeblink().matches(textWeblink.getText()) /*&&
+										//FIXME !Client.DB.getDeleted().contains(p)*/)
 										((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}

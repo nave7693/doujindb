@@ -38,6 +38,7 @@ public abstract class _Book extends CayenneDataObject {
     public static final String CONTENTS_PROPERTY = "contents";
     public static final String CONVENTIONOF_PROPERTY = "conventionof";
     public static final String PARODIES_PROPERTY = "parodies";
+    public static final String RECYCLED_PROPERTY = "recycled";
 
     public static final String ID_PK_COLUMN = "ID";
 
@@ -175,5 +176,10 @@ public abstract class _Book extends CayenneDataObject {
         return (Set<Parody>)readProperty("parodies");
     }
 
-
+    public void setRecycled(Boolean recycled) {
+        writeProperty("recycled", recycled);
+    }
+    public Boolean getRecycled() {
+        return (Boolean)readProperty("recycled");
+    }
 }

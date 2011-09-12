@@ -9,6 +9,7 @@ import org.apache.cayenne.access.*;
 import org.apache.cayenne.conf.*;
 import org.apache.cayenne.conn.PoolManager;
 import org.apache.cayenne.dba.*;
+import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
@@ -148,7 +149,7 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
 		Set<Book> buff = new TreeSet<Book>();
 		for(org.dyndns.doujindb.db.cayenne.Book o : list)
@@ -160,7 +161,7 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
 		Set<Circle> buff = new TreeSet<Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
@@ -172,7 +173,7 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
 		Set<Artist> buff = new TreeSet<Artist>();
 		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
@@ -184,7 +185,7 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
 		Set<Parody> buff = new TreeSet<Parody>();
 		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
@@ -196,7 +197,7 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
 		Set<Content> buff = new TreeSet<Content>();
 		for(org.dyndns.doujindb.db.cayenne.Content o : list)
@@ -208,12 +209,45 @@ public final class DataBaseImpl implements DataBase
 	@Override
 	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class);
+		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
 		Set<Convention> buff = new TreeSet<Convention>();
 		for(org.dyndns.doujindb.db.cayenne.Convention o : list)
 			buff.add(new ConventionImpl(o));
 		return new RecordSetImpl<Convention>(buff);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public RecordSet<Record> getRecycled() throws DataBaseException
+	{
+		Set<Record> buff = new TreeSet<Record>();
+		SelectQuery select;
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Artist> artist_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Artist o : artist_list)
+			buff.add(new ArtistImpl(o));
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Book> book_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Book o : book_list)
+			buff.add(new BookImpl(o));
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Circle> circle_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Circle o : circle_list)
+			buff.add(new CircleImpl(o));
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Content> content_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Content o : content_list)
+			buff.add(new ContentImpl(o));
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Convention> conventiony_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Convention o : conventiony_list)
+			buff.add(new ConventionImpl(o));
+		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = TRUE"));
+		List<org.dyndns.doujindb.db.cayenne.Parody> parody_list = context.performQuery(select);
+		for(org.dyndns.doujindb.db.cayenne.Parody o : parody_list)
+			buff.add(new ParodyImpl(o));
+		return new RecordSetImpl<Record>(buff);
 	}
 
 	@Override

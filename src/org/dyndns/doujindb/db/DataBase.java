@@ -30,6 +30,8 @@ public interface DataBase extends Serializable
 
 	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
 	
+	public RecordSet<Record> getRecycled() throws DataBaseException;
+	
 	public RecordSet<Record> getDeleted() throws DataBaseException;
 
 	public RecordSet<Record> getModified() throws DataBaseException;

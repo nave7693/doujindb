@@ -395,7 +395,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
 		}
 		try {
-			if(Client.DB.getDeleted().size() > 0)
+			if(Client.DB.getRecycled().size() > 0)
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
 			else
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));

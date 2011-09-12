@@ -41,4 +41,6 @@ abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 		else
 			return false;
 	}
+	
+	abstract boolean isRecycled();
 }

@@ -43,8 +43,8 @@ public final class Core implements Runnable
 		}
 		try
 		{
-			Logger = org.dyndns.doujindb.log.impl.Factory.getService(
-					org.dyndns.doujindb.log.impl.Factory.Type.FILE);
+			Logger.loggerAttach(org.dyndns.doujindb.log.impl.Factory.getService(
+					org.dyndns.doujindb.log.impl.Factory.Type.FILE));
 		} catch (Exception e)
 		{
 			Logger.log("Cannot load file logger : " + e.getMessage() + ".", Level.ERROR);

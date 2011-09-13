@@ -846,10 +846,18 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						Client.DB.doCommit();
-					} catch (DataBaseException dbe)
-					{
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						try
+						{
+							Client.DB.doCommit();
+						} catch (DataBaseException dbe)
+						{
+							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
+						}
+						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+						validate();
+						repaint();
+					} catch (Exception e) {
+						Core.Logger.log(e.getMessage(), Level.ERROR);
 					}
 					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();

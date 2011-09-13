@@ -231,12 +231,6 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 			Core.UI.Desktop.remove(this);
 			return;
 		}
-		if(ve.getType() == DouzEvent.DATABASE_RELOAD)
-		{
-			dispose();
-			Core.UI.Desktop.remove(this);
-			return;
-		}
 	}
 	@Override
 	public void layoutContainer(Container parent)

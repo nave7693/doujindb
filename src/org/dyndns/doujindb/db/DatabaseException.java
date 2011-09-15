@@ -1,20 +1,20 @@
 package org.dyndns.doujindb.db;
 
 /**  
-* DatabaseException.java
+* DataBaseException.java
 * @author  nozomu
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public final class DatabaseException extends RuntimeException
+public class DataBaseException extends RuntimeException
 {
 
-	public DatabaseException() { }
+	public DataBaseException() { }
 
-	public DatabaseException(String message) { super(message); }
+	public DataBaseException(String message) { super(message); }
 
-	public DatabaseException(Throwable cause) { super(cause); }
+	public DataBaseException(Throwable cause) { super(cause); }
 
-	public DatabaseException(String message, Throwable cause) { super(message, cause); }
+	public DataBaseException(String message, Throwable cause) { super(message, cause); }
 
 }

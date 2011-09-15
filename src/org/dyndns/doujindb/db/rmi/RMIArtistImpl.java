@@ -18,7 +18,7 @@ public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtis
 {
 	private Artist artist;
 	
-	protected RMIArtistImpl(Artist artist) throws RemoteException
+	public RMIArtistImpl(Artist artist) throws RemoteException
 	{
 		super(1099);
 		this.artist = artist;
@@ -92,5 +92,20 @@ public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtis
 	@Override
 	public void removeCircle(Circle circle) throws RemoteException {
 		artist.removeCircle(circle);
+	}
+
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return artist.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		artist.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		artist.doRecycle();
 	}
 }

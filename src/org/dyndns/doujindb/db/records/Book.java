@@ -1,7 +1,6 @@
 package org.dyndns.doujindb.db.records;
 
 import java.util.Date;
-import java.io.Serializable;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
@@ -11,7 +10,7 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Book extends Record, Serializable, CntArtist, CntCircle, CntContent, CntConvention, CntParody
+public interface Book extends Record, CntArtist, CntCircle, CntContent, CntConvention, CntParody
 {
 	public enum Type implements org.apache.cayenne.ExtendedEnumeration
 	{
@@ -35,40 +34,40 @@ public interface Book extends Record, Serializable, CntArtist, CntCircle, CntCon
 		public Integer getDatabaseValue() { return value; }
 	}
 	
-	public String getJapaneseName();
-	public String getTranslatedName();
-	public String getRomanjiName();
-	public void setJapaneseName(String japaneseName);
-	public void setTranslatedName(String translatedName);
-	public void setRomanjiName(String romanjiName);
-	public Date getDate();
-	public Type getType();
-	public int getPages();
-	public void setPages(int pages);
-	public void setDate(Date date);
-	public void setType(Type type);
-	public boolean isAdult();
-	public boolean isDecensored();
-	public boolean isTranslated();
-	public boolean isColored();
-	public void setAdult(boolean adult);
-	public void setDecensored(boolean decensored);
-	public void setTranslated(boolean translated);
-	public void setColored(boolean colored);
-	public Rating getRating();
-	public String getInfo();
-	public void setRating(Rating rating);
-	public void setInfo(String info);
-	public RecordSet<Artist> getArtists();
-	public RecordSet<Circle> getCircles();
-	public RecordSet<Content> getContents();
-	public Convention getConvention();
-	public void setConvention(Convention convention);
-	public RecordSet<Parody> getParodies();
-	public void addArtist(Artist artist);
-	public void addContent(Content content);
-	public void addParody(Parody parody);
-	public void removeArtist(Artist artist);
-	public void removeContent(Content content);
-	public void removeParody(Parody parody);
+	public String getJapaneseName() throws DataBaseException;
+	public String getTranslatedName() throws DataBaseException;
+	public String getRomanjiName() throws DataBaseException;
+	public void setJapaneseName(String japaneseName) throws DataBaseException;
+	public void setTranslatedName(String translatedName) throws DataBaseException;
+	public void setRomanjiName(String romanjiName) throws DataBaseException;
+	public Date getDate() throws DataBaseException;
+	public Type getType() throws DataBaseException;
+	public int getPages() throws DataBaseException;
+	public void setPages(int pages) throws DataBaseException;
+	public void setDate(Date date) throws DataBaseException;
+	public void setType(Type type) throws DataBaseException;
+	public boolean isAdult() throws DataBaseException;
+	public boolean isDecensored() throws DataBaseException;
+	public boolean isTranslated() throws DataBaseException;
+	public boolean isColored() throws DataBaseException;
+	public void setAdult(boolean adult) throws DataBaseException;
+	public void setDecensored(boolean decensored) throws DataBaseException;
+	public void setTranslated(boolean translated) throws DataBaseException;
+	public void setColored(boolean colored) throws DataBaseException;
+	public Rating getRating() throws DataBaseException;
+	public String getInfo() throws DataBaseException;
+	public void setRating(Rating rating) throws DataBaseException;
+	public void setInfo(String info) throws DataBaseException;
+	public RecordSet<Artist> getArtists() throws DataBaseException;
+	public RecordSet<Circle> getCircles() throws DataBaseException;
+	public RecordSet<Content> getContents() throws DataBaseException;
+	public Convention getConvention() throws DataBaseException;
+	public void setConvention(Convention convention) throws DataBaseException;
+	public RecordSet<Parody> getParodies() throws DataBaseException;
+	public void addArtist(Artist artist) throws DataBaseException;
+	public void addContent(Content content) throws DataBaseException;
+	public void addParody(Parody parody) throws DataBaseException;
+	public void removeArtist(Artist artist) throws DataBaseException;
+	public void removeContent(Content content) throws DataBaseException;
+	public void removeParody(Parody parody) throws DataBaseException;
 }

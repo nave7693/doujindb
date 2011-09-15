@@ -83,4 +83,19 @@ public final class RMICircleImpl extends UnicastRemoteObject implements RMICircl
 	public void removeArtist(Artist artist) throws RemoteException {
 		circle.removeArtist(artist);
 	}
+	
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return circle.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		circle.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		circle.doRecycle();
+	}
 }

@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.zip.*;
 import java.util.*;
 import java.util.List;
@@ -49,7 +48,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	private JScrollPane scrollListMedia;
 	private DouzCheckBoxList<Book> checkboxListMedia;
 	
-	public PanelMediaManager(DouzWindow parent, JComponent pane) throws DataBaseException, RemoteException
+	public PanelMediaManager(DouzWindow parent, JComponent pane) throws DataBaseException
 	{
 		parentWindow = parent;
 		pane.setLayout(this);
@@ -208,6 +207,9 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 										} catch (DataStoreException dse) {
 											Core.Logger.log(dse.getMessage(), Level.ERROR);
 											dse.printStackTrace();
+										} catch (DataBaseException dbe) {
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											dbe.printStackTrace();
 										}
 									}
 									;
@@ -776,7 +778,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			window.dispose();
 		}
 		
-		private int count(DataSource ds_root) throws DataStoreException, RemoteException
+		private int count(DataSource ds_root) throws DataStoreException
 		{
 			int count = 0;
 			for(DataSource ds : ds_root.children())
@@ -992,6 +994,10 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						progress_overall_current++;
 					} catch (IOException ioe) {
 						errors.add(file.getName());
+					} catch (DataStoreException dse) {
+						errors.add(file.getName());
+					} catch (DataBaseException dbe) {
+						errors.add(file.getName());
 					}
 				}
 			} catch (PropertyVetoException pve) {
@@ -1047,7 +1053,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			}
 		}
 		
-		private String parseXML(InputStream in) throws DataBaseException, RemoteException
+		private String parseXML(InputStream in) throws DataBaseException
 		{
 			Hashtable<String, Set<Record>> imported = readXMLBook(in);
 			if(imported == null)
@@ -1082,7 +1088,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
-	private Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException, RemoteException
+	private Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException
 	{
 		XMLBook doujin;
 		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
@@ -1203,7 +1209,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		return parsed;
 	}
 	
-	private void writeXMLBook(Book book, OutputStream dest) throws RemoteException
+	private void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.JapaneseName = book.getJapaneseName();

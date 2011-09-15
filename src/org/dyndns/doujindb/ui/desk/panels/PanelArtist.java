@@ -2,7 +2,6 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -37,7 +36,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 	private RecordCircleEditor editorCircles;
 	private JButton buttonConfirm;
 	
-	public PanelArtist(DouzWindow parent, JComponent pane, Artist token) throws DataBaseException, RemoteException
+	public PanelArtist(DouzWindow parent, JComponent pane, Artist token) throws DataBaseException
 	{
 		parentWindow = parent;
 		tokenArtist = token;
@@ -160,9 +159,6 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 		}
 		buttonConfirm.setEnabled(true);

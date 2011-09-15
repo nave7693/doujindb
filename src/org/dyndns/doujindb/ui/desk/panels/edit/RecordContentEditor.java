@@ -1,7 +1,6 @@
 package org.dyndns.doujindb.ui.desk.panels.edit;
 
 import java.awt.*;
-import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -24,7 +23,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
-	public RecordContentEditor(CntContent token) throws DataBaseException, RemoteException
+	public RecordContentEditor(CntContent token) throws DataBaseException
 	{
 		super();
 		this.tokenIContent = token;
@@ -74,9 +73,9 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		{
 			try {
 				checkboxList.setSelectedItems(tokenIContent.getContents());
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
 			}
 		}
 		validate();

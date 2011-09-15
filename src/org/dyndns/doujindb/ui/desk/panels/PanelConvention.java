@@ -2,7 +2,6 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -33,7 +32,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private RecordBookEditor editorWorks;
 	private JButton buttonConfirm;
 	
-	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException, RemoteException
+	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException
 	{
 		parentWindow = parent;
 		tokenConvention = token;
@@ -142,9 +141,6 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 		}
 		buttonConfirm.setEnabled(true);

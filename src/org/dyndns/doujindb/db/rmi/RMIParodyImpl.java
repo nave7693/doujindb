@@ -77,4 +77,19 @@ public final class RMIParodyImpl extends UnicastRemoteObject implements RMIParod
 	public void removeBook(Book book) throws RemoteException {
 		parody.removeBook(book);
 	}
+	
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return parody.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		parody.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		parody.doRecycle();
+	}
 }

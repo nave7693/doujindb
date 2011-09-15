@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.beans.*;
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -17,8 +16,6 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.events.DouzEvent;
 import org.dyndns.doujindb.ui.desk.events.Validable;
-
-
 
 @SuppressWarnings("serial")
 public final class DouzDesktop extends JDesktopPane implements Validable
@@ -96,9 +93,6 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
 				}
 			}
 		});
@@ -119,9 +113,6 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
 				}
 			}
 		});
@@ -188,9 +179,6 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
 					}
 				}
 			});
@@ -208,7 +196,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			return super.add(comp);//throw new InvalidWindowStateException("Don't use Component.add(), use open() instead.");
 	}
 	
-	public DouzWindow openWindow(DouzWindow.Type type, Object param) throws DataBaseException, RemoteException
+	public DouzWindow openWindow(DouzWindow.Type type, Object param) throws DataBaseException
 	{
 		if(checkWindow(type,param))
 			return null;
@@ -227,7 +215,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds) throws DataBaseException, RemoteException
+	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds) throws DataBaseException
 	{
 		if(checkWindow(type,param))
 			return null;
@@ -247,7 +235,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title) throws DataBaseException, RemoteException
+	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title) throws DataBaseException
 	{
 		if(checkWindow(type,param))
 			return null;

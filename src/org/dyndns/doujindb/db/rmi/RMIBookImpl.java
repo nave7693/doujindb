@@ -203,4 +203,19 @@ public final class RMIBookImpl extends UnicastRemoteObject implements RMIBook
 	public void removeParody(Parody parody) throws RemoteException {
 		book.removeParody(parody);
 	}
+
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return book.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		book.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		book.doRecycle();
+	}
 }

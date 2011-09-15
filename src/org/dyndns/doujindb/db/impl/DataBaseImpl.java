@@ -19,9 +19,6 @@ import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 
-import javax.xml.bind.annotation.*;
-
-@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="DataBase")
 public final class DataBaseImpl implements DataBase
 {
 	private static final long serialVersionUID = 0xFEED0001L;

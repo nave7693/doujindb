@@ -2,7 +2,6 @@ package org.dyndns.doujindb.ui.desk.panels.utils;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
@@ -103,9 +102,6 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
 				}
       		}
 		});

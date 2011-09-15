@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.net.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.List;
 
@@ -149,7 +148,7 @@ public final class DoujinshiDBScanner implements Plugin
 			return list.USER;
 		}
 		
-		public static Book parseXML(InputStream in) throws DataBaseException, RemoteException
+		public static Book parseXML(InputStream in) throws DataBaseException
 		{
 			Hashtable<String, Set<Record>> imported = readXMLBook(in);
 			if(imported == null)
@@ -1370,9 +1369,6 @@ public final class DoujinshiDBScanner implements Plugin
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
 					}
 					break;
 				case TASK_RUNNING:
@@ -1391,9 +1387,6 @@ public final class DoujinshiDBScanner implements Plugin
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
 					}
 					break;
 				}				
@@ -1467,7 +1460,7 @@ public final class DoujinshiDBScanner implements Plugin
 		}
 	}
 	
-	private static Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException, RemoteException
+	private static Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException
 	{
 		XMLBook doujin;
 		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
@@ -1596,7 +1589,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	
 	@SuppressWarnings("unused")
-	private static void writeXMLBook(Book book, OutputStream dest) throws RemoteException
+	private static void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.JapaneseName = book.getJapaneseName();

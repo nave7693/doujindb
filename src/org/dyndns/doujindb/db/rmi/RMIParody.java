@@ -24,4 +24,7 @@ public interface RMIParody extends Remote
 	public RecordSet<Book> getBooks() throws RemoteException;
 	public void addBook(Book book) throws RemoteException;
 	public void removeBook(Book book) throws RemoteException;
+	public boolean isRecycled() throws RemoteException;
+	public void doRestore() throws RemoteException;
+	public void doRecycle() throws RemoteException;
 }

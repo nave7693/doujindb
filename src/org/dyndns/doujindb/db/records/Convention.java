@@ -1,7 +1,5 @@
 package org.dyndns.doujindb.db.records;
 
-import java.io.Serializable;
-
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
@@ -10,15 +8,15 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Convention extends Record, Serializable, CntBook
+public interface Convention extends Record, CntBook
 {
-	public String getTagName();
-	public String getInfo();
-	public String getWeblink();
-	public void setTagName(String tagName);
-	public void setInfo(String info);
-	public void setWeblink(String weblink);
-	public RecordSet<Book> getBooks();
-	public void addBook(Book book);
-	public void removeBook(Book book);
+	public String getTagName() throws DataBaseException;
+	public String getInfo() throws DataBaseException;
+	public String getWeblink() throws DataBaseException;
+	public void setTagName(String tagName) throws DataBaseException;
+	public void setInfo(String info) throws DataBaseException;
+	public void setWeblink(String weblink) throws DataBaseException;
+	public RecordSet<Book> getBooks() throws DataBaseException;
+	public void addBook(Book book) throws DataBaseException;
+	public void removeBook(Book book) throws DataBaseException;
 }

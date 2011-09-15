@@ -2,7 +2,6 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
 
@@ -14,9 +13,6 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
-
-
-
 
 @SuppressWarnings("serial")
 public final class PanelSearch extends JPanel implements Validable
@@ -171,9 +167,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -199,9 +192,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}
@@ -435,9 +425,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -463,9 +450,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}
@@ -743,9 +727,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -771,9 +752,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}
@@ -1008,9 +986,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -1036,9 +1011,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}
@@ -1231,9 +1203,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -1259,9 +1228,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}
@@ -1478,9 +1444,6 @@ public final class PanelSearch extends JPanel implements Validable
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
-						} catch (RemoteException re) {
-							Core.Logger.log(re.getMessage(), Level.ERROR);
-							re.printStackTrace();
 						}
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
@@ -1506,9 +1469,6 @@ public final class PanelSearch extends JPanel implements Validable
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
-									} catch (RemoteException re) {
-										Core.Logger.log(re.getMessage(), Level.ERROR);
-										re.printStackTrace();
 									}
 									break;
 								}

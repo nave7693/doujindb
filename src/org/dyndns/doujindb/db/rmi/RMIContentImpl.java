@@ -58,4 +58,19 @@ public final class RMIContentImpl extends UnicastRemoteObject implements RMICont
 	public void removeBook(Book book) throws RemoteException {
 		content.removeBook(book);
 	}
+	
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return content.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		content.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		content.doRecycle();
+	}
 }

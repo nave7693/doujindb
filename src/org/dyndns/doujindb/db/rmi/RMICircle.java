@@ -26,4 +26,7 @@ public interface RMICircle extends Remote
 	public RecordSet<Book> getBooks() throws RemoteException;
 	public void addArtist(Artist artist) throws RemoteException;
 	public void removeArtist(Artist artist) throws RemoteException;
+	public boolean isRecycled() throws RemoteException;
+	public void doRestore() throws RemoteException;
+	public void doRecycle() throws RemoteException;
 }

@@ -2,7 +2,6 @@ package org.dyndns.doujindb.ui;
 
 import java.io.*;
 import java.net.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -688,9 +687,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -715,9 +711,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -728,9 +721,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -741,9 +731,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -754,9 +741,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -767,9 +751,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -780,9 +761,6 @@ public void layoutContainer(Container parent)
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 			return;
 		}
@@ -967,9 +945,9 @@ public void layoutContainer(Container parent)
 						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
 						Core.Logger.log("Connected to " + Client.DB.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-					} catch (RemoteException re) {
-						Core.Logger.log(re.getMessage(), Level.ERROR);
-						re.printStackTrace();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
 					} finally 
 					{
 						uiStatusBarConnect.setEnabled(true);
@@ -990,7 +968,7 @@ public void layoutContainer(Container parent)
 				}
 				uiStatusBar.setText("Disconnected.");
 				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-			} catch (RemoteException re)
+			} catch (RuntimeException re)
 			{
 				Core.Logger.log("" + re.getMessage(), Level.ERROR);
 				re.printStackTrace();

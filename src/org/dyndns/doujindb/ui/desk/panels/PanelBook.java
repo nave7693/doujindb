@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.Hashtable;
 
@@ -17,6 +16,7 @@ import javax.swing.border.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -68,7 +68,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
 	
-	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException, RemoteException
+	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException
 	{
 		parentWindow = parent;
 		tokenBook = token;
@@ -208,18 +208,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									e.printStackTrace();
 									Core.Logger.log(e.getMessage(), Level.WARNING);
 								}
-								try {
-									//TODO
-									/*if(Client.DS.contains(tokenBook.getID()))
-									{
-										DataSource source = Client.DS.get(tokenBook.getID());
-										if(source.contains(".preview"))
-										{
-											InputStream in = source.get(".preview").getInputStream();
-											labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-											in.close();
-										}
-									}*/
+								try
+								{
 									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
@@ -233,6 +223,10 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								} catch (IOException e) {
 									e.printStackTrace();
 									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
+								} catch (DataStoreException dbe) {
+									dbe.printStackTrace();
+								} catch (DataBaseException dbe) {
+									dbe.printStackTrace();
 								}
 								labelPreview.setName("preview");
 							}
@@ -458,7 +452,10 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			}
 		}
 		if(!textDate.getText().equals("--/--/----"))
-		try{tokenBook.setDate(date = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(textDate.getText()));}catch(ParseException pe)
+		try
+		{
+			tokenBook.setDate(date = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(textDate.getText()));
+		} catch(ParseException pe)
 		{
 			final Border brd1 = textDate.getBorder();
 			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
@@ -547,9 +544,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 		}
 		buttonConfirm.setEnabled(true);

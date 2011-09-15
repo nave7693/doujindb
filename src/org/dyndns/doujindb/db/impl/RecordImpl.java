@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.apache.cayenne.CayenneDataObject;
 import org.apache.cayenne.DataObjectUtils;
 
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 
 @SuppressWarnings("serial")
@@ -12,13 +13,13 @@ abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 {
 	protected CayenneDataObject ref;
 
-	public RecordImpl()
+	public RecordImpl() throws DataBaseException
 	{
 		super();
 	}
 
 	@Override
-	public synchronized String getID()
+	public synchronized String getID() throws DataBaseException
 	{
 		if(ref.getObjectId().isTemporary())
 			return String.format("TMP-%08x", (int)(Math.random() * 0xffff));
@@ -41,6 +42,4 @@ abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 		else
 			return false;
 	}
-	
-	abstract boolean isRecycled();
 }

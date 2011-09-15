@@ -68,4 +68,19 @@ public final class RMIConventionImpl extends UnicastRemoteObject implements RMIC
 	public void removeBook(Book book) throws RemoteException {
 		convention.removeBook(book);
 	}
+	
+	@Override
+	public boolean isRecycled() throws RemoteException {
+		return convention.isRecycled();
+	}
+
+	@Override
+	public void doRestore() throws RemoteException {
+		convention.doRestore();
+	}
+
+	@Override
+	public void doRecycle() throws RemoteException {
+		convention.doRecycle();
+	}
 }

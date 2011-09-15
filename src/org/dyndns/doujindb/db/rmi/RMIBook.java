@@ -51,4 +51,7 @@ public interface RMIBook extends Remote
 	public void removeArtist(Artist artist) throws RemoteException;
 	public void removeContent(Content content) throws RemoteException;
 	public void removeParody(Parody parody) throws RemoteException;
+	public boolean isRecycled() throws RemoteException;
+	public void doRestore() throws RemoteException;
+	public void doRecycle() throws RemoteException;
 }

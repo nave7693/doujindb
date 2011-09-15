@@ -6,14 +6,11 @@ import java.util.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
-import javax.xml.bind.annotation.*;
-
-@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.dbo", name="Book")
 final class BookImpl extends RecordImpl implements Book, Serializable//, Comparable<Book>
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
-	public BookImpl(org.dyndns.doujindb.db.cayenne.Book ref)
+	public BookImpl(org.dyndns.doujindb.db.cayenne.Book ref) throws DataBaseException
 	{
 		this.ref = ref;
 		setRating(Rating.UNRATED);
@@ -28,43 +25,43 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized String getJapaneseName()
+	public synchronized String getJapaneseName() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getJapaneseName();
 	}
 
 	@Override
-	public synchronized void setJapaneseName(String japaneseName)
+	public synchronized void setJapaneseName(String japaneseName) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setJapaneseName(japaneseName);
 	}
 
 	@Override
-	public synchronized String getTranslatedName()
+	public synchronized String getTranslatedName() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getTranslatedName();
 	}
 	
 	@Override
-	public synchronized void setTranslatedName(String translatedName)
+	public synchronized void setTranslatedName(String translatedName) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslatedName(translatedName);
 	}
 
 	@Override
-	public synchronized String getRomanjiName()
+	public synchronized String getRomanjiName() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRomanjiName();
 	}
 
 	@Override
-	public synchronized void setRomanjiName(String romanjiName)
+	public synchronized void setRomanjiName(String romanjiName) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomanjiName(romanjiName);
 	}
 
 	@Override
-	public synchronized RecordSet<Artist> getArtists()
+	public synchronized RecordSet<Artist> getArtists() throws DataBaseException
 	{
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
@@ -75,7 +72,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized RecordSet<Circle> getCircles()
+	public synchronized RecordSet<Circle> getCircles() throws DataBaseException
 	{
 		Set<Circle> set = new TreeSet<Circle>();
 		/*
@@ -96,7 +93,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized RecordSet<Parody> getParodies()
+	public synchronized RecordSet<Parody> getParodies() throws DataBaseException
 	{
 		Set<Parody> set = new TreeSet<Parody>();
 		Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
@@ -107,91 +104,91 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized Date getDate()
+	public synchronized Date getDate() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getPublished();
 	}
 
 	@Override
-	public synchronized void setDate(Date released)
+	public synchronized void setDate(Date released) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPublished(released);
 	}
 
 	@Override
-	public synchronized Type getType()
+	public synchronized Type getType() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getType();
 	}
 
 	@Override
-	public synchronized void setType(Type type)
+	public synchronized void setType(Type type) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setType(type);
 	}
 
 	@Override
-	public synchronized boolean isAdult()
+	public synchronized boolean isAdult() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getAdult();
 	}
 
 	@Override
-	public synchronized void setAdult(boolean adult)
+	public synchronized void setAdult(boolean adult) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setAdult(adult);
 	}
 
 	@Override
-	public synchronized boolean isDecensored()
+	public synchronized boolean isDecensored() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getDecensored();
 	}
 
 	@Override
-	public synchronized void setDecensored(boolean decensored)
+	public synchronized void setDecensored(boolean decensored) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setDecensored(decensored);
 	}
 
 	@Override
-	public synchronized boolean isTranslated()
+	public synchronized boolean isTranslated() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getTranslated();
 	}
 
 	@Override
-	public synchronized void setTranslated(boolean translated)
+	public synchronized void setTranslated(boolean translated) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslated(translated);
 	}
 	
 	@Override
-	public synchronized boolean isColored()
+	public synchronized boolean isColored() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getColor();
 	}
 
 	@Override
-	public synchronized void setColored(boolean colored)
+	public synchronized void setColored(boolean colored) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setColor(colored);
 	}
 
 	@Override
-	public synchronized Rating getRating()
+	public synchronized Rating getRating() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRating();
 	}
 
 	@Override
-	public synchronized void setRating(Rating rating)
+	public synchronized void setRating(Rating rating) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRating(rating);
 	}
 	
 	@Override
-	public synchronized RecordSet<Content> getContents()
+	public synchronized RecordSet<Content> getContents() throws DataBaseException
 	{
 		Set<Content> set = new TreeSet<Content>();
 		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
@@ -202,19 +199,19 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized int getPages()
+	public synchronized int getPages() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getPages();
 	}
 
 	@Override
-	public synchronized void setPages(int pages)
+	public synchronized void setPages(int pages) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPages(pages);
 	}
 
 	@Override
-	public synchronized Convention getConvention()
+	public synchronized Convention getConvention() throws DataBaseException
 	{
 		if(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof() == null)
 			return null;
@@ -222,7 +219,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized void setConvention(Convention convention)
+	public synchronized void setConvention(Convention convention) throws DataBaseException
 	{
 		if(convention == null)
 			return;
@@ -230,13 +227,13 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized String getInfo()
+	public synchronized String getInfo() throws DataBaseException
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getInfo();
 	}
 
 	@Override
-	public synchronized void setInfo(String info)
+	public synchronized void setInfo(String info) throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setInfo(info);
 	}
@@ -254,7 +251,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 	
 	@Override
-	public void addArtist(Artist artist) {
+	public void addArtist(Artist artist) throws DataBaseException
+	{
 		if(getArtists().contains(artist))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).addToArtists(
@@ -264,7 +262,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public void removeArtist(Artist artist) {
+	public void removeArtist(Artist artist) throws DataBaseException
+	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
@@ -272,7 +271,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public void addContent(Content content) {
+	public void addContent(Content content) throws DataBaseException
+	{
 		if(getContents().contains(content))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).addToContents(
@@ -282,7 +282,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public void addParody(Parody parody) {
+	public void addParody(Parody parody) throws DataBaseException
+	{
 		if(getParodies().contains(parody))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).addToParodies(
@@ -292,7 +293,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public void removeContent(Content content) {
+	public void removeContent(Content content) throws DataBaseException
+	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(
 				(org.dyndns.doujindb.db.cayenne.Content)
 				((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
@@ -300,7 +302,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public void removeParody(Parody parody) {
+	public void removeParody(Parody parody) throws DataBaseException
+	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(
 				(org.dyndns.doujindb.db.cayenne.Parody)
 				((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
@@ -308,25 +311,26 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 	
 	@Override
-	public synchronized String getID()
+	public synchronized String getID() throws DataBaseException
 	{
 		return "B" + super.getID();
 	}
 	
 	@Override
-	public void doRecycle()
+	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(true);
 	}
 
 	@Override
-	public void doRestore()
+	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(false);
 	}
 
 	@Override
-	boolean isRecycled() {
+	public boolean isRecycled() throws DataBaseException
+	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRecycled();
 	}
 }

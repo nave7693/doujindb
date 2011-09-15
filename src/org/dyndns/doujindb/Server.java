@@ -3,9 +3,12 @@ package org.dyndns.doujindb;
 import java.net.*;
 import java.rmi.*;
 
+import org.dyndns.doujindb.conf.PropertyException;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.dat.impl.*;
 import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.db.DataBase;
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.log.Level;
 
 /**  
@@ -55,10 +58,16 @@ public final class Server
 				);
 			Naming.rebind("rmi://localhost:" + port + "/DataStore", DS);
 			Core.Logger.log("DataStore service loaded.", Level.INFO);
-		} catch (RemoteException re) {
-			re.printStackTrace();
+		} catch (DataBaseException dbe) {
+			dbe.printStackTrace();
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
+		} catch (DataStoreException dse) {
+			dse.printStackTrace();
+		} catch (PropertyException pe) {
+			pe.printStackTrace();
+		} catch (RemoteException re) {
+			re.printStackTrace();
 		}
 	}
 }

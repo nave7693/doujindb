@@ -28,4 +28,7 @@ public interface RMIArtist extends Remote
 	public void addCircle(Circle circle) throws RemoteException;
 	public void removeBook(Book book) throws RemoteException;
 	public void removeCircle(Circle circle) throws RemoteException;
+	public boolean isRecycled() throws RemoteException;
+	public void doRestore() throws RemoteException;
+	public void doRecycle() throws RemoteException;
 }

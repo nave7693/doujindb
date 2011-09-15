@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
@@ -13,6 +12,7 @@ import javax.swing.border.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataSource;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -43,7 +43,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	private RecordArtistEditor editorArtists;
 	private JButton buttonConfirm;
 	
-	public PanelCircle(DouzWindow parent, JComponent pane, Circle token) throws DataBaseException, RemoteException
+	public PanelCircle(DouzWindow parent, JComponent pane, Circle token) throws DataBaseException
 	{
 		parentWindow = parent;
 		tokenCircle = token;
@@ -172,18 +172,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									e.printStackTrace();
 									Core.Logger.log(e.getMessage(), Level.WARNING);
 								}
-								try {
-									//TODO
-									/*if(Client.DS.contains(tokenCircle.getID()))
-									{
-										DataSource source = Client.DS.get(tokenCircle.getID());
-										if(source.contains(".banner"))
-										{
-											InputStream in = source.get(".banner").getInputStream();
-											labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-											in.close();
-										}
-									}*/
+								try
+								{
 									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
@@ -197,6 +187,10 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								} catch (IOException e) {
 									e.printStackTrace();
 									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
+								} catch (DataStoreException dse) {
+									dse.printStackTrace();
+								} catch (DataBaseException dbe) {
+									dbe.printStackTrace();
 								}
 								labelBanner.setName("banner");
 							}
@@ -347,9 +341,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.ERROR);
-				re.printStackTrace();
 			}
 		}
 		buttonConfirm.setEnabled(true);

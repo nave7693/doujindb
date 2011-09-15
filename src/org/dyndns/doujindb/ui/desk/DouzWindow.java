@@ -40,7 +40,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 	{
 		this(type, null);		
 	}
-	DouzWindow(Type type, Object param) throws DataBaseException, RemoteException
+	DouzWindow(Type type, Object param) throws DataBaseException
 	{
 		super("", true, true, true, true);
 		{

@@ -20,23 +20,23 @@ public final class Client
 	
 	public static boolean isConnected()
 	{
-		return DB != null;
+		return DB != null && DS != null;
 	}
 	
-	public static void connect() throws RemoteException
+	public static void connect() throws RuntimeException
 	{
 		connect("localhost");
 	}
 	
-	public static void connect(String host) throws RemoteException
+	public static void connect(String host) throws RuntimeException
 	{
 		connect(host, 1099);
 	}
 	
-	public static void connect(String host, int port) throws RemoteException
+	public static void connect(String host, int port) throws RuntimeException
 	{
 		if(DB != null)
-			throw new RemoteException("Client already connected.");
+			throw new RuntimeException("Client already connected.");
         try { 
 //        	DB = (DataBase)
 //        					Naming.lookup(
@@ -50,20 +50,22 @@ public final class Client
         						);
         } 
         catch (MalformedURLException murle) { 
-            throw new RemoteException(murle.getMessage());
+            throw new RuntimeException(murle.getMessage());
         } 
         catch (NotBoundException nbe) { 
-        	throw new RemoteException(nbe.getMessage());
+        	throw new RuntimeException(nbe.getMessage());
         } 
         catch (java.lang.ArithmeticException ae) { 
-        	throw new RemoteException(ae.getMessage());
-        }
+        	throw new RuntimeException(ae.getMessage());
+        } catch (RemoteException re) {
+        	throw new RuntimeException(re.getMessage());
+		}
 	}
 	
-	public static void disconnect() throws RemoteException
+	public static void disconnect() throws RuntimeException
 	{
-		if(DB == null)
-			throw new RemoteException("Client not connected.");
+		if(DB == null || DS == null)
+			throw new RuntimeException("Client not connected.");
 		DB = null;
 		DS = null;
 	}

@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.TreeSet;
@@ -88,9 +87,9 @@ public class PanelBookMedia extends JPanel implements Validable
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();	
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+						} catch (Exception e) {
+							Core.Logger.log(e.getMessage(), Level.ERROR);
+							e.printStackTrace();
 						}
 					}
 				}.start();
@@ -177,9 +176,9 @@ public class PanelBookMedia extends JPanel implements Validable
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+						} catch (Exception e) {
+							Core.Logger.log(e.getMessage(), Level.ERROR);
+							e.printStackTrace();
 						}
 					}
 				}.start();				
@@ -334,9 +333,9 @@ public class PanelBookMedia extends JPanel implements Validable
 							PanelBookMedia.super.validate();
 						}
 					});
-				} catch (RemoteException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
 				}
 			}
 		});
@@ -420,7 +419,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	}
 	}
 	
-	private void buildTree(DataSource dss, MutableTreeNode parent) throws DataStoreException, RemoteException
+	private void buildTree(DataSource dss, MutableTreeNode parent) throws DataStoreException, DataBaseException
 	{
 		int k = 0; 
 		for(DataSource ds : dss.children())
@@ -485,7 +484,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			this.dss = dss;
 		}
 		
-		private int count(DataSource ds_root) throws DataStoreException, RemoteException
+		private int count(DataSource ds_root) throws DataStoreException, DataBaseException
 		{
 			int count = 0;
 			for(DataSource ds : ds_root.children())
@@ -627,9 +626,9 @@ public class PanelBookMedia extends JPanel implements Validable
 			} catch (DataStoreException dse) {
 				Core.Logger.log(dse.getMessage(), Level.WARNING);
 				dse.printStackTrace();
-			} catch (RemoteException re) {
-				Core.Logger.log(re.getMessage(), Level.WARNING);
-				re.printStackTrace();
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.WARNING);
+				dbe.printStackTrace();
 			}
 			clock.stop();
 			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();

@@ -1,27 +1,29 @@
 package org.dyndns.doujindb.db.impl;
 
+import java.io.Serializable;
 import java.util.*;
 
+import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
 
 @SuppressWarnings("serial")
-final class RecordSetImpl<T extends Record> implements RecordSet<T>
+final class RecordSetImpl<T extends Record> implements RecordSet<T>, Serializable
 {
 	private Set<T> set;
 	
-	protected RecordSetImpl()
+	protected RecordSetImpl() throws DataBaseException
 	{
 		set = new TreeSet<T>();
 	}
 	
-	protected RecordSetImpl(Set<T> data)
+	protected RecordSetImpl(Set<T> data) throws DataBaseException
 	{
 		this();
 		set.addAll(data);
 	}
 	
-	protected RecordSetImpl(List<T> data)
+	protected RecordSetImpl(List<T> data) throws DataBaseException
 	{
 		this();
 		set.addAll(data);
@@ -46,7 +48,7 @@ final class RecordSetImpl<T extends Record> implements RecordSet<T>
 //	}
 
 	@Override
-	public boolean contains(Object o)
+	public boolean contains(Object o) throws DataBaseException
 	{
 		if(o == null)
 			return false;
@@ -90,7 +92,7 @@ final class RecordSetImpl<T extends Record> implements RecordSet<T>
 //	}
 
 	@Override
-	public int size()
+	public int size() throws DataBaseException
 	{
 		return set.size();
 	}

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -15,9 +15,9 @@ import org.dyndns.doujindb.db.records.*;
 @SuppressWarnings("serial")
 public final class RMIDataBaseImpl extends UnicastRemoteObject implements RMIDataBase
 {
-	private DataBase db;
+	private DataBaseImpl db;
 	
-	protected RMIDataBaseImpl(DataBase db) throws RemoteException
+	public RMIDataBaseImpl(DataBaseImpl db) throws RemoteException
 	{
 		super(1099);
 		this.db = db;

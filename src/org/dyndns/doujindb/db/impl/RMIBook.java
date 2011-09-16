@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.util.Date;
 import java.rmi.Remote;

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.util.Date;
 import java.rmi.RemoteException;
@@ -16,9 +16,9 @@ import org.dyndns.doujindb.db.records.Book.*;
 @SuppressWarnings("serial")
 public final class RMIBookImpl extends UnicastRemoteObject implements RMIBook
 {
-	private Book book;
+	private BookImpl book;
 	
-	protected RMIBookImpl(Book book) throws RemoteException
+	protected RMIBookImpl(BookImpl book) throws RemoteException
 	{
 		super(1099);
 		this.book = book;

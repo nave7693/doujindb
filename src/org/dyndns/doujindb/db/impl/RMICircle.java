@@ -1,17 +1,18 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 
 /**  
-* RMIParody.java - RMI Interface Parody.
+* RMICircle.java - RMI Interface Circle.
 * @author nozomu
 * @version 1.0
 */
-public interface RMIParody extends Remote
+public interface RMICircle extends Remote
 {
 	public String getJapaneseName() throws RemoteException;
 	public String getTranslatedName() throws RemoteException;
@@ -21,9 +22,10 @@ public interface RMIParody extends Remote
 	public void setTranslatedName(String translatedName) throws RemoteException;
 	public void setRomanjiName(String romanjiName) throws RemoteException;
 	public void setWeblink(String weblink) throws RemoteException;
+	public RecordSet<Artist> getArtists() throws RemoteException;
 	public RecordSet<Book> getBooks() throws RemoteException;
-	public void addBook(Book book) throws RemoteException;
-	public void removeBook(Book book) throws RemoteException;
+	public void addArtist(Artist artist) throws RemoteException;
+	public void removeArtist(Artist artist) throws RemoteException;
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;

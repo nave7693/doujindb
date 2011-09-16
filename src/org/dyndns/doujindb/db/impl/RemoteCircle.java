@@ -4,28 +4,29 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.impl.RecordImpl;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 
 /**  
-* RemoteArtist.java - Remote Artist.
+* RemoteCircle.java - Remote Circle.
 * @author nozomu
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteArtist extends RecordImpl implements Artist, Serializable//, Comparable<Artist>
+final class RemoteCircle extends RecordImpl implements Circle, Serializable//, Comparable<Circle>
 {
-	private RMIArtist remoteArtist;
+	private RMICircle remoteCircle;
 
-	public RemoteArtist(RMIArtist remoteArtist) throws DataBaseException {
-		this.remoteArtist = remoteArtist;
+	public RemoteCircle(RMICircle remoteCircle) throws DataBaseException {
+		this.remoteCircle = remoteCircle;
 	}
 
 	@Override
 	public String getJapaneseName() throws DataBaseException {
 		try {
-			return remoteArtist.getJapaneseName();
+			return remoteCircle.getJapaneseName();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -34,7 +35,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public String getTranslatedName() throws DataBaseException {
 		try {
-			return remoteArtist.getTranslatedName();
+			return remoteCircle.getTranslatedName();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -43,7 +44,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public String getRomanjiName() throws DataBaseException {
 		try {
-			return remoteArtist.getRomanjiName();
+			return remoteCircle.getRomanjiName();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -52,7 +53,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public String getWeblink() throws DataBaseException {
 		try {
-			return remoteArtist.getWeblink();
+			return remoteCircle.getWeblink();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -61,7 +62,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void setJapaneseName(String japaneseName) throws DataBaseException {
 		try {
-			remoteArtist.setJapaneseName(japaneseName);
+			remoteCircle.setJapaneseName(japaneseName);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -70,7 +71,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void setTranslatedName(String translatedName) throws DataBaseException {
 		try {
-			remoteArtist.setTranslatedName(translatedName);
+			remoteCircle.setTranslatedName(translatedName);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -79,7 +80,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void setRomanjiName(String romanjiName) throws DataBaseException {
 		try {
-			remoteArtist.setRomanjiName(romanjiName);
+			remoteCircle.setRomanjiName(romanjiName);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -88,7 +89,16 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void setWeblink(String weblink) throws DataBaseException {
 		try {
-			remoteArtist.setWeblink(weblink);
+			remoteCircle.setWeblink(weblink);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+
+	@Override
+	public RecordSet<Artist> getArtists() throws DataBaseException {
+		try {
+			return remoteCircle.getArtists();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -97,52 +107,25 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public RecordSet<Book> getBooks() throws DataBaseException {
 		try {
-			return remoteArtist.getBooks();
+			return remoteCircle.getBooks();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
 
 	@Override
-	public RecordSet<Circle> getCircles() throws DataBaseException {
+	public void addArtist(Artist artist) throws DataBaseException {
 		try {
-			return remoteArtist.getCircles();
+			remoteCircle.addArtist(artist);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
 
 	@Override
-	public void addBook(Book book) throws DataBaseException {
+	public void removeArtist(Artist artist) throws DataBaseException {
 		try {
-			remoteArtist.addBook(book);
-		} catch (RemoteException re) {
-			throw new DataBaseException("RemoteException " + re);
-		}
-	}
-
-	@Override
-	public void addCircle(Circle circle) throws DataBaseException {
-		try {
-			remoteArtist.addCircle(circle);
-		} catch (RemoteException re) {
-			throw new DataBaseException("RemoteException " + re);
-		}
-	}
-	
-	@Override
-	public void removeBook(Book book) throws DataBaseException {
-		try {
-			remoteArtist.removeBook(book);
-		} catch (RemoteException re) {
-			throw new DataBaseException("RemoteException " + re);
-		}
-	}
-
-	@Override
-	public void removeCircle(Circle circle) throws DataBaseException {
-		try {
-			remoteArtist.removeCircle(circle);
+			remoteCircle.removeArtist(artist);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -151,7 +134,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void doRecycle() throws DataBaseException {
 		try {
-			remoteArtist.doRecycle();
+			remoteCircle.doRecycle();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -160,7 +143,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public void doRestore() throws DataBaseException {
 		try {
-			remoteArtist.doRestore();
+			remoteCircle.doRestore();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}
@@ -169,7 +152,7 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	@Override
 	public boolean isRecycled() throws DataBaseException {
 		try {
-			return remoteArtist.isRecycled();
+			return remoteCircle.isRecycled();
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

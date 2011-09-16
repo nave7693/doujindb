@@ -7,8 +7,8 @@ import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.dat.impl.*;
 import org.dyndns.doujindb.dat.rmi.*;
-import org.dyndns.doujindb.db.DataBase;
-import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.impl.*;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.log.Level;
 
 /**  
@@ -18,8 +18,8 @@ import org.dyndns.doujindb.log.Level;
 */
 public final class Server
 {
-	public static DataBase DB;
-	public static RMIDataStoreImpl DS;
+	public static RMIDataBase DB;
+	public static RMIDataStore DS;
 	
 	public Server()
 	{
@@ -45,8 +45,11 @@ public final class Server
 		
 		try
 		{
-			DB = new org.dyndns.doujindb.db.impl.DataBaseImpl();
-			/*
+			DB = new RMIDataBaseImpl(new DataBaseImpl());
+			Naming.rebind("rmi://localhost:" + port + "/DataBase", DB);
+			Core.Logger.log("DataBase service loaded.", Level.INFO);
+			/*DB = new org.dyndns.doujindb.db.impl.DataBaseImpl();
+			
 			DB = (DataBase) Class.forName("org.dyndns.doujindb.db.impl.DataBaseImpl").newInstance();
 			Naming.rebind("rmi://localhost:" + port + "/DataBase", DB);
 			*/

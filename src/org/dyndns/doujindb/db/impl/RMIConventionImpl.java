@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -6,7 +6,6 @@ import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Convention;
 
 /**  
 * RMIConventionImpl.java - RMI Implementation Convention.
@@ -16,9 +15,9 @@ import org.dyndns.doujindb.db.records.Convention;
 @SuppressWarnings("serial")
 public final class RMIConventionImpl extends UnicastRemoteObject implements RMIConvention
 {
-	private Convention convention;
+	private ConventionImpl convention;
 	
-	protected RMIConventionImpl(Convention convention) throws RemoteException
+	protected RMIConventionImpl(ConventionImpl convention) throws RemoteException
 	{
 		super(1099);
 		this.convention = convention;

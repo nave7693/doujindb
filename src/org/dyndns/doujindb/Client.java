@@ -7,6 +7,7 @@ import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.dat.impl.*;
 import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.impl.*;
 
 /**  
 * Client.java - DoujinDB Client.
@@ -38,13 +39,17 @@ public final class Client
 		if(DB != null)
 			throw new RuntimeException("Client already connected.");
         try { 
+        	DB = new RemoteDataBase(
+        				(RMIDataBase)
+        					Naming.lookup(
+        							"rmi://" + host + ":" + port + "/DataBase")
+        						);
 //        	DB = (DataBase)
 //        					Naming.lookup(
 //        							"rmi://" + host + ":" + port + "/DataBase");
-        	DB = Server.DB;
         	
         	DS = new RemoteDataStore(
-        			(RMIDataStore)
+        				(RMIDataStore)
         					Naming.lookup(
         							"rmi://" + host + ":" + port + "/DataStore")
         						);

@@ -1,10 +1,9 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Book;
 
 /**  
@@ -15,9 +14,9 @@ import org.dyndns.doujindb.db.records.Book;
 @SuppressWarnings("serial")
 public final class RMIContentImpl extends UnicastRemoteObject implements RMIContent
 {
-	private Content content;
+	private ContentImpl content;
 	
-	protected RMIContentImpl(Content content) throws RemoteException
+	protected RMIContentImpl(ContentImpl content) throws RemoteException
 	{
 		super(1099);
 		this.content = content;

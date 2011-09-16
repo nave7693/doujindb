@@ -11,6 +11,5 @@ public final class Main
 	public static void main(String[] args)
 	{
 		new Thread(new Core(), Main.class.getCanonicalName()).start();
-		//org.dyndns.doujindb.db.cayenne.Main.start();
 	}
 }

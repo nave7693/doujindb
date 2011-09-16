@@ -1,11 +1,10 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Book;
 
 /**  
@@ -16,9 +15,9 @@ import org.dyndns.doujindb.db.records.Book;
 @SuppressWarnings("serial")
 public final class RMICircleImpl extends UnicastRemoteObject implements RMICircle
 {
-	private Circle circle;
+	private CircleImpl circle;
 	
-	protected RMICircleImpl(Circle circle) throws RemoteException
+	protected RMICircleImpl(CircleImpl circle) throws RemoteException
 	{
 		super(1099);
 		this.circle = circle;

@@ -1,95 +1,110 @@
-package org.dyndns.doujindb.db.rmi;
+package org.dyndns.doujindb.db.impl;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.Circle;
 
 /**  
-* RMIParodyImpl.java - RMI Implementation Parody.
+* RMIArtistImpl.java - RMI Implementation Artist.
 * @author nozomu
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public final class RMIParodyImpl extends UnicastRemoteObject implements RMIParody
+public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtist
 {
-	private Parody parody;
+	private ArtistImpl artist;
 	
-	protected RMIParodyImpl(Parody parody) throws RemoteException
+	public RMIArtistImpl(ArtistImpl artist) throws RemoteException
 	{
 		super(1099);
-		this.parody = parody;
+		this.artist = artist;
 	}
-
+	
 	@Override
 	public String getJapaneseName() throws RemoteException {
-		return parody.getJapaneseName();
+		return artist.getJapaneseName();
 	}
 
 	@Override
 	public String getTranslatedName() throws RemoteException {
-		return parody.getTranslatedName();
+		return artist.getTranslatedName();
 	}
 
 	@Override
 	public String getRomanjiName() throws RemoteException {
-		return parody.getRomanjiName();
+		return artist.getRomanjiName();
 	}
 
 	@Override
 	public String getWeblink() throws RemoteException {
-		return parody.getWeblink();
+		return artist.getWeblink();
 	}
 
 	@Override
 	public void setJapaneseName(String japaneseName) throws RemoteException {
-		parody.setJapaneseName(japaneseName);
+		artist.setJapaneseName(japaneseName);
 	}
 
 	@Override
 	public void setTranslatedName(String translatedName) throws RemoteException {
-		parody.setTranslatedName(translatedName);
+		artist.setTranslatedName(translatedName);
 	}
 
 	@Override
 	public void setRomanjiName(String romanjiName) throws RemoteException {
-		parody.setRomanjiName(romanjiName);
+		artist.setRomanjiName(romanjiName);
 	}
 
 	@Override
 	public void setWeblink(String weblink) throws RemoteException {
-		parody.setWeblink(weblink);
+		artist.setWeblink(weblink);
 	}
 
 	@Override
 	public RecordSet<Book> getBooks() throws RemoteException {
-		return parody.getBooks();
+		return artist.getBooks();
+	}
+
+	@Override
+	public RecordSet<Circle> getCircles() throws RemoteException {
+		return artist.getCircles();
 	}
 
 	@Override
 	public void addBook(Book book) throws RemoteException {
-		parody.addBook(book);
+		artist.addBook(book);
+	}
+
+	@Override
+	public void addCircle(Circle circle) throws RemoteException {
+		artist.addCircle(circle);
 	}
 
 	@Override
 	public void removeBook(Book book) throws RemoteException {
-		parody.removeBook(book);
+		artist.removeBook(book);
 	}
-	
+
+	@Override
+	public void removeCircle(Circle circle) throws RemoteException {
+		artist.removeCircle(circle);
+	}
+
 	@Override
 	public boolean isRecycled() throws RemoteException {
-		return parody.isRecycled();
+		return artist.isRecycled();
 	}
 
 	@Override
 	public void doRestore() throws RemoteException {
-		parody.doRestore();
+		artist.doRestore();
 	}
 
 	@Override
 	public void doRecycle() throws RemoteException {
-		parody.doRecycle();
+		artist.doRecycle();
 	}
 }

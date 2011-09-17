@@ -164,4 +164,13 @@ final class RemoteParody implements Record, Parody, Serializable, Comparable<Par
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		try {
+			return remoteParody.remoteToString();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

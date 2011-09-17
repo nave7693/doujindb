@@ -29,4 +29,5 @@ public interface RMIParody extends Remote
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
 	public int compareTo(Parody o) throws RemoteException;
+	public String remoteToString() throws RemoteException;
 }

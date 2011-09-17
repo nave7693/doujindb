@@ -145,4 +145,13 @@ final class RemoteConvention implements Record, Convention, Serializable, Compar
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		try {
+			return remoteConvention.remoteToString();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

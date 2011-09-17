@@ -172,4 +172,13 @@ final class RemoteCircle implements Record, Circle, Serializable, Comparable<Cir
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		try {
+			return remoteCircle.remoteToString();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

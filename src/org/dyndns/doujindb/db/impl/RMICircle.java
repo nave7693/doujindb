@@ -4,8 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMICircle.java - RMI Interface Circle.
@@ -14,6 +13,7 @@ import org.dyndns.doujindb.db.records.Book;
 */
 public interface RMICircle extends Remote
 {
+	public String getID() throws RemoteException;
 	public String getJapaneseName() throws RemoteException;
 	public String getTranslatedName() throws RemoteException;
 	public String getRomanjiName() throws RemoteException;
@@ -29,4 +29,5 @@ public interface RMICircle extends Remote
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
+	public int compareTo(Circle o) throws RemoteException;
 }

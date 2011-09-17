@@ -12,6 +12,8 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 
 	public CircleImpl(org.dyndns.doujindb.db.cayenne.Circle ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		doRestore();
 	}

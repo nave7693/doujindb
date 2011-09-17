@@ -4,10 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.impl.RecordImpl;
-import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RemoteCircle.java - Remote Circle.
@@ -15,7 +12,7 @@ import org.dyndns.doujindb.db.records.Circle;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteCircle extends RecordImpl implements Circle, Serializable//, Comparable<Circle>
+final class RemoteCircle implements Record, Circle, Serializable, Comparable<Circle>
 {
 	private RMICircle remoteCircle;
 
@@ -153,6 +150,24 @@ final class RemoteCircle extends RecordImpl implements Circle, Serializable//, C
 	public boolean isRecycled() throws DataBaseException {
 		try {
 			return remoteCircle.isRecycled();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteCircle.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public int compareTo(Circle o) {
+		try {
+			return remoteCircle.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

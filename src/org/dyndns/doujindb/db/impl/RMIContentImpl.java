@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIContentImpl.java - RMI Implementation Content.
@@ -22,6 +22,11 @@ public final class RMIContentImpl extends UnicastRemoteObject implements RMICont
 		this.content = content;
 	}
 	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return content.getID();
+	}
 
 	@Override
 	public String getTagName() throws RemoteException {
@@ -71,5 +76,10 @@ public final class RMIContentImpl extends UnicastRemoteObject implements RMICont
 	@Override
 	public void doRecycle() throws RemoteException {
 		content.doRecycle();
+	}
+	
+	@Override
+	public int compareTo(Content o) throws RemoteException {
+		return content.compareTo(o);
 	}
 }

@@ -15,6 +15,7 @@ import org.dyndns.doujindb.db.records.Book.*;
 */
 public interface RMIBook extends Remote
 {
+	public String getID() throws RemoteException;
 	public String getJapaneseName() throws RemoteException;
 	public String getTranslatedName() throws RemoteException;
 	public String getRomanjiName() throws RemoteException;
@@ -54,4 +55,5 @@ public interface RMIBook extends Remote
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
+	public int compareTo(Book o) throws RemoteException;
 }

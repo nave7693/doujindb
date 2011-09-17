@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Convention;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RemoteConvention.java - Remote Convention.
@@ -13,7 +12,7 @@ import org.dyndns.doujindb.db.records.Convention;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteConvention extends RecordImpl implements Convention, Serializable//, Comparable<Convention>
+final class RemoteConvention implements Record, Convention, Serializable, Comparable<Convention>
 {
 	private RMIConvention remoteConvention;
 
@@ -124,6 +123,24 @@ final class RemoteConvention extends RecordImpl implements Convention, Serializa
 	public void setWeblink(String weblink) throws DataBaseException {
 		try {
 			remoteConvention.setWeblink(weblink);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteConvention.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public int compareTo(Convention o) {
+		try {
+			return remoteConvention.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

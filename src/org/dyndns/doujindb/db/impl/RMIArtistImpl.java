@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 
@@ -21,6 +22,12 @@ public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtis
 	{
 		super(1099);
 		this.artist = artist;
+	}
+	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return artist.getID();
 	}
 	
 	@Override
@@ -106,5 +113,10 @@ public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtis
 	@Override
 	public void doRecycle() throws RemoteException {
 		artist.doRecycle();
+	}
+
+	@Override
+	public int compareTo(Artist o) throws RemoteException {
+		return artist.compareTo(o);
 	}
 }

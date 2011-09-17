@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIParodyImpl.java - RMI Implementation Parody.
@@ -20,6 +20,12 @@ public final class RMIParodyImpl extends UnicastRemoteObject implements RMIParod
 	{
 		super(1099);
 		this.parody = parody;
+	}
+	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return parody.getID();
 	}
 
 	@Override
@@ -90,5 +96,10 @@ public final class RMIParodyImpl extends UnicastRemoteObject implements RMIParod
 	@Override
 	public void doRecycle() throws RemoteException {
 		parody.doRecycle();
+	}
+	
+	@Override
+	public int compareTo(Parody o) throws RemoteException {
+		return parody.compareTo(o);
 	}
 }

@@ -12,6 +12,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 
 	public ParodyImpl(org.dyndns.doujindb.db.cayenne.Parody ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		doRestore();
 	}

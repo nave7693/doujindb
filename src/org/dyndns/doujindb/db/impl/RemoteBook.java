@@ -18,7 +18,7 @@ import org.dyndns.doujindb.db.records.Parody;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteBook extends RecordImpl implements Book, Serializable//, Comparable<Book>
+final class RemoteBook implements Record, Book, Serializable, Comparable<Book>
 {
 	private RMIBook remoteBook;
 
@@ -372,6 +372,24 @@ final class RemoteBook extends RecordImpl implements Book, Serializable//, Compa
 	public boolean isRecycled() throws DataBaseException {
 		try {
 			return remoteBook.isRecycled();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteBook.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public int compareTo(Book o) {
+		try {
+			return remoteBook.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

@@ -12,6 +12,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 
 	public ConventionImpl(org.dyndns.doujindb.db.cayenne.Convention ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		doRestore();
 	}

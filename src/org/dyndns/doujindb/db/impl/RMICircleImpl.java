@@ -4,8 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMICircleImpl.java - RMI Implementation Circle.
@@ -21,6 +20,12 @@ public final class RMICircleImpl extends UnicastRemoteObject implements RMICircl
 	{
 		super(1099);
 		this.circle = circle;
+	}
+	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return circle.getID();
 	}
 
 	@Override
@@ -96,5 +101,10 @@ public final class RMICircleImpl extends UnicastRemoteObject implements RMICircl
 	@Override
 	public void doRecycle() throws RemoteException {
 		circle.doRecycle();
+	}
+	
+	@Override
+	public int compareTo(Circle o) throws RemoteException {
+		return circle.compareTo(o);
 	}
 }

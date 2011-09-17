@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -83,37 +84,73 @@ public final class DataBaseImpl implements DataBase
 	private synchronized Artist newArtist() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Artist o = context.newObject(org.dyndns.doujindb.db.cayenne.Artist.class);
-		return new ArtistImpl(o);
+		try
+		{
+			return (new RemoteArtist(new RMIArtistImpl(new ArtistImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 
 	private synchronized Book newBook() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Book o = context.newObject(org.dyndns.doujindb.db.cayenne.Book.class);
-		return new BookImpl(o);
+		try
+		{
+			return (new RemoteBook(new RMIBookImpl(new BookImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 
 	private synchronized Circle newCircle() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Circle o = context.newObject(org.dyndns.doujindb.db.cayenne.Circle.class);
-		return new CircleImpl(o);
+		try
+		{
+			return (new RemoteCircle(new RMICircleImpl(new CircleImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 
 	private synchronized Content newContent() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Content o = context.newObject(org.dyndns.doujindb.db.cayenne.Content.class);
-		return new ContentImpl(o);
+		try
+		{
+			return (new RemoteContent(new RMIContentImpl(new ContentImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 
 	private synchronized Convention newConvention() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Convention o = context.newObject(org.dyndns.doujindb.db.cayenne.Convention.class);
-		return new ConventionImpl(o);
+		try
+		{
+			return (new RemoteConvention(new RMIConventionImpl(new ConventionImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 
 	private synchronized Parody newParody() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Parody o = context.newObject(org.dyndns.doujindb.db.cayenne.Parody.class);
-		return new ParodyImpl(o);
+		try
+		{
+			return (new RemoteParody(new RMIParodyImpl(new ParodyImpl(o))));
+		} catch (RemoteException re)
+		{
+			throw new DataBaseException("RemoteException " + re);
+		}
 	}
 	
 	
@@ -150,7 +187,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
 		Set<Book> buff = new TreeSet<Book>();
 		for(org.dyndns.doujindb.db.cayenne.Book o : list)
-			buff.add(new BookImpl(o));
+			try { buff.add(new RemoteBook(new RMIBookImpl(new BookImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Book>(buff);
 	}
 
@@ -162,7 +199,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
 		Set<Circle> buff = new TreeSet<Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
-			buff.add(new CircleImpl(o));
+			try { buff.add(new RemoteCircle(new RMICircleImpl(new CircleImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Circle>(buff);
 	}
 
@@ -174,7 +211,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
 		Set<Artist> buff = new TreeSet<Artist>();
 		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
-			buff.add(new ArtistImpl(o));
+			try { buff.add(new RemoteArtist(new RMIArtistImpl(new ArtistImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Artist>(buff);
 	}
 
@@ -186,7 +223,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
 		Set<Parody> buff = new TreeSet<Parody>();
 		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
-			buff.add(new ParodyImpl(o));
+			try { buff.add(new RemoteParody(new RMIParodyImpl(new ParodyImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Parody>(buff);
 	}
 
@@ -198,7 +235,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
 		Set<Content> buff = new TreeSet<Content>();
 		for(org.dyndns.doujindb.db.cayenne.Content o : list)
-			buff.add(new ContentImpl(o));
+			try { buff.add(new RemoteContent(new RMIContentImpl(new ContentImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Content>(buff);
 	}
 
@@ -210,7 +247,7 @@ public final class DataBaseImpl implements DataBase
 		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
 		Set<Convention> buff = new TreeSet<Convention>();
 		for(org.dyndns.doujindb.db.cayenne.Convention o : list)
-			buff.add(new ConventionImpl(o));
+			try { buff.add(new RemoteConvention(new RMIConventionImpl(new ConventionImpl(o)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Convention>(buff);
 	}
 	

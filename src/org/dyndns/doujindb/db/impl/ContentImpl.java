@@ -12,6 +12,8 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 
 	public ContentImpl(org.dyndns.doujindb.db.cayenne.Content ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		doRestore();
 	}

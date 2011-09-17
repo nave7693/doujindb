@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIContent.java - RMI Interface Content.
@@ -13,6 +13,7 @@ import org.dyndns.doujindb.db.records.Book;
 */
 public interface RMIContent extends Remote
 {
+	public String getID() throws RemoteException;
 	public String getTagName() throws RemoteException;
 	public String getInfo() throws RemoteException;
 	public void setTagName(String tagName) throws RemoteException;
@@ -23,4 +24,5 @@ public interface RMIContent extends Remote
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
+	public int compareTo(Content o) throws RemoteException;
 }

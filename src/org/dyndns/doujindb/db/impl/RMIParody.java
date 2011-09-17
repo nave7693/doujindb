@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIParody.java - RMI Interface Parody.
@@ -13,6 +13,7 @@ import org.dyndns.doujindb.db.records.Book;
 */
 public interface RMIParody extends Remote
 {
+	public String getID() throws RemoteException;
 	public String getJapaneseName() throws RemoteException;
 	public String getTranslatedName() throws RemoteException;
 	public String getRomanjiName() throws RemoteException;
@@ -27,4 +28,5 @@ public interface RMIParody extends Remote
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
+	public int compareTo(Parody o) throws RemoteException;
 }

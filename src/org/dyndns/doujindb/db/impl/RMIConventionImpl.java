@@ -5,7 +5,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIConventionImpl.java - RMI Implementation Convention.
@@ -21,6 +21,12 @@ public final class RMIConventionImpl extends UnicastRemoteObject implements RMIC
 	{
 		super(1099);
 		this.convention = convention;
+	}
+	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return convention.getID();
 	}
 
 	@Override
@@ -81,5 +87,10 @@ public final class RMIConventionImpl extends UnicastRemoteObject implements RMIC
 	@Override
 	public void doRecycle() throws RemoteException {
 		convention.doRecycle();
+	}
+	
+	@Override
+	public int compareTo(Convention o) throws RemoteException {
+		return convention.compareTo(o);
 	}
 }

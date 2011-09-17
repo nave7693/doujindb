@@ -14,7 +14,7 @@ import org.dyndns.doujindb.db.records.Circle;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteArtist extends RecordImpl implements Artist, Serializable//, Comparable<Artist>
+final class RemoteArtist implements Record, Artist, Serializable, Comparable<Artist>
 {
 	private RMIArtist remoteArtist;
 
@@ -170,6 +170,24 @@ final class RemoteArtist extends RecordImpl implements Artist, Serializable//, C
 	public boolean isRecycled() throws DataBaseException {
 		try {
 			return remoteArtist.isRecycled();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteArtist.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public int compareTo(Artist o) {
+		try {
+			return remoteArtist.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

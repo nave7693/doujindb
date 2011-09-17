@@ -13,7 +13,7 @@ import org.dyndns.doujindb.db.records.Parody;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteParody extends RecordImpl implements Parody, Serializable//, Comparable<Parody>
+final class RemoteParody implements Record, Parody, Serializable, Comparable<Parody>
 {
 	private RMIParody remoteParody;
 
@@ -142,6 +142,24 @@ final class RemoteParody extends RecordImpl implements Parody, Serializable//, C
 	public void removeBook(Book book) throws DataBaseException {
 		try {
 			remoteParody.removeBook(book);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteParody.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+
+	@Override
+	public int compareTo(Parody o) {
+		try {
+			return remoteParody.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

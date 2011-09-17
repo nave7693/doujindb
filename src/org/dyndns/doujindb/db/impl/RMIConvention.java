@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RMIConvention.java - RMI Interface Convention.
@@ -14,6 +14,7 @@ import org.dyndns.doujindb.db.records.Book;
 */
 public interface RMIConvention extends Remote
 {
+	public String getID() throws RemoteException;
 	public String getTagName() throws RemoteException;
 	public String getInfo() throws RemoteException;
 	public String getWeblink() throws RemoteException;
@@ -26,4 +27,5 @@ public interface RMIConvention extends Remote
 	public boolean isRecycled() throws RemoteException;
 	public void doRestore() throws RemoteException;
 	public void doRecycle() throws RemoteException;
+	public int compareTo(Convention o) throws RemoteException;
 }

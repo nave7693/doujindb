@@ -23,6 +23,12 @@ public final class RMIBookImpl extends UnicastRemoteObject implements RMIBook
 		super(1099);
 		this.book = book;
 	}
+	
+	@Override
+	public synchronized String getID() throws RemoteException
+	{
+		return book.getID();
+	}
 
 	@Override
 	public String getJapaneseName() throws RemoteException {
@@ -217,5 +223,10 @@ public final class RMIBookImpl extends UnicastRemoteObject implements RMIBook
 	@Override
 	public void doRecycle() throws RemoteException {
 		book.doRecycle();
+	}
+	
+	@Override
+	public int compareTo(Book o) throws RemoteException {
+		return book.compareTo(o);
 	}
 }

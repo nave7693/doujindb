@@ -12,6 +12,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	
 	public ArtistImpl(org.dyndns.doujindb.db.cayenne.Artist ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		doRestore();
 	}

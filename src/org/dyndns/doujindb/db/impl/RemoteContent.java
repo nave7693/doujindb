@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.records.*;
 
 /**  
 * RemoteContent.java - Remote Content.
@@ -13,7 +12,7 @@ import org.dyndns.doujindb.db.records.Content;
 * @version 1.0
 */
 @SuppressWarnings("serial")
-final class RemoteContent extends RecordImpl implements Content, Serializable//, Comparable<Content>
+final class RemoteContent implements Record, Content, Serializable, Comparable<Content>
 {
 	private RMIContent remoteContent;
 
@@ -106,6 +105,24 @@ final class RemoteContent extends RecordImpl implements Content, Serializable//,
 	public boolean isRecycled() throws DataBaseException {
 		try {
 			return remoteContent.isRecycled();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public String getID() throws DataBaseException {
+		try {
+			return remoteContent.getID();
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
+	
+	@Override
+	public int compareTo(Content o) {
+		try {
+			return remoteContent.compareTo(o);
 		} catch (RemoteException re) {
 			throw new DataBaseException("RemoteException " + re);
 		}

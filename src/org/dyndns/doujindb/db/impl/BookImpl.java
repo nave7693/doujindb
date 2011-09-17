@@ -12,6 +12,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	
 	public BookImpl(org.dyndns.doujindb.db.cayenne.Book ref) throws DataBaseException
 	{
+		if(ref == null)
+			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
 		setRating(Rating.UNRATED);
 		setType(Type.同人誌);

@@ -87,4 +87,9 @@ public final class RMIContentImpl extends UnicastRemoteObject implements RMICont
 	public String remoteToString() throws RemoteException {
 		return content.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return content.equals(o);
+	}
 }

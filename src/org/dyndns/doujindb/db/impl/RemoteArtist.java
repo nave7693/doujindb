@@ -201,4 +201,13 @@ final class RemoteArtist implements Record, Artist, Serializable, Comparable<Art
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			return remoteArtist.remoteEquals(obj);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

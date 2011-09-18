@@ -112,4 +112,9 @@ public final class RMICircleImpl extends UnicastRemoteObject implements RMICircl
 	public String remoteToString() throws RemoteException {
 		return circle.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return circle.equals(o);
+	}
 }

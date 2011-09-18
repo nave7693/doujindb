@@ -173,4 +173,13 @@ final class RemoteParody implements Record, Parody, Serializable, Comparable<Par
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			return remoteParody.remoteEquals(obj);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

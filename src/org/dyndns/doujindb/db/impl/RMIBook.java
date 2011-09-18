@@ -57,4 +57,5 @@ public interface RMIBook extends Remote
 	public void doRecycle() throws RemoteException;
 	public int compareTo(Book o) throws RemoteException;
 	public String remoteToString() throws RemoteException;
+	public boolean remoteEquals(Object o) throws RemoteException;
 }

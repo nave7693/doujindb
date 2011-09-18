@@ -29,4 +29,5 @@ public interface RMIConvention extends Remote
 	public void doRecycle() throws RemoteException;
 	public int compareTo(Convention o) throws RemoteException;
 	public String remoteToString() throws RemoteException;
+	public boolean remoteEquals(Object o) throws RemoteException;
 }

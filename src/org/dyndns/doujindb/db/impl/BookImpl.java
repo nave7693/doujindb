@@ -3,6 +3,8 @@ package org.dyndns.doujindb.db.impl;
 import java.io.*;
 import java.util.*;
 
+import org.apache.cayenne.exp.ExpressionFactory;
+import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -225,7 +227,11 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		if(convention == null)
 			return;
-		((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Convention.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteConvention)convention).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Convention refConvention = (org.dyndns.doujindb.db.cayenne.Convention) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof(refConvention);
 	}
 
 	@Override
@@ -257,19 +263,23 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		if(getArtists().contains(artist))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Book)ref).addToArtists(
-			(org.dyndns.doujindb.db.cayenne.Artist)
-			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
-		);
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Artist.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteArtist)artist).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Artist refArtist = (org.dyndns.doujindb.db.cayenne.Artist) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToArtists(refArtist);
 	}
 
 	@Override
 	public void removeArtist(Artist artist) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(
-			(org.dyndns.doujindb.db.cayenne.Artist)
-			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
-		);
+		if(!getArtists().contains(artist))
+			return;
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Artist.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteArtist)artist).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Artist refArtist = (org.dyndns.doujindb.db.cayenne.Artist) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(refArtist);
 	}
 
 	@Override
@@ -277,10 +287,11 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		if(getContents().contains(content))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Book)ref).addToContents(
-			(org.dyndns.doujindb.db.cayenne.Content)
-			((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
-		);
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Content.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteContent)content).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Content refContent = (org.dyndns.doujindb.db.cayenne.Content) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToContents(refContent);
 	}
 
 	@Override
@@ -288,34 +299,42 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		if(getParodies().contains(parody))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Book)ref).addToParodies(
-			(org.dyndns.doujindb.db.cayenne.Parody)
-			((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
-		);
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Parody.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteParody)parody).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Parody refParody = (org.dyndns.doujindb.db.cayenne.Parody) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToParodies(refParody);
 	}
 
 	@Override
 	public void removeContent(Content content) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(
-				(org.dyndns.doujindb.db.cayenne.Content)
-				((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
-			);
+		if(!getContents().contains(content))
+			return;
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Content.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteContent)content).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Content refContent = (org.dyndns.doujindb.db.cayenne.Content) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(refContent);
 	}
 
 	@Override
 	public void removeParody(Parody parody) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(
-				(org.dyndns.doujindb.db.cayenne.Parody)
-				((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
-			);
+		if(!getParodies().contains(parody))
+			return;
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Parody.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteParody)parody).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Parody refParody = (org.dyndns.doujindb.db.cayenne.Parody) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(refParody);
 	}
 	
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "B" + super.getID();
+		//return "B" + super.getID();
+		return "B" + ((org.dyndns.doujindb.db.cayenne.Book)ref).getID();
 	}
 	
 	@Override

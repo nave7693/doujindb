@@ -124,4 +124,9 @@ public final class RMIArtistImpl extends UnicastRemoteObject implements RMIArtis
 	public String remoteToString() throws RemoteException {
 		return artist.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return artist.equals(o);
+	}
 }

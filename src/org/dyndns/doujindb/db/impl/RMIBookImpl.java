@@ -234,4 +234,9 @@ public final class RMIBookImpl extends UnicastRemoteObject implements RMIBook
 	public String remoteToString() throws RemoteException {
 		return book.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return book.equals(o);
+	}
 }

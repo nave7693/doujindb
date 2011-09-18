@@ -136,4 +136,13 @@ final class RemoteContent implements Record, Content, Serializable, Comparable<C
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			return remoteContent.remoteEquals(obj);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

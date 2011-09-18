@@ -403,4 +403,13 @@ final class RemoteBook implements Record, Book, Serializable, Comparable<Book>
 			throw new DataBaseException("RemoteException " + re);
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		try {
+			return remoteBook.remoteEquals(obj);
+		} catch (RemoteException re) {
+			throw new DataBaseException("RemoteException " + re);
+		}
+	}
 }

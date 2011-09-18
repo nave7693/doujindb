@@ -23,6 +23,10 @@ public abstract class _Parody extends CayenneDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
+    public Integer getID() {
+    	return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
+    }
+    
     public void setJapaneseName(String japaneseName) {
         writeProperty("japaneseName", japaneseName);
     }

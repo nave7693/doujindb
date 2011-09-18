@@ -107,4 +107,9 @@ public final class RMIParodyImpl extends UnicastRemoteObject implements RMIParod
 	public String remoteToString() throws RemoteException {
 		return parody.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return parody.equals(o);
+	}
 }

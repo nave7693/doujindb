@@ -21,6 +21,10 @@ public abstract class _Content extends CayenneDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
+    public Integer getID() {
+    	return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
+    }
+    
     public void setInfo(String info) {
         writeProperty("info", info);
     }

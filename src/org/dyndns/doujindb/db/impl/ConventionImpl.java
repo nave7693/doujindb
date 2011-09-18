@@ -3,6 +3,8 @@ package org.dyndns.doujindb.db.impl;
 import java.io.*;
 import java.util.*;
 
+import org.apache.cayenne.exp.ExpressionFactory;
+import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -76,25 +78,30 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	{
 		if(getBooks().contains(book))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(
-			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-		);
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Book.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(refBook);
 	}
 
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
-			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-		);
+		if(!getBooks().contains(book))
+			return;
+		SelectQuery select = new SelectQuery(
+				org.dyndns.doujindb.db.cayenne.Book.class,
+				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
+		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(refBook);
 	}
 	
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "E" + super.getID();
+		//return "E" + super.getID();
+		return "E" + ((org.dyndns.doujindb.db.cayenne.Convention)ref).getID();
 	}
 	
 	@Override

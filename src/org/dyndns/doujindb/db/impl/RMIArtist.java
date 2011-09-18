@@ -33,4 +33,5 @@ public interface RMIArtist extends Remote
 	public void doRecycle() throws RemoteException;
 	public int compareTo(Artist o) throws RemoteException;
 	public String remoteToString() throws RemoteException;
+	public boolean remoteEquals(Object o) throws RemoteException;
 }

@@ -26,4 +26,5 @@ public interface RMIContent extends Remote
 	public void doRecycle() throws RemoteException;
 	public int compareTo(Content o) throws RemoteException;
 	public String remoteToString() throws RemoteException;
+	public boolean remoteEquals(Object o) throws RemoteException;
 }

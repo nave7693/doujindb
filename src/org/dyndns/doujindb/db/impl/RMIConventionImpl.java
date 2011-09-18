@@ -98,4 +98,9 @@ public final class RMIConventionImpl extends UnicastRemoteObject implements RMIC
 	public String remoteToString() throws RemoteException {
 		return convention.toString();
 	}
+	
+	@Override
+	public boolean remoteEquals(Object o) throws RemoteException {
+		return convention.equals(o);
+	}
 }

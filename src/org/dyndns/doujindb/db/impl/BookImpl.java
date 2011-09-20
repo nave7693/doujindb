@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.apache.cayenne.exp.ExpressionFactory;
@@ -71,7 +72,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
 			if(!r.getRecycled())
-				set.add(new ArtistImpl(r));
+				try { set.add(new RemoteArtist(new RMIArtistImpl(new ArtistImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Artist>(set);
 	}
 
@@ -92,7 +93,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 					if(!c.getRecycled())
 						result.add(c);
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
-			set.add(new CircleImpl(r));
+			try { set.add(new RemoteCircle(new RMICircleImpl(new CircleImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Circle>(set);
 	}
 
@@ -103,7 +104,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
 		for(org.dyndns.doujindb.db.cayenne.Parody r : result)
 			if(!r.getRecycled())
-				set.add(new ParodyImpl(r));
+				try { set.add(new RemoteParody(new RMIParodyImpl(new ParodyImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Parody>(set);
 	}
 
@@ -198,7 +199,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
 		for(org.dyndns.doujindb.db.cayenne.Content r : result)
 			if(!r.getRecycled())
-				set.add(new ContentImpl(r));
+				try { set.add(new RemoteContent(new RMIContentImpl(new ContentImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Content>(set);
 	}
 
@@ -219,7 +220,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		if(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof() == null)
 			return null;
-		return new ConventionImpl(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof());
+		try { return new RemoteConvention(new RMIConventionImpl(new ConventionImpl(((org.dyndns.doujindb.db.cayenne.Book)ref).getConventionof()))); } catch (RemoteException re) { return null; }
 	}
 
 	@Override

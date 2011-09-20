@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.apache.cayenne.exp.ExpressionFactory;
@@ -50,7 +51,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+			try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Book>(set);
 	}
 	

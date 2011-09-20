@@ -19,6 +19,7 @@ public class RMIDataSourceImpl extends UnicastRemoteObject implements RMIDataSou
 
 	public RMIDataSourceImpl(DataSource ds) throws RemoteException
 	{
+		super(1099);
 		this.ds = ds;
 	}
 	

@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.apache.cayenne.exp.ExpressionFactory;
@@ -75,7 +76,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
 			if(!r.getRecycled())
-				set.add(new ArtistImpl(r));
+				try { set.add(new RemoteArtist(new RMIArtistImpl(new ArtistImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Artist>(set);
 	}
 
@@ -96,7 +97,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 					if(!b.getRecycled())
 						result.add(b);
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+			try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Book>(set);
 	}
 	

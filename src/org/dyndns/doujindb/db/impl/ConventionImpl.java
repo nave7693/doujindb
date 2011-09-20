@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import org.apache.cayenne.exp.ExpressionFactory;
@@ -63,7 +64,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			if(!r.getRecycled())
-				set.add(new BookImpl(r));
+				try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
 		return new RecordSetImpl<Book>(set);
 	}
 

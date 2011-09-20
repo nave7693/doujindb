@@ -18,6 +18,7 @@ public class RMIDataStoreImpl extends UnicastRemoteObject implements RMIDataStor
 
 	public RMIDataStoreImpl(DataStore ds) throws RemoteException
 	{
+		super(1099);
 		this.ds = ds;
 	}
 	

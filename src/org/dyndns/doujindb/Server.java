@@ -34,6 +34,7 @@ public final class Server
 				try
 				{
 					java.rmi.registry.LocateRegistry.createRegistry(port);
+					System.setProperty("java.rmi.server.hostname", "doujindb.dyndns.org");
 					Core.Logger.log("RMI Registry loaded.", Level.INFO);
 				} catch (RemoteException re) {
 					re.printStackTrace();

@@ -13,6 +13,7 @@ public class RMIInputStreamImpl extends UnicastRemoteObject implements RMIInputS
 
 	public RMIInputStreamImpl(InputStream in) throws RemoteException
 	{
+		super(1099);
 		this.in = in;
 	}
 

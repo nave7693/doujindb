@@ -11,6 +11,7 @@ public class RMIOutputStreamImpl extends UnicastRemoteObject implements RMIOutpu
 
 	public RMIOutputStreamImpl(OutputStream out) throws RemoteException
 	{
+		super(1099);
 		this.out = out;
 	}
 

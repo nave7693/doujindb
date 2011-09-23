@@ -1,11 +1,8 @@
 package org.dyndns.doujindb;
 
-import java.rmi.*;
-import java.net.*;
 
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.dat.impl.*;
-import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.impl.*;
 
@@ -38,33 +35,35 @@ public final class Client
 	{
 		if(DB != null)
 			throw new RuntimeException("Client already connected.");
-        try { 
-        	DB = new RemoteDataBase(
-        				(RMIDataBase)
-        					Naming.lookup(
-        							"rmi://" + host + ":" + port + "/DataBase")
-        						);
-//        	DB = (DataBase)
+		DB = new DataBaseImpl();
+		DS = new DataStoreImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
+//        try { 
+////        	DB = new RemoteDataBase(
+////        				(RMIDataBase)
+////        					Naming.lookup(
+////        							"rmi://" + host + ":" + port + "/DataBase")
+////        						);
+////        	DB = (DataBase)
+////        					Naming.lookup(
+////        							"rmi://" + host + ":" + port + "/DataBase");
+//        	
+//        	DS = new RemoteDataStore(
+//        				(RMIDataStore)
 //        					Naming.lookup(
-//        							"rmi://" + host + ":" + port + "/DataBase");
-        	
-        	DS = new RemoteDataStore(
-        				(RMIDataStore)
-        					Naming.lookup(
-        							"rmi://" + host + ":" + port + "/DataStore")
-        						);
-        } 
-        catch (MalformedURLException murle) { 
-            throw new RuntimeException(murle.getMessage());
-        } 
-        catch (NotBoundException nbe) { 
-        	throw new RuntimeException(nbe.getMessage());
-        } 
-        catch (java.lang.ArithmeticException ae) { 
-        	throw new RuntimeException(ae.getMessage());
-        } catch (RemoteException re) {
-        	throw new RuntimeException(re.getMessage());
-		}
+//        							"rmi://" + host + ":" + port + "/DataStore")
+//        						);
+//        } 
+//        catch (MalformedURLException murle) { 
+//            throw new RuntimeException(murle.getMessage());
+//        } 
+//        catch (NotBoundException nbe) { 
+//        	throw new RuntimeException(nbe.getMessage());
+//        } 
+//        catch (java.lang.ArithmeticException ae) { 
+//        	throw new RuntimeException(ae.getMessage());
+//        } catch (RemoteException re) {
+//        	throw new RuntimeException(re.getMessage());
+//		}
 	}
 	
 	public static void disconnect() throws RuntimeException

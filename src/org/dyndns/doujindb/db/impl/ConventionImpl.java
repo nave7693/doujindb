@@ -1,11 +1,8 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import org.apache.cayenne.exp.ExpressionFactory;
-import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -15,10 +12,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 
 	public ConventionImpl(org.dyndns.doujindb.db.cayenne.Convention ref) throws DataBaseException
 	{
-		if(ref == null)
-			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
-		doRestore();
 	}
 
 	@Override
@@ -64,7 +58,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			if(!r.getRecycled())
-				try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 
@@ -79,30 +73,25 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	{
 		if(getBooks().contains(book))
 			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Book.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(refBook);
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		if(!getBooks().contains(book))
-			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Book.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(refBook);
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 	
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		//return "E" + super.getID();
-		return "E" + ((org.dyndns.doujindb.db.cayenne.Convention)ref).getID();
+		return "E" + super.getID();
 	}
 	
 	@Override

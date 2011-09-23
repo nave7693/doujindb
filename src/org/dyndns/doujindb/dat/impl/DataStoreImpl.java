@@ -1,13 +1,12 @@
 package org.dyndns.doujindb.dat.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
-import org.dyndns.doujindb.dat.rmi.*;
+//import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.log.Level;
 
 /** 
@@ -23,7 +22,7 @@ public final class DataStoreImpl implements DataStore, Serializable
 	
 	private File DsRoot;
 	
-	public DataStoreImpl(File root) throws RemoteException
+	public DataStoreImpl(File root)// throws RemoteException
 	{
 		this.DsRoot = root;
 	}
@@ -35,11 +34,12 @@ public final class DataStoreImpl implements DataStore, Serializable
 		if(DsRoot.listFiles() == null)
 			return ds;
 		for(File child : DsRoot.listFiles())
-			try {
-				ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
-			} catch (RemoteException re) {
-				throw new DataStoreException(re);
-			}
+//			try {
+//				ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
+//			} catch (RemoteException re) {
+//				throw new DataStoreException(re);
+//			}
+			ds.add(new DataSourceImpl(child));
 		return ds;
 	}
 
@@ -47,11 +47,12 @@ public final class DataStoreImpl implements DataStore, Serializable
 	public DataSource child(String name) throws DataStoreException
 	{
 		File file = new File(DsRoot, name);
-		try {
-			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-		} catch (RemoteException re) {
-			throw new DataStoreException(re);
-		}
+//		try {
+//			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+//		} catch (RemoteException re) {
+//			throw new DataStoreException(re);
+//		}
+		return new DataSourceImpl(file);
 	}
 	
 	@Override
@@ -85,22 +86,24 @@ public final class DataStoreImpl implements DataStore, Serializable
 	public DataSource getMetadata(String ID) throws DataStoreException
 	{
 		File file = new File(DsRoot, METADATA);
-		try {
-			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-		} catch (RemoteException re) {
-			throw new DataStoreException(re);
-		}
+//		try {
+//			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+//		} catch (RemoteException re) {
+//			throw new DataStoreException(re);
+//		}
+		return new DataSourceImpl(file);
 	}
 
 	@Override
 	public DataSource getPreview(String ID) throws DataStoreException
 	{
 		File file = new File(DsRoot, PREVIEW);
-		try {
-			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-		} catch (RemoteException re) {
-			throw new DataStoreException(re);
-		}
+//		try {
+//			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+//		} catch (RemoteException re) {
+//			throw new DataStoreException(re);
+//		}
+		return new DataSourceImpl(file);
 	}
 	
 	private final class DataSourceImpl implements DataSource, Comparable<DataSource>
@@ -156,14 +159,19 @@ public final class DataStoreImpl implements DataStore, Serializable
 		{
 			if(isDirectory())
 				return null;
-			try
-			{
-				return new RemoteInputStream(new RMIInputStreamImpl(new FileInputStream(DsFile)));
-				//return new FileInputStream(DsFile);
+//			try
+//			{
+//				return new RemoteInputStream(new RMIInputStreamImpl(new FileInputStream(DsFile)));
+//				//return new FileInputStream(DsFile);
+//			} catch (FileNotFoundException fnfe) {
+//				throw new DataStoreException(fnfe);
+//			} catch (RemoteException re) {
+//				throw new DataStoreException(re);
+//			}
+			try {
+				return new FileInputStream(DsFile);
 			} catch (FileNotFoundException fnfe) {
 				throw new DataStoreException(fnfe);
-			} catch (RemoteException re) {
-				throw new DataStoreException(re);
 			}
 		}
 
@@ -172,14 +180,19 @@ public final class DataStoreImpl implements DataStore, Serializable
 		{
 			if(isDirectory())
 				return null;
-			try
-			{
-				return new RemoteOutputStream(new RMIOutputStreamImpl(new FileOutputStream(DsFile)));
-				//return new FileOutputStream(DsFile);
+//			try
+//			{
+//				return new RemoteOutputStream(new RMIOutputStreamImpl(new FileOutputStream(DsFile)));
+//				//return new FileOutputStream(DsFile);
+//			} catch (FileNotFoundException fnfe) {
+//				throw new DataStoreException(fnfe);
+//			} catch (RemoteException re) {
+//				throw new DataStoreException(re);
+//			}
+			try {
+				return new FileOutputStream(DsFile);
 			} catch (FileNotFoundException fnfe) {
 				throw new DataStoreException(fnfe);
-			} catch (RemoteException re) {
-				throw new DataStoreException(re);
 			}
 		}
 
@@ -190,11 +203,12 @@ public final class DataStoreImpl implements DataStore, Serializable
 			if(DsFile.listFiles() == null)
 				return ds;
 			for(File child : DsFile.listFiles())
-				try {
-					ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
-				} catch (RemoteException re) {
-					throw new DataStoreException(re);
-				}
+//				try {
+//					ds.add(new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(child))));
+//				} catch (RemoteException re) {
+//					throw new DataStoreException(re);
+//				}
+				ds.add(new DataSourceImpl(child));
 			return ds;
 		}
 		
@@ -206,11 +220,12 @@ public final class DataStoreImpl implements DataStore, Serializable
 			if(!new File(DsFile, name).getParentFile().equals(DsFile))
 				throw new DataStoreException("Specified file name '" + name + "' is not valid.");
 			File file = new File(DsFile, name);
-			try {
-				return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-			} catch (RemoteException re) {
-				throw new DataStoreException(re);
-			}
+//			try {
+//				return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
+//			} catch (RemoteException re) {
+//				throw new DataStoreException(re);
+//			}
+			return new DataSourceImpl(file);
 		}
 
 		@Override
@@ -288,17 +303,19 @@ public final class DataStoreImpl implements DataStore, Serializable
 		public DataSource getParent() throws DataStoreException
 		{
 			if(!DsFile.equals(DsRoot))
-				try {
-					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile.getParentFile())));
-				} catch (RemoteException re) {
-					throw new DataStoreException(re);
-				}
+//				try {
+//					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile.getParentFile())));
+//				} catch (RemoteException re) {
+//					throw new DataStoreException(re);
+//				}
+				return new DataSourceImpl(DsFile.getParentFile());
 			else
-				try {
-					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile)));
-				} catch (RemoteException re) {
-					throw new DataStoreException(re);
-				}
+//				try {
+//					return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(DsFile)));
+//				} catch (RemoteException re) {
+//					throw new DataStoreException(re);
+//				}
+				return new DataSourceImpl(DsFile);
 		}
 
 		@Override

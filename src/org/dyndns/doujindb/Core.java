@@ -76,9 +76,6 @@ public final class Core implements Runnable
 		}
 		Core.Logger.log("System resources loaded.", Level.INFO);
 		
-		new Server();
-		new Client();
-		
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
 			Core.Logger.log("DataStore folder is the temporary system folder.", Level.WARNING);
 		Core.Logger.log("DataStore loaded.", Level.INFO);

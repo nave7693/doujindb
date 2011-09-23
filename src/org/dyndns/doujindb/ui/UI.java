@@ -826,7 +826,12 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
+							for(Artist a : Client.DB.getArtists(null))
+								System.out.println(a.getJapaneseName() + " (" +a.isRecycled()+ ")");
 							Client.DB.doCommit();
+							for(Artist a : Client.DB.getArtists(null))
+								System.out.println(a.getJapaneseName() + " (" +a.isRecycled()+ ")");
+							
 						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
@@ -933,8 +938,8 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						//Client.connect();
-						Client.connect("doujindb.dyndns.org", 1099);
+						Client.connect();
+						//Client.connect("doujindb.dyndns.org", 1099);
 						/*try {
 							Client.connect(java.net.InetAddress.getLocalHost().getHostAddress(), 1099);
 						} catch (UnknownHostException e) {

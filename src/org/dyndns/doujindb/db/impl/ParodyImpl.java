@@ -1,11 +1,8 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import org.apache.cayenne.exp.ExpressionFactory;
-import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -15,10 +12,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 
 	public ParodyImpl(org.dyndns.doujindb.db.cayenne.Parody ref) throws DataBaseException
 	{
-		if(ref == null)
-			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
-		doRestore();
 	}
 
 	@Override
@@ -76,7 +70,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			if(!r.getRecycled())
-				try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 
@@ -94,30 +88,25 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	{
 		if(getBooks().contains(book))
 			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Book.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).addToBooks(refBook);
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).addToBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		if(!getBooks().contains(book))
-			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Book.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteBook)book).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Book refBook = (org.dyndns.doujindb.db.cayenne.Book) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(refBook);
+		((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
 	}
 	
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		//return "P" + super.getID();
-		return "P" + ((org.dyndns.doujindb.db.cayenne.Parody)ref).getID();
+		return "P" + super.getID();
 	}
 	
 	@Override

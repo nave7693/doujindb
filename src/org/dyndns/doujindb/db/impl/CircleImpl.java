@@ -1,11 +1,8 @@
 package org.dyndns.doujindb.db.impl;
 
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import org.apache.cayenne.exp.ExpressionFactory;
-import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -15,10 +12,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 
 	public CircleImpl(org.dyndns.doujindb.db.cayenne.Circle ref) throws DataBaseException
 	{
-		if(ref == null)
-			throw new IllegalArgumentException("CayenneDataObject reference can't be null.");
 		this.ref = ref;
-		doRestore();
 	}
 
 	@Override
@@ -76,7 +70,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
 			if(!r.getRecycled())
-				try { set.add(new RemoteArtist(new RMIArtistImpl(new ArtistImpl(r)))); } catch (RemoteException re) { }
+				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
 
@@ -97,7 +91,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 					if(!b.getRecycled())
 						result.add(b);
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			try { set.add(new RemoteBook(new RMIBookImpl(new BookImpl(r)))); } catch (RemoteException re) { }
+			set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 	
@@ -115,30 +109,25 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	{
 		if(getArtists().contains(artist))
 			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Artist.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteArtist)artist).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Artist refArtist = (org.dyndns.doujindb.db.cayenne.Artist) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Circle)ref).addToArtists(refArtist);
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).addToArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
 	}
 
 	@Override
 	public void removeArtist(Artist artist) throws DataBaseException
 	{
-		if(!getArtists().contains(artist))
-			return;
-		SelectQuery select = new SelectQuery(
-				org.dyndns.doujindb.db.cayenne.Artist.class,
-				ExpressionFactory.inDbExp("ID", ((RemoteArtist)artist).getID().substring(1)));
-		org.dyndns.doujindb.db.cayenne.Artist refArtist = (org.dyndns.doujindb.db.cayenne.Artist) DataBaseImpl.context.performQuery(select).get(0);
-		((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(refArtist);
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(
+			(org.dyndns.doujindb.db.cayenne.Artist)
+			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+		);
 	}
 	
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		//return "C" + super.getID();
-		return "C" + ((org.dyndns.doujindb.db.cayenne.Circle)ref).getID();
+		return "C" + super.getID();
 	}
 	
 	@Override

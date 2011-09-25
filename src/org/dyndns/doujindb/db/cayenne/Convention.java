@@ -6,6 +6,9 @@ import org.dyndns.doujindb.db.cayenne.auto._Convention;
 public class Convention extends _Convention {
 	@Override
 	protected void postAdd() {
+		super.setTagName("");
+		super.setInfo("");
+		super.setWeblink("");
 		super.setRecycled(false);
 	}
 }

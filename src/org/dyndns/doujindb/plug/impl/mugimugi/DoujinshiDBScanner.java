@@ -136,18 +136,18 @@ public final class DoujinshiDBScanner implements Plugin
 	@SuppressWarnings("unused")
 	private final static class XMLParser
 	{
-		public static XML_User parseUser(InputStream src) throws Exception
+		public static XML_User parseUser(InputStream in) throws Exception
 		{
 			XML_List list;
 			JAXBContext context = JAXBContext.newInstance(XML_List.class);
 			Unmarshaller um = context.createUnmarshaller();
-			list = (XML_List) um.unmarshal(src);
+			list = (XML_List) um.unmarshal(in);
 			return list.USER;
 		}
 		
 		public static Book parseXML(InputStream in) throws DataBaseException
 		{
-			Hashtable<String, Set<Record>> imported = readXMLBook(in);
+			Hashtable<String, Set<Record>> imported = readXML(in);
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").iterator().next();
@@ -190,9 +190,9 @@ public final class DoujinshiDBScanner implements Plugin
 			    @XmlElement(name="BOOK", type=XML_Book.class)
 			  })
 			private List<XML_Book> Books = new Vector<XML_Book>();
-			@XmlElement(required=false)
+			@XmlElement(name="USER", required=false)
 			private XML_User USER;
-			@XmlElement(required=false)
+			@XmlElement(name="ERROR", required=false)
 			private XML_Error ERROR;
 		}
 		
@@ -203,36 +203,36 @@ public final class DoujinshiDBScanner implements Plugin
 			private String ID = "";
 			@XmlAttribute(name="VER", required=true)
 			private int VER;
-			@XmlAttribute(required=false)
+			@XmlAttribute(name="search", required=false)
 			private String search;
 			
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_EN", required=false)
 			private String NAME_EN;
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_JP", required=false)
 			private String NAME_JP;
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_R", required=false)
 			private String NAME_R;
 			@XmlElements({
 			    @XmlElement(name="NAME_ALT", type=String.class)
 			  })
 			private List<String> NAME_ALT = new Vector<String>();
-			@XmlElement(required=false)
+			@XmlElement(name="DATE_RELEASED", required=false)
 			private Date DATE_RELEASED;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_ISBN", required=false)
 			private String DATA_ISBN;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_PAGES", required=false)
 			private int DATA_PAGES;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_AGE", required=false)
 			private int DATA_AGE;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_ANTHOLOGY", required=false)
 			private int DATA_ANTHOLOGY;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_LANGUAGE", required=false)
 			private int DATA_LANGUAGE;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_COPYSHI", required=false)
 			private int DATA_COPYSHI;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_MAGAZINE", required=false)
 			private int DATA_MAGAZINE;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_INFO", required=false)
 			private String DATA_INFO;
 			
 			@XmlElement(required=true)
@@ -242,58 +242,59 @@ public final class DoujinshiDBScanner implements Plugin
 		@XmlRootElement(namespace = "", name="LINKS")
 		private static final class XML_Links
 		{
-			@XmlElement(required=false)
+			@XmlElements({
+			    @XmlElement(name="ITEM", type=XML_Item.class)
+			  })
 			private List<XML_Item> Items = new Vector<XML_Item>();
 		}
 		
 		@XmlRootElement(namespace = "", name="USER")
 		private static final class XML_User
 		{
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="id", required=true)
 			private String id;
-			@XmlElement(required=true)
+			@XmlElement(name="User", required=true)
 			private String User;
-			@XmlElement(required=true)
+			@XmlElement(name="Queries", required=true)
 			private int Queries;
-			@XmlElement(required=true)
+			@XmlElement(name="Image_Queries", required=true)
 			private int Image_Queries;
 		}
 		
 		@XmlRootElement(namespace = "", name="ITEM")
 		private static final class XML_Item
 		{
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="ID", required=true)
 			private String ID;
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="VER", required=true)
 			private int VER;
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="TYPE", required=true)
 			private XML_Type TYPE;
-			@XmlAttribute(required=false)
+			@XmlAttribute(name="PARENT", required=false)
 			private String PARENT;
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="FRQ", required=true)
 			private int FRQ;
 			
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_EN", required=false)
 			private String NAME_EN;
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_JP", required=false)
 			private String NAME_JP;
-			@XmlElement(required=false)
+			@XmlElement(name="NAME_R", required=false)
 			private String NAME_R;
-			@XmlElement(required=false)
+			@XmlElement(name="OBJECTS", required=false)
 			private int OBJECTS;
 			@XmlElements({
 			    @XmlElement(name="NAME_ALT", type=String.class)
 			  })
 			private List<String> NAME_ALT = new Vector<String>();
-			@XmlElement(required=false)
+			@XmlElement(name="DATE_START", required=false)
 			private Date DATE_START;
-			@XmlElement(required=false)
+			@XmlElement(name="DATE_END", required=false)
 			private Date DATE_END;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_AGE", required=false)
 			private int DATA_SEX;
-			@XmlElement(required=false)
+			@XmlElement(name="DATA_AGE", required=false)
 			private String DATA_AGE;
-			
 		}
 		
 		private enum XML_Type
@@ -309,68 +310,20 @@ public final class DoujinshiDBScanner implements Plugin
 			collections,
 			publisher,
 			imprint
-
 		}
 		
 		@XmlRootElement(namespace = "", name="ERROR")
 		private static final class XML_Error
 		{
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="code", required=true)
 			private int code;
 			
-			@XmlElement(required=false)
+			@XmlElement(name="TYPE", required=false)
 			private String TYPE;
-			@XmlElement(required=false)
+			@XmlElement(name="EXACT", required=false)
 			private String EXACT;
-			@XmlElement(required=false)
+			@XmlElement(name="CODE", required=false)
 			private int CODE;
-		}
-		
-		@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.xml", name="Doujin")
-		private static final class XMLBook
-		{
-			@XmlElement(required=true)
-			private String JapaneseName;
-			@XmlElement(required=false)
-			private String TranslatedName = "";
-			@XmlElement(required=false)
-			private String RomanjiName = "";
-			@XmlElement(required=false)
-			private String Convention = "";
-			@XmlElement(required=false)
-			private Date Released;
-			@XmlElement(required=false)
-			private Type Type;
-			@XmlElement(required=false)
-			private int Pages;
-			@XmlElement(required=false)
-			private boolean Adult;
-			@XmlElement(required=false)
-			private boolean Decensored;
-			@XmlElement(required=false)
-			private boolean Translated;
-			@XmlElement(required=false)
-			private boolean Colored;
-			@XmlElement(required=false)
-			private Rating Rating;
-			@XmlElement(required=false)
-			private String Info;
-			@XmlElements({
-			    @XmlElement(name="Artist", type=String.class)
-			  })
-			private List<String> artists = new Vector<String>();
-			@XmlElements({
-			    @XmlElement(name="Circle", type=String.class)
-			  })
-			private List<String> circles = new Vector<String>();
-			@XmlElements({
-			    @XmlElement(name="Parody", type=String.class)
-			  })
-			private List<String> parodies = new Vector<String>();
-			@XmlElements({
-			    @XmlElement(name="Content", type=String.class)
-			  })
-			private List<String> contents = new Vector<String>();
 		}
 	}
 	
@@ -1146,9 +1099,9 @@ public final class DoujinshiDBScanner implements Plugin
 									throw new Exception("No query matched the threshold.");
 								}
 								XMLParser.XML_Book book  = books.get(better_result);
-								doujin.JapaneseName = book.NAME_JP;
-								doujin.TranslatedName = book.NAME_EN;
-								doujin.RomanjiName = book.NAME_R;
+								doujin.japaneseName = book.NAME_JP;
+								doujin.translatedName = book.NAME_EN;
+								doujin.romanjiName = book.NAME_R;
 								doujin.Released = book.DATE_RELEASED;
 								doujin.Pages = book.DATA_PAGES;
 								doujin.Adult = true;
@@ -1288,7 +1241,7 @@ public final class DoujinshiDBScanner implements Plugin
 
 			private File findFirstFile(File directory)
 			{
-				for(File file : directory.listFiles(
+				File[] files = directory.listFiles(
 						new FilenameFilter()
 						{
 							@Override
@@ -1296,7 +1249,16 @@ public final class DoujinshiDBScanner implements Plugin
 							{
 								return !(new File(dir, fname).isHidden());
 							}
-						}))
+						});
+				Arrays.sort(files, new Comparator<File>()
+				{
+					@Override
+					public int compare(File f1, File f2)
+					{
+						return f1.getName().compareTo(f2.getName());
+					}
+				});				
+				for(File file : files)
 					if(file.isFile())
 						return file;
 					else
@@ -1430,7 +1392,7 @@ public final class DoujinshiDBScanner implements Plugin
 		}
 	}
 	
-	private static Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException
+	private static Hashtable<String, Set<Record>> readXML(InputStream in) throws DataBaseException
 	{
 		XMLBook doujin;
 		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
@@ -1444,16 +1406,16 @@ public final class DoujinshiDBScanner implements Plugin
 		{
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Unmarshaller um = context.createUnmarshaller();
-			doujin = (XMLBook) um.unmarshal(src);
+			doujin = (XMLBook) um.unmarshal(in);
 		} catch (Exception e) {
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
 		Book book = Client.DB.child(getUUID()).doInsert(Book.class);
-		book.setJapaneseName(doujin.JapaneseName);
+		book.setJapaneseName(doujin.japaneseName);
 		book.setType(doujin.Type);
-		book.setTranslatedName(doujin.TranslatedName);
-		book.setRomanjiName(doujin.RomanjiName);
+		book.setTranslatedName(doujin.translatedName);
+		book.setRomanjiName(doujin.romanjiName);
 		book.setDate(doujin.Released);
 		book.setType(doujin.Type);
 		book.setPages(doujin.Pages);
@@ -1550,51 +1512,52 @@ public final class DoujinshiDBScanner implements Plugin
 		return parsed;
 	}
 	
-	@SuppressWarnings("unused")
-	private static void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
-	{
-		XMLBook doujin = new XMLBook();
-		doujin.JapaneseName = book.getJapaneseName();
-		doujin.TranslatedName = book.getTranslatedName();
-		doujin.RomanjiName = book.getRomanjiName();
-		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
-		doujin.Released = book.getDate();
-		doujin.Type = book.getType();
-		doujin.Pages = book.getPages();
-		doujin.Adult = book.isAdult();
-		doujin.Decensored = book.isDecensored();
-		doujin.Colored = book.isColored();
-		doujin.Translated = book.isTranslated();
-		doujin.Rating = book.getRating();
-		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists())
-			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles())
-			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies())
-			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents())
-			doujin.contents.add(ct.getTagName());
-		try
-		{
-			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(doujin, dest);
-		} catch (Exception e) {
-			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-		}
-	}
+	//TODO
+//	@SuppressWarnings("unused")
+//	private static void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
+//	{
+//		XMLBook doujin = new XMLBook();
+//		doujin.japaneseName = book.getJapaneseName();
+//		doujin.translatedName = book.getTranslatedName();
+//		doujin.romanjiName = book.getRomanjiName();
+//		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
+//		doujin.Released = book.getDate();
+//		doujin.Type = book.getType();
+//		doujin.Pages = book.getPages();
+//		doujin.Adult = book.isAdult();
+//		doujin.Decensored = book.isDecensored();
+//		doujin.Colored = book.isColored();
+//		doujin.Translated = book.isTranslated();
+//		doujin.Rating = book.getRating();
+//		doujin.Info = book.getInfo();
+//		for(Artist a : book.getArtists())
+//			doujin.artists.add(a.getJapaneseName());
+//		for(Circle c : book.getCircles())
+//			doujin.circles.add(c.getJapaneseName());
+//		for(Parody p : book.getParodies())
+//			doujin.parodies.add(p.getJapaneseName());
+//		for(Content ct : book.getContents())
+//			doujin.contents.add(ct.getTagName());
+//		try
+//		{
+//			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
+//			Marshaller m = context.createMarshaller();
+//			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+//			m.marshal(doujin, dest);
+//		} catch (Exception e) {
+//			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+//		}
+//	}
 	
-	@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.xml", name="Doujin")
+	@XmlRootElement(name="Doujin")
 	private static final class XMLBook
 	{
 		@XmlElement(required=true)
-		private String JapaneseName;
+		private String japaneseName = "";
 		@XmlElement(required=false)
-		private String TranslatedName = "";
+		private String translatedName = "";
 		@XmlElement(required=false)
-		private String RomanjiName = "";
+		private String romanjiName = "";
 		@XmlElement(required=false)
 		private String Convention = "";
 		@XmlElement(required=false)

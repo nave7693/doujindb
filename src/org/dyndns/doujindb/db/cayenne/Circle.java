@@ -6,6 +6,10 @@ import org.dyndns.doujindb.db.cayenne.auto._Circle;
 public class Circle extends _Circle {
 	@Override
 	protected void postAdd() {
+		super.setJapaneseName("");
+		super.setTranslatedName("");
+		super.setRomanjiName("");
+		super.setWeblink("");
 		super.setRecycled(false);
 	}
 }

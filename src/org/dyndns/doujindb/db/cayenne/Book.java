@@ -10,6 +10,10 @@ import org.dyndns.doujindb.db.records.Book.Type;
 public class Book extends _Book {
 	@Override
 	protected void postAdd() {
+		super.setJapaneseName("");
+		super.setTranslatedName("");
+		super.setRomanjiName("");
+		super.setInfo("");
 		super.setRating(Rating.UNRATED);
 		super.setType(Type.同人誌);
 		super.setAdult(true);

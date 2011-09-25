@@ -6,6 +6,8 @@ import org.dyndns.doujindb.db.cayenne.auto._Content;
 public class Content extends _Content {
 	@Override
 	protected void postAdd() {
+		super.setTagName("");
+		super.setInfo("");
 		super.setRecycled(false);
 	}
 }

@@ -10,8 +10,6 @@ import javax.swing.Icon;
 */
 public interface Plugin
 {
-	public String getUUID();
-	
 	public Icon getIcon();
 	
 	public String getName();

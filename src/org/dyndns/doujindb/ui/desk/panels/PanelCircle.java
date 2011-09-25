@@ -66,6 +66,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		textWeblink.setFont(font);
 		labelBanner = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
 		labelBanner.setName("no-banner");
+		if(tokenCircle.getID() == null)
+			labelBanner.setEnabled(false);
+		else
 		try
 		{
 			DataSource ds = Client.DS.child(tokenCircle.getID());
@@ -89,6 +92,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
+				if(tokenCircle.getID() == null)
+					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
 				{
 					JLabel lab = (JLabel) me.getSource();
@@ -292,6 +297,10 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenCircle.getID() == null)
+			labelBanner.setEnabled(false);
+		else
+			labelBanner.setEnabled(true);
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Artist)

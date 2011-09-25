@@ -46,6 +46,8 @@ public final class DataStoreImpl implements DataStore, Serializable
 	@Override
 	public DataSource child(String name) throws DataStoreException
 	{
+		if(!new File(DsRoot, name).getParentFile().equals(DsRoot))
+			throw new DataStoreException("Specified file name '" + name + "' is not valid.");
 		File file = new File(DsRoot, name);
 //		try {
 //			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
@@ -85,25 +87,13 @@ public final class DataStoreImpl implements DataStore, Serializable
 	@Override
 	public DataSource getMetadata(String ID) throws DataStoreException
 	{
-		File file = new File(DsRoot, METADATA);
-//		try {
-//			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-//		} catch (RemoteException re) {
-//			throw new DataStoreException(re);
-//		}
-		return new DataSourceImpl(file);
+		return child(ID).child(METADATA);
 	}
 
 	@Override
 	public DataSource getPreview(String ID) throws DataStoreException
 	{
-		File file = new File(DsRoot, PREVIEW);
-//		try {
-//			return new RemoteDataSource(new RMIDataSourceImpl(new DataSourceImpl(file)));
-//		} catch (RemoteException re) {
-//			throw new DataStoreException(re);
-//		}
-		return new DataSourceImpl(file);
+		return child(ID).child(PREVIEW);
 	}
 	
 	private final class DataSourceImpl implements DataSource, Comparable<DataSource>

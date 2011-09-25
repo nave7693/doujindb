@@ -21,10 +21,12 @@ public final class DataBaseImpl implements DataBase
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
-	static ObjectContext context;
-	static DataDomain domain;
+	private ObjectContext context;
+	private DataDomain domain;
 	
 	private String connID;
+	
+	private Hashtable<String, DataBase> children;
 	
 	public DataBaseImpl() throws DataBaseException
 	{
@@ -71,6 +73,8 @@ public final class DataBaseImpl implements DataBase
 		
 		context = domain.createDataContext();
 		
+		children = new Hashtable<String, DataBase>();
+		
 //		connID = "douz://" + System.getProperty("user.name") + "@";
 //		try {
 //			connID += java.net.InetAddress.getLocalHost().getHostName().toLowerCase() + ":" + "1099" + "/DataBase";
@@ -79,6 +83,19 @@ public final class DataBaseImpl implements DataBase
 //			connID += "~:1099/DataBase";
 //			uhe.printStackTrace();
 //		}
+	}
+	
+	public synchronized DataBase child(String ID) throws DataBaseException
+	{
+		if(!children.containsKey(ID))
+		{
+			DataBase db = new DataBaseImpl();
+			children.put(ID, db);
+			return db;
+		}else
+		{
+			return children.get(ID);
+		}
 	}
 
 	private synchronized Artist newArtist() throws DataBaseException

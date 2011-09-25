@@ -94,6 +94,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		scrollInfo = new JScrollPane(textInfo);
 		labelPreview = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
 		labelPreview.setName("no-preview");
+		if(tokenBook.getID() == null)
+			labelPreview.setEnabled(false);
+		else
 		try
 		{
 			DataSource ds = Client.DS.child(tokenBook.getID());
@@ -117,6 +120,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
+				if(tokenBook.getID() == null)
+					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
 				{
 					JLabel lab = (JLabel) me.getSource();
@@ -504,6 +509,10 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenBook.getID() == null)
+			labelPreview.setEnabled(false);
+		else
+			labelPreview.setEnabled(true);
 		try {
 			if(!Client.DB.getConventions(null).contains((Convention)comboConvention.getSelectedItem()))
 				comboConvention.setSelectedItem(null);

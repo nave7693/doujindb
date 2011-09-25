@@ -64,4 +64,6 @@ public abstract class _Convention extends CayenneDataObject {
     public Boolean getRecycled() {
         return (Boolean)readProperty("recycled");
     }
+    
+    protected abstract void postAdd();
 }

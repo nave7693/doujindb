@@ -72,4 +72,6 @@ public abstract class _Parody extends CayenneDataObject {
     public Boolean getRecycled() {
         return (Boolean)readProperty("recycled");
     }
+    
+    protected abstract void postAdd();
 }

@@ -86,4 +86,6 @@ public abstract class _Artist extends CayenneDataObject {
     public Boolean getRecycled() {
         return (Boolean)readProperty("recycled");
     }
+    
+    protected abstract void postAdd();
 }

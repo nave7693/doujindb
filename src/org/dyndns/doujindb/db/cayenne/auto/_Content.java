@@ -56,4 +56,6 @@ public abstract class _Content extends CayenneDataObject {
     public Boolean getRecycled() {
         return (Boolean)readProperty("recycled");
     }
+    
+    protected abstract void postAdd();
 }

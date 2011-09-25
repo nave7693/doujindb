@@ -106,7 +106,11 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "P" + super.getID();
+		Integer ID = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getID();
+		if(ID == null)
+			return null;
+		else
+			return "P" + String.format("%08x", ID);
 	}
 	
 	@Override

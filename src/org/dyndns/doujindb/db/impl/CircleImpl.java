@@ -127,7 +127,11 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "C" + super.getID();
+		Integer ID = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getID();
+		if(ID == null)
+			return null;
+		else
+			return "C" + String.format("%08x", ID);
 	}
 	
 	@Override

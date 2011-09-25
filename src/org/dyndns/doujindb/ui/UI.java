@@ -766,27 +766,6 @@ public void layoutContainer(Container parent)
 		}
 		if(event.getSource() == uiTrayPopupExit)
 		{
-			if((Core.Properties.get("org.dyndns.doujindb.data.save_on_exit").asBoolean()) == false)
-				System.exit(0);
-			else
-				System.exit(0);
-			try
-			{
-				File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
-				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(src));
-				out.writeObject(Core.Properties);
-				Core.Logger.log("System settings saved.", Level.INFO);
-			}catch(Exception e)
-			{
-				Core.Logger.log(e.getMessage(), Level.ERROR);
-			}
-			try
-			{
-				//TODO
-			}catch(Exception e)
-			{
-				Core.Logger.log(e.getMessage(), Level.ERROR);
-			}
 			System.exit(0);
 		}
 		if(event.getSource() == uiPanelDesktopCommit)
@@ -826,12 +805,7 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
-							for(Artist a : Client.DB.getArtists(null))
-								System.out.println(a.getJapaneseName() + " (" +a.isRecycled()+ ")");
 							Client.DB.doCommit();
-							for(Artist a : Client.DB.getArtists(null))
-								System.out.println(a.getJapaneseName() + " (" +a.isRecycled()+ ")");
-							
 						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);

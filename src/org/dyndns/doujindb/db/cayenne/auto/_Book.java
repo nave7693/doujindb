@@ -186,4 +186,6 @@ public abstract class _Book extends CayenneDataObject {
     public Boolean getRecycled() {
         return (Boolean)readProperty("recycled");
     }
+    
+    protected abstract void postAdd();
 }

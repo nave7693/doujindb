@@ -119,7 +119,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getVersion() {
-		return "0.4b";
+		return "0.5";
 	}
 	@Override
 	public String getAuthor() {
@@ -140,8 +140,6 @@ public final class DoujinshiDBScanner implements Plugin
 		public static XML_User parseUser(InputStream src) throws Exception
 		{
 			XML_List list;
-			//FIXME Serializer serializer = new Persister();
-			//FIXME list = serializer.read(XML_List.class, src);
 			JAXBContext context = JAXBContext.newInstance(XML_List.class);
 			Unmarshaller um = context.createUnmarshaller();
 			list = (XML_List) um.unmarshal(src);
@@ -189,8 +187,6 @@ public final class DoujinshiDBScanner implements Plugin
 		@XmlRootElement(namespace = "", name="LIST")
 		private static final class XML_List
 		{
-			//FIXME @XmlElement(required=false)
-			//FIXME private List<XML_Book> Books = new Vector<XML_Book>();
 			@XmlElements({
 			    @XmlElement(name="BOOK", type=XML_Book.class)
 			  })
@@ -204,9 +200,9 @@ public final class DoujinshiDBScanner implements Plugin
 		@XmlRootElement(namespace = "", name="BOOK")
 		private static final class XML_Book
 		{
-			@XmlAttribute(required=true)
-			private String ID;
-			@XmlAttribute(required=true)
+			@XmlAttribute(name="ID", required=true)
+			private String ID = "";
+			@XmlAttribute(name="VER", required=true)
 			private int VER;
 			@XmlAttribute(required=false)
 			private String search;
@@ -217,8 +213,6 @@ public final class DoujinshiDBScanner implements Plugin
 			private String NAME_JP;
 			@XmlElement(required=false)
 			private String NAME_R;
-			//FIXME @XmlElement(name="NAME_ALT", required=false)
-			//FIXME private List<String> NAME_ALT = new Vector<String>();
 			@XmlElements({
 			    @XmlElement(name="NAME_ALT", type=String.class)
 			  })
@@ -288,8 +282,6 @@ public final class DoujinshiDBScanner implements Plugin
 			private String NAME_R;
 			@XmlElement(required=false)
 			private int OBJECTS;
-			//FIXME @XmlElement(name="NAME_ALT", required=false)
-			//FIXME private List<String> NAME_ALT = new Vector<String>();
 			@XmlElements({
 			    @XmlElement(name="NAME_ALT", type=String.class)
 			  })
@@ -364,14 +356,6 @@ public final class DoujinshiDBScanner implements Plugin
 			private Rating Rating;
 			@XmlElement(required=false)
 			private String Info;
-//			@XmlElement(name="Artist", required=false)
-//			private List<String> artists = new Vector<String>();
-//			@XmlElement(name="Circle", required=false)
-//			private List<String> circles = new Vector<String>();
-//			@XmlElement(name="Parody", required=false)
-//			private List<String> parodies = new Vector<String>();
-//			@XmlElement(name="Content", required=false)
-//			private List<String> contents = new Vector<String>();
 			@XmlElements({
 			    @XmlElement(name="Artist", type=String.class)
 			  })
@@ -994,10 +978,8 @@ public final class DoujinshiDBScanner implements Plugin
 					description = "Parsing XML response ...";
 					{
 						XMLParser.XML_List list;
-						//FIXME Serializer serializer = new Persister();
 						try
 						{
-							//FIXME list = serializer.read(XMLParser.XML_List.class, in);
 							JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
 							Unmarshaller um = context.createUnmarshaller();
 							list = (XMLParser.XML_List) um.unmarshal(in);
@@ -1218,19 +1200,14 @@ public final class DoujinshiDBScanner implements Plugin
 							}
 							try
 							{
-								//FIXME serializer.write(doujin, pout);
 								context = JAXBContext.newInstance(XMLBook.class);
 								Marshaller m = context.createMarshaller();
 								m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-								//m.marshal(doujin, new FileOutputStream(new File("D:/test.xml")));
 								m.marshal(doujin, pout);
 								pout.write(new String("\r\n").getBytes());
 								pout.flush();
 								pout.close();
-								//while("".equals(""))sdfsdfsd
-								//	System.out.print((char)pin.read());
 								importedBook = XMLParser.parseXML(pin);
-								//importedBook = XMLParser.parseXML(new FileInputStream(new File("D:/test.xml")));
 								if(importedBook == null)
 								{
 									description = "Error parsing XML data.";
@@ -1256,12 +1233,6 @@ public final class DoujinshiDBScanner implements Plugin
 							throw new Exception(e.getMessage());
 						}
 					}
-//					if(uuid == null)
-//					{
-//						description = "XML parsing failed.";
-//						status = TASK_ERROR;
-//						throw new Exception("XML parsing failed.");
-//					}
 					description = "Copying files into the Datastore ...";
 					for(File file : workpath.listFiles())
 						fileCopy(file, Client.DS.child(importedBook.getID()));
@@ -1270,7 +1241,7 @@ public final class DoujinshiDBScanner implements Plugin
 						description = "Creating preview into the Datastore  ...";
 						DataSource ds = Client.DS.child(importedBook.getID());
 						ds.mkdir();
-						ds = Client.DS.getPreview(importedBook.getID()); //ds.child(".preview");
+						ds = Client.DS.getPreview(importedBook.getID());
 						ds.touch();
 						OutputStream out = ds.getOutputStream();
 						BufferedImage image = javax.imageio.ImageIO.read(cover_image2);
@@ -1470,15 +1441,11 @@ public final class DoujinshiDBScanner implements Plugin
 		parsed.put("Convention://", new HashSet<Record>());
 		parsed.put("Content://", new HashSet<Record>());
 		parsed.put("Parody://", new HashSet<Record>());
-		//FIXME Serializer serializer = new Persister();
 		try
 		{
-			//FIXME doujin = serializer.read(XMLBook.class, src);
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Unmarshaller um = context.createUnmarshaller();
-			System.out.println(">>>");
 			doujin = (XMLBook) um.unmarshal(src);
-			System.out.println("<<<");
 		} catch (Exception e) {
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
@@ -1508,8 +1475,7 @@ public final class DoujinshiDBScanner implements Plugin
 				Convention convention = Client.DB.doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
-				//Client.DB.getUnchecked().insert(convention);
-			}			
+			}
 			else
 				parsed.get("Convention://").addAll(temp);
 		}
@@ -1525,8 +1491,7 @@ public final class DoujinshiDBScanner implements Plugin
 					Artist artist = Client.DB.doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
-					//Client.DB.getUnchecked().insert(artist);
-				}			
+				}
 				else
 					parsed.get("Artist://").addAll(temp);
 			}
@@ -1543,8 +1508,7 @@ public final class DoujinshiDBScanner implements Plugin
 					Circle circle = Client.DB.doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
-					//Client.DB.getUnchecked().insert(circle);
-				}			
+				}
 				else
 					parsed.get("Circle://").addAll(temp);
 			}
@@ -1561,8 +1525,7 @@ public final class DoujinshiDBScanner implements Plugin
 					Content content = Client.DB.doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
-					//Client.DB.getUnchecked().insert(content);
-				}			
+				}
 				else
 					parsed.get("Content://").addAll(temp);
 			}
@@ -1579,8 +1542,7 @@ public final class DoujinshiDBScanner implements Plugin
 					Parody parody = Client.DB.doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
-					//Client.DB.getUnchecked().insert(parody);
-				}			
+				}
 				else
 					parsed.get("Parody://").addAll(temp);
 			}
@@ -1613,10 +1575,8 @@ public final class DoujinshiDBScanner implements Plugin
 			doujin.parodies.add(p.getJapaneseName());
 		for(Content ct : book.getContents())
 			doujin.contents.add(ct.getTagName());
-		//FIXME Serializer serializer = new Persister();
 		try
 		{
-			//FIXME serializer.write(doujin, dest);
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -1640,7 +1600,7 @@ public final class DoujinshiDBScanner implements Plugin
 		@XmlElement(required=false)
 		private Date Released;
 		@XmlElement(required=false)
-		private Type Type;
+		private Type Type = Book.Type.同人誌;
 		@XmlElement(required=false)
 		private int Pages;
 		@XmlElement(required=false)

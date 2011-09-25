@@ -137,7 +137,11 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "A" + super.getID();
+		Integer ID = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getID();
+		if(ID == null)
+			return null;
+		else
+			return "A" + String.format("%08x", ID);
 	}
 
 	@Override

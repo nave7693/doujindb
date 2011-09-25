@@ -80,6 +80,7 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
@@ -95,6 +96,7 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="type" type="org.dyndns.doujindb.db.records.Book.Type" db-attribute-path="TYPE"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Circle" className="org.dyndns.doujindb.db.cayenne.Circle" dbEntityName="Circle">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
@@ -102,17 +104,20 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Content" className="org.dyndns.doujindb.db.cayenne.Content" dbEntityName="Content">
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
 		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Convention" className="org.dyndns.doujindb.db.cayenne.Convention" dbEntityName="Convention">
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
 		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Parody" className="org.dyndns.doujindb.db.cayenne.Parody" dbEntityName="Parody">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
@@ -120,6 +125,7 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<db-relationship name="drawnby" source="Artist" target="DrawnBy" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>

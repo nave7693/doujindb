@@ -124,37 +124,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									return;
 								try
 								{
-									//TODO
-									/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenCircle.getID());
-									File out = new File(root, ".banner");
-									out.getParentFile().mkdirs();
-									OutputStream out = null;
-									if(Client.DS.contains(tokenCircle.getID()))
-									{
-										DataSource source = Client.DS.get(tokenCircle.getID());
-										if(source.contains(".banner"))
-										{
-											out = source.get(".banner").getOutputStream();
-										}
-										else
-										{
-											source.add(".banner");
-											out = source.get(".banner").getOutputStream();
-										}
-									}else
-									{
-										Client.DS.add(tokenCircle.getID());
-										DataSource source = Client.DS.get(tokenCircle.getID());
-										if(source.contains(".banner"))
-										{
-											out = source.get(".banner").getOutputStream();
-										}
-										else
-										{
-											source.add(".banner");
-											out = source.get(".banner").getOutputStream();
-										}
-									}*/
 									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
@@ -198,23 +167,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 							{
 								try
 								{
-									//TODO
-									/*if(Client.DS.contains(tokenCircle.getID()))
-									{
-										DataSource source = Client.DS.get(tokenCircle.getID());
-										if(source.contains(".banner"))
-										{
-											source.remove(".banner");
-										}
-									}else
-									{
-										Client.DS.add(tokenCircle.getID());
-										DataSource source = Client.DS.get(tokenCircle.getID());
-										if(source.contains(".banner"))
-										{
-											source.remove(".banner");
-										}
-									}*/
 									DataSource ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
@@ -235,15 +187,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		});
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
-		
-		System.out.println("Artist : " + tokenCircle.getArtists().size());
-		System.out.println("" + tokenCircle.getArtists());
-		System.out.println("Books : " + tokenCircle.getBooks().size());
-		System.out.println("" + tokenCircle.getBooks());
-		System.out.println("Books (by Artist)");
-		for(Artist a : tokenCircle.getArtists())
-		System.out.println("" + a.getBooks());
-		
 		editorWorks = new RecordBookEditor(tokenCircle);
 		editorWorks.setEnabled(false);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);

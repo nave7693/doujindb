@@ -17,19 +17,11 @@ abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 		super();
 	}
 
-//	@Override
-//	public synchronized String getID() throws DataBaseException
-//	{
-//		if(ref.getObjectId().isTemporary())
-//			return String.format("TMP-%08x", (int)(Math.random() * 0xffff));
-//		//Can't get primary key from temporary id.
-//		else
-//			return String.format("%08x", DataObjectUtils.intPKForObject(ref));
-//	}
-
 	@Override
 	public synchronized int compareTo(Record o)
 	{
+		if(getID() == null || o.getID() == null)
+			return (""+super.hashCode()).compareTo(""+o.hashCode());
 		return this.getID().compareTo(o.getID());
 	}
 

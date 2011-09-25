@@ -78,7 +78,11 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	@Override
 	public synchronized String getID() throws DataBaseException
 	{
-		return "T" + super.getID();
+		Integer ID = ((org.dyndns.doujindb.db.cayenne.Content)ref).getID();
+		if(ID == null)
+			return null;
+		else
+			return "T" + String.format("%08x", ID);
 	}
 	
 	@Override

@@ -151,37 +151,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									return;
 								try
 								{
-									//TODO
-									/*File root = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
-									File out = new File(root, ".preview");
-									root.mkdirs();
-									OutputStream out = null;
-									if(Client.DS.contains(tokenBook.getID()))
-									{
-										DataSource source = Client.DS.get(tokenBook.getID());
-										if(source.contains(".preview"))
-										{
-											out = source.get(".preview").getOutputStream();
-										}
-										else
-										{
-											source.add(".preview");
-											out = source.get(".preview").getOutputStream();
-										}
-									}else
-									{
-										Client.DS.add(tokenBook.getID());
-										DataSource source = Client.DS.get(tokenBook.getID());
-										if(source.contains(".preview"))
-										{
-											out = source.get(".preview").getOutputStream();
-										}
-										else
-										{
-											source.add(".preview");
-											out = source.get(".preview").getOutputStream();
-										}
-									}*/
 									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
@@ -234,23 +203,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 							{
 								try
 								{
-									//TODO
-									/*if(Client.DS.contains(tokenBook.getID()))
-									{
-										DataSource source = Client.DS.get(tokenBook.getID());
-										if(source.contains(".preview"))
-										{
-											source.remove(".preview");
-										}
-									}else
-									{
-										Client.DS.add(tokenBook.getID());
-										DataSource source = Client.DS.get(tokenBook.getID());
-										if(source.contains(".preview"))
-										{
-											source.remove(".preview");
-										}
-									}*/
 									DataSource ds = Client.DS.child(tokenBook.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");

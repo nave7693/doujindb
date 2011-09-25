@@ -23,6 +23,10 @@ HowTo
 		2. modify the "icons.zip" file (available for download) replacing default icons with your custom ones and putting it in the doujindb resource folder ($USER_HOME/.doujindb/rc). *
 		* will require DoujinDB to be restarted.
 
+Dependencies
+	DoujinDB makes use of the Cayenne ORM framework to talk to the Database.
+	Make sure you download all the required libraries (libs.zip) and place them in $USER_HOME/.doujindb/lib before starting DoujinDB.
+
 Notes
 	DoujinDB won't run on a headless system.
 	It IS recommended to run DoujinDB from a command prompt to troubleshoot problems, since all the logs will be printed on the standard output.

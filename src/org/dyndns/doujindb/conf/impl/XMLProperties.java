@@ -324,7 +324,7 @@ final class XMLProperties implements Properties
 		private String key;
 		@XmlAttribute(name="Type", required=true)
 		private String type;
-		@XmlElement(name="Description")
+		//@XmlElement(name="Description")
 		private String description;
 		@XmlElement(name="Value")
 		private String value;

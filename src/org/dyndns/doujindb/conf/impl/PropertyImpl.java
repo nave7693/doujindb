@@ -17,7 +17,7 @@ final class PropertyImpl implements Property, Serializable
 	private static final long serialVersionUID = 0x001L;
 	
 	private Object value;
-	private String description;
+	private transient String description;
 	
 	PropertyImpl() { }
 

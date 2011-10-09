@@ -1,7 +1,5 @@
 package org.dyndns.doujindb.log.impl;
 
-import java.io.*;
-
 import org.dyndns.doujindb.log.*;
 
 /**  
@@ -11,27 +9,8 @@ import org.dyndns.doujindb.log.*;
 */
 public final class Factory
 {
-	public enum Type
+	public static Logger getService() throws Exception
 	{
-		STDOUT,
-		FILE
-	}
-	
-	public static Logger getService(Type spec) throws Exception
-	{
-		switch(spec)
-		{
-		case STDOUT:
-			return new StdOutLogger();
-		case FILE:
-			return new FileLogger(
-					new File(
-							new File(
-									new File(System.getProperty("user.home"), ".doujindb")
-									, "log")
-							, "doujindb.out"));
-		default:
-			throw new Exception("Invalid spec provided '" + spec + "'.");
-		}
+		return new StdOutLogger();
 	}
 }

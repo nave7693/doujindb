@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.*;
 public class PanelMediaManager implements Validable, LayoutManager, MouseListener
 {
 	private final String PACKAGE_INDEX = ".xml";
-	private final String PACKAGE_MEDIA = "ds:/";
+	private final String PACKAGE_MEDIA = ".data/";
 	
 	@SuppressWarnings("unused")
 	private DouzWindow parentWindow;
@@ -735,7 +735,6 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				for(Book book : books)
 				{
 					File zip = new File(dest, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
-					//TODO File src = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), book.getID());
 					DataSource ds = Client.DS.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
@@ -747,7 +746,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						;
 						ZipEntry entry = new ZipEntry(PACKAGE_INDEX);
 						zout.putNextEntry(entry);
-						writeXMLBook(book, zout);
+						writeXML(book, zout);
 						zout.closeEntry();
 						;
 						entry = new ZipEntry(PACKAGE_MEDIA);
@@ -931,11 +930,6 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 							if(entry.getName().equals(PACKAGE_INDEX))
 							{
 								valid = true;
-								//TODO
-								/*String uuid = parseXML(zip.getInputStream(entry));
-								zip = new ZipFile(file);
-								uuid = "temp$";
-								File dest = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), parseXML(zip.getInputStream(entry)));*/
 								DataSource ds = Client.DS.child(parseXML(zip.getInputStream(entry)));
 								ds.mkdirs();
 								;
@@ -957,7 +951,6 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 											progress_file_current++;
 											continue;
 										}
-										//TODO File extracted = new File(dest, entry.getName().substring(7));
 										DataSource ds0 = ds.child(entry.getName().substring(PACKAGE_MEDIA.length()));
 										if(entry.isDirectory())
 										{
@@ -1055,7 +1048,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		
 		private String parseXML(InputStream in) throws DataBaseException
 		{
-			Hashtable<String, Set<Record>> imported = readXMLBook(in);
+			Hashtable<String, Set<Record>> imported = readXML(in);
 			if(imported == null)
 				return null;
 			Book book = (Book) imported.get("Book://").toArray()[0];
@@ -1088,7 +1081,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
-	private Hashtable<String, Set<Record>> readXMLBook(InputStream src) throws DataBaseException
+	private Hashtable<String, Set<Record>> readXML(InputStream src) throws DataBaseException
 	{
 		XMLBook doujin;
 		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
@@ -1098,10 +1091,8 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.put("Convention://", new HashSet<Record>());
 		parsed.put("Content://", new HashSet<Record>());
 		parsed.put("Parody://", new HashSet<Record>());
-		//FIXME Serializer serializer = new Persister();
 		try
 		{
-			//FIXME doujin = serializer.read(XMLBook.class, src);
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Unmarshaller um = context.createUnmarshaller();
 			doujin = (XMLBook) um.unmarshal(src);
@@ -1109,11 +1100,11 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.doInsert(Book.class);
-		book.setJapaneseName(doujin.JapaneseName);
+		Book book = Client.DB.child(getUUID()).doInsert(Book.class);
+		book.setJapaneseName(doujin.japaneseName);
 		book.setType(doujin.Type);
-		book.setTranslatedName(doujin.TranslatedName);
-		book.setRomanjiName(doujin.RomanjiName);
+		book.setTranslatedName(doujin.translatedName);
+		book.setRomanjiName(doujin.romanjiName);
 		book.setDate(doujin.Released);
 		book.setType(doujin.Type);
 		book.setPages(doujin.Pages);
@@ -1126,12 +1117,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.getConventions(null))
+			for(Convention convention : Client.DB.child(getUUID()).getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.doInsert(Convention.class);
+				Convention convention = Client.DB.child(getUUID()).doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
 			}			
@@ -1142,12 +1133,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.getArtists(null))
+				for(Artist artist : Client.DB.child(getUUID()).getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.doInsert(Artist.class);
+					Artist artist = Client.DB.child(getUUID()).doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
 				}			
@@ -1159,12 +1150,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.getCircles(null))
+				for(Circle circle : Client.DB.child(getUUID()).getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.doInsert(Circle.class);
+					Circle circle = Client.DB.child(getUUID()).doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
 				}			
@@ -1176,12 +1167,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.getContents(null))
+				for(Content content : Client.DB.child(getUUID()).getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.doInsert(Content.class);
+					Content content = Client.DB.child(getUUID()).doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
 				}			
@@ -1193,12 +1184,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.getParodies(null))
+				for(Parody parody : Client.DB.child(getUUID()).getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.doInsert(Parody.class);
+					Parody parody = Client.DB.child(getUUID()).doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
 				}			
@@ -1206,15 +1197,16 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 					parsed.get("Parody://").addAll(temp);
 			}
 		}
+		Client.DB.child(getUUID()).doCommit();
 		return parsed;
 	}
 	
-	private void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
+	private void writeXML(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
-		doujin.JapaneseName = book.getJapaneseName();
-		doujin.TranslatedName = book.getTranslatedName();
-		doujin.RomanjiName = book.getRomanjiName();
+		doujin.japaneseName = book.getJapaneseName();
+		doujin.translatedName = book.getTranslatedName();
+		doujin.romanjiName = book.getRomanjiName();
 		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
 		doujin.Released = book.getDate();
 		doujin.Type = book.getType();
@@ -1233,10 +1225,8 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			doujin.parodies.add(p.getJapaneseName());
 		for(Content ct : book.getContents())
 			doujin.contents.add(ct.getTagName());
-		//FIXME Serializer serializer = new Persister();
 		try
 		{
-			//FIXME serializer.write(doujin, dest);
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -1246,54 +1236,15 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
-//	@Root(name="Doujin")
-//	private static final class XMLBook
-//	{
-//		@XmlElement(required=true)
-//		private String JapaneseName;
-//		@XmlElement(required=false)
-//		private String TranslatedName = "";
-//		@XmlElement(required=false)
-//		private String RomanjiName = "";
-//		@XmlElement(required=false)
-//		private String Convention = "";
-//		@XmlElement(required=false)
-//		private Date Released;
-//		@XmlElement(required=false)
-//		private Type Type;
-//		@XmlElement(required=false)
-//		private int Pages;
-//		@XmlElement(required=false)
-//		private boolean Adult;
-//		@XmlElement(required=false)
-//		private boolean Decensored;
-//		@XmlElement(required=false)
-//		private boolean Translated;
-//		@XmlElement(required=false)
-//		private boolean Colored;
-//		@XmlElement(required=false)
-//		private Rating Rating;
-//		@XmlElement(required=false)
-//		private String Info;
-//		@XmlElementList(entry="Artist", inline=true, required=false)
-//		private List<String> artists = new Vector<String>();
-//		@XmlElementList(entry="Circle", inline=true, required=false)
-//		private List<String> circles = new Vector<String>();
-//		@XmlElementList(entry="Parody", inline=true, required=false)
-//		private List<String> parodies = new Vector<String>();
-//		@XmlElementList(entry="Content", inline=true, required=false)
-//		private List<String> contents = new Vector<String>();
-//	}
-	
-	@XmlRootElement(namespace = "org.dyndns.doujindb.core.db.xml", name="Doujin")
+	@XmlRootElement(name="Doujin")
 	private static final class XMLBook
 	{
 		@XmlElement(required=true)
-		private String JapaneseName;
+		private String japaneseName;
 		@XmlElement(required=false)
-		private String TranslatedName = "";
+		private String translatedName = "";
 		@XmlElement(required=false)
-		private String RomanjiName = "";
+		private String romanjiName = "";
 		@XmlElement(required=false)
 		private String Convention = "";
 		@XmlElement(required=false)
@@ -1322,5 +1273,10 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		private List<String> parodies = new Vector<String>();
 		@XmlElement(name="Content", required=false)
 		private List<String> contents = new Vector<String>();
+	}
+	
+	public static String getUUID()
+	{
+		return "{7c483dce-d1ee-4484-840d-37152ef5c4e2}";
 	}
 }

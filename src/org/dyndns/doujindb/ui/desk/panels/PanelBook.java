@@ -8,10 +8,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
@@ -24,6 +31,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
@@ -496,6 +504,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				java.util.Iterator<Parody> parodies = editorParodies.iterator();
 				while(parodies.hasNext())
 					tokenBook.addParody(parodies.next());
+				{
+					writeXML(tokenBook, Client.DS.getMetadata(tokenBook.getID()).getOutputStream());
+				}
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
 			} catch (DataBaseException dbe) {
@@ -545,5 +556,80 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			editorContents.validateUI(ve);
 			editorParodies.validateUI(ve);
 		}
+	}
+	
+	private void writeXML(Book book, OutputStream dest) throws DataBaseException
+	{
+		XMLBook doujin = new XMLBook();
+		doujin.japaneseName = book.getJapaneseName();
+		doujin.translatedName = book.getTranslatedName();
+		doujin.romanjiName = book.getRomanjiName();
+		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
+		doujin.Released = book.getDate();
+		doujin.Type = book.getType();
+		doujin.Pages = book.getPages();
+		doujin.Adult = book.isAdult();
+		doujin.Decensored = book.isDecensored();
+		doujin.Colored = book.isColored();
+		doujin.Translated = book.isTranslated();
+		doujin.Rating = book.getRating();
+		doujin.Info = book.getInfo();
+		for(Artist a : book.getArtists())
+			doujin.artists.add(a.getJapaneseName());
+		for(Circle c : book.getCircles())
+			doujin.circles.add(c.getJapaneseName());
+		for(Parody p : book.getParodies())
+			doujin.parodies.add(p.getJapaneseName());
+		for(Content ct : book.getContents())
+			doujin.contents.add(ct.getTagName());
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.marshal(doujin, dest);
+		} catch (Exception e) {
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	@XmlRootElement(name="Doujin")
+	private static final class XMLBook
+	{
+		@XmlElement(required=true)
+		private String japaneseName;
+		@XmlElement(required=false)
+		private String translatedName = "";
+		@XmlElement(required=false)
+		private String romanjiName = "";
+		@XmlElement(required=false)
+		private String Convention = "";
+		@XmlElement(required=false)
+		private Date Released;
+		@XmlElement(required=false)
+		private Type Type;
+		@XmlElement(required=false)
+		private int Pages;
+		@XmlElement(required=false)
+		private boolean Adult;
+		@XmlElement(required=false)
+		private boolean Decensored;
+		@XmlElement(required=false)
+		private boolean Translated;
+		@XmlElement(required=false)
+		private boolean Colored;
+		@XmlElement(required=false)
+		private Rating Rating;
+		@XmlElement(required=false)
+		private String Info;
+		@XmlElement(name="Artist", required=false)
+		private List<String> artists = new Vector<String>();
+		@XmlElement(name="Circle", required=false)
+		private List<String> circles = new Vector<String>();
+		@XmlElement(name="Parody", required=false)
+		private List<String> parodies = new Vector<String>();
+		@XmlElement(name="Content", required=false)
+		private List<String> contents = new Vector<String>();
 	}
 }

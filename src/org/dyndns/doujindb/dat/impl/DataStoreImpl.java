@@ -17,7 +17,7 @@ import org.dyndns.doujindb.log.Level;
 @SuppressWarnings("serial")
 public final class DataStoreImpl implements DataStore, Serializable
 {
-	private final String METADATA = ".metadata";
+	private final String METADATA = ".xml";
 	private final String PREVIEW = ".preview";
 	
 	private File DsRoot;

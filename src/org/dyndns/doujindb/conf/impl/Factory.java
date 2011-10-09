@@ -9,13 +9,8 @@ import org.dyndns.doujindb.conf.*;
 */
 public final class Factory
 {
-	public static Properties getService(String spec) throws Exception
+	public static Properties getService() throws Exception
 	{
 		return new XMLProperties();
-		/*
-		if(spec == null)
-			return new SerializedProperties();
-		throw new Exception("Invalid spec provided '" + spec + "'.");
-		*/
 	}
 }

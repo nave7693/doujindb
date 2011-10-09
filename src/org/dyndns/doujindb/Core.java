@@ -31,11 +31,9 @@ public final class Core implements Runnable
 		new File(System.getProperty("user.home"), ".doujindb/rc").mkdir();
 		new File(System.getProperty("user.home"), ".doujindb/log").mkdir();
 		new File(System.getProperty("user.home"), ".doujindb/plug").mkdir();
-		new File(System.getProperty("user.home"), ".doujindb/log").mkdir();
 		try
 		{
-			Logger = org.dyndns.doujindb.log.impl.Factory.getService(
-					org.dyndns.doujindb.log.impl.Factory.Type.STDOUT);
+			Logger = org.dyndns.doujindb.log.impl.Factory.getService();
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -43,15 +41,7 @@ public final class Core implements Runnable
 		}
 		try
 		{
-			Logger.loggerAttach(org.dyndns.doujindb.log.impl.Factory.getService(
-					org.dyndns.doujindb.log.impl.Factory.Type.FILE));
-		} catch (Exception e)
-		{
-			Logger.log("Cannot load file logger : " + e.getMessage() + ".", Level.ERROR);
-		}
-		try
-		{
-			Properties = org.dyndns.doujindb.conf.impl.Factory.getService( null );
+			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();
 			Properties.load();
 			Logger.log("System Properties loaded.", Level.INFO);
 		} catch (Exception e)

@@ -28,7 +28,6 @@ public class PanelBookMedia extends JPanel implements Validable
 {
 	private Book tokenBook;
 	private JButton buttonReload;
-	private JButton buttonBrowse;
 	private JButton buttonUpload;
 	private JButton buttonDownload;
 	private JButton buttonDelete;
@@ -96,31 +95,6 @@ public class PanelBookMedia extends JPanel implements Validable
 			}
 		});
 		add(buttonUpload);
-		buttonBrowse = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Browse"));
-		buttonBrowse.setFocusable(false);
-		buttonBrowse.setToolTipText("Browse");
-		buttonBrowse.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae)
-			{
-//				if (Desktop.isDesktopSupported())
-//				{
-//					Desktop desktop = Desktop.getDesktop();
-//					try
-//					{
-//						File file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID());
-//						if(!file.exists())
-//							file.mkdirs();
-//						desktop.open(file);
-//					} catch (IOException ioe) {
-//						ioe.printStackTrace();
-//						Core.Logger.log(new Event(ioe.getMessage(), Level.WARNING));
-//					}
-//				}
-			}			
-		});
-		add(buttonBrowse);
 		buttonDownload = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"));
 		buttonDownload.setFocusable(false);
 		buttonDownload.setToolTipText("Download");
@@ -234,11 +208,11 @@ public class PanelBookMedia extends JPanel implements Validable
 							try
 							{
 								Object os[] = path.getPath();
-								DataSource ds;
-								if(os[0].toString().startsWith("/"))
-									ds = root_ds.child(os[0].toString().substring(1));
-								else
-									ds = root_ds.child(os[0].toString());
+								DataSource ds = root_ds;
+//								if(os[0].toString().startsWith("/"))
+//									ds = root_ds.child(os[0].toString().substring(1));
+//								else
+//									ds = root_ds.child(os[0].toString());
 								for(int k=1;k<os.length;k++)
 									if(os[k].toString().startsWith("/"))
 										ds = ds.child(os[k].toString().substring(1));
@@ -278,7 +252,6 @@ public class PanelBookMedia extends JPanel implements Validable
 				int width = parent.getWidth(),
 					height = parent.getHeight();
 				buttonReload.setBounds(1,1,20,20);
-				//TODO buttonBrowse.setBounds(width-20,1,20,20);
 				buttonUpload.setBounds(width-20,1,20,20);
 				buttonDownload.setBounds(width-40,1,20,20);
 				buttonDelete.setBounds(width-60,1,20,20);

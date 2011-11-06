@@ -112,7 +112,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException e) { }
-							if(isAdd && pop.getResult() != DouzPopupMenu.SELECTION_CANCELED)
+							if(pop.getResult() == DouzPopupMenu.SELECTION_CANCELED)
+								return;
+							if(isAdd)
 							{
 								JFileChooser fc = Core.UI.getFileChooser();
 								fc.setMultiSelectionEnabled(false);

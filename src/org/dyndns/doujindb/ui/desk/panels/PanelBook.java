@@ -148,8 +148,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException e) { }
-							if(isAdd)
+							if(isAdd && pop.getResult() != DouzPopupMenu.SELECTION_CANCELED)
 							{
+								System.out.println(pop.getResult());
 								JFileChooser fc = Core.UI.getFileChooser();
 								fc.setMultiSelectionEnabled(false);
 								int result = fc.showOpenDialog(Core.UI);

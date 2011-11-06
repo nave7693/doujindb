@@ -15,7 +15,9 @@ public final class DouzPopupMenu implements ActionListener
 {
 	private JPopupMenu popup;
 	private JMenuItem[] items;
-	private int selection = -1;
+	public static final int SELECTION_NONE = -1;
+	public static final int SELECTION_CANCELED = -2;
+	private int selection = SELECTION_NONE;
 	
 	public DouzPopupMenu(String title, Hashtable<String,ImageIcon> items)
 	{
@@ -24,7 +26,7 @@ public final class DouzPopupMenu implements ActionListener
 		{
 
 			@Override
-			public void popupMenuCanceled(PopupMenuEvent pme) { selection = -2; }
+			public void popupMenuCanceled(PopupMenuEvent pme) { selection = SELECTION_CANCELED; }
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent pme) {}
@@ -50,7 +52,7 @@ public final class DouzPopupMenu implements ActionListener
 	
 	public boolean isValid()
 	{
-		return selection == -1;
+		return selection == SELECTION_NONE;
 	}
 	
 	public int getResult()

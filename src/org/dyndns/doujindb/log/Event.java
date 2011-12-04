@@ -1,7 +1,5 @@
 package org.dyndns.doujindb.log;
 
-//TODO import java.lang.management.ManagementFactory;
-
 /**  
 * Event.java - Logging event.
 * @author  nozomu

@@ -1100,7 +1100,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.child(getUUID()).doInsert(Book.class);
+		Book book = Client.DB.childContext(getUUID()).doInsert(Book.class);
 		book.setJapaneseName(doujin.japaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.translatedName);
@@ -1117,12 +1117,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.child(getUUID()).getConventions(null))
+			for(Convention convention : Client.DB.childContext(getUUID()).getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.child(getUUID()).doInsert(Convention.class);
+				Convention convention = Client.DB.childContext(getUUID()).doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
 			}			
@@ -1133,12 +1133,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.child(getUUID()).getArtists(null))
+				for(Artist artist : Client.DB.childContext(getUUID()).getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.child(getUUID()).doInsert(Artist.class);
+					Artist artist = Client.DB.childContext(getUUID()).doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
 				}			
@@ -1150,12 +1150,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.child(getUUID()).getCircles(null))
+				for(Circle circle : Client.DB.childContext(getUUID()).getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.child(getUUID()).doInsert(Circle.class);
+					Circle circle = Client.DB.childContext(getUUID()).doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
 				}			
@@ -1167,12 +1167,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.child(getUUID()).getContents(null))
+				for(Content content : Client.DB.childContext(getUUID()).getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.child(getUUID()).doInsert(Content.class);
+					Content content = Client.DB.childContext(getUUID()).doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
 				}			
@@ -1184,12 +1184,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.child(getUUID()).getParodies(null))
+				for(Parody parody : Client.DB.childContext(getUUID()).getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.child(getUUID()).doInsert(Parody.class);
+					Parody parody = Client.DB.childContext(getUUID()).doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
 				}			
@@ -1197,7 +1197,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 					parsed.get("Parody://").addAll(temp);
 			}
 		}
-		Client.DB.child(getUUID()).doCommit();
+		Client.DB.childContext(getUUID()).doCommit();
 		return parsed;
 	}
 	

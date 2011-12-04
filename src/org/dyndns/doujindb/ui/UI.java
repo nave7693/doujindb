@@ -631,7 +631,7 @@ public void layoutContainer(Container parent)
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
 						"eMail : N/A<br>" +
-						"Website : <a href='http://doujindb.dyndns.org/'>http://doujindb.dyndns.org/</a><br>" +
+						"Website : <a href='http://doujindb.co.cc/'>http://doujindb.co.cc/</a><br>" +
 						"</span></body></html>");
 				JPanel bottom = new JPanel();
 				bottom.setLayout(new BorderLayout(5, 5));
@@ -913,20 +913,12 @@ public void layoutContainer(Container parent)
 					try
 					{
 						Client.connect();
-						//Client.connect("doujindb.dyndns.org", 1099);
-						/*try {
-							Client.connect(java.net.InetAddress.getLocalHost().getHostAddress(), 1099);
-						} catch (UnknownHostException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}*/
 						Client.DB.doRollback();
 						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
 						Core.Logger.log("Connected to " + Client.DB.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
 					} finally 
 					{
 						uiStatusBarConnect.setEnabled(true);

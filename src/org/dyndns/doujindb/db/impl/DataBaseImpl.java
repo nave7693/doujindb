@@ -1,7 +1,11 @@
 package org.dyndns.doujindb.db.impl;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.*;
+
+import javax.sql.DataSource;
 
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.access.*;
@@ -52,13 +56,16 @@ public final class DataBaseImpl implements DataBase
 			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
 			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
 			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
-			node.setDataSource(new PoolManager(driver,
+			PoolManager pool = new PoolManager(driver,
 					url,
 			        1,
 			        1,
 			        username,
-			        password));
-			
+			        password);
+			node.setDataSource(pool);
+			//Doesn't work, handle timeout manually
+			//pool.setLoginTimeout(3);
+			checkContext(pool, 3);
 			connID = url;
 		} catch (SQLException sqle) {
 			throw new DataBaseException(sqle);
@@ -85,7 +92,38 @@ public final class DataBaseImpl implements DataBase
 //		}
 	}
 	
-	public synchronized DataBase child(String ID) throws DataBaseException
+	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
+	{
+		final DataSource _ds = ds;
+		final int _timeout = timeout;
+		ExecutorService executor = Executors.newCachedThreadPool();
+		Callable<Connection> task = new Callable<Connection>()
+		{
+		   public Connection call()
+		   {
+		      try {
+				return _ds.getConnection();
+			} catch (SQLException sqle) {
+				return null;
+			}
+		   }
+		};
+		Future<Connection> future = executor.submit(task);
+		try {
+		   if(future.get(_timeout, TimeUnit.SECONDS) == null)
+			   throw new DataBaseException("Cannot initialize connection."); 
+		} catch (TimeoutException te) {
+			throw new DataBaseException("TimeoutException : Cannot initialize connection.");
+		} catch (InterruptedException ie) {
+			throw new DataBaseException("InterruptedException : Cannot initialize connection.");
+		} catch (ExecutionException ee) {
+			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
+		} finally {
+		   future.cancel(true);
+		}
+	}
+	
+	public synchronized DataBase childContext(String ID) throws DataBaseException
 	{
 		if(!children.containsKey(ID))
 		{

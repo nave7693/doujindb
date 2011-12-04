@@ -10,7 +10,7 @@ import org.dyndns.doujindb.db.records.*;
 */
 public interface DataBase
 {
-	public DataBase child(String ID) throws DataBaseException;
+	public DataBase childContext(String ID) throws DataBaseException;
 	public String getConnection() throws DataBaseException;
 	public void doCommit() throws DataBaseException;
 	public void doRollback() throws DataBaseException;

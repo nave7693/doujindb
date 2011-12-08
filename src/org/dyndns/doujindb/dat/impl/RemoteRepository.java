@@ -8,68 +8,68 @@ import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.dat.rmi.*;
 
 /** 
-* RemoteDataStore.java - DataStore on a remote disk.
+* RemoteRepository.java - Repository on a remote disk.
 * @author  nozomu
 * @version 1.0
 */
 @SuppressWarnings("serial")
-public final class RemoteDataStore implements DataStore, Serializable
+public final class RemoteRepository implements Repository, Serializable
 {
 	
-	private RMIDataStore remoteDataStore;
+	private RMIRepository remoteDataStore;
 	
-	public RemoteDataStore(RMIDataStore remoteDataStore) throws RemoteException
+	public RemoteRepository(RMIRepository remoteDataStore) throws RemoteException
 	{
 		this.remoteDataStore = remoteDataStore;
 	}
 	
 	@Override
-	public Set<DataSource> children() throws DataStoreException
+	public Set<DataFile> children() throws RepositoryException
 	{
 		try {
 			return remoteDataStore.children();
 		} catch (RemoteException re) {
-			throw new DataStoreException("RemoteException " + re);
+			throw new RepositoryException("RemoteException " + re);
 		}
 	}
 
 	@Override
-	public DataSource child(String name) throws DataStoreException
+	public DataFile child(String name) throws RepositoryException
 	{
 		try {
 			return remoteDataStore.child(name);
 		} catch (RemoteException re) {
-			throw new DataStoreException("RemoteException " + re);
+			throw new RepositoryException("RemoteException " + re);
 		}
 	}
 	
 	@Override
-	public long size() throws DataStoreException
+	public long size() throws RepositoryException
 	{
 		try {
 			return remoteDataStore.size();
 		} catch (RemoteException re) {
-			throw new DataStoreException("RemoteException " + re);
+			throw new RepositoryException("RemoteException " + re);
 		}
 	}
 	
 	@Override
-	public DataSource getMetadata(String ID) throws DataStoreException
+	public DataFile getMetadata(String ID) throws RepositoryException
 	{
 		try {
 			return remoteDataStore.getMetadata(ID);
 		} catch (RemoteException re) {
-			throw new DataStoreException("RemoteException " + re);
+			throw new RepositoryException("RemoteException " + re);
 		}
 	}
 
 	@Override
-	public DataSource getPreview(String ID) throws DataStoreException
+	public DataFile getPreview(String ID) throws RepositoryException
 	{
 		try {
 			return remoteDataStore.getPreview(ID);
 		} catch (RemoteException re) {
-			throw new DataStoreException("RemoteException " + re);
+			throw new RepositoryException("RemoteException " + re);
 		}
 	}
 }

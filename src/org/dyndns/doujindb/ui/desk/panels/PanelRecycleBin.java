@@ -11,7 +11,7 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
-import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.Artist;
@@ -219,14 +219,14 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										for(Parody o : value.getParodies())
 											value.removeParody(o);
 										Client.DB.doDelete(value);
-										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getSelectedItems())
 									{
 										for(Artist o : value.getArtists())
 											value.removeArtist(o);
 										Client.DB.doDelete(value);
-										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getSelectedItems())
 									{
@@ -362,14 +362,14 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 										for(Parody o : value.getParodies())
 											value.removeParody(o);
 										Client.DB.doDelete(value);
-										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getItems())
 									{
 										for(Artist o : value.getArtists())
 											value.removeArtist(o);
 										Client.DB.doDelete(value);
-										try { Client.DS.child(value.getID()).delete(); } catch (DataStoreException dse) { ; }
+										try { Client.DS.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getItems())
 									{

@@ -79,7 +79,7 @@ public class PanelBookMedia extends JPanel implements Validable
 								return;
 							}
 							File files[] = fc.getSelectedFiles();
-							DataSource up_folder = Client.DS.child(tokenBook.getID());
+							DataFile up_folder = Client.DS.child(tokenBook.getID());
 							Thread uploader = new Uploader(up_folder, files);
 							uploader.start();
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
@@ -123,15 +123,15 @@ public class PanelBookMedia extends JPanel implements Validable
 								return;
 							}
 							File dl_folder = fc.getSelectedFile();
-							Set<DataSource> dss = new TreeSet<DataSource>();
+							Set<DataFile> dss = new TreeSet<DataFile>();
 							{
 								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataSource root_ds = Client.DS.child(tokenBook.getID());
+								DataFile root_ds = Client.DS.child(tokenBook.getID());
 								for(TreePath path : paths)
 								try
 								{
 									Object os[] = path.getPath();
-									DataSource ds;
+									DataFile ds;
 									if(os[0].toString().startsWith("/"))
 										ds = root_ds.child(os[0].toString().substring(1));
 									else
@@ -203,12 +203,12 @@ public class PanelBookMedia extends JPanel implements Validable
 						try
 						{
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataSource root_ds = Client.DS.child(tokenBook.getID());
+							DataFile root_ds = Client.DS.child(tokenBook.getID());
 							for(TreePath path : paths)
 							try
 							{
 								Object os[] = path.getPath();
-								DataSource ds = root_ds;
+								DataFile ds = root_ds;
 //								if(os[0].toString().startsWith("/"))
 //									ds = root_ds.child(os[0].toString().substring(1));
 //								else
@@ -340,7 +340,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	{
 		renderIcon=new Hashtable<String,Icon>();
 	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
-	    renderIcon.put("/",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/DataStore"));
+	    renderIcon.put("/",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Repository"));
 	    renderIcon.put("?",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Unknown"));
 	    renderIcon.put("Folder",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Folder"));
 	    renderIcon.put(".zip",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Archive"));
@@ -392,10 +392,10 @@ public class PanelBookMedia extends JPanel implements Validable
 	}
 	}
 	
-	private void buildTree(DataSource dss, MutableTreeNode parent) throws DataStoreException, DataBaseException
+	private void buildTree(DataFile dss, MutableTreeNode parent) throws RepositoryException, DataBaseException
 	{
 		int k = 0; 
-		for(DataSource ds : dss.children())
+		for(DataFile ds : dss.children())
 		{
 	        if(ds.isDirectory())
 	        {
@@ -449,18 +449,18 @@ public class PanelBookMedia extends JPanel implements Validable
 		private Timer clock;
 		
 		private File dl_root;
-		private Set<DataSource> dss;
+		private Set<DataFile> dss;
 		
-		public Downloader(File dl_root, Set<DataSource> dss)
+		public Downloader(File dl_root, Set<DataFile> dss)
 		{
 			this.dl_root = dl_root;
 			this.dss = dss;
 		}
 		
-		private int count(DataSource ds_root) throws DataStoreException, DataBaseException
+		private int count(DataFile ds_root) throws RepositoryException, DataBaseException
 		{
 			int count = 0;
-			for(DataSource ds : ds_root.children())
+			for(DataFile ds : ds_root.children())
 				if(ds.isDirectory())
 					count += count(ds);
 				else
@@ -468,7 +468,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			return count;
 		}
 		
-		private void download(DataSource dl) throws IOException, Exception
+		private void download(DataFile dl) throws IOException, Exception
 		{
 			File dst = new File(dl_root, dl.getPath());
 			label_file_current = dl.getName();
@@ -476,7 +476,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			{
 				progress_overall_current++;
 				dst.mkdirs();
-				for(DataSource ds : dl.children())
+				for(DataFile ds : dl.children())
 					download(ds);
 			}else
 			{
@@ -554,9 +554,9 @@ public class PanelBookMedia extends JPanel implements Validable
 						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
 						"Downloading ...");
 				progress_overall_max = 0;
-				for(DataSource ds : dss)
+				for(DataFile ds : dss)
 					progress_overall_max += count(ds);
-				for(DataSource ds : dss)
+				for(DataFile ds : dss)
 				{
 					try
 					{
@@ -596,7 +596,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			} catch (PropertyVetoException pve) {
 				Core.Logger.log(pve.getMessage(), Level.WARNING);
 				pve.printStackTrace();
-			} catch (DataStoreException dse) {
+			} catch (RepositoryException dse) {
 				Core.Logger.log(dse.getMessage(), Level.WARNING);
 				dse.printStackTrace();
 			} catch (DataBaseException dbe) {
@@ -666,10 +666,10 @@ public class PanelBookMedia extends JPanel implements Validable
 		private boolean stopped = false;
 		private Timer clock;
 		
-		private DataSource up_root;
+		private DataFile up_root;
 		private File[] files;
 		
-		public Uploader(DataSource up_root, File[] files)
+		public Uploader(DataFile up_root, File[] files)
 		{
 			this.up_root = up_root;
 			this.files = files;
@@ -686,9 +686,9 @@ public class PanelBookMedia extends JPanel implements Validable
 			return count;
 		}
 		
-		private void upload(File up, DataSource path) throws IOException, Exception
+		private void upload(File up, DataFile path) throws IOException, Exception
 		{
-			DataSource dst = path.child(up.getName());
+			DataFile dst = path.child(up.getName());
 			label_file_current = up.getName();
 			if(up.isDirectory())
 			{

@@ -4,7 +4,7 @@ import java.net.*;
 import java.rmi.*;
 
 import org.dyndns.doujindb.conf.PropertyException;
-import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.dat.impl.*;
 import org.dyndns.doujindb.dat.rmi.*;
 import org.dyndns.doujindb.db.impl.*;

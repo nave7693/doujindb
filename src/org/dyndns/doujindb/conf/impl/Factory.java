@@ -3,7 +3,7 @@ package org.dyndns.doujindb.conf.impl;
 import org.dyndns.doujindb.conf.*;
 
 /**  
-* Factory.java - DataStore service factory.
+* Factory.java - Repository service factory.
 * @author  nozomu
 * @version 1.0
 */

@@ -14,7 +14,7 @@ import org.dyndns.doujindb.db.impl.*;
 public final class Client
 {
 	public static DataBase DB;
-	public static DataStore DS;
+	public static Repository DS;
 	
 	public static boolean isConnected()
 	{
@@ -36,7 +36,7 @@ public final class Client
 		if(DB != null)
 			throw new RuntimeException("Client already connected.");
 		DB = new DataBaseImpl();
-		DS = new DataStoreImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
+		DS = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 //        try { 
 ////        	DB = new RemoteDataBase(
 ////        				(RMIDataBase)
@@ -47,10 +47,10 @@ public final class Client
 ////        					Naming.lookup(
 ////        							"rmi://" + host + ":" + port + "/DataBase");
 //        	
-//        	DS = new RemoteDataStore(
-//        				(RMIDataStore)
+//        	DS = new RemoteRepository(
+//        				(RMIRepository)
 //        					Naming.lookup(
-//        							"rmi://" + host + ":" + port + "/DataStore")
+//        							"rmi://" + host + ":" + port + "/Repository")
 //        						);
 //        } 
 //        catch (MalformedURLException murle) { 

@@ -23,7 +23,6 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
-import org.dyndns.doujindb.ui.desk.panels.DouzPopupMenu;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -1191,7 +1190,7 @@ public final class DoujinshiDBScanner implements Plugin
 					try
 					{
 						description = "Creating preview into the Datastore  ...";
-						DataSource ds = Client.DS.child(importedBook.getID());
+						DataFile ds = Client.DS.child(importedBook.getID());
 						ds.mkdir();
 						ds = Client.DS.getPreview(importedBook.getID());
 						ds.touch();
@@ -1266,9 +1265,9 @@ public final class DoujinshiDBScanner implements Plugin
 				return null;
 			}
 			
-			private void fileCopy(File file, DataSource ds) throws IOException
+			private void fileCopy(File file, DataFile ds) throws IOException
 			{
-				DataSource dst = ds.child(file.getName());
+				DataFile dst = ds.child(file.getName());
 				if(file.isDirectory())
 				{
 					dst.mkdirs();

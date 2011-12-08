@@ -666,7 +666,7 @@ public void layoutContainer(Container parent)
 			try
 			{
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/list"));
+				desktop.browse(new URI("http://doujindb.co.cc/bugtrack/"));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 				Core.Logger.log(ioe.getMessage(), Level.WARNING);

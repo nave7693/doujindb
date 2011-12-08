@@ -11,8 +11,8 @@ import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
-import org.dyndns.doujindb.dat.DataSource;
-import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.dat.DataFile;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -71,7 +71,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		else
 		try
 		{
-			DataSource ds = Client.DS.child(tokenCircle.getID());
+			DataFile ds = Client.DS.child(tokenCircle.getID());
 			ds.mkdir();
 			ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 			if(ds.exists())
@@ -130,7 +130,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									return;
 								try
 								{
-									DataSource ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.touch();
@@ -149,7 +149,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								}
 								try
 								{
-									DataSource ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									if(ds.exists())
@@ -162,7 +162,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								} catch (IOException e) {
 									e.printStackTrace();
 									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-								} catch (DataStoreException dse) {
+								} catch (RepositoryException dse) {
 									dse.printStackTrace();
 								} catch (DataBaseException dbe) {
 									dbe.printStackTrace();
@@ -173,7 +173,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 							{
 								try
 								{
-									DataSource ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Client.DS.child(tokenCircle.getID());
 									ds.mkdir();
 									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.delete();

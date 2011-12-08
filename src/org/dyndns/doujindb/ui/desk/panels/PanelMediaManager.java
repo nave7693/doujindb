@@ -14,8 +14,8 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.Client;
-import org.dyndns.doujindb.dat.DataSource;
-import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.dat.DataFile;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
@@ -172,7 +172,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 							JPanel panel = new JPanel();
 							panel.setSize(250, 150);
 							panel.setLayout(new GridLayout(2, 1));
-							JLabel lab = new JLabel("<html><body>Delete selected media files from the DataStore?<br/><i>(This cannot be undone)</i></body></html>");
+							JLabel lab = new JLabel("<html><body>Delete selected media files from the Repository?<br/><i>(This cannot be undone)</i></body></html>");
 							lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 							lab.setFont(Core.Resources.Font);
 							panel.add(lab);
@@ -204,7 +204,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 									{
 										try {
 											Client.DS.child(key.getID()).delete();
-										} catch (DataStoreException dse) {
+										} catch (RepositoryException dse) {
 											Core.Logger.log(dse.getMessage(), Level.ERROR);
 											dse.printStackTrace();
 										} catch (DataBaseException dbe) {
@@ -735,7 +735,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				for(Book book : books)
 				{
 					File zip = new File(dest, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
-					DataSource ds = Client.DS.child(book.getID());
+					DataFile ds = Client.DS.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
 					progressbar_overall.setString(book.toString());
@@ -777,10 +777,10 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			window.dispose();
 		}
 		
-		private int count(DataSource ds_root) throws DataStoreException
+		private int count(DataFile ds_root) throws RepositoryException
 		{
 			int count = 0;
-			for(DataSource ds : ds_root.children())
+			for(DataFile ds : ds_root.children())
 				if(ds.isDirectory())
 					count += count(ds);
 				else
@@ -788,9 +788,9 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			return count;
 		}
 		
-		private void zip(String base, Set<DataSource> dss, ZipOutputStream zout) throws IOException, Exception
+		private void zip(String base, Set<DataFile> dss, ZipOutputStream zout) throws IOException, Exception
 		{
-			for(DataSource ds : dss)
+			for(DataFile ds : dss)
 			{
 				if(ds.isDirectory())
 				{
@@ -930,7 +930,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 							if(entry.getName().equals(PACKAGE_INDEX))
 							{
 								valid = true;
-								DataSource ds = Client.DS.child(parseXML(zip.getInputStream(entry)));
+								DataFile ds = Client.DS.child(parseXML(zip.getInputStream(entry)));
 								ds.mkdirs();
 								;
 								entries = zip.entries();
@@ -951,7 +951,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 											progress_file_current++;
 											continue;
 										}
-										DataSource ds0 = ds.child(entry.getName().substring(PACKAGE_MEDIA.length()));
+										DataFile ds0 = ds.child(entry.getName().substring(PACKAGE_MEDIA.length()));
 										if(entry.isDirectory())
 										{
 											ds0.mkdirs();
@@ -987,7 +987,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						progress_overall_current++;
 					} catch (IOException ioe) {
 						errors.add(file.getName());
-					} catch (DataStoreException dse) {
+					} catch (RepositoryException dse) {
 						errors.add(file.getName());
 					} catch (DataBaseException dbe) {
 						errors.add(file.getName());

@@ -101,7 +101,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Book/Rating/Unchecked","jdesktop/explorer/book/rating/unchecked.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media","jdesktop/explorer/book/media.png");
 		iconKeys.put("JDesktop/Explorer/Book/Cover","jdesktop/explorer/book/cover.png");
-		iconKeys.put("JDesktop/Explorer/Book/Media/DataStore","jdesktop/explorer/book/media/datastore.png");
+		iconKeys.put("JDesktop/Explorer/Book/Media/Repository","jdesktop/explorer/book/media/datastore.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Types/Folder","jdesktop/explorer/book/media/types/folder.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Types/Archive","jdesktop/explorer/book/media/types/archive.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Types/Unknown","jdesktop/explorer/book/media/types/unknown.png");

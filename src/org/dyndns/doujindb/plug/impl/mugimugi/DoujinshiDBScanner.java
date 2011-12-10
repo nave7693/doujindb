@@ -42,7 +42,7 @@ public final class DoujinshiDBScanner implements Plugin
 	public String USERID;
 	public String USERNAME;
 	
-	private Component UI;
+	private JComponent UI;
 	private static ImageIcon pluginIcon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/plugin-icon.png"));
 	private static ImageIcon iconRefresh = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/refresh.png"));
 	private static ImageIcon iconAdd = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/add.png"));
@@ -128,7 +128,7 @@ public final class DoujinshiDBScanner implements Plugin
 		return "http://doujindb.dyndns.org/";
 	}
 	@Override
-	public Component getUI() {
+	public JComponent getUI() {
 		return UI;
 	}
 	

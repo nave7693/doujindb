@@ -69,7 +69,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private JCheckBox checkColored;
 	private BookRatingEditor editorRating;
 	private JTabbedPane tabLists;
-	private RecordArtistEditor editorArtist;
+	private RecordArtistEditor editorArtists;
 	private RecordCircleEditor editorCircles;
 	private RecordContentEditor editorContents;
 	private RecordParodyEditor editorParodies;
@@ -128,6 +128,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
+				if(tokenBook.isRecycled())
+					return;
 				if(tokenBook.getID() == null)
 					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
@@ -342,8 +344,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		rootInfo.add(labelType);
 		rootInfo.add(comboType);
 		tabLists.addTab("General", Core.Resources.Icons.get("JDesktop/Explorer/Book/Info"), rootInfo);
-		editorArtist = new RecordArtistEditor(tokenBook);
-		tabLists.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtist);
+		editorArtists = new RecordArtistEditor(tokenBook);
+		tabLists.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
 		editorCircles = new RecordCircleEditor(tokenBook);
 		editorCircles.setEnabled(false);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
@@ -360,6 +362,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		buttonConfirm.addActionListener(this);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -490,9 +493,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				tokenBook.setTranslated(checkTranslated.isSelected());
 				tokenBook.setColored(checkColored.isSelected());
 				for(Artist b : tokenBook.getArtists())
-					if(!editorArtist.contains(b))
+					if(!editorArtists.contains(b))
 						tokenBook.removeArtist(b);
-				java.util.Iterator<Artist> Artists = editorArtist.iterator();
+				java.util.Iterator<Artist> Artists = editorArtists.iterator();
 				while(Artists.hasNext())
 					tokenBook.addArtist(Artists.next());
 				for(Content c : tokenBook.getContents())
@@ -523,6 +526,27 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenBook.isRecycled())
+		{
+			textJapaneseName.setEditable(false);
+			textTranslatedName.setEditable(false);
+			textRomanjiName.setEditable(false);
+			textInfo.setEditable(false);
+			textDate.setEditable(false);
+			textPages.setEditable(false);
+			comboType.setEnabled(false);
+			comboConvention.setEnabled(false);
+			checkAdult.setEnabled(false);
+			checkDecensored.setEnabled(false);
+			checkTranslated.setEnabled(false);
+			checkColored.setEnabled(false);
+			editorRating.setEnabled(false);
+			editorArtists.setEnabled(false);
+			editorCircles.setEnabled(false);
+			editorContents.setEnabled(false);
+			editorParodies.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 		if(tokenBook.getID() == null)
 			labelPreview.setEnabled(false);
 		else
@@ -545,7 +569,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Artist)
-				editorArtist.validateUI(ve);
+				editorArtists.validateUI(ve);
 			if(ve.getParameter() instanceof Circle)
 				editorCircles.validateUI(ve);
 			if(ve.getParameter() instanceof Content)
@@ -554,7 +578,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				editorParodies.validateUI(ve);
 		}else
 		{
-			editorArtist.validateUI(ve);
+			editorArtists.validateUI(ve);
 			editorCircles.validateUI(ve);
 			editorContents.validateUI(ve);
 			editorParodies.validateUI(ve);

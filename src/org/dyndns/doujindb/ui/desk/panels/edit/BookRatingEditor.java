@@ -114,6 +114,12 @@ public class BookRatingEditor extends JPanel
 			;
 		}
 	}
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		for(JButton b : buttons)
+			b.setEnabled(enabled);
+	}
 	public Rating getRating()
 	{
 		return bookRating;

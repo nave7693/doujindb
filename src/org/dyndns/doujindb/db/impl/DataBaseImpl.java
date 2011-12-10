@@ -109,14 +109,19 @@ public final class DataBaseImpl implements DataBase
 		   }
 		};
 		Future<Connection> future = executor.submit(task);
-		try {
-		   if(future.get(_timeout, TimeUnit.SECONDS) == null)
-			   throw new DataBaseException("Cannot initialize connection."); 
+		try
+		{
+			Connection conn = future.get(_timeout, TimeUnit.SECONDS);
+			if(conn == null)
+				throw new DataBaseException("Cannot initialize connection.");
+			conn.close();
 		} catch (TimeoutException te) {
 			throw new DataBaseException("TimeoutException : Cannot initialize connection.");
 		} catch (InterruptedException ie) {
 			throw new DataBaseException("InterruptedException : Cannot initialize connection.");
 		} catch (ExecutionException ee) {
+			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
+		} catch (SQLException sqle) {
 			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
 		} finally {
 		   future.cancel(true);

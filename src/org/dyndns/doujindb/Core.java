@@ -26,6 +26,8 @@ public final class Core implements Runnable
 	@Override
 	public void run()
 	{
+		boolean isConfigurationWizard = false;
+		
 		new File(System.getProperty("user.home"), ".doujindb").mkdir();
 		new File(System.getProperty("user.home"), ".doujindb/lib").mkdir();
 		new File(System.getProperty("user.home"), ".doujindb/rc").mkdir();
@@ -48,6 +50,7 @@ public final class Core implements Runnable
 		{
 			Logger.log("Failed to load system Properties : " + e.getMessage() + ".", Level.ERROR);
 			Logger.log("System Properties restored to default.", Level.INFO);
+			isConfigurationWizard = true;
 		}
 		if(java.awt.GraphicsEnvironment.isHeadless()) 
 		{
@@ -73,6 +76,12 @@ public final class Core implements Runnable
 		String title = "DoujinDB v" + Core.class.getPackage().getSpecificationVersion();
 		UI = new UI(title);
 		Core.Logger.log("User interface loaded.", Level.INFO);
+		
+		if(isConfigurationWizard)
+		{
+			Core.Logger.log("Running first run wizard ...", Level.INFO);
+			UI.showConfigurationWizard();
+		}
 		try
 		{
 			Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));

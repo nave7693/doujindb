@@ -133,10 +133,18 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		}
 		buttonConfirm.setEnabled(true);
 		buttonConfirm.setIcon(null);
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenContent.isRecycled())
+		{
+			textTagName.setEditable(false);
+			textInfo.setEditable(false);
+			editorWorks.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Book)

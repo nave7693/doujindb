@@ -92,6 +92,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			@Override
 			public void mouseClicked(MouseEvent me)
 			{
+				if(tokenCircle.isRecycled())
+					return;
 				if(tokenCircle.getID() == null)
 					return;
 				if(me.getButton() == MouseEvent.BUTTON3)
@@ -213,6 +215,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		pane.add(labelBanner);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -298,6 +301,16 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenCircle.isRecycled())
+		{
+			textJapaneseName.setEditable(false);
+			textTranslatedName.setEditable(false);
+			textRomanjiName.setEditable(false);
+			textWeblink.setEditable(false);
+			editorWorks.setEnabled(false);
+			editorArtists.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 		if(tokenCircle.getID() == null)
 			labelBanner.setEnabled(false);
 		else

@@ -17,7 +17,7 @@ import org.dyndns.doujindb.ui.desk.panels.*;
 @SuppressWarnings("serial")
 public final class DouzWindow extends JInternalFrame implements LayoutManager, Validable
 {
-	private Component root = new JPanel();
+	private JComponent root = new JPanel();
 	private Vector<Validable> validable = new Vector<Validable>();
 	private Type type;
 	private Object item;

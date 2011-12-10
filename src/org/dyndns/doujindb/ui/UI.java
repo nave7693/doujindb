@@ -92,6 +92,18 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		return uiPanelGlass;
 	}
+	
+	public void showConfigurationWizard()
+	{
+		ConfigurationWizard firstRun = new ConfigurationWizard();
+		firstRun.setSize(300,300);
+		try {
+			Core.UI.Desktop.showDialog(
+					firstRun,
+					Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Icon"),
+					"Configuration Wizard");
+		} catch (PropertyVetoException pve) { } 
+	}
 
 @SuppressWarnings("serial")
 public UI(String title)
@@ -565,7 +577,7 @@ public void layoutContainer(Container parent)
 	{
 		return new Dimension(400,350);
 	}
-
+	@Override
 	public void actionPerformed(ActionEvent event)
 	{
 		if(event.getSource() == menuLogsMessage ||
@@ -2222,5 +2234,122 @@ public void layoutContainer(Container parent)
 				}
 		}
 		Desktop.validateUI(ve);	
+	}
+	
+	@SuppressWarnings("serial")
+	private final class ConfigurationWizard extends JComponent implements Runnable, LayoutManager, ActionListener
+	{
+		private Color color = Color.DARK_GRAY.darker();
+		private JLabel uiBottomDivisor;
+		private JButton uiButtonNext;
+		private JButton uiButtonPrev;
+		private JButton uiButtonFinish;
+		private JButton uiButtonCanc;
+		private JLabel uiLabelHeader;
+		private JLabel uiLabelHeaderImage;
+		
+		public ConfigurationWizard()
+		{
+			uiLabelHeader = new JLabel();
+			uiLabelHeader.setOpaque(true);
+			uiLabelHeader.setBackground(color);
+			super.add(uiLabelHeader);
+			uiLabelHeaderImage = new JLabel(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Header"));
+			uiLabelHeaderImage.setOpaque(true);
+			uiLabelHeaderImage.setBackground(color);
+			super.add(uiLabelHeaderImage);
+			uiBottomDivisor = new JLabel();
+			uiBottomDivisor.setOpaque(true);
+			uiBottomDivisor.setBackground(color);
+			super.add(uiBottomDivisor);
+			uiButtonNext = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Next"));
+			uiButtonNext.addActionListener(this);
+			uiButtonNext.setBorder(null);
+			uiButtonNext.setFocusable(false);
+			uiButtonNext.setText("Next");
+			uiButtonNext.setToolTipText("Next");
+			uiButtonNext.setMnemonic('N');
+			uiButtonNext.setBorderPainted(true);
+			uiButtonNext.setBorder(BorderFactory.createLineBorder(color));
+			super.add(uiButtonNext);
+			uiButtonPrev = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Prev"));
+			uiButtonPrev.addActionListener(this);
+			uiButtonPrev.setBorder(null);
+			uiButtonPrev.setFocusable(false);
+			uiButtonPrev.setText("Back");
+			uiButtonPrev.setToolTipText("Back");
+			uiButtonPrev.setMnemonic('B');
+			uiButtonPrev.setBorderPainted(true);
+			uiButtonPrev.setBorder(BorderFactory.createLineBorder(color));
+			super.add(uiButtonPrev);
+			uiButtonFinish = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Finish"));
+			uiButtonFinish.addActionListener(this);
+			uiButtonFinish.setBorder(null);
+			uiButtonFinish.setFocusable(false);
+			uiButtonFinish.setText("Finish");
+			uiButtonFinish.setToolTipText("Finish");
+			uiButtonFinish.setMnemonic('F');
+			uiButtonFinish.setBorderPainted(true);
+			uiButtonFinish.setBorder(BorderFactory.createLineBorder(color));
+			super.add(uiButtonFinish);
+			uiButtonCanc = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Cancel"));
+			uiButtonCanc.addActionListener(this);
+			uiButtonCanc.setBorder(null);
+			uiButtonCanc.setFocusable(false);
+			uiButtonCanc.setText("Cancel");
+			uiButtonCanc.setToolTipText("Cancel");
+			uiButtonCanc.setMnemonic('C');
+			uiButtonCanc.setBorderPainted(true);
+			uiButtonCanc.setBorder(BorderFactory.createLineBorder(color));
+			uiButtonCanc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+					window.dispose();
+				}					
+			});
+			super.add(uiButtonCanc);
+			
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c){}
+		@Override
+		public void removeLayoutComponent(Component c){}
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		@Override
+		public void actionPerformed(ActionEvent event)
+		{
+			
+		}
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			uiLabelHeader.setBounds(0,0,width-48,48);
+			uiLabelHeaderImage.setBounds(width-48,0,48,48);
+			uiBottomDivisor.setBounds(5,height-30,width-10,1);
+			uiButtonNext.setBounds(width-80,height-25,75,20);
+			uiButtonPrev.setBounds(width-160,height-25,75,20);
+			uiButtonCanc.setBounds(5,height-25,75,20);
+		}
+		@Override
+		public void run()
+		{
+			
+		}
 	}
 }

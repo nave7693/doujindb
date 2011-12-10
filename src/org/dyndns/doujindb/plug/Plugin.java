@@ -1,7 +1,7 @@
 package org.dyndns.doujindb.plug;
 
-import java.awt.Component;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 
 /**  
 * Plugin.java - Every plugin must implement this - No Exceptions
@@ -22,5 +22,5 @@ public interface Plugin
 	
 	public String getWeblink();
 	
-	public Component getUI();
+	public JComponent getUI();
 }

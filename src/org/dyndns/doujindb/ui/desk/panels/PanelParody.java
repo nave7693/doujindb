@@ -73,6 +73,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -157,6 +158,15 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenParody.isRecycled())
+		{
+			textJapaneseName.setEditable(false);
+			textTranslatedName.setEditable(false);
+			textRomanjiName.setEditable(false);
+			textWeblink.setEditable(false);
+			editorWorks.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Book)

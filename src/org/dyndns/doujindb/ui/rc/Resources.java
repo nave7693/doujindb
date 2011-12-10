@@ -12,7 +12,7 @@ public final class Resources
 {
 	public Hashtable<String, String> Strings;
 	public Hashtable<String, ImageIcon> Icons;
-	public Font Font = new Font("Verdana", java.awt.Font.PLAIN, 10);
+	public Font Font = new Font("Tahoma", java.awt.Font.PLAIN, 10);
 	
 	public Resources() throws Exception
 	{
@@ -127,6 +127,13 @@ public final class Resources
 		iconKeys.put("JFrame/MediaManager/Import","jframe/mediamanager/import.png");
 		iconKeys.put("JFrame/MediaManager/Export","jframe/mediamanager/export.png");
 		iconKeys.put("JFrame/MediaManager/Delete","jframe/mediamanager/delete.png");
+		iconKeys.put("JFrame/Dialog/About","jframe/dialog/about.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Icon","jframe/dialog/confwiz/icon.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Next","jframe/dialog/confwiz/next.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Prev","jframe/dialog/confwiz/prev.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Finish","jframe/dialog/confwiz/finish.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Cancel","jframe/dialog/confwiz/cancel.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Header","jframe/dialog/confwiz/header.png");
 		iconKeys.put("JFrame/Dialog/About","jframe/dialog/about.png");
 		iconKeys.put("JDesktop/Wallpaper/Import","jdesktop/wallpaper/import.png");
 		iconKeys.put("JDesktop/RecycleBin/Full","jdesktop/recyclebin/full.png");

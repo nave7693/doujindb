@@ -77,12 +77,13 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-		height = parent.getHeight();
+			height = parent.getHeight();
 		labelJapaneseName.setBounds(3, 3, 100, 15);
 		textJapaneseName.setBounds(103, 3, width - 106, 15);
 		labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
@@ -167,6 +168,16 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenArtist.isRecycled())
+		{
+			textJapaneseName.setEditable(false);
+			textTranslatedName.setEditable(false);
+			textRomanjiName.setEditable(false);
+			textWeblink.setEditable(false);
+			editorWorks.setEnabled(false);
+			editorCircles.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
 		{
 			if(ve.getParameter() instanceof Circle)

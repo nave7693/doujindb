@@ -23,7 +23,7 @@ final class XMLProperties implements Properties
 		values = new HashMap<String, Property>();
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue(new Font("Lucida Sans", Font.PLAIN, 12));
+			prop.setValue(new Font("Lucida Console", Font.PLAIN, 11));
 			prop.setDescription("<html><body>Default JCK font.<br/>Used to render Japanese/Chinese/Korean strings.</body></html>");
 			values.put("org.dyndns.doujindb.ui.font", prop);			
 		}
@@ -185,52 +185,44 @@ final class XMLProperties implements Properties
 		try
 		{
 			in = new FileInputStream(file);
-			JAXBContext context = JAXBContext.newInstance(XMLHashMap.class);
+			JAXBContext context = JAXBContext.newInstance(XMLPropertyList.class);
 			Unmarshaller um = context.createUnmarshaller();
-			XMLHashMap xmlvalues = (XMLHashMap) um.unmarshal(in);
+			XMLPropertyList xmlprops = (XMLPropertyList) um.unmarshal(in);
+			for(XMLProperty xmlprop : xmlprops.properties)
 			{
-				for(XMLProperty xmlprop : xmlvalues.properties)
+				Property prop = new PropertyImpl();
+				if(values.containsKey(xmlprop.key))
+					prop.setDescription(values.get(xmlprop.key).getDescription());
+				if(xmlprop.type.equals("Boolean"))
 				{
-					Property prop = new PropertyImpl();
-					prop.setDescription(xmlprop.description);
-					//TODO http://stackoverflow.com/questions/6231907/java-7-switch-statement-with-strings-not-working
-					/*switch(xmlprop.type)
-					{
-					case "":
-						break;
-					default:
-					}*/
-					if(xmlprop.type.equals("Boolean"))
-					{
-						Boolean value = Boolean.parseBoolean(xmlprop.value);
-						prop.setValue(value);
-					}
-					if(xmlprop.type.equals("Number"))
-					{
-						Integer value = Integer.parseInt(xmlprop.value);
-						prop.setValue(value);
-					}
-					if(xmlprop.type.equals("String"))
-					{
-						String value = xmlprop.value;
-						prop.setValue(value);
-					}
-					if(xmlprop.type.equals("Font"))
-					{
-						Font value = new Font(xmlprop.value, Font.PLAIN, 12);
-						prop.setValue(value);
-					}
-					if(xmlprop.type.equals("Color"))
-					{
-						String[] values = xmlprop.value.split(",");
-						Color value = new Color(Integer.parseInt(values[0]),
-												Integer.parseInt(values[1]),
-												Integer.parseInt(values[2]),
-												Integer.parseInt(values[3]));
-						prop.setValue(value);
-					}
-					values.put(xmlprop.key, prop);
+					Boolean value = Boolean.parseBoolean(xmlprop.value);
+					prop.setValue(value);
 				}
+				if(xmlprop.type.equals("Number"))
+				{
+					Integer value = Integer.parseInt(xmlprop.value);
+					prop.setValue(value);
+				}
+				if(xmlprop.type.equals("String"))
+				{
+					String value = xmlprop.value;
+					prop.setValue(value);
+				}
+				if(xmlprop.type.equals("Font"))
+				{
+					Font value = new Font(xmlprop.value, Font.PLAIN, 12);
+					prop.setValue(value);
+				}
+				if(xmlprop.type.equals("Color"))
+				{
+					String[] values = xmlprop.value.split(",");
+					Color value = new Color(Integer.parseInt(values[0]),
+											Integer.parseInt(values[1]),
+											Integer.parseInt(values[2]),
+											Integer.parseInt(values[3]));
+					prop.setValue(value);
+				}
+				values.put(xmlprop.key, prop);
 			}
 		} catch (NullPointerException npe) {
 			try { in.close(); } catch (Exception e) { }
@@ -252,17 +244,16 @@ final class XMLProperties implements Properties
 		try
 		{
 			out = new FileOutputStream(file);
-			JAXBContext context = JAXBContext.newInstance(XMLHashMap.class);
+			JAXBContext context = JAXBContext.newInstance(XMLPropertyList.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			XMLHashMap xmlvalues = new XMLHashMap();
+			XMLPropertyList xmlprops = new XMLPropertyList();
 			{
 				for(String key : values.keySet())
 				{
 					Property prop = values.get(key);
 					XMLProperty xmlprop = new XMLProperty();
 					xmlprop.key = key;
-					xmlprop.description = prop.getDescription();
 					if(prop.getValue() instanceof Boolean)
 					{
 						xmlprop.value = "" + ((Boolean) prop.getValue()) + "";
@@ -292,10 +283,10 @@ final class XMLProperties implements Properties
 											value.getAlpha() + "";
 						xmlprop.type = "Color";
 					}
-					xmlvalues.properties.add(xmlprop);
+					xmlprops.properties.add(xmlprop);
 				}
 			}
-			m.marshal(xmlvalues, out);
+			m.marshal(xmlprops, out);
 		} catch (NullPointerException npe) {
 			try { out.close(); } catch (Exception e) { }
 			throw new PropertyException(npe);
@@ -309,7 +300,7 @@ final class XMLProperties implements Properties
 	}
 	
 	@XmlRootElement(namespace = "org.dyndns.doujindb.conf", name="Properties")
-	private static final class XMLHashMap
+	private static final class XMLPropertyList
 	{
 		@XmlElements({
 		    @XmlElement(name="Property", type=XMLProperty.class)
@@ -324,8 +315,6 @@ final class XMLProperties implements Properties
 		private String key;
 		@XmlAttribute(name="Type", required=true)
 		private String type;
-		//@XmlElement(name="Description")
-		private String description;
 		@XmlElement(name="Value")
 		private String value;
 	}

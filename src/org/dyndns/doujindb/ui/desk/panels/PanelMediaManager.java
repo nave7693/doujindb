@@ -44,6 +44,8 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	private JButton mediaManagerImport;
 	private JButton mediaManagerExport;
 	private JButton mediaManagerDelete;
+	private JLabel mediaManagerLabelPreview;
+	private JLabel mediaManagerPreview;
 	
 	private JScrollPane scrollListMedia;
 	private DouzCheckBoxList<Book> checkboxListMedia;
@@ -236,6 +238,15 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			}
 		});
 		panel1.add(mediaManagerDelete);
+		mediaManagerLabelPreview = new JLabel(" Preview");
+		mediaManagerLabelPreview.setBackground((Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker().darker());
+		mediaManagerLabelPreview.setOpaque(true);
+		mediaManagerLabelPreview.setFont(Core.Resources.Font);
+		panel1.add(mediaManagerLabelPreview);
+		mediaManagerPreview = new JLabel();
+		mediaManagerPreview.setOpaque(true);
+		mediaManagerPreview.setBackground(Color.RED); //TODO
+		panel1.add(mediaManagerPreview);
 		JTextField searchField = new JTextField(".*");
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
@@ -280,7 +291,11 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		mediaManagerImport.setBounds(3,75+45+1,125,20);
 		mediaManagerExport.setBounds(3,75+65+1,125,20);
 		mediaManagerDelete.setBounds(3,75+85+1,125,20);
+		mediaManagerLabelPreview.setBounds(0,75+125+1,130,20);
+		mediaManagerPreview.setBounds(3,75+130+1,125,120);
 		//TODO
+		mediaManagerPreview.setVisible(false);
+		mediaManagerLabelPreview.setVisible(false);
 		mediaManagerDelete.setEnabled(false);
 		mediaManagerDelete.setVisible(false);
 		split.setBounds(0, 0, width,  height);

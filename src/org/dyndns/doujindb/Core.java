@@ -79,7 +79,7 @@ public final class Core implements Runnable
 		
 		if(isConfigurationWizard)
 		{
-			Core.Logger.log("Running first run wizard ...", Level.INFO);
+			Core.Logger.log("Running configuration wizard ...", Level.INFO);
 			UI.showConfigurationWizard();
 		}
 		try

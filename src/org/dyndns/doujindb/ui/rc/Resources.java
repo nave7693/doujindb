@@ -134,6 +134,11 @@ public final class Resources
 		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Finish","jframe/dialog/confwiz/finish.png");
 		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Cancel","jframe/dialog/confwiz/cancel.png");
 		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Header","jframe/dialog/confwiz/header.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Loading","jframe/dialog/confwiz/loading.gif");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/DBTest","jframe/dialog/confwiz/dbtest.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/DSTest","jframe/dialog/confwiz/dstest.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Success","jframe/dialog/confwiz/success.png");
+		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Error","jframe/dialog/confwiz/error.png");
 		iconKeys.put("JFrame/Dialog/About","jframe/dialog/about.png");
 		iconKeys.put("JDesktop/Wallpaper/Import","jdesktop/wallpaper/import.png");
 		iconKeys.put("JDesktop/RecycleBin/Full","jdesktop/recyclebin/full.png");

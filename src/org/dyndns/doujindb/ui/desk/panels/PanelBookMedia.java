@@ -273,6 +273,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			}
 		});
 		displayUI();
+		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
 	}
 	
 	private void displayUI()
@@ -432,6 +433,15 @@ public class PanelBookMedia extends JPanel implements Validable
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
+		if(tokenBook.isRecycled())
+		{
+			buttonReload.setEnabled(false);
+			buttonUpload.setEnabled(false);
+			buttonDownload.setEnabled(false);
+			buttonDelete.setEnabled(false);
+			treeMedia.setEnabled(false);
+			treeMediaScroll.setEnabled(false);
+		}
 		super.validate();		
 	}
 	

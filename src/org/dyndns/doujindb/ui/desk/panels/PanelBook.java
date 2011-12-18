@@ -511,7 +511,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				while(parodies.hasNext())
 					tokenBook.addParody(parodies.next());
 				{
-					writeXML(tokenBook, Client.DS.getMetadata(tokenBook.getID()).getOutputStream());
+					if(tokenBook.getID() != null)
+						writeXML(tokenBook, Client.DS.getMetadata(tokenBook.getID()).getOutputStream());
 				}
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);

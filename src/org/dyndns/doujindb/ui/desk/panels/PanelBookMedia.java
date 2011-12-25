@@ -334,7 +334,8 @@ public class PanelBookMedia extends JPanel implements Validable
 		super.setCellRenderer(CheckBoxRenderer);
 	}
 
-	private final class MediaTreeRenderer extends DefaultTreeCellRenderer{
+	private final class MediaTreeRenderer extends DefaultTreeCellRenderer
+	{
 		private Hashtable<String,Icon> renderIcon;
 
 	public MediaTreeRenderer()
@@ -348,6 +349,8 @@ public class PanelBookMedia extends JPanel implements Validable
 	}
 	private String getExtension(String file)
 	{
+		if(file.lastIndexOf(".") == -1)
+			return "";
 		return file.toLowerCase().substring(file.lastIndexOf("."));
 	}
 	public Component getTreeCellRendererComponent(

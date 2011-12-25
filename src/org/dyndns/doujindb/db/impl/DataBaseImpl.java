@@ -11,7 +11,6 @@ import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.access.*;
 import org.apache.cayenne.conf.*;
 import org.apache.cayenne.conn.PoolManager;
-import org.apache.cayenne.dba.*;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
@@ -72,24 +71,16 @@ public final class DataBaseImpl implements DataBase
 		}
 		
 		
-		JdbcAdapter adapter = new org.apache.cayenne.dba.mysql.MySQLAdapter();
-		adapter.setSupportsGeneratedKeys(true);
-		node.setAdapter(adapter);
+		//JdbcAdapter adapter = new org.apache.cayenne.dba.mysql.MySQLAdapter();
+		//adapter.setSupportsGeneratedKeys(true);
+		//node.setAdapter(adapter);
+		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
 		
 		domain.addNode(node);
 		
 		context = domain.createDataContext();
 		
 		children = new Hashtable<String, DataBase>();
-		
-//		connID = "douz://" + System.getProperty("user.name") + "@";
-//		try {
-//			connID += java.net.InetAddress.getLocalHost().getHostName().toLowerCase() + ":" + "1099" + "/DataBase";
-//		} catch (UnknownHostException uhe) {
-//			Core.Logger.log(uhe.getMessage(), Level.ERROR);
-//			connID += "~:1099/DataBase";
-//			uhe.printStackTrace();
-//		}
 	}
 	
 	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
@@ -122,7 +113,7 @@ public final class DataBaseImpl implements DataBase
 		} catch (ExecutionException ee) {
 			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
 		} catch (SQLException sqle) {
-			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
+			throw new DataBaseException("SQLException : Cannot initialize connection.");
 		} finally {
 		   future.cancel(true);
 		}

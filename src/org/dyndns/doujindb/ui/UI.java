@@ -2405,17 +2405,21 @@ public void layoutContainer(Container parent)
 												uiCompDatabaseLabelResult.setForeground(Color.GREEN);
 												conn.close();
 											} catch (Exception e) {}
+										} else {
+											uiCompDatabaseLabelResult.setText("<html>Cannot obtains SQL connection.</html>");
+											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+											uiCompDatabaseLabelResult.setForeground(Color.RED);
 										}
 									} catch (TimeoutException te) {
-										uiCompDatabaseLabelResult.setText("<html>" + te.getLocalizedMessage() + "</html>");
+										uiCompDatabaseLabelResult.setText("<html>Timeout Exception while obtaining SQL connection.</html>");
 										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} catch (InterruptedException ie) {
-										uiCompDatabaseLabelResult.setText("<html>" + ie.getLocalizedMessage() + "</html>");
+										uiCompDatabaseLabelResult.setText("<html>Interrupted Exception while obtaining SQL connection.</html>");
 										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} catch (ExecutionException ee) {
-										uiCompDatabaseLabelResult.setText("<html>" + ee.getLocalizedMessage() + "</html>");
+										uiCompDatabaseLabelResult.setText("<html>Execution Exception while obtaining SQL connection.</html>");
 										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} finally {

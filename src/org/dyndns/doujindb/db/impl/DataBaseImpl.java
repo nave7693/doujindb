@@ -380,7 +380,8 @@ public class DataBaseImpl extends DataBase
 	@Override
 	public void connect() throws DataBaseException
 	{
-		//TODO
+		if(isConnected())
+			throw new DataBaseException("DataBase already connected.");
 		try
 		{
 			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();

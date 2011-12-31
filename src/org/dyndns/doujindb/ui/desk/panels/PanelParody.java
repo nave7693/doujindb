@@ -2,12 +2,14 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
@@ -37,7 +39,12 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	public PanelParody(DouzWindow parent, JComponent pane, Parody token) throws DataBaseException
 	{
 		parentWindow = parent;
-		tokenParody = token;
+		
+		if(token != null)
+			tokenParody = token;
+		else
+			tokenParody = new NullParody();
+		
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -135,6 +142,8 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 			Core.UI.Desktop.remove(parentWindow);
 			try
 			{
+				if(tokenParody instanceof NullParody)
+					tokenParody = Core.Database.doInsert(Parody.class);
 				tokenParody.setJapaneseName(textJapaneseName.getText());
 				tokenParody.setTranslatedName(textTranslatedName.getText());
 				tokenParody.setRomanjiName(textRomanjiName.getText());
@@ -173,5 +182,69 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 				editorWorks.validateUI(ve);
 		}else
 			editorWorks.validateUI(ve);
-	}	
+	}
+	
+	private final class NullParody implements Parody
+	{
+		@Override
+		public String getID() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Book> getBooks() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addBook(Book book) throws DataBaseException { }
+
+		@Override
+		public void removeBook(Book book) throws DataBaseException { }
+
+		@Override
+		public String getJapaneseName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getTranslatedName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getRomanjiName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getWeblink() throws DataBaseException { return ""; }
+
+		@Override
+		public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+		@Override
+		public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+		@Override
+		public void setRomanjiName(String romanjiName) throws DataBaseException { }
+
+		@Override
+		public void setWeblink(String weblink) throws DataBaseException { }
+	}
 }

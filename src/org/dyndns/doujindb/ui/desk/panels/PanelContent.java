@@ -2,12 +2,14 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
@@ -34,7 +36,12 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 	public PanelContent(DouzWindow parent, JComponent pane, Content token) throws DataBaseException
 	{
 		parentWindow = parent;
-		tokenContent = token;
+
+		if(token != null)
+			tokenContent = token;
+		else
+			tokenContent = new NullContent();
+		
 		pane.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
@@ -116,6 +123,8 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 			Core.UI.Desktop.remove(parentWindow);
 			try
 			{
+				if(tokenContent instanceof NullContent)
+					tokenContent = Core.Database.doInsert(Content.class);
 				tokenContent.setTagName(textTagName.getText());
 				tokenContent.setInfo(textInfo.getText());
 				for(Book b : tokenContent.getBooks())
@@ -151,5 +160,57 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				editorWorks.validateUI(ve);
 		}else
 			editorWorks.validateUI(ve);
-	}	
+	}
+	
+	private final class NullContent implements Content
+	{
+		@Override
+		public String getID() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@Override
+		public String getTagName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getInfo() throws DataBaseException { return ""; }
+
+		@Override
+		public void setTagName(String tagName) throws DataBaseException { }
+
+		@Override
+		public void setInfo(String info) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Book> getBooks() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addBook(Book book) throws DataBaseException { }
+
+		@Override
+		public void removeBook(Book book) throws DataBaseException { }
+	}
 }

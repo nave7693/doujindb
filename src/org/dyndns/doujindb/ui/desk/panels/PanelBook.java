@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -24,6 +25,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -78,7 +80,12 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException
 	{
 		parentWindow = parent;
-		tokenBook = token;
+		
+		if(token != null)
+			tokenBook = token;
+		else
+			tokenBook = new NullBook();
+		
 		pane.setLayout(this);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -352,9 +359,16 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);
 		editorParodies = new RecordParodyEditor(tokenBook);
 		tabLists.addTab("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), editorParodies);
-		mediaManager = new PanelBookMedia(tokenBook);
-		rootInfo.add(labelPreview);
-		tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), mediaManager);
+		
+		if(token != null)
+		{
+			mediaManager = new PanelBookMedia(tokenBook);
+			rootInfo.add(labelPreview);
+			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), mediaManager);
+		} else {
+			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
+			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
+		}
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
@@ -478,6 +492,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			Core.UI.Desktop.remove(parentWindow);
 			try
 			{
+				if(tokenBook instanceof NullBook)
+					tokenBook = Core.Database.doInsert(Book.class);
 				tokenBook.setJapaneseName(textJapaneseName.getText());
 				tokenBook.setTranslatedName(textTranslatedName.getText());
 				tokenBook.setRomanjiName(textRomanjiName.getText());
@@ -658,5 +674,192 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		private List<String> parodies = new Vector<String>();
 		@XmlElement(name="Content", required=false)
 		private List<String> contents = new Vector<String>();
+	}
+	
+	private final class NullBook implements Book
+	{
+		@Override
+		public String getID() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@Override
+		public String getJapaneseName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getTranslatedName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getRomanjiName() throws DataBaseException { return ""; }
+
+		@Override
+		public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+		@Override
+		public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+		@Override
+		public void setRomanjiName(String romanjiName) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Circle> getCircles() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public Date getDate() throws DataBaseException { return new Date(); }
+
+		@Override
+		public Type getType() throws DataBaseException { return Type.不詳; }
+
+		@Override
+		public int getPages() throws DataBaseException { return 0; }
+
+		@Override
+		public void setPages(int pages) throws DataBaseException { }
+
+		@Override
+		public void setDate(Date date) throws DataBaseException { }
+
+		@Override
+		public void setType(Type type) throws DataBaseException { }
+
+		@Override
+		public boolean isAdult() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isDecensored() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isTranslated() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isColored() throws DataBaseException { return false; }
+
+		@Override
+		public void setAdult(boolean adult) throws DataBaseException { }
+
+		@Override
+		public void setDecensored(boolean decensored) throws DataBaseException { }
+
+		@Override
+		public void setTranslated(boolean translated) throws DataBaseException { }
+
+		@Override
+		public void setColored(boolean colored) throws DataBaseException { }
+
+		@Override
+		public Rating getRating() throws DataBaseException { return Rating.UNRATED; }
+
+		@Override
+		public String getInfo() throws DataBaseException { return ""; }
+
+		@Override
+		public void setRating(Rating rating) throws DataBaseException { }
+
+		@Override
+		public void setInfo(String info) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Artist> getArtists() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Content> getContents() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public Convention getConvention() throws DataBaseException { return null; } //FIXME
+
+		@Override
+		public void setConvention(Convention convention) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Parody> getParodies() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addArtist(Artist artist) throws DataBaseException { }
+
+		@Override
+		public void addContent(Content content) throws DataBaseException { }
+
+		@Override
+		public void addParody(Parody parody) throws DataBaseException { }
+
+		@Override
+		public void removeArtist(Artist artist) throws DataBaseException { }
+
+		@Override
+		public void removeContent(Content content) throws DataBaseException { }
+
+		@Override
+		public void removeParody(Parody parody) throws DataBaseException { }
 	}
 }

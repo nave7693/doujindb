@@ -1,129 +1,26 @@
 package org.dyndns.doujindb.db.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.access.DataDomain;
-import org.apache.cayenne.access.DataNode;
-import org.apache.cayenne.conf.Configuration;
-import org.apache.cayenne.conn.PoolManager;
 import org.apache.cayenne.exp.Expression;
-import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
-import org.dyndns.doujindb.Core;
+
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 
-/**  
-* DataBase.java - DoujinDB database instance implementation.
-* @author  nozomu
-* @version 1.0
-*/
-public class DataBaseImpl extends DataBase
+public final class DataBaseContextImpl implements DataBaseContext
 {
-	private DataDomain domain;
-	private DataNode node;
+	private static final long serialVersionUID = 0xFEED0001L;
+	
 	private ObjectContext context;
-	private Hashtable<String, DataBaseContext> contexts;
-	private String connection;
 	
-	public DataBaseImpl()
+	public DataBaseContextImpl(ObjectContext context) throws DataBaseException
 	{
-		Configuration.initializeSharedConfiguration(EmbeddedConfiguration.class);
-		Configuration conf = Configuration.getSharedConfiguration();
-		
-		domain = conf.getDomain("doujindb");
-		node = new DataNode("default");
-		node.setDataSourceFactory("org.apache.cayenne.conf.DriverDataSourceFactory");
-		node.setSchemaUpdateStrategy(new org.apache.cayenne.access.dbsync.ThrowOnPartialOrCreateSchemaStrategy());
-		for(DataMap map : domain.getDataMaps())
-		    node.addDataMap(map);
-		
-//		try
-//		{
-//			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();
-//			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
-//			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
-//			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
-//			PoolManager pool = new PoolManager(driver,
-//					url,
-//			        1,
-//			        1,
-//			        username,
-//			        password);
-//			node.setDataSource(pool);
-//			//Doesn't work, handle timeout manually
-//			//pool.setLoginTimeout(3);
-//			checkContext(pool, 3);
-//			connection = url;
-//		} catch (SQLException sqle) {
-//			throw new DataBaseException(sqle);
-//		}
-		
-//		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
-		
-		domain.addNode(node);
-		
-		context = domain.createDataContext();
-		
-		contexts = new Hashtable<String, DataBaseContext>();
+		this.context = context;
 	}
-	
-	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
-	{
-		final DataSource _ds = ds;
-		final int _timeout = timeout;
-		ExecutorService executor = Executors.newCachedThreadPool();
-		Callable<Connection> task = new Callable<Connection>()
-		{
-		   public Connection call()
-		   {
-		      try {
-				return _ds.getConnection();
-			} catch (SQLException sqle) {
-				return null;
-			}
-		   }
-		};
-		Future<Connection> future = executor.submit(task);
-		try
-		{
-			Connection conn = future.get(_timeout, TimeUnit.SECONDS);
-			if(conn == null)
-				throw new DataBaseException("Cannot initialize connection.");
-			conn.close();
-		} catch (TimeoutException te) {
-			throw new DataBaseException("TimeoutException : Cannot initialize connection.");
-		} catch (InterruptedException ie) {
-			throw new DataBaseException("InterruptedException : Cannot initialize connection.");
-		} catch (ExecutionException ee) {
-			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
-		} catch (SQLException sqle) {
-			throw new DataBaseException("SQLException : Cannot initialize connection.");
-		} finally {
-		   future.cancel(true);
-		}
-	}
-	
-	public DataBaseContext getContext(String ID) throws DataBaseException
-	{
-		if(!contexts.containsKey(ID))
-		{
-			DataBaseContext db = new DataBaseContextImpl(context.createChildContext());
-			contexts.put(ID, db);
-			return db;
-		}else
-		{
-			return contexts.get(ID);
-		}
-	}
-	
+
 	private synchronized Artist newArtist() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Artist o = context.newObject(org.dyndns.doujindb.db.cayenne.Artist.class);
@@ -369,51 +266,5 @@ public class DataBaseImpl extends DataBase
 		if(clazz == Parody.class)
 			return (T) newParody();
 		throw new DataBaseException("Invalid record class '" + clazz + "' specified.");
-	}
-
-	@Override
-	public String getConnection() throws DataBaseException
-	{
-		return connection;
-	}
-	
-	@Override
-	public void connect() throws DataBaseException
-	{
-		//TODO
-		try
-		{
-			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();
-			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
-			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
-			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
-			PoolManager pool = new PoolManager(driver,
-					url,
-			        1,
-			        1,
-			        username,
-			        password);
-			node.setDataSource(pool);
-			//Doesn't work, handle timeout manually
-			//pool.setLoginTimeout(3);
-			checkContext(pool, 3);
-			connection = url;
-		} catch (SQLException sqle) {
-			throw new DataBaseException(sqle);
-		}
-		
-		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
-	}
-	
-	@Override
-	public void disconnect() throws DataBaseException
-	{
-		node.setDataSource(null);
-	}
-	
-	@Override
-	public boolean isConnected() throws DataBaseException
-	{
-		return node.getDataSource() != null;
 	}
 }

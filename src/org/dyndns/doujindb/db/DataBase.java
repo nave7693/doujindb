@@ -1,29 +1,63 @@
 package org.dyndns.doujindb.db;
 
+import org.dyndns.doujindb.db.impl.*;
 import org.dyndns.doujindb.db.masks.*;
 import org.dyndns.doujindb.db.records.*;
 
 /**  
-* DataBase.java - DoujinDB database driver.
+* DataBase.java - DoujinDB database instance.
 * @author  nozomu
 * @version 1.0
 */
-public interface DataBase
+public abstract class DataBase
 {
-	public DataBase childContext(String ID) throws DataBaseException;
-	public String getConnection() throws DataBaseException;
-	public void doCommit() throws DataBaseException;
-	public void doRollback() throws DataBaseException;
-	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException;
-	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException;
-	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException;
-	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException;
-	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException;
-	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
-	public RecordSet<Record> getRecycled() throws DataBaseException;
-	public RecordSet<Record> getDeleted() throws DataBaseException;
-	public RecordSet<Record> getModified() throws DataBaseException;
-	public RecordSet<Record> getUncommitted() throws DataBaseException;
-	public <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException;
-	public void doDelete(Record record) throws DataBaseException;
+	private static DataBase instance;
+	
+	static
+	{
+		instance = new DataBaseImpl();
+	}
+	
+	public static DataBase getInstance()
+	{
+		return instance;
+	}
+	
+	public abstract DataBaseContext getContext(String ID) throws DataBaseException;
+	
+	public abstract void doCommit() throws DataBaseException;
+
+	public abstract void doRollback() throws DataBaseException;
+	
+	public abstract void doDelete(Record record) throws DataBaseException;
+	
+	public abstract RecordSet<Book> getBooks(MskBook mask) throws DataBaseException;
+
+	public abstract RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException;
+
+	public abstract RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException;
+
+	public abstract RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException;
+
+	public abstract RecordSet<Content> getContents(MskContent mask) throws DataBaseException;
+
+	public abstract RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
+	
+	public abstract RecordSet<Record> getRecycled() throws DataBaseException;
+
+	public abstract RecordSet<Record> getDeleted() throws DataBaseException;
+
+	public abstract RecordSet<Record> getModified() throws DataBaseException;
+
+	public abstract RecordSet<Record> getUncommitted() throws DataBaseException;
+	
+	public abstract <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException;
+	
+	public abstract void connect() throws DataBaseException;
+	
+	public abstract void disconnect() throws DataBaseException;
+	
+	public abstract boolean isConnected() throws DataBaseException;
+	
+	public abstract String getConnection() throws DataBaseException;
 }

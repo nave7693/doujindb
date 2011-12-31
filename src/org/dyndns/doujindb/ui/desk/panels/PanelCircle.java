@@ -10,7 +10,6 @@ import javax.swing.Timer;
 import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -71,9 +70,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		else
 		try
 		{
-			DataFile ds = Client.DS.child(tokenCircle.getID());
+			DataFile ds = Core.Repository.child(tokenCircle.getID());
 			ds.mkdir();
-			ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
+			ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
 			if(ds.exists())
 			{
 				InputStream in = ds.getInputStream();
@@ -132,9 +131,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 									return;
 								try
 								{
-									DataFile ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -151,9 +150,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 								}
 								try
 								{
-									DataFile ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -175,9 +174,9 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 							{
 								try
 								{
-									DataFile ds = Client.DS.child(tokenCircle.getID());
+									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

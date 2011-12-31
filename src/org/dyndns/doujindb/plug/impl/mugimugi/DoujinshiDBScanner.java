@@ -12,7 +12,6 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.dat.*;
@@ -41,6 +40,9 @@ public final class DoujinshiDBScanner implements Plugin
 	public int IMAGE_QUERIES;
 	public String USERID;
 	public String USERNAME;
+	
+	private static String UUID = "{CB123239-06D1-4FB6-A4CC-05C4B436DF73}";
+	private static DataBaseContext Context;
 	
 	private JComponent UI;
 	private static ImageIcon pluginIcon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/plugin-icon.png"));
@@ -88,6 +90,9 @@ public final class DoujinshiDBScanner implements Plugin
 			prop.setValue(RESIZE_COVER);
 			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
 		}
+		
+		Context = Core.Database.getContext(UUID);
+		
 		UI = new PluginUI();
 	}
 	
@@ -96,11 +101,6 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	public double getThreshold() {
 		return THRESHOLD;
-	}
-	
-	public static String getUUID()
-	{
-		return "{CB123239-06D1-4FB6-A4CC-05C4B436DF73}";
 	}
 	
 	@Override
@@ -1166,7 +1166,7 @@ public final class DoujinshiDBScanner implements Plugin
 									throw new Exception("Error parsing XML data.");
 								}
 								
-								for(Book book_ : Client.DB.childContext(getUUID()).getBooks(null))
+								for(Book book_ : Context.getBooks(null))
 									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && importedBook != book_)
 									{
 										status = TASK_WARNING;
@@ -1186,13 +1186,13 @@ public final class DoujinshiDBScanner implements Plugin
 					}
 					description = "Copying files into the Datastore ...";
 					for(File file : workpath.listFiles())
-						fileCopy(file, Client.DS.child(importedBook.getID()));
+						fileCopy(file, Core.Repository.child(importedBook.getID()));
 					try
 					{
 						description = "Creating preview into the Datastore  ...";
-						DataFile ds = Client.DS.child(importedBook.getID());
+						DataFile ds = Core.Repository.child(importedBook.getID());
 						ds.mkdir();
-						ds = Client.DS.getPreview(importedBook.getID());
+						ds = Core.Repository.getPreview(importedBook.getID());
 						ds.touch();
 						OutputStream out = ds.getOutputStream();
 						BufferedImage image = javax.imageio.ImageIO.read(cover_image2);
@@ -1410,7 +1410,7 @@ public final class DoujinshiDBScanner implements Plugin
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.childContext(getUUID()).doInsert(Book.class);
+		Book book = Context.doInsert(Book.class);
 		book.setJapaneseName(doujin.japaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.translatedName);
@@ -1427,12 +1427,12 @@ public final class DoujinshiDBScanner implements Plugin
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.childContext(getUUID()).getConventions(null))
+			for(Convention convention : Context.getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.childContext(getUUID()).doInsert(Convention.class);
+				Convention convention = Context.doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
 			}
@@ -1443,12 +1443,12 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.childContext(getUUID()).getArtists(null))
+				for(Artist artist : Context.getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.childContext(getUUID()).doInsert(Artist.class);
+					Artist artist = Context.doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
 				}
@@ -1460,12 +1460,12 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.childContext(getUUID()).getCircles(null))
+				for(Circle circle : Context.getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.childContext(getUUID()).doInsert(Circle.class);
+					Circle circle = Context.doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
 				}
@@ -1477,12 +1477,12 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.childContext(getUUID()).getContents(null))
+				for(Content content : Context.getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.childContext(getUUID()).doInsert(Content.class);
+					Content content = Context.doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
 				}
@@ -1494,12 +1494,12 @@ public final class DoujinshiDBScanner implements Plugin
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.childContext(getUUID()).getParodies(null))
+				for(Parody parody : Context.getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.childContext(getUUID()).doInsert(Parody.class);
+					Parody parody = Context.doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
 				}
@@ -1507,46 +1507,9 @@ public final class DoujinshiDBScanner implements Plugin
 					parsed.get("Parody://").addAll(temp);
 			}
 		}
-		Client.DB.childContext(getUUID()).doCommit();
+		Context.doCommit();
 		return parsed;
 	}
-	
-	//TODO
-//	@SuppressWarnings("unused")
-//	private static void writeXMLBook(Book book, OutputStream dest) throws DataBaseException
-//	{
-//		XMLBook doujin = new XMLBook();
-//		doujin.japaneseName = book.getJapaneseName();
-//		doujin.translatedName = book.getTranslatedName();
-//		doujin.romanjiName = book.getRomanjiName();
-//		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
-//		doujin.Released = book.getDate();
-//		doujin.Type = book.getType();
-//		doujin.Pages = book.getPages();
-//		doujin.Adult = book.isAdult();
-//		doujin.Decensored = book.isDecensored();
-//		doujin.Colored = book.isColored();
-//		doujin.Translated = book.isTranslated();
-//		doujin.Rating = book.getRating();
-//		doujin.Info = book.getInfo();
-//		for(Artist a : book.getArtists())
-//			doujin.artists.add(a.getJapaneseName());
-//		for(Circle c : book.getCircles())
-//			doujin.circles.add(c.getJapaneseName());
-//		for(Parody p : book.getParodies())
-//			doujin.parodies.add(p.getJapaneseName());
-//		for(Content ct : book.getContents())
-//			doujin.contents.add(ct.getTagName());
-//		try
-//		{
-//			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-//			Marshaller m = context.createMarshaller();
-//			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-//			m.marshal(doujin, dest);
-//		} catch (Exception e) {
-//			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-//		}
-//	}
 	
 	@XmlRootElement(name="Doujin")
 	private static final class XMLBook

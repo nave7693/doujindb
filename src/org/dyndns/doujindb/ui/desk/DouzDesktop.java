@@ -9,7 +9,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.log.*;
@@ -127,13 +126,13 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				buttonRecycleBin.setBounds(5,5,32,32);
 				buttonMediaManager.setBounds(5 + 40,5,32,32);
-				buttonRecycleBin.setEnabled(Client.isConnected());
-				buttonMediaManager.setEnabled(Client.isConnected());
+				buttonRecycleBin.setEnabled(Core.Database.isConnected());
+				buttonMediaManager.setEnabled(Core.Database.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
 					plugin.setBounds(5 + spacing,5 + 40,32,32);
-					plugin.setEnabled(Client.isConnected());
+					plugin.setEnabled(Core.Database.isConnected());
 					spacing += 40;
 				}					
 				buttonWallpaper.setBounds(width-20,1,20,20);
@@ -360,7 +359,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(!Client.isConnected())
+		if(!Core.Database.isConnected())
 			return;
 		// TODO
 		/*switch(Core.Network.getStatus())
@@ -383,7 +382,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
 		}
 		try {
-			if(Client.DB.getRecycled().size() > 0)
+			if(Core.Database.getRecycled().size() > 0)
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
 			else
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));

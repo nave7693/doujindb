@@ -4,6 +4,9 @@ import java.io.*;
 import java.util.Vector;
 
 import org.dyndns.doujindb.conf.*;
+import org.dyndns.doujindb.dat.Repository;
+import org.dyndns.doujindb.dat.impl.RepositoryImpl;
+import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.*;
@@ -22,6 +25,8 @@ public final class Core implements Runnable
 	public static Resources Resources;
 	public static UI UI;
 	public static Vector<Plugin>  Plugins;
+	public static DataBase Database;
+	public static Repository Repository;
 
 	@Override
 	public void run()
@@ -75,9 +80,12 @@ public final class Core implements Runnable
 		}
 		Core.Logger.log("System resources loaded.", Level.INFO);
 		
+		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
 			Core.Logger.log("Repository folder is the temporary system folder.", Level.WARNING);
 		Core.Logger.log("Repository loaded.", Level.INFO);
+		
+		Database = DataBase.getInstance();
 		
 		String title = "DoujinDB v" + Core.class.getPackage().getSpecificationVersion();
 		UI = new UI(title);

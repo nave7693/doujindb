@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 import org.dyndns.doujindb.Core;
@@ -64,6 +65,14 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 			}        
 		});
 		setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+		super.addInternalFrameListener(new InternalFrameAdapter()
+		{
+			@Override
+			public void internalFrameClosed(InternalFrameEvent ife)
+			{
+				System.out.println("internalFrameClosed()"); //TODO rollback
+			}
+		});
 		switch(type)
 		{
 			case WINDOW_SEARCH:

@@ -31,7 +31,6 @@ import javax.swing.plaf.basic.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
@@ -536,7 +535,7 @@ public void layoutContainer(Container parent)
 		height = parent.getHeight();
 	//TODO JDK6 uiLayerPane.setBounds(0, 0, width, height);
 	uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
-	if(Client.isConnected())
+	if(Core.Database.isConnected())
 	{
 		uiPanelDesktopShow.setBounds(1,1,20,20);
 		uiPanelDesktopSearch.setBounds(21,1,20,20);
@@ -547,7 +546,7 @@ public void layoutContainer(Container parent)
 		uiStatusBarConnect.setBounds(-1,-1,0,0);
 		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
 		try {
-			uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
+			uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
@@ -729,7 +728,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, Client.DB.doInsert(Artist.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, Core.Database.doInsert(Artist.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -739,7 +738,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, Client.DB.doInsert(Book.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, Core.Database.doInsert(Book.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -749,7 +748,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, Client.DB.doInsert(Circle.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, Core.Database.doInsert(Circle.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -759,7 +758,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, Client.DB.doInsert(Convention.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, Core.Database.doInsert(Convention.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -769,7 +768,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, Client.DB.doInsert(Content.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, Core.Database.doInsert(Content.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -779,7 +778,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, Client.DB.doInsert(Parody.class));
+				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, Core.Database.doInsert(Parody.class));
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -827,7 +826,7 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
-							Client.DB.doCommit();
+							Core.Database.doCommit();
 						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
@@ -894,7 +893,7 @@ public void layoutContainer(Container parent)
 					{
 						try
 						{
-							Client.DB.doRollback();
+							Core.Database.doRollback();
 						} catch (DataBaseException dbe)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
@@ -934,10 +933,10 @@ public void layoutContainer(Container parent)
 				{
 					try
 					{
-						Client.connect();
-						Client.DB.doRollback();
-						uiStatusBar.setText("Connected to " + Client.DB.getConnection() + ".");
-						Core.Logger.log("Connected to " + Client.DB.getConnection() + ".", Level.INFO);
+						Core.Database.connect();
+						Core.Database.doRollback();
+						uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
+						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -953,7 +952,7 @@ public void layoutContainer(Container parent)
 		{
 			try
 			{
-				Client.disconnect();
+				Core.Database.disconnect();
 				Core.Logger.log("Disconnected from remote host.", Level.INFO);
 				for(JInternalFrame jif : Desktop.getAllFrames())
 				{

@@ -14,7 +14,6 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
@@ -79,7 +78,7 @@ public class PanelBookMedia extends JPanel implements Validable
 								return;
 							}
 							File files[] = fc.getSelectedFiles();
-							DataFile up_folder = Client.DS.child(tokenBook.getID());
+							DataFile up_folder = Core.Repository.child(tokenBook.getID());
 							Thread uploader = new Uploader(up_folder, files);
 							uploader.start();
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
@@ -126,7 +125,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							Set<DataFile> dss = new TreeSet<DataFile>();
 							{
 								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataFile root_ds = Client.DS.child(tokenBook.getID());
+								DataFile root_ds = Core.Repository.child(tokenBook.getID());
 								for(TreePath path : paths)
 								try
 								{
@@ -203,7 +202,7 @@ public class PanelBookMedia extends JPanel implements Validable
 						try
 						{
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataFile root_ds = Client.DS.child(tokenBook.getID());
+							DataFile root_ds = Core.Repository.child(tokenBook.getID());
 							for(TreePath path : paths)
 							try
 							{
@@ -279,7 +278,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	private void displayUI()
 	{
 		try {
-			if(!Client.DB.getBooks(null).contains(tokenBook))
+			if(!Core.Database.getBooks(null).contains(tokenBook))
 				return;
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -296,7 +295,7 @@ public class PanelBookMedia extends JPanel implements Validable
 					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
 					//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
 					//buildTree(file, root);
-					buildTree(Client.DS.child(tokenBook.getID()), root);
+					buildTree(Core.Repository.child(tokenBook.getID()), root);
 					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
 					dtm.setRoot(root);
 					SwingUtilities.invokeLater(new Runnable()

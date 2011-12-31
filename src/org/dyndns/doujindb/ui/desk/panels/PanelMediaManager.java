@@ -11,11 +11,14 @@ import java.util.regex.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.event.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
+import org.dyndns.doujindb.db.DataBaseContext;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
@@ -23,6 +26,7 @@ import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxTreeCellRenderer;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -32,6 +36,9 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 {
 	private final String PACKAGE_INDEX = ".xml";
 	private final String PACKAGE_MEDIA = ".data/";
+	
+	private static String UUID = "{7c483dce-d1ee-4484-840d-37152ef5c4e2}";
+	private static DataBaseContext Context;
 	
 	@SuppressWarnings("unused")
 	private DouzWindow parentWindow;
@@ -52,6 +59,8 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	
 	public PanelMediaManager(DouzWindow parent, JComponent pane) throws DataBaseException
 	{
+		Context = Core.Database.getContext(UUID);
+		
 		parentWindow = parent;
 		pane.setLayout(this);
 		JPanel panel1 = new JPanel();
@@ -205,7 +214,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 									for(Book key : checkboxListMedia.getSelectedItems())
 									{
 										try {
-											Client.DS.child(key.getID()).delete();
+											Core.Repository.child(key.getID()).delete();
 										} catch (RepositoryException dse) {
 											Core.Logger.log(dse.getMessage(), Level.ERROR);
 											dse.printStackTrace();
@@ -261,7 +270,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		    }
 		});
 		Vector<Book> files = new Vector<Book>();
-		for(Book book : Client.DB.getBooks(null))
+		for(Book book : Core.Database.getBooks(null))
 			files.add(book);
 		checkboxListMedia = new DouzCheckBoxList<Book>(files, searchField);
 		scrollListMedia = new JScrollPane(checkboxListMedia);
@@ -328,7 +337,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			{
 				super.setPriority(Thread.MIN_PRIORITY);
 				double size = -1L;
-				size = Client.DS.size();
+				size = Core.Repository.size();
 				String label = "Byte";
 				if(size >= 1024)
 				{
@@ -353,7 +362,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				mediaManagerInfo.setText(String.format("%.2f ", size) + label);
 				Vector<Book> files = new Vector<Book>();
 				try {
-					for(Book book : Client.DB.getBooks(null))
+					for(Book book : Core.Database.getBooks(null))
 						files.add(book);
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -365,7 +374,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			}
 		}.start();
 	}
-	
+	/***/
 	@SuppressWarnings({"unchecked", "rawtypes","unused"})
 	private final class DouzCheckBoxList<T> extends JPanel implements Validable, LayoutManager
 	{
@@ -415,9 +424,9 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		  			int selectedIndex = listData.locationToIndex(me.getPoint());
 		  			if (selectedIndex < 0)
 						return;
-	        		/*CheckBoxItem item = (CheckBoxItem)listCheckBox.getModel().getElementAt(selectedIndex);
-	        		item.setChecked(!item.isChecked());
-		  			listCheckBox.repaint();*/
+//	        		CheckBoxItem item = (CheckBoxItem)listCheckBox.getModel().getElementAt(selectedIndex);
+//	        		item.setChecked(!item.isChecked());
+//		  			listCheckBox.repaint();
 	      		}
 			});
 			scrollPane = new JScrollPane();
@@ -653,6 +662,85 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
+	private final class MediaTree extends JTree
+	{
+		private MediaTreeRenderer renderer;
+		public DouzCheckBoxTreeCellRenderer CheckBoxRenderer;
+
+	public MediaTree(TreeNode root)
+	{
+		super(root);
+		super.setFocusable(false);
+		super.setFont(Core.Resources.Font);
+		super.setEditable(false);
+		super.setRootVisible(true);
+		super.setScrollsOnExpand(true);
+		renderer = new MediaTreeRenderer();
+		super.setCellRenderer(renderer);
+		CheckBoxRenderer = new DouzCheckBoxTreeCellRenderer(this, super.getCellRenderer()); 
+		super.setCellRenderer(CheckBoxRenderer);
+	}
+
+	private final class MediaTreeRenderer extends DefaultTreeCellRenderer
+	{
+		private Hashtable<String,Icon> renderIcon;
+
+	public MediaTreeRenderer()
+	{
+		renderIcon=new Hashtable<String,Icon>();
+	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
+	    renderIcon.put("/",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Repository"));
+	    renderIcon.put("?",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Unknown"));
+	    renderIcon.put("Folder",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Folder"));
+	    renderIcon.put(".zip",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Archive"));
+	}
+	private String getExtension(String file)
+	{
+		return file.toLowerCase().substring(file.lastIndexOf("."));
+	}
+	public Component getTreeCellRendererComponent(
+			JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus){
+		super.getTreeCellRendererComponent(
+	    		tree,
+	        value,
+	        sel,
+	        expanded,
+	        leaf,
+	        row,
+	        hasFocus);
+	    setIcon((ImageIcon)renderIcon.get("?"));
+	    if(tree.getModel().getRoot()==value)
+	    {
+	    	setIcon((ImageIcon)renderIcon.get("/"));
+	    	try {
+				//TODO setText("datastore://" + tokenBook.getID());
+	    		setText("datastore://" + "");
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			}
+	    	return this;
+	    }
+	    if(value.toString().endsWith("/"))
+	    {
+	    	setIcon((ImageIcon)renderIcon.get("Folder"));
+	    	super.setText(super.getText().substring(0, super.getText().length()-1));
+	    	return this;
+	    }
+	    if(renderIcon.containsKey(getExtension(value.toString())))
+	    {
+	    	setIcon((ImageIcon)renderIcon.get(getExtension(value.toString())));
+	    }
+	    return this;
+	}
+	}
+	}
 	@Override
 	public void mouseClicked(MouseEvent me) {}
 	@Override
@@ -750,7 +838,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 				for(Book book : books)
 				{
 					File zip = new File(dest, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
-					DataFile ds = Client.DS.child(book.getID());
+					DataFile ds = Core.Repository.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
 					progressbar_overall.setString(book.toString());
@@ -945,7 +1033,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 							if(entry.getName().equals(PACKAGE_INDEX))
 							{
 								valid = true;
-								DataFile ds = Client.DS.child(parseXML(zip.getInputStream(entry)));
+								DataFile ds = Core.Repository.child(parseXML(zip.getInputStream(entry)));
 								ds.mkdirs();
 								;
 								entries = zip.entries();
@@ -1115,7 +1203,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 			return null;
 		}
-		Book book = Client.DB.childContext(getUUID()).doInsert(Book.class);
+		Book book = Context.doInsert(Book.class);
 		book.setJapaneseName(doujin.japaneseName);
 		book.setType(doujin.Type);
 		book.setTranslatedName(doujin.translatedName);
@@ -1132,12 +1220,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		parsed.get("Book://").add(book);
 		{
 			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Client.DB.childContext(getUUID()).getConventions(null))
+			for(Convention convention : Context.getConventions(null))
 				if(doujin.Convention.matches(convention.getTagName()))
 					temp.add(convention);
 			if(temp.size() == 0 && !doujin.Convention.equals(""))
 			{
-				Convention convention = Client.DB.childContext(getUUID()).doInsert(Convention.class);
+				Convention convention = Context.doInsert(Convention.class);
 				convention.setTagName(doujin.Convention);
 				parsed.get("Convention://").add(convention);
 			}			
@@ -1148,12 +1236,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.artists)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Client.DB.childContext(getUUID()).getArtists(null))
+				for(Artist artist : Context.getArtists(null))
 					if(japaneseName.matches(artist.getJapaneseName()))
 						temp.add(artist);
 				if(temp.size() == 0)
 				{
-					Artist artist = Client.DB.childContext(getUUID()).doInsert(Artist.class);
+					Artist artist = Context.doInsert(Artist.class);
 					artist.setJapaneseName(japaneseName);
 					parsed.get("Artist://").add(artist);
 				}			
@@ -1165,12 +1253,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.circles)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Client.DB.childContext(getUUID()).getCircles(null))
+				for(Circle circle : Context.getCircles(null))
 					if(japaneseName.matches(circle.getJapaneseName()))
 						temp.add(circle);
 				if(temp.size() == 0)
 				{
-					Circle circle = Client.DB.childContext(getUUID()).doInsert(Circle.class);
+					Circle circle = Context.doInsert(Circle.class);
 					circle.setJapaneseName(japaneseName);
 					parsed.get("Circle://").add(circle);
 				}			
@@ -1182,12 +1270,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String tagName : doujin.contents)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Client.DB.childContext(getUUID()).getContents(null))
+				for(Content content : Context.getContents(null))
 					if(tagName.matches(content.getTagName()))
 						temp.add(content);
 				if(temp.size() == 0)
 				{
-					Content content = Client.DB.childContext(getUUID()).doInsert(Content.class);
+					Content content = Context.doInsert(Content.class);
 					content.setTagName(tagName);
 					parsed.get("Content://").add(content);
 				}			
@@ -1199,12 +1287,12 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			for(String japaneseName : doujin.parodies)
 			{
 				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Client.DB.childContext(getUUID()).getParodies(null))
+				for(Parody parody : Context.getParodies(null))
 					if(japaneseName.matches(parody.getJapaneseName()))
 						temp.add(parody);
 				if(temp.size() == 0)
 				{
-					Parody parody = Client.DB.childContext(getUUID()).doInsert(Parody.class);
+					Parody parody = Context.doInsert(Parody.class);
 					parody.setJapaneseName(japaneseName);
 					parsed.get("Parody://").add(parody);
 				}			
@@ -1212,7 +1300,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 					parsed.get("Parody://").addAll(temp);
 			}
 		}
-		Client.DB.childContext(getUUID()).doCommit();
+		Context.doCommit();
 		return parsed;
 	}
 	
@@ -1288,10 +1376,5 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		private List<String> parodies = new Vector<String>();
 		@XmlElement(name="Content", required=false)
 		private List<String> contents = new Vector<String>();
-	}
-	
-	public static String getUUID()
-	{
-		return "{7c483dce-d1ee-4484-840d-37152ef5c4e2}";
 	}
 }

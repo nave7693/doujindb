@@ -21,7 +21,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -107,9 +106,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		else
 		try
 		{
-			DataFile ds = Client.DS.child(tokenBook.getID());
+			DataFile ds = Core.Repository.child(tokenBook.getID());
 			ds.mkdir();
-			ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
+			ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
 			if(ds.exists())
 			{
 				InputStream in = ds.getInputStream();
@@ -169,9 +168,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 									return;
 								try
 								{
-									DataFile ds = Client.DS.child(tokenBook.getID());
+									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -197,9 +196,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 								}
 								try
 								{
-									DataFile ds = Client.DS.child(tokenBook.getID());
+									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -221,9 +220,9 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 							{
 								try
 								{
-									DataFile ds = Client.DS.child(tokenBook.getID());
+									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Client.DS.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
@@ -252,7 +251,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		for(Convention conv : Client.DB.getConventions(null))
+		for(Convention conv : Core.Database.getConventions(null))
 			comboConvention.addItem(conv);
 		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());
@@ -512,7 +511,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					tokenBook.addParody(parodies.next());
 				{
 					if(tokenBook.getID() != null)
-						writeXML(tokenBook, Client.DS.getMetadata(tokenBook.getID()).getOutputStream());
+						writeXML(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
 				}
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
@@ -553,7 +552,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		else
 			labelPreview.setEnabled(true);
 		try {
-			if(!Client.DB.getConventions(null).contains((Convention)comboConvention.getSelectedItem()))
+			if(!Core.Database.getConventions(null).contains((Convention)comboConvention.getSelectedItem()))
 				comboConvention.setSelectedItem(null);
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -561,7 +560,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		}
 		for(int i=0;i<comboConvention.getItemCount();i++)
 			try {
-				if(!Client.DB.getConventions(null).contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
+				if(!Core.Database.getConventions(null).contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
 					comboConvention.removeItemAt(i);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);

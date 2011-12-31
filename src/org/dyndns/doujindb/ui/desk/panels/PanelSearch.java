@@ -6,7 +6,6 @@ import java.util.*;
 import javax.swing.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.Client;
 import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -196,10 +195,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Artist a = ((RecordSet<Artist>)Client.DB.artists).get(item.toString());
+									//TODO Artist a = ((RecordSet<Artist>)Core.Database.artists).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -281,7 +280,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Artist>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Artist a : Client.DB.getArtists(null))
+							for(Artist a : Core.Database.getArtists(null))
 							{
 								if(stopped)
 									break;
@@ -291,7 +290,7 @@ public final class PanelSearch extends JPanel implements Validable
 										a.getTranslatedName().matches(textTranslatedName.getText()) &&
 										a.getRomanjiName().matches(textRomanjiName.getText()) &&
 										a.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Client.DB.getDeleted().contains(a)*/)
+										//FIXME !Core.Database.getDeleted().contains(a)*/)
 										((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -454,10 +453,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Circle c = ((RecordSet<Circle>)Client.DB.circles).get(item.toString());
+									//TODO Circle c = ((RecordSet<Circle>)Core.Database.circles).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -537,7 +536,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Circle>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Circle c : Client.DB.getCircles(null))
+							for(Circle c : Core.Database.getCircles(null))
 							{
 								if(stopped)
 									break;
@@ -547,7 +546,7 @@ public final class PanelSearch extends JPanel implements Validable
 										c.getTranslatedName().matches(textTranslatedName.getText()) &&
 										c.getRomanjiName().matches(textRomanjiName.getText()) &&
 										c.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Client.DB.getDeleted().contains(c)*/)
+										//FIXME !Core.Database.getDeleted().contains(c)*/)
 										((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -696,8 +695,8 @@ public final class PanelSearch extends JPanel implements Validable
 									}
 								} +
 								"<br>." + //TODO Tooltip covers in search panel
-								((Client.DS.contains(b.getID() + "/.preview")) ?
-										"<br><table border='0'><tr><td><img src='file:///" + Client.DS.get(b.getID()).get(".preview") + "' /></td></tr></table>"
+								((Core.Repository.contains(b.getID() + "/.preview")) ?
+										"<br><table border='0'><tr><td><img src='file:///" + Core.Repository.get(b.getID()).get(".preview") + "' /></td></tr></table>"
 												:
 										"") +*/
 								"</body></html>");
@@ -756,10 +755,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Book b = ((RecordSet<Book>)Client.DB.works).get(item.toString());
+									//TODO Book b = ((RecordSet<Book>)Core.Database.works).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -856,7 +855,7 @@ public final class PanelSearch extends JPanel implements Validable
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try
 						{
-							for(Book b : Client.DB.getBooks(null))
+							for(Book b : Core.Database.getBooks(null))
 							{
 								if(stopped)
 									break;
@@ -882,7 +881,7 @@ public final class PanelSearch extends JPanel implements Validable
 											(checkTranslated.isSelected()?b.isTranslated():true) &&
 											(checkColored.isSelected()?b.isColored():true) &&
 											containsAllTags /*&&
-											//FIXME !Client.DB.getDeleted().contains(b)*/
+											//FIXME !Core.Database.getDeleted().contains(b)*/
 											)
 											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
@@ -1015,10 +1014,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Content ct = ((RecordSet<Content>)Client.DB.contents).get(item.toString());
+									//TODO Content ct = ((RecordSet<Content>)Core.Database.contents).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1086,14 +1085,14 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Content>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Content ct : Client.DB.getContents(null))
+							for(Content ct : Core.Database.getContents(null))
 							{
 								if(stopped)
 									break;
 								try
 								{
 									if( ct.getTagName().matches(textTagName.getText()) /*&&
-											//FIXME !Client.DB.getDeleted().contains(ct)*/)
+											//FIXME !Core.Database.getDeleted().contains(ct)*/)
 										((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -1232,10 +1231,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Convention cn = ((RecordSet<Convention>)Client.DB.conventions).get(item.toString());
+									//TODO Convention cn = ((RecordSet<Convention>)Core.Database.conventions).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1303,14 +1302,14 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Convention>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Convention cn : Client.DB.getConventions(null))
+							for(Convention cn : Core.Database.getConventions(null))
 							{
 								if(stopped)
 									break;
 								try
 								{
 									if( cn.getTagName().matches(textTagName.getText()) /*&&
-											//FIXME !Client.DB.getDeleted().contains(cn)*/)
+											//FIXME !Core.Database.getDeleted().contains(cn)*/)
 										((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
@@ -1473,10 +1472,10 @@ public final class PanelSearch extends JPanel implements Validable
 									break;
 								}
 								case 1:{
-									//TODO Parody p = ((RecordSet<Parody>)Client.DB.parodies).get(item.toString());
+									//TODO Parody p = ((RecordSet<Parody>)Core.Database.parodies).get(item.toString());
 									//item.setDeleted(true);
 									try {
-										//FIXME Client.DB.doDelete(item);
+										//FIXME Core.Database.doDelete(item);
 										item.doRecycle();
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1556,7 +1555,7 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Parody>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Parody p : Client.DB.getParodies(null))
+							for(Parody p : Core.Database.getParodies(null))
 							{
 								if(stopped)
 									break;
@@ -1566,7 +1565,7 @@ public final class PanelSearch extends JPanel implements Validable
 										p.getTranslatedName().matches(textTranslatedName.getText()) &&
 										p.getRomanjiName().matches(textRomanjiName.getText()) &&
 										p.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Client.DB.getDeleted().contains(p)*/)
+										//FIXME !Core.Database.getDeleted().contains(p)*/)
 										((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}

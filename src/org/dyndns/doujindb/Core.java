@@ -80,6 +80,9 @@ public final class Core implements Runnable
 		}
 		Core.Logger.log("System resources loaded.", Level.INFO);
 		
+		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
+			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+		
 		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
 			Core.Logger.log("Repository folder is the temporary system folder.", Level.WARNING);

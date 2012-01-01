@@ -100,6 +100,12 @@ final class SerializedProperties implements Properties
 		}
 		{
 			Property prop = new PropertyImpl();
+			prop.setValue(false);
+			prop.setDescription("<html><body>Cayenne logging.</body></html>");
+			values.put("org.dyndns.doujindb.log.cayenne", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
 			prop.setValue("com.mysql.jdbc.Driver");
 			prop.setDescription("<html><body>SQL Driver full qualified class name.</body></html>");
 			values.put("org.dyndns.doujindb.db.driver", prop);			

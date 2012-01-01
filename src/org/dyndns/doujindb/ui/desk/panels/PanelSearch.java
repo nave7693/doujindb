@@ -157,17 +157,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Artist> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -176,10 +171,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -193,32 +190,25 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Artist)
+											{
+												Artist item = ((Artist)o);
+												item.doRecycle();
+												((DefaultListModel<Artist>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Artist a = ((RecordSet<Artist>)Core.Database.artists).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Artist>)listResults.getModel()).removeElementAt(index);
 									listResults.validate();
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
 									break;
 								}
 								}
 							}
 						}.start();
-					 }
+					}
 				  }
 			});
 			scrollResults = new JScrollPane(listResults);
@@ -419,17 +409,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Circle> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -438,10 +423,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -455,25 +442,19 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Circle)
+											{
+												Circle item = ((Circle)o);
+												item.doRecycle();
+												((DefaultListModel<Circle>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Circle c = ((RecordSet<Circle>)Core.Database.circles).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Circle>)listResults.getModel()).removeElementAt(index);
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+									listResults.validate();
 									break;
 								}
 								}
@@ -725,17 +706,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Book> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -744,10 +720,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -761,25 +739,19 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Book)
+											{
+												Book item = ((Book)o);
+												item.doRecycle();
+												((DefaultListModel<Book>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Book b = ((RecordSet<Book>)Core.Database.works).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Book>)listResults.getModel()).removeElementAt(index);
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+									listResults.validate();
 									break;
 								}
 								}
@@ -988,17 +960,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Content> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1007,10 +974,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -1024,25 +993,19 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Content)
+											{
+												Content item = ((Content)o);
+												item.doRecycle();
+												((DefaultListModel<Content>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Content ct = ((RecordSet<Content>)Core.Database.contents).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Content>)listResults.getModel()).removeElementAt(index);
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+									listResults.validate();
 									break;
 								}
 								}
@@ -1209,17 +1172,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Convention> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1228,10 +1186,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -1245,25 +1205,19 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Convention)
+											{
+												Convention item = ((Convention)o);
+												item.doRecycle();
+												((DefaultListModel<Convention>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Convention cn = ((RecordSet<Convention>)Core.Database.conventions).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Convention>)listResults.getModel()).removeElementAt(index);
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+									listResults.validate();
 									break;
 								}
 								}
@@ -1454,17 +1408,12 @@ public final class PanelSearch extends JPanel implements Validable
 			listResults.addMouseListener(new MouseAdapter(){
 				public void mouseClicked(MouseEvent e)
 				{
-					final int index = listResults.locationToIndex(e.getPoint());
-					ListModel<Parody> dlm = listResults.getModel();
-					if(index == -1)
-						return;
 					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
 						return;
-					final Record item = (Record)dlm.getElementAt(index);
-					listResults.ensureIndexIsVisible(index);
-					if(e.getClickCount() == 2)
+					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 					{
 						try {
+							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
 							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1473,10 +1422,12 @@ public final class PanelSearch extends JPanel implements Validable
 					}else
 					if(e.getButton() == MouseEvent.BUTTON3)
 					{
+						// If not item is selected don't show any popup
+						if(listResults.getSelectedIndices().length < 1)
+							return;
 						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Edit", Core.Resources.Icons.get("JDesktop/Explorer/Edit"));
 						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu(item.toString(), tbl);
+						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 						pop.show((Component)e.getSource(), e.getX(), e.getY());
 						new Thread(getClass().getName()+"/MouseClicked")
 						{
@@ -1490,25 +1441,19 @@ public final class PanelSearch extends JPanel implements Validable
 								{
 								case 0:{
 									try {
-										Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
+										for(Object o : listResults.getSelectedValuesList())
+											if(o instanceof Parody)
+											{
+												Parody item = ((Parody)o);
+												item.doRecycle();
+												((DefaultListModel<Parody>)listResults.getModel()).removeElement(item);
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									break;
-								}
-								case 1:{
-									//TODO Parody p = ((RecordSet<Parody>)Core.Database.parodies).get(item.toString());
-									//item.setDeleted(true);
-									try {
-										//FIXME Core.Database.doDelete(item);
-										item.doRecycle();
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
-									}
-									((DefaultListModel<Parody>)listResults.getModel()).removeElementAt(index);
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+									listResults.validate();
 									break;
 								}
 								}

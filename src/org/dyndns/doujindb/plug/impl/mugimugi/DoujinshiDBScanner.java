@@ -916,7 +916,7 @@ public final class DoujinshiDBScanner implements Plugin
 						{
 							resized = dest;
 						}
-						javax.imageio.ImageIO.write(resized, "JPG", cover_image2);
+						javax.imageio.ImageIO.write(resized, "PNG", cover_image2);
 					}
 					URLConnection urlc;
 					urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + APIKEY + "/?S=imageSearch").openConnection();

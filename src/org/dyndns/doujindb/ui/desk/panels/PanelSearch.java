@@ -17,6 +17,8 @@ import org.dyndns.doujindb.ui.desk.events.*;
 public final class PanelSearch extends JPanel implements Validable
 {
 	private Validable panel;
+	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
+	private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
 	
 	public enum Type
 	{
@@ -121,7 +123,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					Artist a = (Artist) value;
 					try {
 						setText(a.getJapaneseName() + 
@@ -379,7 +385,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					Circle c = (Circle) value;
 					try {
 						setText(c.getJapaneseName() + 
@@ -667,7 +677,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					final Book b = (Book) value;
 					try {
 						setText(b.getJapaneseName() + 
@@ -954,7 +968,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					Content ct = (Content) value;
 					try {
 						setText(ct.getTagName());
@@ -1163,7 +1181,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					Convention cn = (Convention) value;
 					try {
 						setText(cn.getTagName() + (cn.getInfo().equals("") ? "":" (" + cn.getInfo() + ")"));
@@ -1398,7 +1420,11 @@ public final class PanelSearch extends JPanel implements Validable
 						return null;
 					super.getListCellRendererComponent(list, value, index, isSelected, false);
 					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-					setBackground(UIManager.getColor("List.textBackground"));
+					if(isSelected)
+					{
+						setBackground(foregroundColor);
+						setForeground(backgroundColor);
+					}
 					Parody p = (Parody) value;
 					try {
 						setText(p.getJapaneseName() + 

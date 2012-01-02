@@ -939,6 +939,7 @@ public void layoutContainer(Container parent)
 						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
 						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
 					} catch (DataBaseException dbe) {
+						Core.Database.disconnect();
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					} finally 
 					{

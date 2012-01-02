@@ -87,6 +87,7 @@ public class DataBaseImpl extends DataBase
 		      try {
 				return _ds.getConnection();
 			} catch (SQLException sqle) {
+				sqle.printStackTrace();
 				return null;
 			}
 		   }
@@ -380,6 +381,44 @@ public class DataBaseImpl extends DataBase
 	@Override
 	public void connect() throws DataBaseException
 	{
+		
+//	    try {
+//			Class.forName("org.sqlite.JDBC");
+//		
+//	    Connection conn =
+//	      java.sql.DriverManager.getConnection("jdbc:sqlite:test.db");
+//	    java.sql.Statement stat = conn.createStatement();
+//	    stat.executeUpdate("drop table if exists people;");
+//	    stat.executeUpdate("create table people (name, occupation);");
+//	    java.sql.PreparedStatement prep = conn.prepareStatement(
+//	      "insert into people values (?, ?);");
+//
+//	    prep.setString(1, "Gandhi");
+//	    prep.setString(2, "politics");
+//	    prep.addBatch();
+//	    prep.setString(1, "Turing");
+//	    prep.setString(2, "computers");
+//	    prep.addBatch();
+//	    prep.setString(1, "Wittgenstein");
+//	    prep.setString(2, "smartypants");
+//	    prep.addBatch();
+//
+//	    conn.setAutoCommit(false);
+//	    prep.executeBatch();
+//	    conn.setAutoCommit(true);
+//
+//	    java.sql.ResultSet rs = stat.executeQuery("select * from people;");
+//	    while (rs.next()) {
+//	      System.out.println("name = " + rs.getString("name"));
+//	      System.out.println("job = " + rs.getString("occupation"));
+//	    }
+//	    rs.close();
+//	    conn.close();
+//	    
+//	    } catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
 		if(isConnected())
 			throw new DataBaseException("DataBase already connected.");
 		try
@@ -397,12 +436,12 @@ public class DataBaseImpl extends DataBase
 			node.setDataSource(pool);
 			//Doesn't work, handle timeout manually
 			//pool.setLoginTimeout(3);
-			checkContext(pool, 3);
+			checkContext(pool, Core.Properties.get("org.dyndns.doujindb.db.connection_timeout").asNumber());
 			connection = url;
 		} catch (SQLException sqle) {
 			throw new DataBaseException(sqle);
 		}
-		
+
 		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
 	}
 	

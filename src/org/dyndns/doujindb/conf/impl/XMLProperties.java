@@ -135,12 +135,12 @@ final class XMLProperties implements Properties
 			prop.setDescription("<html><body>Database password.</body></html>");
 			values.put("org.dyndns.doujindb.db.password", prop);			
 		}
-//		{
-//			Property prop = new PropertyImpl();
-//			prop.setValue(false);
-//			prop.setDescription("<html><body>Apache Cayenne (log4j) logging.</body></html>");
-//			values.put("org.dyndns.doujindb.log.cayenne", prop);			
-//		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(5);
+			prop.setDescription("<html><body>Database password.</body></html>");
+			values.put("org.dyndns.doujindb.db.connection_timeout", prop);			
+		}
 	}
 	
 	public Iterable<String> keys()

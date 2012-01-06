@@ -25,6 +25,10 @@ import org.dyndns.doujindb.ui.desk.events.*;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
+import javax.xml.parsers.*;
+import javax.xml.xpath.*;
+
+import org.w3c.dom.*;
 
 /**  
 * DoujinshiDBScanner.java - Plugin to batch process media files thanks to the DoujinshiDB project APIs.
@@ -117,7 +121,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getVersion() {
-		return "0.5";
+		return "0.6b";
 	}
 	@Override
 	public String getAuthor() {
@@ -125,7 +129,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getWeblink() {
-		return "http://doujindb.dyndns.org/";
+		return "http://doujindb.co.cc/";
 	}
 	@Override
 	public JComponent getUI() {
@@ -135,51 +139,13 @@ public final class DoujinshiDBScanner implements Plugin
 	@SuppressWarnings("unused")
 	private final static class XMLParser
 	{
-		public static XML_User parseUser(InputStream in) throws Exception
+		public static XML_User getUser(InputStream in) throws Exception
 		{
 			XML_List list;
 			JAXBContext context = JAXBContext.newInstance(XML_List.class);
 			Unmarshaller um = context.createUnmarshaller();
 			list = (XML_List) um.unmarshal(in);
 			return list.USER;
-		}
-		
-		public static Book parseXML(InputStream in) throws DataBaseException
-		{
-			Hashtable<String, Set<Record>> imported = readXML(in);
-			if(imported == null)
-				return null;
-			Book book = (Book) imported.get("Book://").iterator().next();
-			for(Record r : imported.get("Artist://"))
-			{
-				Artist o = (Artist)r;
-				book.addArtist(o);
-				o.addBook(book);
-			}
-			for(Record r : imported.get("Circle://"))
-			{
-				Circle o = (Circle)r;
-				;
-			}
-			for(Record r : imported.get("Convention://"))
-			{
-				Convention o = (Convention)r;
-				book.setConvention(o);
-				o.addBook(book);
-			}
-			for(Record r : imported.get("Content://"))
-			{
-				Content o = (Content)r;
-				book.addContent(o);
-				o.addBook(book);
-			}
-			for(Record r : imported.get("Parody://"))
-			{
-				Parody o = (Parody)r;
-				book.addParody(o);
-				o.addBook(book);
-			}
-			return book;
 		}
 		
 		@XmlRootElement(namespace = "", name="LIST")
@@ -726,7 +692,7 @@ public final class DoujinshiDBScanner implements Plugin
 							URLConnection urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + APIKEY + "/").openConnection();
 							urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.this.getName() + "/" + DoujinshiDBScanner.this.getVersion()+ "; +" + DoujinshiDBScanner.this.getWeblink() + ")");
 							InputStream in = new ClientHttpRequest(urlc).post();
-							user = XMLParser.parseUser(in);
+							user = XMLParser.getUser(in);
 						} catch (Exception e)
 						{
 							e.printStackTrace();
@@ -940,9 +906,6 @@ public final class DoujinshiDBScanner implements Plugin
 								status = TASK_ERROR;
 								throw new Exception("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 							}
-							PipedInputStream pin = new PipedInputStream();
-							PipedOutputStream pout = new PipedOutputStream(pin);
-							XMLBook doujin = new XMLBook();
 							XMLParser.XML_User user = list.USER;
 							if(user != null)
 							{
@@ -957,7 +920,6 @@ public final class DoujinshiDBScanner implements Plugin
 								textQueries.setText("");
 								textImageQueries.setText("");
 							}
-							{
 								HashMap<Double, XMLParser.XML_Book> books = new HashMap<Double, XMLParser.XML_Book>();
 								double better_result = 0;
 								String result_string = "";
@@ -1097,68 +1059,184 @@ public final class DoujinshiDBScanner implements Plugin
 									epanel.add(bottom, BorderLayout.SOUTH);
 									throw new Exception("No query matched the threshold.");
 								}
-								XMLParser.XML_Book book  = books.get(better_result);
-								doujin.japaneseName = book.NAME_JP;
-								doujin.translatedName = book.NAME_EN;
-								doujin.romanjiName = book.NAME_R;
-								doujin.Released = book.DATE_RELEASED;
-								doujin.Pages = book.DATA_PAGES;
-								doujin.Adult = true;
-								doujin.Decensored = false;
-								doujin.Colored = false;
-								doujin.Translated = false;
-								doujin.Rating = Rating.UNRATED;
-								doujin.Info = book.DATA_INFO;
-								for(XMLParser.XML_Item item : book.LINKS.Items)
+							try
+							{
+								XMLParser.XML_Book xmlbook  = books.get(better_result);
+								Book book = Context.doInsert(Book.class);
+								book.setJapaneseName(xmlbook.NAME_JP);
+								book.setTranslatedName(xmlbook.NAME_EN);
+								book.setRomanjiName(xmlbook.NAME_R);
+								book.setDate(xmlbook.DATE_RELEASED);
+								book.setPages(xmlbook.DATA_PAGES);
+								book.setAdult(xmlbook.DATA_AGE == 1);
+								book.setDecensored(false);
+								book.setTranslated(false);
+								book.setColored(false);
+								book.setRating(Rating.UNRATED);
+								book.setInfo(xmlbook.DATA_INFO);
+								
+								RecordSet<Artist> artists = Context.getArtists(null);
+								RecordSet<Circle> circles = Context.getCircles(null);
+								RecordSet<Parody> parodies = Context.getParodies(null);
+								RecordSet<Content> contents = Context.getContents(null);
+								RecordSet<Convention> conventions = Context.getConventions(null);
+								
+								Map<String, Artist> alink = new HashMap<String, Artist>();
+								Map<String, Circle> clink = new HashMap<String, Circle>();
+								
+								for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items)
 								{
 									try
 									{
-										switch(item.TYPE)
+										switch(xmlitem.TYPE)
 										{
 										case type:
 											for(Book.Type type : Book.Type.values())
-												if(type.toString().equals(item.NAME_JP))
-													doujin.Type = type;
+												if(type.toString().equals(xmlitem.NAME_JP))
+													book.setType(type);
 											break;
 										case author:
-											doujin.artists.add(item.NAME_JP);
+											_case:{
+												for(Artist artist : artists)
+													if(artist.getJapaneseName().equals(xmlitem.NAME_JP) ||
+														artist.getTranslatedName().equals(xmlitem.NAME_EN) ||
+														artist.getRomanjiName().equals(xmlitem.NAME_R))
+													{
+														book.addArtist(artist);
+														alink.put(xmlitem.ID, artist);
+														break _case;
+													}
+												Artist a = Context.doInsert(Artist.class);
+												a.setJapaneseName(xmlitem.NAME_JP);
+												a.setTranslatedName(xmlitem.NAME_EN);
+												a.setRomanjiName(xmlitem.NAME_R);
+												book.addArtist(a);
+												alink.put(xmlitem.ID, a);
+											}
 											break;
 										case character:
 											break;
 										case circle:
-											doujin.circles.add(item.NAME_JP);
+											/**
+											 * Ok, we cannot link book <--> circle directly.
+											 * We have to link book <--> artist <--> circle instead.
+											 */
+											_case:{
+												for(Circle circle : circles)
+													if(circle.getJapaneseName().equals(xmlitem.NAME_JP) ||
+														circle.getTranslatedName().equals(xmlitem.NAME_EN) ||
+														circle.getRomanjiName().equals(xmlitem.NAME_R))
+													{
+														// book.addCircle(circle);
+														clink.put(xmlitem.ID, circle);
+														break _case;
+													}
+												Circle c = Context.doInsert(Circle.class);
+												c.setJapaneseName(xmlitem.NAME_JP);
+												c.setTranslatedName(xmlitem.NAME_EN);
+												c.setRomanjiName(xmlitem.NAME_R);
+												// book.addCircle(c);
+												clink.put(xmlitem.ID, c);
+											}
 											break;
 										case collections:
 											break;
 										case contents:
-											doujin.contents.add(item.NAME_JP);
+											_case:{
+												for(Content content : contents)
+													if(content.getTagName().equals(xmlitem.NAME_JP) ||
+														content.getTagName().equals(xmlitem.NAME_EN) ||
+														content.getTagName().equals(xmlitem.NAME_R))
+													{
+														book.addContent(content);
+														break _case;
+													}
+												Content cn = Context.doInsert(Content.class);
+												// Tag Name priority NAME_JP > NAME_EN > NAME_R
+												cn.setTagName(xmlitem.NAME_JP.equals("")?xmlitem.NAME_EN.equals("")?xmlitem.NAME_R:xmlitem.NAME_EN:xmlitem.NAME_JP);
+												book.addContent(cn);
+											}
 											break;
 										case convention:
-											doujin.Convention = item.NAME_ALT.get(0);
+											if(book.getConvention() != null)
+												break;
+											_case:{
+												for(Convention convention : conventions)
+													if(convention.getTagName().equals(xmlitem.NAME_JP) ||
+															convention.getTagName().equals(xmlitem.NAME_EN) ||
+															convention.getTagName().equals(xmlitem.NAME_R))
+													{
+														book.setConvention(convention);
+														break _case;
+													}
+												Convention cv = Context.doInsert(Convention.class);
+												// Tag Name priority NAME_EN > NAME_JP > NAME_R
+												cv.setTagName(xmlitem.NAME_EN.equals("")?xmlitem.NAME_JP.equals("")?xmlitem.NAME_R:xmlitem.NAME_JP:xmlitem.NAME_EN);
+												book.setConvention(cv);
+											}
 											break;
 										case genre:
 											break;
 										case imprint:
 											break;
 										case parody:
-											doujin.parodies.add(item.NAME_JP);
+											_case:{
+											for(Parody parody : parodies)
+												if(parody.getJapaneseName().equals(xmlitem.NAME_JP) ||
+														parody.getTranslatedName().equals(xmlitem.NAME_EN) ||
+														parody.getRomanjiName().equals(xmlitem.NAME_R))
+												{
+													book.addParody(parody);
+													break _case;
+												}
+											Parody p = Context.doInsert(Parody.class);
+											p.setJapaneseName(xmlitem.NAME_JP);
+											p.setTranslatedName(xmlitem.NAME_EN);
+											p.setRomanjiName(xmlitem.NAME_R);
+											book.addParody(p);
+											}
 											break;
 										case publisher:
 											break;
 										}
-									}catch(Exception e) { ; }
+									}catch(Exception e) { e.printStackTrace(); }
 								}
-							}
-							try
-							{
-								context = JAXBContext.newInstance(XMLBook.class);
-								Marshaller m = context.createMarshaller();
-								m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-								m.marshal(doujin, pout);
-								pout.write(new String("\r\n").getBytes());
-								pout.flush();
-								pout.close();
-								importedBook = XMLParser.parseXML(pin);
+								
+								Context.doCommit();
+								
+								if(alink.size() > 0 && clink.size() > 0)
+								{
+									String[] ckeys = (String[]) clink.keySet().toArray(new String[0]);
+									String[] akeys = (String[]) alink.keySet().toArray(new String[0]);
+									String ids = ckeys[0];
+									for(int i=1;i<ckeys.length;i++)
+										ids += ckeys[i] + ",";
+									urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
+									urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.this.getName() + "/" + DoujinshiDBScanner.this.getVersion()+ "; +" + DoujinshiDBScanner.this.getWeblink() + ")");
+									InputStream in0 = urlc.getInputStream();
+									DocumentBuilderFactory docfactory = DocumentBuilderFactory.newInstance();
+									docfactory.setNamespaceAware(true);
+									DocumentBuilder builder = docfactory.newDocumentBuilder();
+									Document doc = builder.parse(in0);
+									XPathFactory xmlfactory = XPathFactory.newInstance();
+									XPath xpath = xmlfactory.newXPath();
+									for(String cid : ckeys)
+									{
+										for(String aid : akeys)
+										{
+											XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
+											Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
+											if(node == null)
+												continue;
+											else
+												clink.get(cid).addArtist(alink.get(aid));
+										}
+									}
+								}
+								
+								Context.doCommit();
+								
+								importedBook = book;
 								if(importedBook == null)
 								{
 									description = "Error parsing XML data.";
@@ -1389,164 +1467,5 @@ public final class DoujinshiDBScanner implements Plugin
 				return new Dimension(150,20);
 			}
 		}
-	}
-	
-	private static Hashtable<String, Set<Record>> readXML(InputStream in) throws DataBaseException
-	{
-		XMLBook doujin;
-		Hashtable<String, Set<Record>> parsed = new Hashtable<String, Set<Record>>();
-		parsed.put("Artist://", new HashSet<Record>());
-		parsed.put("Book://", new HashSet<Record>());
-		parsed.put("Circle://", new HashSet<Record>());
-		parsed.put("Convention://", new HashSet<Record>());
-		parsed.put("Content://", new HashSet<Record>());
-		parsed.put("Parody://", new HashSet<Record>());
-		try
-		{
-			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-			Unmarshaller um = context.createUnmarshaller();
-			doujin = (XMLBook) um.unmarshal(in);
-		} catch (Exception e) {
-			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-			return null;
-		}
-		Book book = Context.doInsert(Book.class);
-		book.setJapaneseName(doujin.japaneseName);
-		book.setType(doujin.Type);
-		book.setTranslatedName(doujin.translatedName);
-		book.setRomanjiName(doujin.romanjiName);
-		book.setDate(doujin.Released);
-		book.setType(doujin.Type);
-		book.setPages(doujin.Pages);
-		book.setAdult(doujin.Adult);
-		book.setDecensored(doujin.Decensored);
-		book.setTranslated(doujin.Translated);
-		book.setColored(doujin.Colored);
-		book.setRating(doujin.Rating);
-		book.setInfo(doujin.Info);
-		parsed.get("Book://").add(book);
-		{
-			Vector<Record> temp = new Vector<Record>();
-			for(Convention convention : Context.getConventions(null))
-				if(doujin.Convention.matches(convention.getTagName()))
-					temp.add(convention);
-			if(temp.size() == 0 && !doujin.Convention.equals(""))
-			{
-				Convention convention = Context.doInsert(Convention.class);
-				convention.setTagName(doujin.Convention);
-				parsed.get("Convention://").add(convention);
-			}
-			else
-				parsed.get("Convention://").addAll(temp);
-		}
-		{
-			for(String japaneseName : doujin.artists)
-			{
-				Vector<Record> temp = new Vector<Record>();
-				for(Artist artist : Context.getArtists(null))
-					if(japaneseName.matches(artist.getJapaneseName()))
-						temp.add(artist);
-				if(temp.size() == 0)
-				{
-					Artist artist = Context.doInsert(Artist.class);
-					artist.setJapaneseName(japaneseName);
-					parsed.get("Artist://").add(artist);
-				}
-				else
-					parsed.get("Artist://").addAll(temp);
-			}
-		}
-		{
-			for(String japaneseName : doujin.circles)
-			{
-				Vector<Record> temp = new Vector<Record>();
-				for(Circle circle : Context.getCircles(null))
-					if(japaneseName.matches(circle.getJapaneseName()))
-						temp.add(circle);
-				if(temp.size() == 0)
-				{
-					Circle circle = Context.doInsert(Circle.class);
-					circle.setJapaneseName(japaneseName);
-					parsed.get("Circle://").add(circle);
-				}
-				else
-					parsed.get("Circle://").addAll(temp);
-			}
-		}
-		{
-			for(String tagName : doujin.contents)
-			{
-				Vector<Record> temp = new Vector<Record>();
-				for(Content content : Context.getContents(null))
-					if(tagName.matches(content.getTagName()))
-						temp.add(content);
-				if(temp.size() == 0)
-				{
-					Content content = Context.doInsert(Content.class);
-					content.setTagName(tagName);
-					parsed.get("Content://").add(content);
-				}
-				else
-					parsed.get("Content://").addAll(temp);
-			}
-		}
-		{
-			for(String japaneseName : doujin.parodies)
-			{
-				Vector<Record> temp = new Vector<Record>();
-				for(Parody parody : Context.getParodies(null))
-					if(japaneseName.matches(parody.getJapaneseName()))
-						temp.add(parody);
-				if(temp.size() == 0)
-				{
-					Parody parody = Context.doInsert(Parody.class);
-					parody.setJapaneseName(japaneseName);
-					parsed.get("Parody://").add(parody);
-				}
-				else
-					parsed.get("Parody://").addAll(temp);
-			}
-		}
-		Context.doCommit();
-		return parsed;
-	}
-	
-	@XmlRootElement(name="Doujin")
-	private static final class XMLBook
-	{
-		@XmlElement(required=true)
-		private String japaneseName = "";
-		@XmlElement(required=false)
-		private String translatedName = "";
-		@XmlElement(required=false)
-		private String romanjiName = "";
-		@XmlElement(required=false)
-		private String Convention = "";
-		@XmlElement(required=false)
-		private Date Released;
-		@XmlElement(required=false)
-		private Type Type = Book.Type.同人誌;
-		@XmlElement(required=false)
-		private int Pages;
-		@XmlElement(required=false)
-		private boolean Adult;
-		@XmlElement(required=false)
-		private boolean Decensored;
-		@XmlElement(required=false)
-		private boolean Translated;
-		@XmlElement(required=false)
-		private boolean Colored;
-		@XmlElement(required=false)
-		private Rating Rating;
-		@XmlElement(required=false)
-		private String Info;
-		@XmlElement(name="Artist", required=false)
-		private List<String> artists = new Vector<String>();
-		@XmlElement(name="Circle", required=false)
-		private List<String> circles = new Vector<String>();
-		@XmlElement(name="Parody", required=false)
-		private List<String> parodies = new Vector<String>();
-		@XmlElement(name="Content", required=false)
-		private List<String> contents = new Vector<String>();
 	}
 }

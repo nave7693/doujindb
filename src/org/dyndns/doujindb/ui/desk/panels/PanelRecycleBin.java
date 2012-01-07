@@ -92,37 +92,31 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 						{
 							for(Artist value : checkboxListArtist.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Book value : checkboxListBook.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Circle value : checkboxListCircle.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Convention value : checkboxListConvention.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Content value : checkboxListContent.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}
 							for(Parody value : checkboxListParody.getSelectedItems())
 							{
-								//FIXME Core.Database.doDelete(value);
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
 							}

@@ -11,14 +11,8 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.RepositoryException;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Circle;
-import org.dyndns.doujindb.db.records.Content;
-import org.dyndns.doujindb.db.records.Convention;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
@@ -196,11 +190,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									try {
 									;
 									for(Artist value : checkboxListArtist.getSelectedItems())
-									{//TODO
+									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
 										for(Circle o : value.getCircles())
 											value.removeCircle(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Book value : checkboxListBook.getSelectedItems())
@@ -211,6 +206,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											value.removeContent(o);
 										for(Parody o : value.getParodies())
 											value.removeParody(o);
+										value.setConvention(null);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
@@ -218,6 +215,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									{
 										for(Artist o : value.getArtists())
 											value.removeArtist(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
@@ -225,18 +223,21 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Content value : checkboxListContent.getSelectedItems())
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Parody value : checkboxListParody.getSelectedItems())
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									;
@@ -339,11 +340,12 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									try {
 									;
 									for(Artist value : checkboxListArtist.getItems())
-									{//TODO
+									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
 										for(Circle o : value.getCircles())
 											value.removeCircle(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Book value : checkboxListBook.getItems())
@@ -354,6 +356,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 											value.removeContent(o);
 										for(Parody o : value.getParodies())
 											value.removeParody(o);
+										value.setConvention(null);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
@@ -361,6 +365,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									{
 										for(Artist o : value.getArtists())
 											value.removeArtist(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
@@ -368,18 +373,21 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Content value : checkboxListContent.getItems())
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									for(Parody value : checkboxListParody.getItems())
 									{
 										for(Book o : value.getBooks())
 											value.removeBook(o);
+										Core.Database.doCommit();
 										Core.Database.doDelete(value);
 									}
 									System.gc();
@@ -762,9 +770,6 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		/*Iterable<Record> it = checkboxList.getSelectedItems();
-		checkboxList.setItems(Core.Database.getDeleted());
-		checkboxList.setSelectedItems(it);*/
 		Vector<Artist> deleted_a = new Vector<Artist>();
 		Vector<Book> deleted_b = new Vector<Book>();
 		Vector<Circle> deleted_c = new Vector<Circle>();

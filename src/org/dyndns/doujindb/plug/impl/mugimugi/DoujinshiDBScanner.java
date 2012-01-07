@@ -756,8 +756,8 @@ public final class DoujinshiDBScanner implements Plugin
 			private double threshold;
 			
 			private Book importedBook;
-			private Set<String> warnings = new TreeSet<String>();
-			private Set<String> errors = new TreeSet<String>();
+			private String warningMessage = "";
+			private String errorMessage = "";
 			private JComponent epanel;
 			
 			public static final int TASK_RUNNING = 0x01;
@@ -978,7 +978,6 @@ public final class DoujinshiDBScanner implements Plugin
 												try
 												{
 													URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
-													System.out.println(thumbURL);
 													ImageIcon img = new ImageIcon(thumbURL);
 													cover.setIcon(img);
 												}catch(Exception e){ e.printStackTrace(); }
@@ -1245,10 +1244,10 @@ public final class DoujinshiDBScanner implements Plugin
 								}
 								
 								for(Book book_ : Context.getBooks(null))
-									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && importedBook != book_)
+									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && !importedBook.getID().equals(book_.getID()))
 									{
 										status = TASK_WARNING;
-										warnings.add("Possible duplicate item detected (ID='"+book_.getID()+"').");
+										warningMessage = "Possible duplicate item detected [ID='"+book_.getID()+"'].";
 									}
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -1291,7 +1290,7 @@ public final class DoujinshiDBScanner implements Plugin
 						out.close();
 						if(status == TASK_WARNING)
 						{
-							description = "Doujin successfully imported (With warnings)";
+							description = "Doujin successfully imported (" + warningMessage + ")";
 						}else{
 							status = TASK_COMPLETED;
 							description = "Doujin successfully imported.";
@@ -1374,7 +1373,10 @@ public final class DoujinshiDBScanner implements Plugin
 				{
 				case TASK_COMPLETED:
 					try {
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, importedBook);
+						RecordSet<Book> books = Core.Database.getBooks(null);
+						for(Book b : books)
+							if(b.getID().equals(importedBook.getID()))
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1392,7 +1394,10 @@ public final class DoujinshiDBScanner implements Plugin
 					break;
 				case TASK_WARNING:
 					try {
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, importedBook);
+						RecordSet<Book> books = Core.Database.getBooks(null);
+						for(Book b : books)
+							if(b.getID().equals(importedBook.getID()))
+									Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

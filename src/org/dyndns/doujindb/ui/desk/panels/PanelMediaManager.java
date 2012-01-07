@@ -37,7 +37,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 	private final String PACKAGE_INDEX = ".xml";
 	private final String PACKAGE_MEDIA = ".data/";
 	
-	private static String UUID = "{7c483dce-d1ee-4484-840d-37152ef5c4e2}";
+	private static String UUID = "{7C483DCE-D1EE-4484-840D-37152EF5C4E2}";
 	private static DataBaseContext Context;
 	
 	@SuppressWarnings("unused")

@@ -213,8 +213,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public synchronized void setConvention(Convention convention) throws DataBaseException
 	{
 		if(convention == null)
-			return;
-		((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
+			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof(null);
+		else
+			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
 	}
 
 	@Override

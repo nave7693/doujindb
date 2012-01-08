@@ -138,8 +138,14 @@ final class XMLProperties implements Properties
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(5);
-			prop.setDescription("<html><body>Database password.</body></html>");
+			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(true);
+			prop.setDescription("<html><body>Whether to autocommit changes to the Database.</body></html>");
+			values.put("org.dyndns.doujindb.db.autocommit", prop);			
 		}
 	}
 	

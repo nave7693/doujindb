@@ -60,4 +60,6 @@ public abstract class DataBase
 	public abstract boolean isConnected() throws DataBaseException;
 	
 	public abstract String getConnection() throws DataBaseException;
+
+	public abstract boolean isAutocommit() throws DataBaseException;
 }

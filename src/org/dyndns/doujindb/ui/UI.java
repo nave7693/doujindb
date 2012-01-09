@@ -540,8 +540,14 @@ public void layoutContainer(Container parent)
 		uiPanelDesktopShow.setBounds(1,1,20,20);
 		uiPanelDesktopSearch.setBounds(21,1,20,20);
 		uiPanelDesktopAdd.setBounds(41,1,20,20);
-		uiPanelDesktopCommit.setBounds(width - 22,1,20,20);
-		uiPanelDesktopRollback.setBounds(width - 42,1,20,20);
+		if(Core.Database.isAutocommit())
+		{
+			uiPanelDesktopCommit.setBounds(0,0,0,0);
+			uiPanelDesktopRollback.setBounds(0,0,0,0);
+		} else {
+			uiPanelDesktopCommit.setBounds(width - 22,1,20,20);
+			uiPanelDesktopRollback.setBounds(width - 42,1,20,20);
+		}
 		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
 		uiStatusBarConnect.setBounds(-1,-1,0,0);
 		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
@@ -728,7 +734,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null); //TODO Core.Database.doInsert(Artist.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -738,7 +744,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null); //TODO Core.Database.doInsert(Book.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -748,7 +754,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null); //TODO Core.Database.doInsert(Circle.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -758,7 +764,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null); //TODO Core.Database.doInsert(Convention.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -768,7 +774,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null); //TODO Core.Database.doInsert(Content.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -778,7 +784,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null); //TODO Core.Database.doInsert(Parody.class)
+				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();

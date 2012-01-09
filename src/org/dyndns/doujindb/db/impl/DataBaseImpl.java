@@ -32,6 +32,7 @@ public class DataBaseImpl extends DataBase
 	private ObjectContext context;
 	private Hashtable<String, DataBaseContext> contexts;
 	private String connection;
+	private boolean autocommit = false;
 	
 	public DataBaseImpl()
 	{
@@ -44,34 +45,11 @@ public class DataBaseImpl extends DataBase
 		node.setSchemaUpdateStrategy(new org.apache.cayenne.access.dbsync.ThrowOnPartialOrCreateSchemaStrategy());
 		for(DataMap map : domain.getDataMaps())
 		    node.addDataMap(map);
-		
-//		try
-//		{
-//			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();
-//			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
-//			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
-//			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
-//			PoolManager pool = new PoolManager(driver,
-//					url,
-//			        1,
-//			        1,
-//			        username,
-//			        password);
-//			node.setDataSource(pool);
-//			//Doesn't work, handle timeout manually
-//			//pool.setLoginTimeout(3);
-//			checkContext(pool, 3);
-//			connection = url;
-//		} catch (SQLException sqle) {
-//			throw new DataBaseException(sqle);
-//		}
-		
-//		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
-		
+
 		domain.addNode(node);
-		
+
 		context = domain.createDataContext();
-		
+
 		contexts = new Hashtable<String, DataBaseContext>();
 	}
 	
@@ -381,44 +359,6 @@ public class DataBaseImpl extends DataBase
 	@Override
 	public void connect() throws DataBaseException
 	{
-		
-//	    try {
-//			Class.forName("org.sqlite.JDBC");
-//		
-//	    Connection conn =
-//	      java.sql.DriverManager.getConnection("jdbc:sqlite:test.db");
-//	    java.sql.Statement stat = conn.createStatement();
-//	    stat.executeUpdate("drop table if exists people;");
-//	    stat.executeUpdate("create table people (name, occupation);");
-//	    java.sql.PreparedStatement prep = conn.prepareStatement(
-//	      "insert into people values (?, ?);");
-//
-//	    prep.setString(1, "Gandhi");
-//	    prep.setString(2, "politics");
-//	    prep.addBatch();
-//	    prep.setString(1, "Turing");
-//	    prep.setString(2, "computers");
-//	    prep.addBatch();
-//	    prep.setString(1, "Wittgenstein");
-//	    prep.setString(2, "smartypants");
-//	    prep.addBatch();
-//
-//	    conn.setAutoCommit(false);
-//	    prep.executeBatch();
-//	    conn.setAutoCommit(true);
-//
-//	    java.sql.ResultSet rs = stat.executeQuery("select * from people;");
-//	    while (rs.next()) {
-//	      System.out.println("name = " + rs.getString("name"));
-//	      System.out.println("job = " + rs.getString("occupation"));
-//	    }
-//	    rs.close();
-//	    conn.close();
-//	    
-//	    } catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
 		if(isConnected())
 			throw new DataBaseException("DataBase already connected.");
 		try
@@ -443,6 +383,8 @@ public class DataBaseImpl extends DataBase
 		}
 
 		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
+		
+		autocommit = Core.Properties.get("org.dyndns.doujindb.db.autocommit").asBoolean();
 	}
 	
 	@Override
@@ -455,5 +397,11 @@ public class DataBaseImpl extends DataBase
 	public boolean isConnected() throws DataBaseException
 	{
 		return node.getDataSource() != null;
+	}
+	
+	@Override
+	public boolean isAutocommit() throws DataBaseException
+	{
+		return autocommit;
 	}
 }

@@ -206,17 +206,17 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		{
 			switch(ve.getType())
 			{
-			case DouzEvent.DATABASE_REFRESH:
+			case DATABASE_REFRESH:
 				refreshUI();
 				break;
-			case DouzEvent.DATABASE_ITEMCHANGED:
+			case DATABASE_UPDATE:
 				refreshUI();
 				break;
-			case DouzEvent.DATABASE_ITEMADDED:
+			case DATABASE_INSERT:
 				model.items.add(new CheckBoxItem(ve.getParameter()));
 				refreshUI();
 				break;
-			case DouzEvent.DATABASE_ITEMREMOVED:
+			case DATABASE_DELETE:
 				CheckBoxItem<?> removed = null;
 				for(CheckBoxItem<?> cbi : model.items)
 					if(cbi.getItem().equals(ve.getParameter()))
@@ -294,7 +294,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 				if(cb.getItem().equals(item))
 					cb.setChecked(true);
 			}
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	public Iterable<T> getSelectedItems()
@@ -324,7 +324,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		model.items.clear();
 		for(T item : items)
 			model.items.add(new CheckBoxItem<T>(item));
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	public Iterable<T> getItems()

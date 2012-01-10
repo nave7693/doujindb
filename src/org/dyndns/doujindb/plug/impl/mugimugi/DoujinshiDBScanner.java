@@ -346,21 +346,21 @@ public final class DoujinshiDBScanner implements Plugin
 				{
 					APIKEY = textApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
-					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
+					Core.UI.validateUI(new DouzEvent(DouzEvent.Type.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
 					APIKEY = textApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
-					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
+					Core.UI.validateUI(new DouzEvent(DouzEvent.Type.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
 					APIKEY = textApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
-					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
+					Core.UI.validateUI(new DouzEvent(DouzEvent.Type.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.apikey"));
 				}				
 			});
 			bogus.add(textApikey);
@@ -379,7 +379,7 @@ public final class DoujinshiDBScanner implements Plugin
 					if(sliderThreshold.getValueIsAdjusting())
 						return;
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").setValue(THRESHOLD);
-					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.threshold"));
+					Core.UI.validateUI(new DouzEvent(DouzEvent.Type.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.threshold"));
 				}				
 			});
 			bogus.add(sliderThreshold);
@@ -422,7 +422,7 @@ public final class DoujinshiDBScanner implements Plugin
 				{
 					RESIZE_COVER = boxResizeImage.isSelected();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").setValue(RESIZE_COVER);
-					Core.UI.validateUI(new DouzEvent(DouzEvent.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.resize_cover"));
+					Core.UI.validateUI(new DouzEvent(DouzEvent.Type.SETTINGS_CHANGED, "org.dyndns.doujindb.plug.mugimugi.resize_cover"));
 				}				
 			});
 			bogus.add(boxResizeImage);

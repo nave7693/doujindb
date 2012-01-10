@@ -133,7 +133,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				java.util.Iterator<Book> books = editorWorks.iterator();
 				while(books.hasNext())
 					tokenContent.addBook(books.next());
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenContent));					
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenContent));					
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, tokenContent, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -142,7 +142,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		}
 		buttonConfirm.setEnabled(true);
 		buttonConfirm.setIcon(null);
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -154,7 +154,7 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 		{
 			if(ve.getParameter() instanceof Book)
 				editorWorks.validateUI(ve);

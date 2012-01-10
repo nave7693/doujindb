@@ -10,7 +10,6 @@ import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.*;
-import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.rc.*;
 
 /**  
@@ -98,12 +97,6 @@ public final class Core implements Runnable
 		{
 			Core.Logger.log("Running configuration wizard ...", Level.INFO);
 			UI.showConfigurationWizard();
-		}
-		try
-		{
-			Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
-		} catch (Exception e) {
-			Core.Logger.log(e.getMessage(), Level.ERROR);
 		}
 	}
 }

@@ -196,7 +196,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Artist item = ((Artist)o);
 												item.doRecycle();
 												((DefaultListModel<Artist>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -448,7 +448,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Circle item = ((Circle)o);
 												item.doRecycle();
 												((DefaultListModel<Circle>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -745,7 +745,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Book item = ((Book)o);
 												item.doRecycle();
 												((DefaultListModel<Book>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -999,7 +999,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Content item = ((Content)o);
 												item.doRecycle();
 												((DefaultListModel<Content>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1211,7 +1211,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Convention item = ((Convention)o);
 												item.doRecycle();
 												((DefaultListModel<Convention>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1447,7 +1447,7 @@ public final class PanelSearch extends JPanel implements Validable
 												Parody item = ((Parody)o);
 												item.doRecycle();
 												((DefaultListModel<Parody>)listResults.getModel()).removeElement(item);
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMREMOVED, item));
+												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 											}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);

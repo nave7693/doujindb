@@ -272,7 +272,7 @@ public class PanelBookMedia extends JPanel implements Validable
 			}
 		});
 		displayUI();
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	private void displayUI()

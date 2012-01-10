@@ -1,11 +1,11 @@
 package org.dyndns.doujindb.db;
 
-import org.dyndns.doujindb.db.masks.MskArtist;
-import org.dyndns.doujindb.db.masks.MskBook;
-import org.dyndns.doujindb.db.masks.MskCircle;
-import org.dyndns.doujindb.db.masks.MskContent;
-import org.dyndns.doujindb.db.masks.MskConvention;
-import org.dyndns.doujindb.db.masks.MskParody;
+import org.dyndns.doujindb.db.query.QueryArtist;
+import org.dyndns.doujindb.db.query.QueryBook;
+import org.dyndns.doujindb.db.query.QueryCircle;
+import org.dyndns.doujindb.db.query.QueryContent;
+import org.dyndns.doujindb.db.query.QueryConvention;
+import org.dyndns.doujindb.db.query.QueryParody;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -22,12 +22,12 @@ public interface DataBaseContext
 {
 	public void doCommit() throws DataBaseException;
 	public void doRollback() throws DataBaseException;
-	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException;
-	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException;
-	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException;
-	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException;
-	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException;
-	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
+	public RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException;
+	public RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException;
+	public RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException;
+	public RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException;
+	public RecordSet<Content> getContents(QueryContent mask) throws DataBaseException;
+	public RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException;
 	public RecordSet<Record> getRecycled() throws DataBaseException;
 	public RecordSet<Record> getDeleted() throws DataBaseException;
 	public RecordSet<Record> getModified() throws DataBaseException;

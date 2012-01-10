@@ -359,24 +359,14 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(!Core.Database.isConnected())
-			return;
-		// TODO
-		/*switch(Core.Network.getStatus())
+		if(ve.getType() == DouzEvent.Type.DATABASE_DISCONNECT)
 		{
-		case CONNECTED:
-			buttonSharedItems.setIcon(Core.Resources.Icons.get("JDesktop/SharedItems/Connected"));
-			break;
-		case DISCONNECTED:
-			buttonSharedItems.setIcon(Core.Resources.Icons.get("JDesktop/SharedItems/Disconnected"));
-			break;
-		case CONNECTING:
-			buttonSharedItems.setIcon(Core.Resources.Icons.get("JDesktop/SharedItems/Connecting"));
-			break;
-		case DISCONNECTING:
-			buttonSharedItems.setIcon(Core.Resources.Icons.get("JDesktop/SharedItems/Disconnecting"));
-			break;
-		}*/
+			for(JInternalFrame jif : getAllFrames())
+			{
+				try{ ((DouzWindow)jif).dispose(); }catch(Exception e) { e.printStackTrace(); }
+			}
+			return;
+		}
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }

@@ -374,7 +374,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		buttonConfirm.addActionListener(this);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -528,7 +528,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					if(tokenBook.getID() != null)
 						writeXML(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
 				}
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenBook));			
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -581,7 +581,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 		{
 			if(ve.getParameter() instanceof Artist)
 				editorArtists.validateUI(ve);

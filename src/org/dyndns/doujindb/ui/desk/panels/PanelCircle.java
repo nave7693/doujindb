@@ -221,7 +221,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		pane.add(labelBanner);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -296,7 +296,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 				java.util.Iterator<Artist> Artists = editorArtists.iterator();
 				while(Artists.hasNext())
 					tokenCircle.addArtist(Artists.next());
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenCircle));				
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenCircle));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -323,7 +323,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			labelBanner.setEnabled(false);
 		else
 			labelBanner.setEnabled(true);
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 		{
 			if(ve.getParameter() instanceof Artist)
 				editorArtists.validateUI(ve);

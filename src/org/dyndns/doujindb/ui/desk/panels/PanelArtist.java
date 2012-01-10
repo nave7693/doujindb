@@ -84,7 +84,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -164,7 +164,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 				java.util.Iterator<Circle> circles = editorCircles.iterator();
 				while(circles.hasNext())
 					tokenArtist.addCircle(circles.next());
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenArtist));
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenArtist));
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, tokenArtist, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -187,7 +187,7 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 			editorCircles.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 		{
 			if(ve.getParameter() instanceof Circle)
 				editorCircles.validateUI(ve);

@@ -80,7 +80,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -154,7 +154,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 				java.util.Iterator<Book> books = editorWorks.iterator();
 				while(books.hasNext())
 					tokenParody.addBook(books.next());
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMCHANGED, tokenParody));				
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenParody));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, tokenParody, rect);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -176,7 +176,7 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 		{
 			if(ve.getParameter() instanceof Book)
 				editorWorks.validateUI(ve);

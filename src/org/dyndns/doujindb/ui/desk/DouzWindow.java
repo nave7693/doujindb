@@ -225,7 +225,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				v.validateUI(ve);
 			super.validate();
 		}
-		if((ve.getParameter() == item) && (ve.getType() == DouzEvent.DATABASE_ITEMREMOVED))
+		if((ve.getParameter() == item) && (ve.getType() == DouzEvent.Type.DATABASE_DELETE))
 		{
 			dispose();
 			Core.UI.Desktop.remove(this);

@@ -837,7 +837,7 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_COMMIT, null));
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -904,7 +904,7 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_ROLLBACK, null));
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -943,7 +943,7 @@ public void layoutContainer(Container parent)
 						Core.Database.doRollback();
 						uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
 						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
-						Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_CONNECT, null));
 					} catch (DataBaseException dbe) {
 						Core.Database.disconnect();
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -961,12 +961,8 @@ public void layoutContainer(Container parent)
 			{
 				Core.Database.disconnect();
 				Core.Logger.log("Disconnected from remote host.", Level.INFO);
-				for(JInternalFrame jif : Desktop.getAllFrames())
-				{
-					try{ ((DouzWindow)jif).dispose(); }catch(Exception e) { e.printStackTrace(); }
-				}
 				uiStatusBar.setText("Disconnected.");
-				Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_RELOAD, null));
+				Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DISCONNECT, null));
 			} catch (RuntimeException re)
 			{
 				Core.Logger.log("" + re.getMessage(), Level.ERROR);
@@ -2227,27 +2223,11 @@ public void layoutContainer(Container parent)
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(ve.getType() == DouzEvent.NETWORK_CONNECTED)
+		if(ve.getType() == DouzEvent.Type.SETTINGS_CHANGED)
 		{
-			for(int i=0;i<uiPanelTabbed.getTabCount();i++)
-				if(uiPanelTabbed.getTitleAt(i).equals("Network"))
-					uiPanelTabbed.setEnabledAt(i, true);
-		}else{
-			if(ve.getType() == DouzEvent.NETWORK_CONNECTING ||
-					ve.getType() == DouzEvent.NETWORK_DISCONNECTED ||
-					ve.getType() == DouzEvent.NETWORK_DISCONNECTING)
-				for(int i=0;i<uiPanelTabbed.getTabCount();i++)
-					if(uiPanelTabbed.getTitleAt(i).equals("Network"))
-						uiPanelTabbed.setEnabledAt(i, false);
-					else
-						;
-			else
-				if(ve.getType() == DouzEvent.SETTINGS_CHANGED)
-				{
-					String key = (String) ve.getParameter();
-					uiPanelSettings.reload(key);
-					return;
-				}
+			String key = (String) ve.getParameter();
+			uiPanelSettings.reload(key);
+			return;
 		}
 		Desktop.validateUI(ve);	
 	}

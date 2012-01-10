@@ -89,7 +89,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			}			
 		});
 		panel1.add(mediaManagerRefresh);
@@ -156,7 +156,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 						Thread unpacker = new Unpacker(files);
 						unpacker.start();
 						try { while(unpacker.isAlive()) sleep(10); } catch (Exception e) { }
-						validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+						validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 						fc.setMultiSelectionEnabled(false);
 						fc.setFileSelectionMode(prev_option);
 					}
@@ -224,7 +224,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 										}
 									}
 									;
-									validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+									validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
@@ -260,13 +260,13 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxListMedia.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		});
 		Vector<Book> files = new Vector<Book>();
@@ -285,7 +285,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		split.setEnabled(false);
 		pane.add(split);
 		;
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	@Override
@@ -530,17 +530,17 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			{
 				switch(ve.getType())
 				{
-				case DouzEvent.DATABASE_REFRESH:
+				case DATABASE_REFRESH:
 					refreshUI();
 					break;
-				case DouzEvent.DATABASE_ITEMCHANGED:
+				case DATABASE_UPDATE:
 					refreshUI();
 					break;
-				case DouzEvent.DATABASE_ITEMADDED:
+				case DATABASE_INSERT:
 					model.items.add(new CheckBoxItem(ve.getParameter()));
 					refreshUI();
 					break;
-				case DouzEvent.DATABASE_ITEMREMOVED:
+				case DATABASE_DELETE:
 					CheckBoxItem<?> removed = null;
 					for(CheckBoxItem<?> cbi : model.items)
 						if(cbi.getItem() == ve.getParameter())
@@ -613,7 +613,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 					if(cb.getItem() == item)
 						cb.setChecked(true);
 				}
-			validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		}
 		
 		public Iterable<T> getSelectedItems()
@@ -643,7 +643,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 			model.items.clear();
 			for(T item : items)
 				model.items.add(new CheckBoxItem<T>(item));
-			validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		}
 		
 		public Iterable<T> getItems()

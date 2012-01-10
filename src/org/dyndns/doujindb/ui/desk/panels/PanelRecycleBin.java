@@ -87,34 +87,34 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 							for(Artist value : checkboxListArtist.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
 							for(Book value : checkboxListBook.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
 							for(Circle value : checkboxListCircle.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
 							for(Convention value : checkboxListConvention.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
 							for(Content value : checkboxListContent.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
 							for(Parody value : checkboxListParody.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_ITEMADDED, value));
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
-							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
@@ -253,7 +253,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleEmpty.setEnabled(true);
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Delete"));
 									;
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -402,7 +402,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleEmpty.setEnabled(true);
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Empty"));
 									;
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -484,13 +484,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListArtist = new DouzCheckBoxList<Artist>(deleted_a, searchField);
@@ -505,13 +505,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListBook = new DouzCheckBoxList<Book>(deleted_b, searchField);
@@ -526,13 +526,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListCircle = new DouzCheckBoxList<Circle>(deleted_c, searchField);
@@ -547,13 +547,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListConvention = new DouzCheckBoxList<Convention>(deleted_cv, searchField);
@@ -568,13 +568,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListContent = new DouzCheckBoxList<Content>(deleted_cn, searchField);
@@ -589,13 +589,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 			    }
 			});
 			checkboxListParody = new DouzCheckBoxList<Parody>(deleted_p, searchField);
@@ -737,7 +737,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		checkboxListParody.addMouseListener(this);
 		;
 		SwingUtilities.invokeLater(new Runnable(){public void run(){split.revalidate();}});
-		validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	@Override

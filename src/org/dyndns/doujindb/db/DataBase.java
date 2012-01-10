@@ -1,7 +1,7 @@
 package org.dyndns.doujindb.db;
 
 import org.dyndns.doujindb.db.impl.*;
-import org.dyndns.doujindb.db.masks.*;
+import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 
 /**  
@@ -31,17 +31,17 @@ public abstract class DataBase
 	
 	public abstract void doDelete(Record record) throws DataBaseException;
 	
-	public abstract RecordSet<Book> getBooks(MskBook mask) throws DataBaseException;
+	public abstract RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException;
 
-	public abstract RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException;
+	public abstract RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException;
 
-	public abstract RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException;
+	public abstract RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException;
 
-	public abstract RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException;
+	public abstract RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException;
 
-	public abstract RecordSet<Content> getContents(MskContent mask) throws DataBaseException;
+	public abstract RecordSet<Content> getContents(QueryContent mask) throws DataBaseException;
 
-	public abstract RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException;
+	public abstract RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException;
 	
 	public abstract RecordSet<Record> getRecycled() throws DataBaseException;
 

@@ -17,7 +17,7 @@ import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
-import org.dyndns.doujindb.db.masks.*;
+import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 
 /**  
@@ -159,7 +159,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Book> getBooks(MskBook mask) throws DataBaseException
+	public RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
@@ -171,7 +171,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Circle> getCircles(MskCircle mask) throws DataBaseException
+	public RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
@@ -183,7 +183,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Artist> getArtists(MskArtist mask) throws DataBaseException
+	public RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
@@ -195,7 +195,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Parody> getParodies(MskParody mask) throws DataBaseException
+	public RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
@@ -207,7 +207,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Content> getContents(MskContent mask) throws DataBaseException
+	public RecordSet<Content> getContents(QueryContent mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
@@ -219,7 +219,7 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Convention> getConventions(MskConvention mask) throws DataBaseException
+	public RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException
 	{
 		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
 		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);

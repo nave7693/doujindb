@@ -31,13 +31,13 @@ public class RecordContentEditor extends JSplitPane implements Validable
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.DATABASE_REFRESH, null));
+		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 		    }
 		});
 		checkboxList = new DouzCheckBoxList<Content>(Core.Database.getContents(null), searchField);
@@ -66,7 +66,7 @@ public class RecordContentEditor extends JSplitPane implements Validable
 	@Override
 	public void validateUI(DouzEvent ve)
 	{
-		if(ve.getType() != DouzEvent.DATABASE_ITEMCHANGED)
+		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
 			checkboxList.validateUI(ve);
 		else
 		{

@@ -1,5 +1,6 @@
 package org.dyndns.doujindb.db.impl;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
@@ -11,7 +12,7 @@ import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.DataNode;
 import org.apache.cayenne.conf.Configuration;
 import org.apache.cayenne.conn.PoolManager;
-import org.apache.cayenne.exp.Expression;
+import org.apache.cayenne.exp.*;
 import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
@@ -33,6 +34,104 @@ public class DataBaseImpl extends DataBase
 	private Hashtable<String, DataBaseContext> contexts;
 	private String connection;
 	private boolean autocommit = false;
+	
+	private static SelectQuery queryArtist;
+	private static SelectQuery queryBook;
+	private static SelectQuery queryCircle;
+	private static SelectQuery queryConvention;
+	private static SelectQuery queryContent;
+	private static SelectQuery queryParody;
+	
+	{
+		List<Expression> list;
+		Expression exp;
+		
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("japaneseName", 
+		         new ExpressionParameter("JapaneseName")));
+		list.add(ExpressionFactory.likeExp("romanjiName", 
+		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("translatedName", 
+		         new ExpressionParameter("TranslatedName")));
+		list.add(ExpressionFactory.likeExp("weblink", 
+		         new ExpressionParameter("Weblink")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryArtist = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, exp);
+		//TODO
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("japaneseName", 
+		         new ExpressionParameter("JapaneseName")));
+		list.add(ExpressionFactory.likeExp("romanjiName", 
+		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("translatedName", 
+		         new ExpressionParameter("TranslatedName")));
+//		list.add(ExpressionFactory.inExp("conventionof.tagName", 
+//		         new ExpressionParameter("Conventions")));
+//		list.add(ExpressionFactory.inExp("contents.tagName", 
+//		         new ExpressionParameter("Contents")));
+		list.add(ExpressionFactory.matchExp("type", 
+		         new ExpressionParameter("Type")));
+		list.add(ExpressionFactory.matchExp("adult", 
+		         new ExpressionParameter("Adult")));
+		list.add(ExpressionFactory.matchExp("color", 
+		         new ExpressionParameter("Colored")));
+		list.add(ExpressionFactory.matchExp("translated", 
+		         new ExpressionParameter("Translated")));
+		list.add(ExpressionFactory.matchExp("decensored", 
+		         new ExpressionParameter("Decensored")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryBook = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, exp);
+		
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("japaneseName", 
+		         new ExpressionParameter("JapaneseName")));
+		list.add(ExpressionFactory.likeExp("romanjiName", 
+		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("translatedName", 
+		         new ExpressionParameter("TranslatedName")));
+		list.add(ExpressionFactory.likeExp("weblink", 
+		         new ExpressionParameter("Weblink")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryCircle = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, exp);
+		
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("tagName", 
+		         new ExpressionParameter("TagName")));
+		list.add(ExpressionFactory.likeExp("weblink", 
+		         new ExpressionParameter("Weblink")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryConvention = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, exp);
+		
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("tagName", 
+		         new ExpressionParameter("TagName")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryContent = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, exp);
+		
+		list = new ArrayList<Expression>();
+		list.add(ExpressionFactory.matchDbExp("ID", 
+		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.likeExp("japaneseName", 
+		         new ExpressionParameter("JapaneseName")));
+		list.add(ExpressionFactory.likeExp("romanjiName", 
+		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("translatedName", 
+		         new ExpressionParameter("TranslatedName")));
+		list.add(ExpressionFactory.likeExp("weblink", 
+		         new ExpressionParameter("Weblink")));
+		exp = ExpressionFactory.joinExp(Expression.AND, list);
+		queryParody = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, exp);
+	}
 	
 	public DataBaseImpl()
 	{
@@ -159,9 +258,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException
+	public RecordSet<Book> getBooks(QueryBook query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryBook)
+		{
+			select = queryBook.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
 		Set<Book> buff = new TreeSet<Book>();
 		for(org.dyndns.doujindb.db.cayenne.Book o : list)
@@ -171,9 +276,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException
+	public RecordSet<Circle> getCircles(QueryCircle query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryCircle)
+		{
+			select = queryCircle.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
 		Set<Circle> buff = new TreeSet<Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
@@ -183,9 +294,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException
+	public RecordSet<Artist> getArtists(QueryArtist query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryArtist)
+		{
+			select = queryArtist.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
 		Set<Artist> buff = new TreeSet<Artist>();
 		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
@@ -195,9 +312,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException
+	public RecordSet<Parody> getParodies(QueryParody query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryParody)
+		{
+			select = queryParody.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
 		Set<Parody> buff = new TreeSet<Parody>();
 		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
@@ -207,9 +330,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Content> getContents(QueryContent mask) throws DataBaseException
+	public RecordSet<Content> getContents(QueryContent query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryContent)
+		{
+			select = queryContent.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
 		Set<Content> buff = new TreeSet<Content>();
 		for(org.dyndns.doujindb.db.cayenne.Content o : list)
@@ -219,9 +348,15 @@ public class DataBaseImpl extends DataBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException
+	public RecordSet<Convention> getConventions(QueryConvention query) throws DataBaseException
 	{
-		SelectQuery select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
+		SelectQuery select;
+		if(query instanceof QueryConvention)
+		{
+			select = queryConvention.queryWithParameters(parseObject(query));
+		} else {
+			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
+		}
 		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
 		Set<Convention> buff = new TreeSet<Convention>();
 		for(org.dyndns.doujindb.db.cayenne.Convention o : list)
@@ -403,5 +538,52 @@ public class DataBaseImpl extends DataBase
 	public boolean isAutocommit() throws DataBaseException
 	{
 		return autocommit;
+	}
+
+	private Map<String, Object> parseObject(Object o)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		/**
+		 * Special case here: different types of records
+		 * put a letter in front of the ID.
+		 * Also if we are query by ID we don't even consider other fields.
+		 * 
+		 * Artist		=> A
+		 * Book			=> B
+		 * Circle		=> C
+		 * Content		=> T
+		 * Convention	=> E
+		 * Parody		=> P
+		 */
+		Field id;
+		try {
+			id = o.getClass().getField("ID");
+			if(id != null)
+			{
+				map.put("ID", Integer.parseInt(id.get(o).toString().substring(1)));
+				return map;
+			}
+		} catch (NoSuchFieldException scfe) {
+			scfe.printStackTrace();
+		} catch (SecurityException se) {
+			se.printStackTrace();
+		} catch (NumberFormatException nfe) {
+			nfe.printStackTrace();
+		} catch (IllegalArgumentException iae) {
+			iae.printStackTrace();
+		} catch (IllegalAccessException iae) {
+			iae.printStackTrace();
+		}
+		for(Field field : o.getClass().getFields())
+			try {
+				Object value = field.get(o);
+				if(value != null)
+					map.put(field.getName(), value);
+			} catch (IllegalArgumentException iae) {
+				iae.printStackTrace();
+			} catch (IllegalAccessException iae) {
+				iae.printStackTrace();
+			}
+		return map;
 	}
 }

@@ -31,17 +31,17 @@ public abstract class DataBase
 	
 	public abstract void doDelete(Record record) throws DataBaseException;
 	
-	public abstract RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException;
+	public abstract RecordSet<Book> getBooks(QueryBook query) throws DataBaseException;
 
-	public abstract RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException;
+	public abstract RecordSet<Circle> getCircles(QueryCircle query) throws DataBaseException;
 
-	public abstract RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException;
+	public abstract RecordSet<Artist> getArtists(QueryArtist query) throws DataBaseException;
 
-	public abstract RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException;
+	public abstract RecordSet<Parody> getParodies(QueryParody query) throws DataBaseException;
 
-	public abstract RecordSet<Content> getContents(QueryContent mask) throws DataBaseException;
+	public abstract RecordSet<Content> getContents(QueryContent query) throws DataBaseException;
 
-	public abstract RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException;
+	public abstract RecordSet<Convention> getConventions(QueryConvention query) throws DataBaseException;
 	
 	public abstract RecordSet<Record> getRecycled() throws DataBaseException;
 

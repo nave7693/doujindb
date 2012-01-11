@@ -7,6 +7,7 @@ package org.dyndns.doujindb.db.query;
 */
 public final class QueryConvention
 {
-	public String TagName = "%";
-	public String Weblink = "%";
+	public String ID = null;
+	public String TagName = null;
+	public String Weblink = null;
 }

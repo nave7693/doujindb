@@ -8,6 +8,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
@@ -96,19 +97,19 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
-			textJapaneseName = new JTextField(".*");
+			textJapaneseName = new JTextField("");
 			textJapaneseName.setFont(font);
 			labelTranslatedName = new JLabel("Translated Name");
 			labelTranslatedName.setFont(font);
-			textTranslatedName = new JTextField(".*");
+			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
 			labelRomanjiName = new JLabel("Romanji Name");
 			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField(".*");
+			textRomanjiName = new JTextField("");
 			textRomanjiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
-			textWeblink = new JTextField(".*");
+			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
@@ -276,22 +277,25 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Artist>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Artist a : Core.Database.getArtists(null))
+							QueryArtist query = new QueryArtist();
+							if(!textJapaneseName.getText().equals(""))
+								query.JapaneseName = textJapaneseName.getText();
+							if(!textTranslatedName.getText().equals(""))
+								query.TranslatedName = textTranslatedName.getText();
+							if(!textRomanjiName.getText().equals(""))
+								query.RomanjiName = textRomanjiName.getText();
+							if(!textWeblink.getText().equals(""))
+								query.Weblink = textWeblink.getText();
+							for(Artist a : Core.Database.getArtists(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									if( a.getJapaneseName().matches(textJapaneseName.getText()) &&
-										a.getTranslatedName().matches(textTranslatedName.getText()) &&
-										a.getRomanjiName().matches(textRomanjiName.getText()) &&
-										a.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Core.Database.getDeleted().contains(a)*/)
-										((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
+									((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -348,19 +352,19 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
-			textJapaneseName = new JTextField(".*");
+			textJapaneseName = new JTextField("");
 			textJapaneseName.setFont(font);
 			labelTranslatedName = new JLabel("Translated Name");
 			labelTranslatedName.setFont(font);
-			textTranslatedName = new JTextField(".*");
+			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
 			labelRomanjiName = new JLabel("Romanji Name");
 			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField(".*");
+			textRomanjiName = new JTextField("");
 			textRomanjiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
-			textWeblink = new JTextField(".*");
+			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
@@ -527,22 +531,25 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Circle>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Circle c : Core.Database.getCircles(null))
+							QueryCircle query = new QueryCircle();
+							if(!textJapaneseName.getText().equals(""))
+								query.JapaneseName = textJapaneseName.getText();
+							if(!textTranslatedName.getText().equals(""))
+								query.TranslatedName = textTranslatedName.getText();
+							if(!textRomanjiName.getText().equals(""))
+								query.RomanjiName = textRomanjiName.getText();
+							if(!textWeblink.getText().equals(""))
+								query.Weblink = textWeblink.getText();
+							for(Circle c : Core.Database.getCircles(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									if( c.getJapaneseName().matches(textJapaneseName.getText()) &&
-										c.getTranslatedName().matches(textTranslatedName.getText()) &&
-										c.getRomanjiName().matches(textRomanjiName.getText()) &&
-										c.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Core.Database.getDeleted().contains(c)*/)
-										((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
+									((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -607,19 +614,19 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
-			textJapaneseName = new JTextField(".*");
+			textJapaneseName = new JTextField("");
 			textJapaneseName.setFont(font);
 			labelTranslatedName = new JLabel("Translated Name");
 			labelTranslatedName.setFont(font);
-			textTranslatedName = new JTextField(".*");
+			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
 			labelRomanjiName = new JLabel("Romanji Name");
 			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField(".*");
+			textRomanjiName = new JTextField("");
 			textRomanjiName.setFont(font);
 			labelConvention = new JLabel("Convention");
 			labelConvention.setFont(font);
-			textConvention = new JTextField(".*");
+			textConvention = new JTextField("");
 			textConvention.setFont(font);
 			labelContents = new JLabel("Contents");
 			labelContents.setFont(font);
@@ -678,22 +685,6 @@ public final class PanelSearch extends JPanel implements Validable
 								"<b>Japanese Name</b> : " + b.getJapaneseName() +
 								"<br><b>Translated Name</b> : " + b.getTranslatedName() +
 								"<br><b>Romanji Name</b> : " + b.getRomanjiName() +
-								/*"<br><b>Artists</b> : " + new Object()
-								{
-									@Override
-									public String toString()
-									{
-										String s = "<ul>";
-										for(Artist a : b.getArtists())
-											s += "<li>" + a.toString() + "</li>";
-										return s + "</ul>";
-									}
-								} +
-								"<br>." + //TODO Tooltip covers in search panel
-								((Core.Repository.contains(b.getID() + "/.preview")) ?
-										"<br><table border='0'><tr><td><img src='file:///" + Core.Repository.get(b.getID()).get(".preview") + "' /></td></tr></table>"
-												:
-										"") +*/
 								"</body></html>");
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -839,42 +830,34 @@ public final class PanelSearch extends JPanel implements Validable
 					{
 						((DefaultListModel<Book>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try
-						{
-							for(Book b : Core.Database.getBooks(null))
+						//TODO
+						try {
+							QueryBook query = new QueryBook();
+							if(!textJapaneseName.getText().equals(""))
+								query.JapaneseName = textJapaneseName.getText();
+							if(!textTranslatedName.getText().equals(""))
+								query.TranslatedName = textTranslatedName.getText();
+							if(!textRomanjiName.getText().equals(""))
+								query.RomanjiName = textRomanjiName.getText();
+							query.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
+							query.Adult = checkAdult.isSelected();
+							query.Colored = checkColored.isSelected();
+							query.Translated = checkTranslated.isSelected();
+							query.Decensored = checkDecensored.isSelected();
+							query.Contents = null;
+							if(!textConvention.getText().equals(""))
+								query.Conventions = textConvention.getText();
+							query.Conventions = null;
+							for(Book b : Core.Database.getBooks(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									boolean containsAllTags = false;
-									Vector<String> tags0 = new Vector<String>();
-									for(String tag : textContents.getText().split(","))
-										if(!tag.equals(""))
-											tags0.add(tag.trim());
-									Vector<String> tags1 = new Vector<String>();
-									for(Content cnt : b.getContents())
-										tags1.add(cnt.getTagName());
-									if(tags1.containsAll(tags0))
-										containsAllTags = true;
-									if( b.getJapaneseName().matches(textJapaneseName.getText()) &&
-											b.getTranslatedName().matches(textTranslatedName.getText()) &&
-											b.getRomanjiName().matches(textRomanjiName.getText()) &&
-											(b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()) &&
-											b.getType() == comboType.getSelectedItem() &&
-											(checkAdult.isSelected()?b.isAdult():true) &&
-											(checkDecensored.isSelected()?b.isDecensored():true) &&
-											(checkTranslated.isSelected()?b.isTranslated():true) &&
-											(checkColored.isSelected()?b.isColored():true) &&
-											containsAllTags /*&&
-											//FIXME !Core.Database.getDeleted().contains(b)*/
-											)
-											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
+									((DefaultListModel<Book>)listResults.getModel()).add(0, b);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
-								catch (NullPointerException npe) { npe.printStackTrace(); }
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -883,6 +866,50 @@ public final class PanelSearch extends JPanel implements Validable
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
 						}
+//						try
+//						{
+//							for(Book b : Core.Database.getBooks(null))
+//							{
+//								if(stopped)
+//									break;
+//								try
+//								{
+//									boolean containsAllTags = false;
+//									Vector<String> tags0 = new Vector<String>();
+//									for(String tag : textContents.getText().split(","))
+//										if(!tag.equals(""))
+//											tags0.add(tag.trim());
+//									Vector<String> tags1 = new Vector<String>();
+//									for(Content cnt : b.getContents())
+//										tags1.add(cnt.getTagName());
+//									if(tags1.containsAll(tags0))
+//										containsAllTags = true;
+//									if( b.getJapaneseName().matches(textJapaneseName.getText()) &&
+//											b.getTranslatedName().matches(textTranslatedName.getText()) &&
+//											b.getRomanjiName().matches(textRomanjiName.getText()) &&
+//											(b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()) &&
+//											b.getType() == comboType.getSelectedItem() &&
+//											(checkAdult.isSelected()?b.isAdult():true) &&
+//											(checkDecensored.isSelected()?b.isDecensored():true) &&
+//											(checkTranslated.isSelected()?b.isTranslated():true) &&
+//											(checkColored.isSelected()?b.isColored():true) &&
+//											containsAllTags /*&&
+//											//FIXME !Core.Database.getDeleted().contains(b)*/
+//											)
+//											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
+//									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+//								}
+//								catch (NullPointerException npe) { npe.printStackTrace(); }
+//								catch (InterruptedException ie) { ; }
+//								catch (java.util.regex.PatternSyntaxException pse) { ; }
+//							}
+//						} catch (DataBaseException dbe) {
+//							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+//							dbe.printStackTrace();
+//						} catch (PropertyException pe) {
+//							Core.Logger.log(pe.getMessage(), Level.ERROR);
+//							pe.printStackTrace();
+//						}
 						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Book"));
 						buttonSearch.setText("Search");
 						buttonSearch.setMnemonic('S');
@@ -925,7 +952,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelTagName = new JLabel("Tag Name");
 			labelTagName.setFont(font);
-			textTagName = new JTextField(".*");
+			textTagName = new JTextField("");
 			textTagName.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
@@ -1066,19 +1093,19 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Content>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Content ct : Core.Database.getContents(null))
+							QueryContent query = new QueryContent();
+							if(!textTagName.getText().equals(""))
+								query.TagName = textTagName.getText();
+							for(Content ct : Core.Database.getContents(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									if( ct.getTagName().matches(textTagName.getText()) /*&&
-											//FIXME !Core.Database.getDeleted().contains(ct)*/)
-										((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
+									((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1129,7 +1156,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelTagName = new JLabel("Tag Name");
 			labelTagName.setFont(font);
-			textTagName = new JTextField(".*");
+			textTagName = new JTextField("");
 			textTagName.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
@@ -1278,19 +1305,19 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Convention>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Convention cn : Core.Database.getConventions(null))
+							QueryConvention query = new QueryConvention();
+							if(!textTagName.getText().equals(""))
+								query.TagName = textTagName.getText();
+							for(Convention cn : Core.Database.getConventions(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									if( cn.getTagName().matches(textTagName.getText()) /*&&
-											//FIXME !Core.Database.getDeleted().contains(cn)*/)
-										((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
+									((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1347,19 +1374,19 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.setLayout(this);
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
-			textJapaneseName = new JTextField(".*");
+			textJapaneseName = new JTextField("");
 			textJapaneseName.setFont(font);
 			labelTranslatedName = new JLabel("Translated Name");
 			labelTranslatedName.setFont(font);
-			textTranslatedName = new JTextField(".*");
+			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
 			labelRomanjiName = new JLabel("Romanji Name");
 			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField(".*");
+			textRomanjiName = new JTextField("");
 			textRomanjiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
-			textWeblink = new JTextField(".*");
+			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
@@ -1526,22 +1553,25 @@ public final class PanelSearch extends JPanel implements Validable
 						((DefaultListModel<Parody>)listResults.getModel()).clear();
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
-							for(Parody p : Core.Database.getParodies(null))
+							QueryParody query = new QueryParody();
+							if(!textJapaneseName.getText().equals(""))
+								query.JapaneseName = textJapaneseName.getText();
+							if(!textTranslatedName.getText().equals(""))
+								query.TranslatedName = textTranslatedName.getText();
+							if(!textRomanjiName.getText().equals(""))
+								query.RomanjiName = textRomanjiName.getText();
+							if(!textWeblink.getText().equals(""))
+								query.Weblink = textWeblink.getText();
+							for(Parody p : Core.Database.getParodies(query))
 							{
 								if(stopped)
 									break;
 								try
 								{
-									if( p.getJapaneseName().matches(textJapaneseName.getText()) &&
-										p.getTranslatedName().matches(textTranslatedName.getText()) &&
-										p.getRomanjiName().matches(textRomanjiName.getText()) &&
-										p.getWeblink().matches(textWeblink.getText()) /*&&
-										//FIXME !Core.Database.getDeleted().contains(p)*/)
-										((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
+									((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
-								catch (java.util.regex.PatternSyntaxException pse) { ; }
 							}
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);

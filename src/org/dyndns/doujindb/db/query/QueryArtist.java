@@ -7,8 +7,9 @@ package org.dyndns.doujindb.db.query;
 */
 public final class QueryArtist
 {
-	public String JapaneseName = "%";
-	public String RomanjiName = "%";
-	public String TranslatedName = "%";
-	public String Weblink = "%";
+	public String ID = null;
+	public String JapaneseName = null;
+	public String RomanjiName = null;
+	public String TranslatedName = null;
+	public String Weblink = null;
 }

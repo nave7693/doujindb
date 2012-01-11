@@ -16,6 +16,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
@@ -1373,7 +1374,9 @@ public final class DoujinshiDBScanner implements Plugin
 				{
 				case TASK_COMPLETED:
 					try {
-						RecordSet<Book> books = Core.Database.getBooks(null);
+						QueryBook query = new QueryBook();
+						query.ID = importedBook.getID();
+						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
 								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);
@@ -1394,7 +1397,9 @@ public final class DoujinshiDBScanner implements Plugin
 					break;
 				case TASK_WARNING:
 					try {
-						RecordSet<Book> books = Core.Database.getBooks(null);
+						QueryBook query = new QueryBook();
+						query.ID = importedBook.getID();
+						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
 									Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);

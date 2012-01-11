@@ -9,11 +9,12 @@ import org.dyndns.doujindb.db.records.Book;
 */
 public final class QueryBook
 {
-	public String JapaneseName = "%";
-	public String RomanjiName = "%";
-	public String TranslatedName = "%";
-	public String Conventions = "%";
-	public String Contents = "%";
+	public String ID = null;
+	public String JapaneseName = null;
+	public String RomanjiName = null;
+	public String TranslatedName = null;
+	public String Conventions = null;
+	public String Contents = null;
 	public Book.Type Type = Book.Type.不詳;
 	public boolean Adult = false;
 	public boolean Decensored = false;

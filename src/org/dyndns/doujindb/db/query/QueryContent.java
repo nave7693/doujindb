@@ -7,5 +7,6 @@ package org.dyndns.doujindb.db.query;
 */
 public final class QueryContent
 {
-	public String TagName = "%";
+	public String ID = null;
+	public String TagName = null;
 }

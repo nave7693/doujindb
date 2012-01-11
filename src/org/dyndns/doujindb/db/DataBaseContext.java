@@ -22,12 +22,12 @@ public interface DataBaseContext
 {
 	public void doCommit() throws DataBaseException;
 	public void doRollback() throws DataBaseException;
-	public RecordSet<Book> getBooks(QueryBook mask) throws DataBaseException;
-	public RecordSet<Circle> getCircles(QueryCircle mask) throws DataBaseException;
-	public RecordSet<Artist> getArtists(QueryArtist mask) throws DataBaseException;
-	public RecordSet<Parody> getParodies(QueryParody mask) throws DataBaseException;
-	public RecordSet<Content> getContents(QueryContent mask) throws DataBaseException;
-	public RecordSet<Convention> getConventions(QueryConvention mask) throws DataBaseException;
+	public RecordSet<Book> getBooks(QueryBook query) throws DataBaseException;
+	public RecordSet<Circle> getCircles(QueryCircle query) throws DataBaseException;
+	public RecordSet<Artist> getArtists(QueryArtist query) throws DataBaseException;
+	public RecordSet<Parody> getParodies(QueryParody query) throws DataBaseException;
+	public RecordSet<Content> getContents(QueryContent query) throws DataBaseException;
+	public RecordSet<Convention> getConventions(QueryConvention query) throws DataBaseException;
 	public RecordSet<Record> getRecycled() throws DataBaseException;
 	public RecordSet<Record> getDeleted() throws DataBaseException;
 	public RecordSet<Record> getModified() throws DataBaseException;

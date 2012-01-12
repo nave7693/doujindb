@@ -546,7 +546,7 @@ public class DataBaseImpl extends DataBase
 		/**
 		 * Special case here: different types of records
 		 * put a letter in front of the ID.
-		 * Also if we are query by ID we don't even consider other fields.
+		 * Also if we are quering by ID we don't even consider other fields.
 		 * 
 		 * Artist		=> A
 		 * Book			=> B
@@ -558,7 +558,7 @@ public class DataBaseImpl extends DataBase
 		Field id;
 		try {
 			id = o.getClass().getField("ID");
-			if(id != null)
+			if(id.get(o) != null)
 			{
 				map.put("ID", Integer.parseInt(id.get(o).toString().substring(1)));
 				return map;

@@ -146,6 +146,8 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 				java.util.Iterator<Book> books = editorWorks.iterator();
 				while(books.hasNext())
 					tokenConvention.addBook(books.next());
+				if(Core.Database.isAutocommit())
+					Core.Database.doCommit();
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenConvention));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, tokenConvention, rect);
 			} catch (DataBaseException dbe) {

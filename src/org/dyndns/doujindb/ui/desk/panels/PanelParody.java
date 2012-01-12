@@ -154,6 +154,8 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 				java.util.Iterator<Book> books = editorWorks.iterator();
 				while(books.hasNext())
 					tokenParody.addBook(books.next());
+				if(Core.Database.isAutocommit())
+					Core.Database.doCommit();
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenParody));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, tokenParody, rect);
 			} catch (DataBaseException dbe) {

@@ -133,6 +133,8 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				java.util.Iterator<Book> books = editorWorks.iterator();
 				while(books.hasNext())
 					tokenContent.addBook(books.next());
+				if(Core.Database.isAutocommit())
+					Core.Database.doCommit();
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenContent));					
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, tokenContent, rect);
 			} catch (DataBaseException dbe) {

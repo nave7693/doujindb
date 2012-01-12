@@ -296,6 +296,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 				java.util.Iterator<Artist> Artists = editorArtists.iterator();
 				while(Artists.hasNext())
 					tokenCircle.addArtist(Artists.next());
+				if(Core.Database.isAutocommit())
+					Core.Database.doCommit();
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenCircle));				
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
 			} catch (DataBaseException dbe) {

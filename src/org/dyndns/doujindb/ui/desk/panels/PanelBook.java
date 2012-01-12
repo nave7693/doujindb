@@ -528,6 +528,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 					if(tokenBook.getID() != null)
 						writeXML(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
 				}
+				if(Core.Database.isAutocommit())
+					Core.Database.doCommit();
 				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenBook));			
 				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
 			} catch (DataBaseException dbe) {

@@ -114,6 +114,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 								value.doRestore();
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
 							}
+							if(Core.Database.isAutocommit())
+								Core.Database.doCommit();
 							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
@@ -253,6 +255,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleEmpty.setEnabled(true);
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Delete"));
 									;
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
@@ -402,6 +406,8 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleEmpty.setEnabled(true);
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Empty"));
 									;
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();

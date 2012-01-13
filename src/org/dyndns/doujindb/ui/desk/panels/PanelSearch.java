@@ -596,10 +596,6 @@ public final class PanelSearch extends JPanel implements Validable
 		private JTextField textTranslatedName;
 		private JLabel labelRomanjiName;
 		private JTextField textRomanjiName;
-		private JLabel labelConvention;
-		private JTextField textConvention;
-		private JLabel labelContents;
-		private JTextField textContents;
 		private JLabel labelType;
 		private JComboBox<Book.Type> comboType;
 		private JCheckBox checkAdult;
@@ -628,14 +624,6 @@ public final class PanelSearch extends JPanel implements Validable
 			labelRomanjiName.setFont(font);
 			textRomanjiName = new JTextField("");
 			textRomanjiName.setFont(font);
-			labelConvention = new JLabel("Convention");
-			labelConvention.setFont(font);
-			textConvention = new JTextField("");
-			textConvention.setFont(font);
-			labelContents = new JLabel("Contents");
-			labelContents.setFont(font);
-			textContents = new JTextField("");
-			textContents.setFont(font);
 			labelType = new JLabel("Type");
 			labelType.setFont(font);
 			comboType = new JComboBox<Book.Type>();
@@ -768,10 +756,6 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(textTranslatedName);
 			pane.add(labelRomanjiName);
 			pane.add(textRomanjiName);
-			pane.add(labelConvention);
-			pane.add(textConvention);
-			pane.add(labelContents);
-			pane.add(textContents);
 			pane.add(labelType);
 			pane.add(comboType);
 			pane.add(checkAdult);
@@ -792,19 +776,15 @@ public final class PanelSearch extends JPanel implements Validable
 			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
 			labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
-			labelConvention.setBounds(3, 3 + 45, 100, 15);
-			textConvention.setBounds(103, 3 + 45, width - 106, 15);				
-			labelContents.setBounds(3, 3 + 60, 100, 15);
-			textContents.setBounds(103, 3 + 60, width - 106, 15);				
-			labelType.setBounds(3, 3 + 75, 100, 20);
-			comboType.setBounds(103, 3 + 75, 100, 20);				
-			checkAdult.setBounds(3, 3 + 95, 100, 15);
-			checkDecensored.setBounds(3, 3 + 110, 100, 15);
-			checkTranslated.setBounds(3, 3 + 125, 100, 15);
-			checkColored.setBounds(3, 3 + 140, 100, 15);
-			labelResults.setBounds(3, 3 + 155, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 170, width - 5, height - 155 - 45);
+			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);		
+			labelType.setBounds(3, 3 + 45, 100, 20);
+			comboType.setBounds(103, 3 + 45, 100, 20);
+			checkAdult.setBounds(3, 3 + 65, 100, 15);
+			checkDecensored.setBounds(3, 3 + 80, 100, 15);
+			checkTranslated.setBounds(3, 3 + 95, 100, 15);
+			checkColored.setBounds(3, 3 + 110, 100, 15);
+			labelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
+			scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 		@Override
@@ -850,10 +830,6 @@ public final class PanelSearch extends JPanel implements Validable
 							query.Colored = checkColored.isSelected();
 							query.Translated = checkTranslated.isSelected();
 							query.Decensored = checkDecensored.isSelected();
-							query.Contents = null;
-							if(!textConvention.getText().equals(""))
-								query.Conventions = textConvention.getText();
-							query.Conventions = null;
 							for(Book b : Core.Database.getBooks(query))
 							{
 								if(stopped)
@@ -872,50 +848,6 @@ public final class PanelSearch extends JPanel implements Validable
 							Core.Logger.log(pe.getMessage(), Level.ERROR);
 							pe.printStackTrace();
 						}
-//						try
-//						{
-//							for(Book b : Core.Database.getBooks(null))
-//							{
-//								if(stopped)
-//									break;
-//								try
-//								{
-//									boolean containsAllTags = false;
-//									Vector<String> tags0 = new Vector<String>();
-//									for(String tag : textContents.getText().split(","))
-//										if(!tag.equals(""))
-//											tags0.add(tag.trim());
-//									Vector<String> tags1 = new Vector<String>();
-//									for(Content cnt : b.getContents())
-//										tags1.add(cnt.getTagName());
-//									if(tags1.containsAll(tags0))
-//										containsAllTags = true;
-//									if( b.getJapaneseName().matches(textJapaneseName.getText()) &&
-//											b.getTranslatedName().matches(textTranslatedName.getText()) &&
-//											b.getRomanjiName().matches(textRomanjiName.getText()) &&
-//											(b.getConvention()==null?"":b.getConvention()+"").matches(textConvention.getText()) &&
-//											b.getType() == comboType.getSelectedItem() &&
-//											(checkAdult.isSelected()?b.isAdult():true) &&
-//											(checkDecensored.isSelected()?b.isDecensored():true) &&
-//											(checkTranslated.isSelected()?b.isTranslated():true) &&
-//											(checkColored.isSelected()?b.isColored():true) &&
-//											containsAllTags /*&&
-//											//FIXME !Core.Database.getDeleted().contains(b)*/
-//											)
-//											((DefaultListModel<Book>)listResults.getModel()).add(0, b);
-//									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
-//								}
-//								catch (NullPointerException npe) { npe.printStackTrace(); }
-//								catch (InterruptedException ie) { ; }
-//								catch (java.util.regex.PatternSyntaxException pse) { ; }
-//							}
-//						} catch (DataBaseException dbe) {
-//							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-//							dbe.printStackTrace();
-//						} catch (PropertyException pe) {
-//							Core.Logger.log(pe.getMessage(), Level.ERROR);
-//							pe.printStackTrace();
-//						}
 						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Book"));
 						buttonSearch.setText("Search");
 						buttonSearch.setMnemonic('S');

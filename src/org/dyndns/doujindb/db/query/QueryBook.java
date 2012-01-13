@@ -13,8 +13,6 @@ public final class QueryBook
 	public String JapaneseName = null;
 	public String RomanjiName = null;
 	public String TranslatedName = null;
-	public String Conventions = null;
-	public String Contents = null;
 	public Book.Type Type = Book.Type.不詳;
 	public boolean Adult = false;
 	public boolean Decensored = false;

@@ -59,7 +59,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("Weblink")));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryArtist = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, exp);
-		//TODO
+
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("ID")));
@@ -69,10 +69,6 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("RomanjiName")));
 		list.add(ExpressionFactory.likeExp("translatedName", 
 		         new ExpressionParameter("TranslatedName")));
-//		list.add(ExpressionFactory.inExp("conventionof.tagName", 
-//		         new ExpressionParameter("Conventions")));
-//		list.add(ExpressionFactory.inExp("contents.tagName", 
-//		         new ExpressionParameter("Contents")));
 		list.add(ExpressionFactory.matchExp("type", 
 		         new ExpressionParameter("Type")));
 		list.add(ExpressionFactory.matchExp("adult", 

@@ -258,7 +258,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		{
 			DouzWindow window = (DouzWindow)jif;
 			if(token == null && window.getItem() == null)
-				if(window.getType() == type)
+				if(window.getType().equals(type))
 				{
 					try
 					{
@@ -273,7 +273,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 					return true;
 				}
 			if(token != null && window.getItem() != null)
-				if(window.getItem() == token)
+				if(window.getItem().equals(token))
 				{
 					try
 					{

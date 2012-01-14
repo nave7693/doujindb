@@ -779,10 +779,10 @@ public final class PanelSearch extends JPanel implements Validable
 			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);		
 			labelType.setBounds(3, 3 + 45, 100, 20);
 			comboType.setBounds(103, 3 + 45, 100, 20);
-			checkAdult.setBounds(3, 3 + 65, 100, 15);
-			checkDecensored.setBounds(3, 3 + 80, 100, 15);
-			checkTranslated.setBounds(3, 3 + 95, 100, 15);
-			checkColored.setBounds(3, 3 + 110, 100, 15);
+			checkAdult.setBounds(3, 3 + 70, 100, 15);
+			checkDecensored.setBounds(3, 3 + 85, 100, 15);
+			checkTranslated.setBounds(3, 3 + 100, 100, 15);
+			checkColored.setBounds(3, 3 + 115, 100, 15);
 			labelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
 			scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);

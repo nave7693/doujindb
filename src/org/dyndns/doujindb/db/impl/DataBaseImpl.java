@@ -57,6 +57,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryArtist = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, exp);
 
@@ -79,6 +80,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("Translated")));
 		list.add(ExpressionFactory.matchExp("decensored", 
 		         new ExpressionParameter("Decensored")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryBook = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, exp);
 		
@@ -93,6 +95,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryCircle = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, exp);
 		
@@ -103,6 +106,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("TagName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryConvention = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, exp);
 		
@@ -111,6 +115,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("ID")));
 		list.add(ExpressionFactory.likeExp("tagName", 
 		         new ExpressionParameter("TagName")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryContent = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, exp);
 		
@@ -125,6 +130,7 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
+		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);
 		queryParody = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, exp);
 	}

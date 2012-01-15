@@ -166,7 +166,7 @@ public class DataBaseImpl extends DataBase
 		      try {
 				return _ds.getConnection();
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
+				//sqle.printStackTrace();
 				return null;
 			}
 		   }
@@ -562,7 +562,7 @@ public class DataBaseImpl extends DataBase
 			id = o.getClass().getField("ID");
 			if(id.get(o) != null)
 			{
-				map.put("ID", Integer.parseInt(id.get(o).toString().substring(1)));
+				map.put("ID", Integer.parseInt(id.get(o).toString().substring(1), 16));
 				return map;
 			}
 		} catch (NoSuchFieldException scfe) {

@@ -122,7 +122,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getVersion() {
-		return "0.6b";
+		return "0.7";
 	}
 	@Override
 	public String getAuthor() {
@@ -1098,9 +1098,9 @@ public final class DoujinshiDBScanner implements Plugin
 										case author:
 											_case:{
 												for(Artist artist : artists)
-													if(artist.getJapaneseName().equals(xmlitem.NAME_JP) ||
-														artist.getTranslatedName().equals(xmlitem.NAME_EN) ||
-														artist.getRomanjiName().equals(xmlitem.NAME_R))
+													if((artist.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+														(artist.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+														(artist.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 													{
 														book.addArtist(artist);
 														alink.put(xmlitem.ID, artist);
@@ -1123,9 +1123,9 @@ public final class DoujinshiDBScanner implements Plugin
 											 */
 											_case:{
 												for(Circle circle : circles)
-													if(circle.getJapaneseName().equals(xmlitem.NAME_JP) ||
-														circle.getTranslatedName().equals(xmlitem.NAME_EN) ||
-														circle.getRomanjiName().equals(xmlitem.NAME_R))
+													if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+															(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+															(circle.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 													{
 														// book.addCircle(circle);
 														clink.put(xmlitem.ID, circle);
@@ -1144,9 +1144,9 @@ public final class DoujinshiDBScanner implements Plugin
 										case contents:
 											_case:{
 												for(Content content : contents)
-													if(content.getTagName().equals(xmlitem.NAME_JP) ||
-														content.getTagName().equals(xmlitem.NAME_EN) ||
-														content.getTagName().equals(xmlitem.NAME_R))
+													if((content.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+															content.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
+															content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")))
 													{
 														book.addContent(content);
 														break _case;
@@ -1162,9 +1162,9 @@ public final class DoujinshiDBScanner implements Plugin
 												break;
 											_case:{
 												for(Convention convention : conventions)
-													if(convention.getTagName().equals(xmlitem.NAME_JP) ||
-															convention.getTagName().equals(xmlitem.NAME_EN) ||
-															convention.getTagName().equals(xmlitem.NAME_R))
+													if((convention.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+															convention.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
+															convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")))
 													{
 														book.setConvention(convention);
 														break _case;
@@ -1182,9 +1182,9 @@ public final class DoujinshiDBScanner implements Plugin
 										case parody:
 											_case:{
 											for(Parody parody : parodies)
-												if(parody.getJapaneseName().equals(xmlitem.NAME_JP) ||
-														parody.getTranslatedName().equals(xmlitem.NAME_EN) ||
-														parody.getRomanjiName().equals(xmlitem.NAME_R))
+												if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+														(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+														(parody.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 												{
 													book.addParody(parody);
 													break _case;

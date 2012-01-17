@@ -30,7 +30,7 @@ public class DataBaseImpl extends DataBase
 {
 	private DataDomain domain;
 	private DataNode node;
-	private ObjectContext context;
+	protected ObjectContext context;
 	private Hashtable<String, DataBaseContext> contexts;
 	private String connection;
 	private boolean autocommit = false;

@@ -74,6 +74,18 @@
 		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="PARODY_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
+	<db-entity name="ConventionAlias">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="CONVENTION_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
+		<post-add method-name="postAdd"/>
+	</db-entity>
+	<db-entity name="ContentAlias">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="CONTENT_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
+		<post-add method-name="postAdd"/>
+	</db-entity>
 	<obj-entity name="Artist" className="org.dyndns.doujindb.db.cayenne.Artist" dbEntityName="Artist">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="romanjiName" type="java.lang.String" db-attribute-path="ROMANJI_NAME"/>
@@ -125,6 +137,14 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="ConventionAlias" className="org.dyndns.doujindb.db.cayenne.ConventionAlias" dbEntityName="ConventionAlias">
+		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
+		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="ContentAlias" className="org.dyndns.doujindb.db.cayenne.ContentAlias" dbEntityName="ContentAlias">
+		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<db-relationship name="drawnby" source="Artist" target="DrawnBy" toMany="true">
@@ -181,6 +201,18 @@
 	<db-relationship name="parody" source="ParodyOf" target="Parody" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="PARODY_ID" target="ID"/>
 	</db-relationship>
+	<db-relationship name="conventionalias" source="ConventionAlias" target="Convention" toMany="false">
+		<db-attribute-pair source="CONVENTION_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="contentalias" source="ContentAlias" target="Content" toMany="false">
+		<db-attribute-pair source="CONTENT_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="conventionalias" source="Convention" target="ConventionAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CONVENTION_ID"/>
+	</db-relationship>
+	<db-relationship name="contentalias" source="Content" target="ContentAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CONTENT_ID"/>
+	</db-relationship>
 	<obj-relationship name="books" source="Artist" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.book"/>
 	<obj-relationship name="circles" source="Artist" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.circle"/>
 	<obj-relationship name="artists" source="Book" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.artist"/>
@@ -193,4 +225,8 @@
 	<obj-relationship name="books" source="Content" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.book"/>
 	<obj-relationship name="books" source="Convention" target="Book" collection-type="java.util.Set" deleteRule="Nullify" db-relationship-path="conventionof"/>
 	<obj-relationship name="books" source="Parody" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.book"/>
+	<obj-relationship name="conventionalias" source="ConventionAlias" target="Convention" deleteRule="Deny" db-relationship-path="conventionalias"/>
+	<obj-relationship name="contentalias" source="ContentAlias" target="Content" deleteRule="Deny" db-relationship-path="contentalias"/>
+	<obj-relationship name="aliases" source="Convention" target="ConventionAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="conventionalias"/>
+	<obj-relationship name="aliases" source="Content" target="ContentAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="contentalias"/>
 </data-map>

@@ -3,6 +3,7 @@ package org.dyndns.doujindb.ui.desk.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -232,5 +233,14 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 
 		@Override
 		public void setWeblink(String weblink) throws DataBaseException { }
+
+		@Override
+		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+		@Override
+		public void addAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAlias(String alias) throws DataBaseException { }
 	}
 }

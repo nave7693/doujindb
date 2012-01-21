@@ -149,6 +149,21 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		listAlias.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e)
 			{
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				{
+					try
+					{
+						String item = (String)listAlias.getModel().getElementAt(listAlias.locationToIndex(e.getPoint()));
+						textAlias.setText(item);
+						tokenConvention.removeAlias(item);
+						((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
+						if(Core.Database.isAutocommit())
+							Core.Database.doCommit();
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
+					}
+				}else
 				if(e.getButton() == MouseEvent.BUTTON3)
 				{
 					// If not item is selected don't show any popup

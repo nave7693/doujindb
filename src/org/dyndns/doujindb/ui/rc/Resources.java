@@ -25,9 +25,6 @@ public final class Resources
 		iconKeys.put("JMenuBar/Logs/Message","jmenubar/logs/message.png");
 		iconKeys.put("JMenuBar/Logs/Warning","jmenubar/logs/warning.png");
 		iconKeys.put("JMenuBar/Logs/Error","jmenubar/logs/error.png");
-		iconKeys.put("JMenuBar/XML","jmenubar/xml.png");
-		iconKeys.put("JMenuBar/XML/Import","jmenubar/xml/import.png");
-		iconKeys.put("JMenuBar/XML/Export","jmenubar/xml/export.png");
 		iconKeys.put("JMenuBar/Help","jmenubar/help.png");
 		iconKeys.put("JMenuBar/Help/About","jmenubar/help/about.png");
 		iconKeys.put("JMenuBar/Help/Bugtrack","jmenubar/help/bugtrack.png");
@@ -121,8 +118,6 @@ public final class Resources
 		iconKeys.put("JFrame/RecycleBin/Empty","jframe/recyclebin/empty.png");
 		iconKeys.put("JFrame/RecycleBin/SelectAll","jframe/recyclebin/selectall.png");
 		iconKeys.put("JFrame/RecycleBin/DeselectAll","jframe/recyclebin/deselectall.png");
-		iconKeys.put("JFrame/SharedItems/Connect","jframe/shareditems/connect.png");
-		iconKeys.put("JFrame/SharedItems/Disconnect","jframe/shareditems/disconnect.png");
 		iconKeys.put("JFrame/MediaManager/Refresh","jframe/mediamanager/refresh.png");
 		iconKeys.put("JFrame/MediaManager/Import","jframe/mediamanager/import.png");
 		iconKeys.put("JFrame/MediaManager/Export","jframe/mediamanager/export.png");

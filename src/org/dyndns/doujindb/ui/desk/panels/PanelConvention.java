@@ -2,11 +2,16 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -23,6 +28,9 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private DouzWindow parentWindow;
 	private Convention tokenConvention;
 	
+	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
+	private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JLabel labelTagName;
 	private JTextField textTagName;
@@ -33,8 +41,13 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private JScrollPane scrollInfo;
 	private JTabbedPane tabLists;
 	private RecordBookEditor editorWorks;
+	private JTextField textAlias;
+	private JList<String> listAlias;
+	private JButton addAlias;
+	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
 	
+	@SuppressWarnings("serial")
 	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException
 	{
 		parentWindow = parent;
@@ -62,6 +75,162 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenConvention);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		JPanel panel = new JPanel();
+		textAlias = new JTextField("");
+		listAlias = new JList<String>(new DefaultListModel<String>());
+		addAlias = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"));
+		textAlias.setFont(font);
+		textAlias.setDocument(new PlainDocument()
+		{
+			@Override
+			public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
+			{
+				if (str == null)
+					return;
+				if ((getLength() + str.length()) <= 32)
+				{
+					super.insertString(offset, str, attr);
+				}
+			}
+		});
+		textAlias.getDocument().addDocumentListener(new DocumentListener()
+		{
+		    public void insertUpdate(DocumentEvent e) { }
+		    public void removeUpdate(DocumentEvent e) { }
+		    public void changedUpdate(DocumentEvent e) { }
+		});
+		panel.add(textAlias);
+		addAlias.setBorder(null);
+		addAlias.setFocusable(false);
+		addAlias.setToolTipText("Add Alias");
+		addAlias.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae)
+			{
+				final String alias = textAlias.getText();
+				if(alias.equals(""))
+					return;
+				if(((DefaultListModel<String>)listAlias.getModel()).contains(alias))
+					return;
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
+						if(Core.Database.isAutocommit())
+							Core.Database.doCommit();
+					}
+				});
+				textAlias.setText("");
+			}
+		});
+		panel.add(addAlias);
+		listAlias.setCellRenderer(new DefaultListCellRenderer(){
+			@Override
+			public Component getListCellRendererComponent(
+				JList<?> list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus)
+			{
+				if(!(value instanceof String))
+					return null;
+				super.getListCellRendererComponent(list, value, index, isSelected, false);
+				setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+				if(isSelected)
+				{
+					setBackground(foregroundColor);
+					setForeground(backgroundColor);
+				}
+				return this;
+			}
+
+		});
+		listAlias.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					// If not item is selected don't show any popup
+					if(listAlias.getSelectedIndices().length < 1)
+						return;
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
+					{
+						@Override
+						public void run()
+						{
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
+							{
+							case 0:{
+								try {
+									for(Object o : listAlias.getSelectedValuesList())
+										if(o instanceof String)
+										{
+											final String item = ((String)o);
+											tokenConvention.removeAlias(item);
+											SwingUtilities.invokeLater(new Runnable()
+											{
+												@Override
+												public void run()
+												{
+													((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
+													if(Core.Database.isAutocommit())
+														Core.Database.doCommit();
+												}
+											});
+											Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
+										}
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
+								}
+								listAlias.validate();
+								break;
+							}
+							}
+						}
+					}.start();
+				}
+			  }
+		});
+		scrollAlias = new JScrollPane(listAlias);
+		panel.add(scrollAlias);
+		for(String alias : tokenConvention.getAliases())
+			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
+		panel.setLayout(new LayoutManager()
+		{
+			@Override
+			public void layoutContainer(Container parent)
+			{
+				int width = parent.getWidth(),
+					height = parent.getHeight();
+				textAlias.setBounds(1, 1, width - 22, 20);
+				addAlias.setBounds(width - 21, 1, 20, 20);
+				scrollAlias.setBounds(1, 22, width - 2, height - 22);
+			}
+			@Override
+			public void addLayoutComponent(String key,Component c){}
+			@Override
+			public void removeLayoutComponent(Component c){}
+			@Override
+			public Dimension minimumLayoutSize(Container parent)
+			{
+			     return parent.getMinimumSize();
+			}
+			@Override
+			public Dimension preferredLayoutSize(Container parent)
+			{
+			     return parent.getPreferredSize();
+			}
+		});
+		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), panel);
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
@@ -80,7 +249,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-		height = parent.getHeight();
+			height = parent.getHeight();
 		labelTagName.setBounds(3, 3, 100, 15);
 		textTagName.setBounds(103, 3, width - 106, 15);
 		labelWeblink.setBounds(3, 3 + 15, 100, 15);
@@ -141,6 +310,12 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 				tokenConvention.setTagName(textTagName.getText());
 				tokenConvention.setWeblink(textWeblink.getText());
 				tokenConvention.setInfo(textInfo.getText());
+				for(String a : tokenConvention.getAliases())
+					if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
+						tokenConvention.removeAlias(a);
+				Enumeration<String> aliases = ((DefaultListModel<String>)listAlias.getModel()).elements();
+				while(aliases.hasMoreElements())
+					tokenConvention.addAlias(aliases.nextElement());
 				for(Book b : tokenConvention.getBooks())
 					if(!editorWorks.contains(b))
 						tokenConvention.removeBook(b);

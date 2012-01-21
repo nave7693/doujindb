@@ -75,15 +75,15 @@
 		<db-attribute name="PARODY_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="ConventionAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="CONVENTION_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="CONVENTION_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 		<post-add method-name="postAdd"/>
 	</db-entity>
 	<db-entity name="ContentAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="CONTENT_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="CONTENT_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 		<post-add method-name="postAdd"/>
 	</db-entity>
 	<obj-entity name="Artist" className="org.dyndns.doujindb.db.cayenne.Artist" dbEntityName="Artist">
@@ -225,8 +225,6 @@
 	<obj-relationship name="books" source="Content" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.book"/>
 	<obj-relationship name="books" source="Convention" target="Book" collection-type="java.util.Set" deleteRule="Nullify" db-relationship-path="conventionof"/>
 	<obj-relationship name="books" source="Parody" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.book"/>
-	<obj-relationship name="conventionalias" source="ConventionAlias" target="Convention" deleteRule="Deny" db-relationship-path="conventionalias"/>
-	<obj-relationship name="contentalias" source="ContentAlias" target="Content" deleteRule="Deny" db-relationship-path="contentalias"/>
 	<obj-relationship name="aliases" source="Convention" target="ConventionAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="conventionalias"/>
 	<obj-relationship name="aliases" source="Content" target="ContentAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="contentalias"/>
 </data-map>

@@ -103,8 +103,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	{
 		if(getAliases().contains(alias))
 			return;
+		org.dyndns.doujindb.db.cayenne.ConventionAlias object = ((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ConventionAlias.class);
+		object.setTagName(alias);
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToAliases(
-			((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ConventionAlias.class)
+				object
 		);
 	}
 
@@ -114,7 +116,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getAliases();
 		for(org.dyndns.doujindb.db.cayenne.ConventionAlias r : result)
 			if(r.getTagName().equals(alias))
+			{
 				((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(r);
+				((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(r);
+			}
 	}
 	
 	@Override

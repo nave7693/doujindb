@@ -90,8 +90,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	{
 		if(getAliases().contains(alias))
 			return;
+		org.dyndns.doujindb.db.cayenne.ContentAlias object = ((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ContentAlias.class);
+		object.setTagName(alias);
 		((org.dyndns.doujindb.db.cayenne.Content)ref).addToAliases(
-			((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ContentAlias.class)
+				object
 		);
 	}
 
@@ -101,7 +103,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getAliases();
 		for(org.dyndns.doujindb.db.cayenne.ContentAlias r : result)
 			if(r.getTagName().equals(alias))
+			{
 				((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(r);
+				((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(r);
+			}
 	}
 	
 	@Override

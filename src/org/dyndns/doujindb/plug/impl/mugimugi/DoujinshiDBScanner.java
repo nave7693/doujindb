@@ -1146,7 +1146,10 @@ public final class DoujinshiDBScanner implements Plugin
 												for(Content content : contents)
 													if((content.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 															content.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-															content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")))
+															content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
+															content.getAliases().contains(xmlitem.NAME_JP) ||
+															content.getAliases().contains(xmlitem.NAME_EN) ||
+															content.getAliases().contains(xmlitem.NAME_R))
 													{
 														book.addContent(content);
 														break _case;
@@ -1164,7 +1167,10 @@ public final class DoujinshiDBScanner implements Plugin
 												for(Convention convention : conventions)
 													if((convention.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 															convention.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-															convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")))
+															convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
+															convention.getAliases().contains(xmlitem.NAME_JP) ||
+															convention.getAliases().contains(xmlitem.NAME_EN) ||
+															convention.getAliases().contains(xmlitem.NAME_R))
 													{
 														book.setConvention(convention);
 														break _case;

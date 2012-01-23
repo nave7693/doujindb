@@ -3,7 +3,12 @@ package org.dyndns.doujindb.ui.desk.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
@@ -18,8 +23,6 @@ import org.dyndns.doujindb.ui.desk.events.*;
 public final class PanelSearch extends JPanel implements Validable
 {
 	private Validable panel;
-	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
-	private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
 	
 	public enum Type
 	{
@@ -69,6 +72,170 @@ public final class PanelSearch extends JPanel implements Validable
 		}
 	}
 	
+	private final class RecordTableRenderer extends DefaultTableCellRenderer
+	{
+		private Color background;
+		private Color foreground;
+		
+		public RecordTableRenderer(Color background, Color foreground)
+		{
+		    super();
+		    this.background = background;
+		    this.foreground = foreground;
+		}
+	
+		public Component getTableCellRendererComponent(
+		    JTable table,
+		    Object value,
+		    boolean isSelected,
+		    boolean hasFocus,
+		    int row,
+		    int column) {
+		    super.getTableCellRendererComponent(
+		        table,
+		        value,
+		        isSelected,
+		        hasFocus,
+		        row,
+		        column);
+		    super.setBorder(null);
+		    super.setText(" " + super.getText());
+		    if(isSelected)
+			{
+				setBackground(foreground);
+				setForeground(background);
+			}else{
+				setBackground(background);
+				setForeground(foreground);
+			}
+		    return this;
+		}
+	}
+	
+	private final class RecordTableModel extends DefaultTableModel
+	{
+		public RecordTableModel(Class<?> record)
+		{
+			super();
+			if(record == Artist.class)
+		    {
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romanji");
+		    }
+			if(record == Book.class)
+		    {
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romanji");
+				addColumn("Type");
+		    }
+			if(record == Circle.class)
+		    {
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romanji");
+		    }
+			if(record == Convention.class)
+		    {
+				addColumn("");
+				addColumn("Tag Name");
+				addColumn("Information");
+		    }
+			if(record == Content.class)
+		    {
+				addColumn("");
+				addColumn("Tag Name");
+				addColumn("Information");
+		    }
+			if(record == Parody.class)
+		    {
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romanji");
+		    }
+		}
+		
+		public void addRecord(Record record)
+		{
+			if(record instanceof Artist)
+			{
+				Artist a = (Artist)record;
+				super.addRow(new Object[]{a,
+						a.getJapaneseName(),
+						a.getTranslatedName(),
+						a.getRomanjiName()});
+			}
+			if(record instanceof Book)
+			{
+				Book b = (Book)record;
+				super.addRow(new Object[]{b,
+						b.getJapaneseName(),
+						b.getTranslatedName(),
+						b.getRomanjiName(),
+						b.getType()});
+			}
+			if(record instanceof Circle)
+			{
+				Circle c = (Circle)record;
+				super.addRow(new Object[]{c,
+						c.getJapaneseName(),
+						c.getTranslatedName(),
+						c.getRomanjiName()});
+			}
+			if(record instanceof Convention)
+			{
+				Convention e = (Convention)record;
+				super.addRow(new Object[]{e,
+						e.getTagName(),
+						e.getInfo()});
+			}
+			if(record instanceof Content)
+			{
+				Content t = (Content)record;
+				super.addRow(new Object[]{t,
+						t.getTagName(),
+						t.getInfo()});
+			}
+			if(record instanceof Parody)
+			{
+				Parody p = (Parody)record;
+				super.addRow(new Object[]{p,
+						p.getJapaneseName(),
+						p.getTranslatedName(),
+						p.getRomanjiName()});
+			}
+		}
+	}
+
+	private final class RecordTableEditor extends AbstractCellEditor implements TableCellEditor
+	{
+		public RecordTableEditor()
+		{
+			super();
+		}
+	
+		public Object getCellEditorValue()
+		{
+			return 0;
+		}
+
+		public Component getTableCellEditorComponent(
+		    JTable table,
+		    Object value,
+		    boolean isSelected,
+		    int row,
+		    int column)
+			{
+			    super.cancelCellEditing();
+			    return null;
+			}
+	}
+	
 	private final class IPanelArtist implements Validable, LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
@@ -86,7 +253,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
-		private JList<Artist> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -113,108 +284,88 @@ public final class PanelSearch extends JPanel implements Validable
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Artist>(new DefaultListModel<Artist>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Artist.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Artist))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					Artist a = (Artist) value;
 					try {
-						setText(a.getJapaneseName() + 
-								(a.getRomanjiName().equals("") ? "" : " ("+a.getRomanjiName()+")") +
-								(a.getTranslatedName().equals("") ? "" : " ("+a.getTranslatedName()+")"));
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					try {
-						setToolTipText("<html><body>" +
-								"<b>Japanese Name</b> : " + a.getJapaneseName() +
-								"<br><b>Translated Name</b> : " + a.getTranslatedName() +
-								"<br><b>Romanji Name</b> : " + a.getRomanjiName() +
-								"<br><b>Weblink</b> : " + a.getWeblink() +
-								"<br><b>Books</b> : " + a.getBooks().size() +
-								"</body></html>");
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Artist)
-											{
-												Artist item = ((Artist)o);
-												item.doRecycle();
-												((DefaultListModel<Artist>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Artist a = (Artist)tableModel.getValueAt(index, 0);
+										a.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, a));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					}
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -276,7 +427,8 @@ public final class PanelSearch extends JPanel implements Validable
 					public void run()
 					{
 						
-						((DefaultListModel<Artist>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
 							QueryArtist query = new QueryArtist();
@@ -288,13 +440,18 @@ public final class PanelSearch extends JPanel implements Validable
 								query.RomanjiName = textRomanjiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
-							for(Artist a : Core.Database.getArtists(query))
+							RecordSet<Artist> result = Core.Database.getArtists(query);
+							labelResults.setText("Found : " + result.size());
+							for(Artist a : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Artist>)listResults.getModel()).add(0, a);
+									tableModel.addRecord(a);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
@@ -343,7 +500,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
-		private JList<Circle> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -370,108 +531,88 @@ public final class PanelSearch extends JPanel implements Validable
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Circle>(new DefaultListModel<Circle>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Circle.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Circle))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					Circle c = (Circle) value;
 					try {
-						setText(c.getJapaneseName() + 
-								(c.getRomanjiName().equals("") ? "" : " ("+c.getRomanjiName()+")") +
-								(c.getTranslatedName().equals("") ? "" : " ("+c.getTranslatedName()+")"));
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					try {
-						setToolTipText("<html><body>" +
-								"<b>Japanese Name</b> : " + c.getJapaneseName() +
-								"<br><b>Translated Name</b> : " + c.getTranslatedName() +
-								"<br><b>Romanji Name</b> : " + c.getRomanjiName() +
-								"<br><b>Weblink</b> : " + c.getWeblink() +
-								"<br><b>Books</b> : " + c.getBooks().size() +
-								"</body></html>");
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Circle)
-											{
-												Circle item = ((Circle)o);
-												item.doRecycle();
-												((DefaultListModel<Circle>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Circle c = (Circle)tableModel.getValueAt(index, 0);
+										c.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, c));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					 }
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -532,7 +673,8 @@ public final class PanelSearch extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						((DefaultListModel<Circle>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
 							QueryCircle query = new QueryCircle();
@@ -544,13 +686,18 @@ public final class PanelSearch extends JPanel implements Validable
 								query.RomanjiName = textRomanjiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
-							for(Circle c : Core.Database.getCircles(query))
+							RecordSet<Circle> result = Core.Database.getCircles(query);
+							labelResults.setText("Found : " + result.size());
+							for(Circle c : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Circle>)listResults.getModel()).add(0, c);
+									tableModel.addRecord(c);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
@@ -603,7 +750,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JCheckBox checkTranslated;
 		private JCheckBox checkColored;
 		private JLabel labelResults;
-		private JList<Book> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -646,106 +797,93 @@ public final class PanelSearch extends JPanel implements Validable
 			checkColored.setFocusable(false);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Book>(new DefaultListModel<Book>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Book.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount()-1;k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			int columns = tableResults.getColumnModel().getColumnCount()-1;
+			tableResults.getColumnModel().getColumn(columns).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(columns).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(columns).setResizable(true);
+			tableResults.getColumnModel().getColumn(columns).setMinWidth(75);
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Book))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					final Book b = (Book) value;
 					try {
-						setText(b.getJapaneseName() + 
-								(b.getRomanjiName().equals("") ? "" : " ("+b.getRomanjiName()+")") +
-								(b.getTranslatedName().equals("") ? "" : " ("+b.getTranslatedName()+")"));
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					try {
-						setToolTipText("<html><body>" +
-								"<b>Japanese Name</b> : " + b.getJapaneseName() +
-								"<br><b>Translated Name</b> : " + b.getTranslatedName() +
-								"<br><b>Romanji Name</b> : " + b.getRomanjiName() +
-								"</body></html>");
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Book)
-											{
-												Book item = ((Book)o);
-												item.doRecycle();
-												((DefaultListModel<Book>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Book b = (Book)tableModel.getValueAt(index, 0);
+										b.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, b));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					 }
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -814,9 +952,9 @@ public final class PanelSearch extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						((DefaultListModel<Book>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						//TODO
 						try {
 							QueryBook query = new QueryBook();
 							if(!textJapaneseName.getText().equals(""))
@@ -830,13 +968,18 @@ public final class PanelSearch extends JPanel implements Validable
 							query.Colored = checkColored.isSelected();
 							query.Translated = checkTranslated.isSelected();
 							query.Decensored = checkDecensored.isSelected();
-							for(Book b : Core.Database.getBooks(query))
+							RecordSet<Book> result = Core.Database.getBooks(query);
+							labelResults.setText("Found : " + result.size());
+							for(Book b : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Book>)listResults.getModel()).add(0, b);
+									tableModel.addRecord(b);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
@@ -879,7 +1022,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelTagName;
 		private JTextField textTagName;
 		private JLabel labelResults;
-		private JList<Content> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -894,94 +1041,88 @@ public final class PanelSearch extends JPanel implements Validable
 			textTagName.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Content>(new DefaultListModel<Content>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Content.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Content))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					Content ct = (Content) value;
 					try {
-						setText(ct.getTagName());
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Content)
-											{
-												Content item = ((Content)o);
-												item.doRecycle();
-												((DefaultListModel<Content>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Content t = (Content)tableModel.getValueAt(index, 0);
+										t.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, t));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					 }
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1030,19 +1171,25 @@ public final class PanelSearch extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						((DefaultListModel<Content>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
 							QueryContent query = new QueryContent();
 							if(!textTagName.getText().equals(""))
 								query.TagName = textTagName.getText();
-							for(Content ct : Core.Database.getContents(query))
+							RecordSet<Content> result = Core.Database.getContents(query);
+							labelResults.setText("Found : " + result.size());
+							for(Content t : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Content>)listResults.getModel()).add(0, ct);
+									tableModel.addRecord(t);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
@@ -1085,7 +1232,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelTagName;
 		private JTextField textTagName;
 		private JLabel labelResults;
-		private JList<Convention> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -1100,102 +1251,88 @@ public final class PanelSearch extends JPanel implements Validable
 			textTagName.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Convention>(new DefaultListModel<Convention>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Convention.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Convention))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					Convention cn = (Convention) value;
 					try {
-						setText(cn.getTagName() + (cn.getInfo().equals("") ? "":" (" + cn.getInfo() + ")"));
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					try {
-						setToolTipText("<html><body><b>" + cn.getTagName() + "</b><br>" + 
-								cn.getInfo() +
-								"</body></html>");
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Convention)
-											{
-												Convention item = ((Convention)o);
-												item.doRecycle();
-												((DefaultListModel<Convention>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Convention e = (Convention)tableModel.getValueAt(index, 0);
+										e.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, e));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					 }
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1244,19 +1381,25 @@ public final class PanelSearch extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						((DefaultListModel<Convention>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
 							QueryConvention query = new QueryConvention();
 							if(!textTagName.getText().equals(""))
 								query.TagName = textTagName.getText();
-							for(Convention cn : Core.Database.getConventions(query))
+							RecordSet<Convention> result = Core.Database.getConventions(query);
+							labelResults.setText("Found : " + result.size());
+							for(Convention e : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Convention>)listResults.getModel()).add(0, cn);
+									tableModel.addRecord(e);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }
@@ -1305,7 +1448,11 @@ public final class PanelSearch extends JPanel implements Validable
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
-		private JList<Parody> listResults;
+		private JTable tableResults;
+		private RecordTableModel tableModel;
+		private RecordTableRenderer tableRenderer;
+		private RecordTableEditor tableEditor;
+		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
 		private JButton buttonSearch;
 		
@@ -1332,108 +1479,88 @@ public final class PanelSearch extends JPanel implements Validable
 			textWeblink.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			listResults = new JList<Parody>(new DefaultListModel<Parody>());
-			listResults.setCellRenderer(new DefaultListCellRenderer(){
-				@Override
-				public Component getListCellRendererComponent(
-					JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus)
+			tableResults = new JTable();
+			tableModel = new RecordTableModel(Parody.class);
+			tableResults.setModel(tableModel);
+			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
+			tableResults.setRowSorter(tableSorter);
+			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			tableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e)
+			{
+				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+					return;
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
-					if(!(value instanceof Parody))
-						return null;
-					super.getListCellRendererComponent(list, value, index, isSelected, false);
-					setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-					if(isSelected)
-					{
-						setBackground(foregroundColor);
-						setForeground(backgroundColor);
-					}
-					Parody p = (Parody) value;
 					try {
-						setText(p.getJapaneseName() + 
-								(p.getRomanjiName().equals("") ? "" : " ("+p.getRomanjiName()+")") +
-								(p.getTranslatedName().equals("") ? "" : " ("+p.getTranslatedName()+")"));
+						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-					setFont(font);
-					try {
-						setToolTipText("<html><body>" +
-								"<b>Japanese Name</b> : " + p.getJapaneseName() +
-								"<br><b>Translated Name</b> : " + p.getTranslatedName() +
-								"<br><b>Romanji Name</b> : " + p.getRomanjiName() +
-								"<br><b>Weblink</b> : " + p.getWeblink() +
-								"<br><b>Books</b> : " + p.getBooks().size() +
-								"</body></html>");
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-					return this;
-				}
-
-			});
-			listResults.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e)
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					if(!stopped) // check if JList is not being populated or suffer a java.util.ConcurrentModificationException
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
 					{
-						try {
-							Record item = (Record)listResults.getModel().getElementAt(listResults.locationToIndex(e.getPoint()));
-							Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						}
-					}else
-					if(e.getButton() == MouseEvent.BUTTON3)
-					{
-						// If not item is selected don't show any popup
-						if(listResults.getSelectedIndices().length < 1)
-							return;
-						Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-						tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-						final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
-						pop.show((Component)e.getSource(), e.getX(), e.getY());
-						new Thread(getClass().getName()+"/MouseClicked")
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
 							{
-								while(pop.isValid())
-									try { sleep(1); } catch (InterruptedException ie) { ; }
-								int selected = pop.getResult();
-								switch(selected)
-								{
-								case 0:{
-									try {
-										for(Object o : listResults.getSelectedValuesList())
-											if(o instanceof Parody)
-											{
-												Parody item = ((Parody)o);
-												item.doRecycle();
-												((DefaultListModel<Parody>)listResults.getModel()).removeElement(item);
-												if(Core.Database.isAutocommit())
-													Core.Database.doCommit();
-												Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
-											}
-									} catch (DataBaseException dbe) {
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
-										dbe.printStackTrace();
+							case 0:{
+								try {
+									for(int index : tableResults.getSelectedRows())
+									{
+										Parody p = (Parody)tableModel.getValueAt(index, 0);
+										p.doRecycle();
+										tableModel.removeRow(index);
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, p));
 									}
-									listResults.validate();
-									break;
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
 								}
-								}
+								tableResults.validate();
+								break;
 							}
-						}.start();
-					 }
-				  }
+							}
+						}
+					}.start();
+				}
+			  }
 			});
-			scrollResults = new JScrollPane(listResults);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1494,7 +1621,8 @@ public final class PanelSearch extends JPanel implements Validable
 					@Override
 					public void run()
 					{
-						((DefaultListModel<Parody>)listResults.getModel()).clear();
+						while(tableModel.getRowCount()>0)
+							tableModel.removeRow(0);
 						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
 						try {
 							QueryParody query = new QueryParody();
@@ -1506,13 +1634,18 @@ public final class PanelSearch extends JPanel implements Validable
 								query.RomanjiName = textRomanjiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
-							for(Parody p : Core.Database.getParodies(query))
+							RecordSet<Parody> result = Core.Database.getParodies(query);
+							labelResults.setText("Found : " + result.size());
+							for(Parody p : result)
 							{
 								if(stopped)
+								{
+									labelResults.setText("Found");
 									break;
+								}
 								try
 								{
-									((DefaultListModel<Parody>)listResults.getModel()).add(0, p);
+									tableModel.addRecord(p);
 									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
 								}
 								catch (InterruptedException ie) { ; }

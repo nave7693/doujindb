@@ -130,7 +130,6 @@ public final class PanelSearch extends JPanel implements Validable
 				addColumn("Japanese");
 				addColumn("Translated");
 				addColumn("Romanji");
-				addColumn("Type");
 		    }
 			if(record == Circle.class)
 		    {
@@ -176,8 +175,7 @@ public final class PanelSearch extends JPanel implements Validable
 				super.addRow(new Object[]{b,
 						b.getJapaneseName(),
 						b.getTranslatedName(),
-						b.getRomanjiName(),
-						b.getType()});
+						b.getRomanjiName()});
 			}
 			if(record instanceof Circle)
 			{
@@ -820,11 +818,6 @@ public final class PanelSearch extends JPanel implements Validable
 				tableResults.getColumnModel().getColumn(k).setResizable(true);
 				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			int columns = tableResults.getColumnModel().getColumnCount()-1;
-			tableResults.getColumnModel().getColumn(columns).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(columns).setCellEditor(tableEditor);
-			tableResults.getColumnModel().getColumn(columns).setResizable(true);
-			tableResults.getColumnModel().getColumn(columns).setMinWidth(75);
 			scrollResults = new JScrollPane(tableResults);
 			tableResults.addMouseListener(new MouseAdapter(){
 			public void mouseClicked(MouseEvent e)

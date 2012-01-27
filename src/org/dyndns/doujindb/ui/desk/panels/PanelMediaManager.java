@@ -662,6 +662,7 @@ public class PanelMediaManager implements Validable, LayoutManager, MouseListene
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private final class MediaTree extends JTree
 	{
 		private MediaTreeRenderer renderer;

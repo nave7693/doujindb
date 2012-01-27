@@ -24,7 +24,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	private JButton buttonWallpaper;
 	
 	private JButton buttonRecycleBin;
-	private JButton buttonMediaManager;
+	//TODO private JButton buttonMediaManager;
 	
 	private Vector<JButton> buttonPlugins;
 	
@@ -96,7 +96,8 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			}
 		});
 		super.add(buttonRecycleBin);
-		buttonMediaManager = new JButton(Core.Resources.Icons.get("JDesktop/MediaManager/Enabled"));
+		//TODO ?
+		/*buttonMediaManager = new JButton(Core.Resources.Icons.get("JDesktop/MediaManager/Enabled"));
 		buttonMediaManager.setDisabledIcon(Core.Resources.Icons.get("JDesktop/MediaManager/Disabled"));
 		buttonMediaManager.setToolTipText("Media files");
 		buttonMediaManager.setFocusable(false);
@@ -115,7 +116,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				}
 			}
 		});
-		super.add(buttonMediaManager);
+		super.add(buttonMediaManager);*/
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -125,13 +126,13 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 				wallpaper.setBounds(0,0,wallpaperImage.getIconWidth(),wallpaperImage.getIconHeight());
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				buttonRecycleBin.setBounds(5,5,32,32);
-				buttonMediaManager.setBounds(5 + 40,5,32,32);
+				//TODO buttonMediaManager.setBounds(5 + 40,5,32,32);
 				buttonRecycleBin.setEnabled(Core.Database.isConnected());
-				buttonMediaManager.setEnabled(Core.Database.isConnected());
+				//TODO buttonMediaManager.setEnabled(Core.Database.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
-					plugin.setBounds(5 + spacing,5 + 40,32,32);
+					plugin.setBounds(5,5 + 40 + spacing,32,32);
 					plugin.setEnabled(Core.Database.isConnected());
 					spacing += 40;
 				}					

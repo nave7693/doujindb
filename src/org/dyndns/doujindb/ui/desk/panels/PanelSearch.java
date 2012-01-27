@@ -314,7 +314,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+							.getValueAt(
+									tableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -344,7 +347,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Artist a = (Artist)tableModel.getValueAt(index, 0);
+										Artist a = (Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										a.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())
@@ -561,7 +564,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+						.getValueAt(
+								tableSorter.convertRowIndexToModel(
+									tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -591,7 +597,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Circle c = (Circle)tableModel.getValueAt(index, 0);
+										Circle c = (Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										c.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())
@@ -827,7 +833,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+						.getValueAt(
+								tableSorter.convertRowIndexToModel(
+									tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -857,7 +866,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Book b = (Book)tableModel.getValueAt(index, 0);
+										Book b = (Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										b.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())
@@ -1066,7 +1075,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+						.getValueAt(
+								tableSorter.convertRowIndexToModel(
+									tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1096,7 +1108,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Content t = (Content)tableModel.getValueAt(index, 0);
+										Content t = (Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										t.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())
@@ -1276,7 +1288,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+						.getValueAt(
+								tableSorter.convertRowIndexToModel(
+									tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1306,7 +1321,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Convention e = (Convention)tableModel.getValueAt(index, 0);
+										Convention e = (Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										e.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())
@@ -1504,7 +1519,10 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel().getValueAt(tableResults.rowAtPoint(e.getPoint()), 0);
+						Record item = (Record)tableResults.getModel()
+						.getValueAt(
+								tableSorter.convertRowIndexToModel(
+									tableResults.rowAtPoint(e.getPoint())), 0);
 						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -1534,7 +1552,7 @@ public final class PanelSearch extends JPanel implements Validable
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
-										Parody p = (Parody)tableModel.getValueAt(index, 0);
+										Parody p = (Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										p.doRecycle();
 										tableModel.removeRow(index);
 										if(Core.Database.isAutocommit())

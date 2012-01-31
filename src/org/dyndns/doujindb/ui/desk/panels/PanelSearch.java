@@ -817,7 +817,7 @@ public final class PanelSearch extends JPanel implements Validable
 			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
 			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
 			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount()-1;k++)
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
 			{
 				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
 				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);

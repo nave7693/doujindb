@@ -50,21 +50,22 @@ public final class DoujinshiDBScanner implements Plugin
 	private static DataBaseContext Context;
 	
 	private JComponent UI;
-	private static ImageIcon pluginIcon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/plugin-icon.png"));
-	private static ImageIcon iconRefresh = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/refresh.png"));
-	private static ImageIcon iconAdd = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/add.png"));
-	private static ImageIcon iconSettings = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/settings.png"));
-	private static ImageIcon iconTasks = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/tasks.png"));
-	private static ImageIcon iconLoading = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/loading.png"));
-	private static ImageIcon iconRunning = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-running.png"));
-	private static ImageIcon iconQueued = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-queued.png"));
-	private static ImageIcon iconError = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-error.png"));
-	private static ImageIcon iconRemove = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-remove.png"));
-	private static ImageIcon iconWarning = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-warning.png"));
-	private static ImageIcon iconCompleted = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-completed.png"));
-	private static ImageIcon iconReset = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-reset.png"));
-	private static ImageIcon iconStop = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-stop.png"));
-	private static ImageIcon iconStar = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-searchquery-star.png"));
+	private static ImageIcon PluginIcon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/plugin-icon.png"));
+	private static ImageIcon IconRefresh = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/refresh.png"));
+	private static ImageIcon IconAdd = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/add.png"));
+	private static ImageIcon IconSettings = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/settings.png"));
+	private static ImageIcon IconTasks = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/tasks.png"));
+	private static ImageIcon IconLoading = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/loading.png"));
+	private static ImageIcon IconRunning = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-running.png"));
+	private static ImageIcon IconQueued = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-queued.png"));
+	private static ImageIcon IconError = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-error.png"));
+	private static ImageIcon IconRemove = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-remove.png"));
+	private static ImageIcon IconWarning = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-warning.png"));
+	private static ImageIcon IconCompleted = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-completed.png"));
+	private static ImageIcon IconCleanCompleted = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-clean-completed.png"));
+	private static ImageIcon IconReset = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-reset.png"));
+	private static ImageIcon IconStop = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-stop.png"));
+	private static ImageIcon IconStar = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/task-searchquery-star.png"));
 	
 	public DoujinshiDBScanner()
 	{
@@ -101,16 +102,9 @@ public final class DoujinshiDBScanner implements Plugin
 		UI = new PluginUI();
 	}
 	
-	public String getApiKey() {
-		return APIKEY;
-	}
-	public double getThreshold() {
-		return THRESHOLD;
-	}
-	
 	@Override
 	public Icon getIcon() {
-		return pluginIcon;
+		return PluginIcon;
 	}
 	@Override
 	public String getName() {
@@ -122,7 +116,7 @@ public final class DoujinshiDBScanner implements Plugin
 	}
 	@Override
 	public String getVersion() {
-		return "0.7";
+		return "0.8";
 	}
 	@Override
 	public String getAuthor() {
@@ -315,6 +309,7 @@ public final class DoujinshiDBScanner implements Plugin
 		private JCheckBox boxResizeImage;
 		
 		private JButton buttonAddTask;
+		private JButton buttonCleanCompleted;
 		private DefaultListModel<Task> listModel;
 		private JList<Task> listTasks;
 		private JScrollPane scrollTasks;
@@ -330,7 +325,7 @@ public final class DoujinshiDBScanner implements Plugin
 			JPanel bogus;
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			buttonRefresh = new JButton(iconRefresh);
+			buttonRefresh = new JButton(IconRefresh);
 			buttonRefresh.addActionListener(this);
 			buttonRefresh.setBorder(null);
 			buttonRefresh.setFocusable(false);
@@ -427,15 +422,21 @@ public final class DoujinshiDBScanner implements Plugin
 				}				
 			});
 			bogus.add(boxResizeImage);
-			tabs.addTab("Settings", iconSettings, bogus);
+			tabs.addTab("Settings", IconSettings, bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			buttonAddTask = new JButton(iconAdd);
+			buttonAddTask = new JButton(IconAdd);
 			buttonAddTask.addActionListener(this);
 			buttonAddTask.setBorder(null);
 			buttonAddTask.setFocusable(false);
 			bogus.add(buttonAddTask);
+			buttonCleanCompleted = new JButton(IconCleanCompleted);
+			buttonCleanCompleted.addActionListener(this);
+			buttonCleanCompleted.setBorder(null);
+			buttonCleanCompleted.setToolTipText("Clean Completed Tasks");
+			buttonCleanCompleted.setFocusable(false);
+			bogus.add(buttonCleanCompleted);
 			listTasks = new JList<Task>();
 			listModel = new DefaultListModel<Task>();
 			listTasks.setModel(listModel);
@@ -457,7 +458,7 @@ public final class DoujinshiDBScanner implements Plugin
 						case Task.TASK_COMPLETED:
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-							tbl.put("OK", iconCompleted);
+							tbl.put("OK", IconCompleted);
 							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
@@ -483,7 +484,7 @@ public final class DoujinshiDBScanner implements Plugin
 						case Task.TASK_QUEUED:
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-							tbl.put("Stop", iconStop);
+							tbl.put("Stop", IconStop);
 							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
@@ -509,8 +510,8 @@ public final class DoujinshiDBScanner implements Plugin
 						case Task.TASK_ERROR:
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-							tbl.put("Reset", iconReset);
-							tbl.put("Remove", iconRemove);
+							tbl.put("Reset", IconReset);
+							tbl.put("Remove", IconRemove);
 							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
@@ -539,7 +540,7 @@ public final class DoujinshiDBScanner implements Plugin
 						case Task.TASK_WARNING:
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-							tbl.put("Stop", iconStop);
+							tbl.put("Stop", IconStop);
 							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
@@ -585,7 +586,7 @@ public final class DoujinshiDBScanner implements Plugin
 			listTasks.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 			scrollTasks = new JScrollPane(listTasks);
 			bogus.add(scrollTasks);
-			tabs.addTab("Tasks", iconTasks, bogus);
+			tabs.addTab("Tasks", IconTasks, bogus);
 			super.add(tabs);
 			
 			new Thread(getClass().getName()+"/TaskFetcher")
@@ -651,6 +652,7 @@ public final class DoujinshiDBScanner implements Plugin
 			textImageQueries.setBounds(125,25+100,width - 130,15);
 			boxResizeImage.setBounds(5,25+120,width,45);
 			buttonAddTask.setBounds(1,1,20,20);
+			buttonCleanCompleted.setBounds(width - 25,1,20,20);
 			scrollTasks.setBounds(1,21,width - 5,height - 45);
 		}
 		@Override
@@ -679,7 +681,7 @@ public final class DoujinshiDBScanner implements Plugin
 				buttonRefresh.setEnabled(false);
 				textApikey.setEnabled(false);
 				sliderThreshold.setEnabled(false);
-				buttonRefresh.setIcon(iconLoading);
+				buttonRefresh.setIcon(IconLoading);
 				new Thread(getClass().getName()+"/ActionPerformed/Refresh")
 				{
 					@Override
@@ -713,7 +715,7 @@ public final class DoujinshiDBScanner implements Plugin
 							textQueries.setText("");
 							textImageQueries.setText("");
 						}
-						buttonRefresh.setIcon(iconRefresh);
+						buttonRefresh.setIcon(IconRefresh);
 						buttonRefresh.setEnabled(true);
 						textApikey.setEnabled(true);
 						sliderThreshold.setEnabled(true);
@@ -746,6 +748,18 @@ public final class DoujinshiDBScanner implements Plugin
 				}
 				return;
 			}
+			if(ae.getSource() == buttonCleanCompleted)
+			{
+				Vector<Task> completed = new Vector<Task>();
+				for(int i=0;i<listModel.size();i++)
+				{
+					Task task = listModel.get(i);
+					if(task.getStatus() == Task.TASK_COMPLETED)
+						completed.add(task);
+				}
+				for(Task task : completed)
+					listModel.removeElement(task);
+			}
 		}
 		
 		@SuppressWarnings("unused")
@@ -775,9 +789,6 @@ public final class DoujinshiDBScanner implements Plugin
 				threshold = THRESHOLD;
 			}
 			
-			public void setDescription(double threshold) {
-				this.threshold = threshold;
-			}
 			public String getDescription() {
 				return description;
 			}
@@ -905,6 +916,36 @@ public final class DoujinshiDBScanner implements Plugin
 							{
 								description = "Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")";
 								status = TASK_ERROR;
+								epanel = new JPanel();
+								epanel.setSize(240, 400);
+								JLabel l = new JLabel("<html><body style='margin:5px'>" +
+									"This item was not added to the Database." +
+									"<br>Press Ok to open the folder in your Desktop Environment." +
+									"</body></html>");
+								JPanel bottom = new JPanel();
+								bottom.setLayout(new BorderLayout(5, 5));
+								bottom.add(l, BorderLayout.CENTER);
+								bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+								JButton ok = new JButton("Ok");
+								ok.setFont(Core.Resources.Font);
+								ok.setMnemonic('O');
+								ok.setFocusable(false);
+								ok.addActionListener(new ActionListener()
+								{
+									@Override
+									public void actionPerformed(ActionEvent ae) 
+									{
+										try
+										{
+											Desktop desktop = Desktop.getDesktop();
+											desktop.open(workpath);
+										} catch (IOException ioe) { }
+										DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+										window.dispose();
+									}					
+								});
+								bottom.add(ok, BorderLayout.SOUTH);
+								epanel.add(bottom);
 								throw new Exception("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 							}
 							XMLParser.XML_User user = list.USER;
@@ -1029,7 +1070,7 @@ public final class DoujinshiDBScanner implements Plugin
 										panel.add(link);
 										panel.add(cover);
 										if(book.search.equals(result_star))
-											tabs.addTab("" + book.search, iconStar, panel);
+											tabs.addTab("" + book.search, IconStar, panel);
 										else
 											tabs.addTab("" + book.search, panel);
 									}
@@ -1398,7 +1439,7 @@ public final class DoujinshiDBScanner implements Plugin
 				case TASK_ERROR:
 					try
 					{ 
-						try { Core.UI.Desktop.showDialog(epanel, iconError, "Error - " + description.replaceAll(" \\(.*","")); } catch (PropertyVetoException e) { }
+						try { Core.UI.Desktop.showDialog(epanel, IconError, "Error - " + description.replaceAll(" \\(.*","")); } catch (PropertyVetoException e) { }
 					} catch (NullPointerException npe) { }
 					break;
 				case TASK_WARNING:
@@ -1420,19 +1461,19 @@ public final class DoujinshiDBScanner implements Plugin
 		
 		private class TaskUI extends JPanel implements ListCellRenderer<Task>, LayoutManager
 		{
-			private JLabel status;
-			private JLabel icon;
+			private JLabel Status;
+			private JLabel Icon;
 			
 			public TaskUI()
 			{
 				super();
 				setLayout(this);
-				status = new JLabel();
-				status.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
-				status.setOpaque(true);
-				super.add(status);
-				icon = new JLabel();
-				super.add(icon);
+				Status = new JLabel();
+				Status.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+				Status.setOpaque(true);
+				super.add(Status);
+				Icon = new JLabel();
+				super.add(Icon);
 				setBackground(UIManager.getColor("List.textBackground"));
 				setForeground(UIManager.getColor("List.textForeground"));
 			}
@@ -1440,23 +1481,23 @@ public final class DoujinshiDBScanner implements Plugin
 			public Component getListCellRendererComponent(JList<? extends Task> listBox, Task obj, int currentindex, boolean isChecked, boolean hasFocus)
 			{
 				Task task = (Task) obj;
-				status.setText(task.getDescription());
+				Status.setText(task.getDescription());
 				switch(task.getStatus())
 				{
 				case Task.TASK_RUNNING:
-					icon.setIcon(iconRunning);
+					Icon.setIcon(IconRunning);
 					break;
 				case Task.TASK_COMPLETED:
-					icon.setIcon(iconCompleted);
+					Icon.setIcon(IconCompleted);
 					break;
 				case Task.TASK_ERROR:
-					icon.setIcon(iconError);
+					Icon.setIcon(IconError);
 					break;
 				case Task.TASK_QUEUED:
-					icon.setIcon(iconQueued);
+					Icon.setIcon(IconQueued);
 					break;
 				case Task.TASK_WARNING:
-					icon.setIcon(iconWarning);
+					Icon.setIcon(IconWarning);
 					break;
 				}
 				return this;
@@ -1465,8 +1506,8 @@ public final class DoujinshiDBScanner implements Plugin
 			public void layoutContainer(Container parent)
 			{
 				int width = parent.getWidth();
-				status.setBounds(5, 0, width - 25, 20);
-				icon.setBounds(width - 20, 0, 20, 20);
+				Status.setBounds(5, 0, width - 25, 20);
+				Icon.setBounds(width - 20, 0, 20, 20);
 			}
 			@Override
 			public void addLayoutComponent(String key,Component c){}

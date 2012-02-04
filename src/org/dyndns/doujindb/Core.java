@@ -31,12 +31,13 @@ public final class Core implements Runnable
 	public void run()
 	{
 		boolean isConfigurationWizard = false;
-		
-		new File(System.getProperty("user.home"), ".doujindb").mkdir();
-		new File(System.getProperty("user.home"), ".doujindb/lib").mkdir();
-		new File(System.getProperty("user.home"), ".doujindb/rc").mkdir();
-		new File(System.getProperty("user.home"), ".doujindb/log").mkdir();
-		new File(System.getProperty("user.home"), ".doujindb/plug").mkdir();
+		try
+		{
+			System.setProperty("doujindb.home", java.net.URLDecoder.decode(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8"));
+		} catch (UnsupportedEncodingException uee)
+		{
+			System.setProperty("doujindb.home", Core.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		}
 		try
 		{
 			Logger = org.dyndns.doujindb.log.impl.Factory.getService();

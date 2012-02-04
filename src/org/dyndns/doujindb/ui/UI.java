@@ -36,6 +36,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.log.Event;
 import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
 import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DouzDesktop.*;
@@ -338,6 +339,7 @@ public UI(String title)
 	{
 		Core.Plugins = new Vector<Plugin>();
 		Core.Plugins.add(new DoujinshiDBScanner());
+		Core.Plugins.add(new ImageScanner());
 	} catch (Exception e) {
 		e.printStackTrace();
 	}

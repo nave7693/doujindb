@@ -32,7 +32,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	{
 		super();
 		setOpaque(false);
-		wallpaperImage = new ImageIcon(new File(new File(System.getProperty("user.home"), ".doujindb"),"doujindb.wallpaper").getAbsolutePath());
+		wallpaperImage = new ImageIcon(new File(System.getProperty("doujindb.home"),"doujindb.wallpaper").getAbsolutePath());
 		wallpaper = new JLabel(wallpaperImage);
 		buttonWallpaper = new JButton(Core.Resources.Icons.get("JDesktop/Wallpaper/Import"));
 		buttonWallpaper.setFocusable(false);
@@ -64,7 +64,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 							graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 							graphics2D.drawImage(wallpaperImage.getImage(), 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight(), null);
-							javax.imageio.ImageIO.write(im, "PNG", new File(new File(System.getProperty("user.home"), ".doujindb"),"doujindb.wallpaper"));
+							javax.imageio.ImageIO.write(im, "PNG", new File(System.getProperty("doujindb.home"), "doujindb.wallpaper"));
 							wallpaperImage = new ImageIcon(im);
 							wallpaper.setIcon(wallpaperImage);
 						} catch (Exception e) {

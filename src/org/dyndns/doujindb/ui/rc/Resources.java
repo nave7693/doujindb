@@ -164,7 +164,7 @@ public final class Resources
 			}
 		try
 		{
-			ZipFile zip = new ZipFile(new File(new File(System.getProperty("user.home"), ".doujindb"), "rc/icons.zip"));
+			ZipFile zip = new ZipFile(new File(System.getProperty("doujindb.home"), "icons.zip"));
 			Vector<String> entries = new Vector<String>();
 			Enumeration<? extends ZipEntry> e = zip.entries();
 			while(e.hasMoreElements())

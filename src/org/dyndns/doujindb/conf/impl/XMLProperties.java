@@ -192,7 +192,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void load() throws PropertyException
 	{
-		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "config.xml");
+		File file = new File(System.getProperty("doujindb.home"), "config.xml");
 		FileInputStream in = null;
 		try
 		{
@@ -251,7 +251,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void save() throws PropertyException
 	{
-		File file = new File(new File(System.getProperty("user.home"), ".doujindb"), "config.xml");
+		File file = new File(System.getProperty("doujindb.home"), "config.xml");
 		FileOutputStream out = null;
 		try
 		{

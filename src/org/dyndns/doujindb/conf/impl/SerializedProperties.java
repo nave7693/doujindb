@@ -195,7 +195,7 @@ final class SerializedProperties implements Properties
 	@Override
 	public synchronized void save() throws PropertyException
 	{
-		File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
+		File src = new File(System.getProperty("doujindb.home"), "doujindb.properties");
 		ObjectOutputStream out = null;
 		try {
 			out = new ObjectOutputStream(new FileOutputStream(src));
@@ -214,7 +214,7 @@ final class SerializedProperties implements Properties
 	@Override
 	public synchronized void load() throws PropertyException
 	{
-		File src = new File(new File(System.getProperty("user.home"), ".doujindb"), "doujindb.properties");
+		File src = new File(System.getProperty("doujindb.home"), "doujindb.properties");
 		ObjectInputStream in = null;
 		try {
 			in = new ObjectInputStream(new FileInputStream(src));

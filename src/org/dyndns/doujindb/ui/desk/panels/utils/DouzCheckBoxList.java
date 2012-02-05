@@ -300,7 +300,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	public Iterable<T> getSelectedItems()
 	{
 		Vector<T> v = new Vector<T>();
-		for(CheckBoxItem<T> cb : model.filterItems)
+		for(CheckBoxItem<T> cb : model.items)
 		{
 			if(cb.isChecked())
 				v.add((T)cb.getItem());
@@ -311,12 +311,27 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	public int getSelectedItemCount()
 	{
 		int count = 0;
-		for(CheckBoxItem<T> cb : model.filterItems)
+		for(CheckBoxItem<T> cb : model.items)
 		{
 			if(cb.isChecked())
 				count++;
 		}
 		return count;
+	}
+	
+	public Iterable<T> getVisibleItems()
+	{
+		Vector<T> v = new Vector<T>();
+		for(CheckBoxItem<T> cb : model.filterItems)
+		{
+			v.add((T)cb.getItem());
+		}
+		return v;
+	}
+	
+	public int getVisibleItemCount()
+	{
+		return model.filterItems.size();
 	}
 	
 	public void setItems(Iterable<T> items)

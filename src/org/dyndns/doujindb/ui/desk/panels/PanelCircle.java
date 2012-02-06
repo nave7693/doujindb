@@ -22,6 +22,8 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 @SuppressWarnings("serial")
 public final class PanelCircle implements Validable, LayoutManager, ActionListener
@@ -206,6 +208,10 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
+		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+				editorWorks.getCheckBoxList(),
+				editorArtists.getCheckBoxList()
+		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);

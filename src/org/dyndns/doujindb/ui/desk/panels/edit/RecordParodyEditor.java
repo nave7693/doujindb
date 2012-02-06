@@ -80,6 +80,11 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		validate();
 	}
 	
+	public DouzCheckBoxList<Parody> getCheckBoxList()
+	{
+		return checkboxList;
+	}
+	
 	@Override
 	public void setEnabled(boolean enabled)
 	{

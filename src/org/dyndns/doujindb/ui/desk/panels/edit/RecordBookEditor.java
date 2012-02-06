@@ -79,6 +79,11 @@ public class RecordBookEditor extends JSplitPane implements Validable
 		}
 		validate();
 	}
+	
+	public DouzCheckBoxList<Book> getCheckBoxList()
+	{
+		return checkboxList;
+	}
 
 	@Override
 	public void setEnabled(boolean enabled)

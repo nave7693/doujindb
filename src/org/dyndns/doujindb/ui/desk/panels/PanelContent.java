@@ -22,6 +22,8 @@ import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 @SuppressWarnings("serial")
 public final class PanelContent implements Validable, LayoutManager, ActionListener
@@ -240,6 +242,10 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 			}
 		});
 		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Content"), panel);
+		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+				editorWorks.getCheckBoxList(),
+				null
+		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);

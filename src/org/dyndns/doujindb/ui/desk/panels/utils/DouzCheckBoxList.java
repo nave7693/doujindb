@@ -28,6 +28,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	private JTextField filterField;
 	private Model model;
 	private Hashtable<Class,ImageIcon> iconData;
+	private Validable validableParent;
 	
 	public DouzCheckBoxList(Iterable<T> data, JTextField filter)
 	{
@@ -208,6 +209,8 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			{
 			case DATABASE_REFRESH:
 				refreshUI();
+				if(validableParent != null)
+					validableParent.validateUI(ve);
 				break;
 			case DATABASE_UPDATE:
 				refreshUI();
@@ -282,6 +285,11 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	{
 		model.validateUI(ve);
 		listData.validate();
+	}
+	
+	public void setValidableParent(Validable parent)
+	{
+		validableParent = parent;
 	}
 	
 	public void setSelectedItems(Iterable<T> items)

@@ -80,6 +80,11 @@ public class RecordCircleEditor extends JSplitPane implements Validable
 		validate();
 	}
 	
+	public DouzCheckBoxList<Circle> getCheckBoxList()
+	{
+		return checkboxList;
+	}
+	
 	@Override
 	public void setEnabled(boolean enabled)
 	{

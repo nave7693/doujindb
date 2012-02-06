@@ -38,6 +38,8 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 @SuppressWarnings("serial")
 public final class PanelBook implements Validable, LayoutManager, ActionListener
@@ -358,7 +360,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);
 		editorParodies = new RecordParodyEditor(tokenBook);
 		tabLists.addTab("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), editorParodies);
-		
 		if(token != null)
 		{
 			mediaManager = new PanelBookMedia(tokenBook);
@@ -368,6 +369,14 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
 			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
 		}
+		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+				null,
+				editorArtists.getCheckBoxList(),
+				editorCircles.getCheckBoxList(),
+				editorContents.getCheckBoxList(),
+				editorParodies.getCheckBoxList(),
+				null
+		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);

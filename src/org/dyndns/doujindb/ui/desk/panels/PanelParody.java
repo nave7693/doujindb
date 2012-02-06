@@ -16,6 +16,8 @@ import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
+import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 @SuppressWarnings("serial")
 public final class PanelParody implements Validable, LayoutManager, ActionListener
@@ -66,6 +68,9 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenParody);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+				editorWorks.getCheckBoxList()
+		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);

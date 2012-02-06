@@ -79,6 +79,11 @@ public class RecordArtistEditor extends JSplitPane implements Validable
 		validate();
 	}
 	
+	public DouzCheckBoxList<Artist> getCheckBoxList()
+	{
+		return checkboxList;
+	}
+	
 	@Override
 	public void setEnabled(boolean enabled)
 	{

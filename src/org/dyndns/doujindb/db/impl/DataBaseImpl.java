@@ -531,11 +531,11 @@ public class DataBaseImpl extends DataBase
 			/**
 			 * Can't use conn.getSchema() here, MySQL jdbc driver throws AbstractMethodError
 			 */
-			ResultSet schemas = dmd.getSchemas();
+			ResultSet schemas = dmd.getCatalogs();
 			while(schemas.next())
 			{
-				//ResultSet tables = dmd.getTables(null, schemas.getString(1), null, null);
-				ResultSet tables = dmd.getTables(null, schemas.getString("TABLE_SCHEM"), null, null);
+				ResultSet tables = dmd.getTables(null, schemas.getString(1), null, null);
+				//ResultSet tables = dmd.getTables(null, schemas.getString("TABLE_SCHEM"), null, null);
 				while(tables.next())
 				{
 					String table = tables.getString("TABLE_NAME");

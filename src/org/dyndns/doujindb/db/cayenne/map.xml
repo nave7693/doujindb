@@ -5,7 +5,7 @@
   project-version="3.0.0.1">
 	<property name="defaultPackage" value="org.dyndns.doujindb.db.cayenne"/>
 	<db-entity name="Artist">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="ROMANJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
@@ -17,7 +17,7 @@
 		<db-attribute name="COLOR" type="BOOLEAN"/>
 		<db-attribute name="CONVENTION" type="INTEGER"/>
 		<db-attribute name="DECENSORED" type="BOOLEAN"/>
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="PAGES" type="INTEGER"/>
@@ -30,7 +30,7 @@
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Circle">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="ROMANJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
@@ -38,7 +38,7 @@
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Content">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
@@ -48,7 +48,7 @@
 		<db-attribute name="CONTENT_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Convention">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
@@ -63,7 +63,7 @@
 		<db-attribute name="CIRCLE_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Parody">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="ROMANJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
@@ -75,13 +75,13 @@
 		<db-attribute name="PARODY_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="ConventionAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="CONVENTION_ID" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 		<post-add method-name="postAdd"/>
 	</db-entity>
 	<db-entity name="ContentAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="CONTENT_ID" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 		<post-add method-name="postAdd"/>

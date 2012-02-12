@@ -2,6 +2,9 @@ package org.dyndns.doujindb.db.impl;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import java.util.*;
@@ -10,10 +13,11 @@ import java.util.concurrent.*;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.DataNode;
+import org.apache.cayenne.access.DbGenerator;
 import org.apache.cayenne.conf.Configuration;
 import org.apache.cayenne.conn.PoolManager;
+import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.exp.*;
-import org.apache.cayenne.map.DataMap;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
@@ -144,8 +148,8 @@ public class DataBaseImpl extends DataBase
 		node = new DataNode("default");
 		node.setDataSourceFactory("org.apache.cayenne.conf.DriverDataSourceFactory");
 		node.setSchemaUpdateStrategy(new org.apache.cayenne.access.dbsync.ThrowOnPartialOrCreateSchemaStrategy());
-		for(DataMap map : domain.getDataMaps())
-		    node.addDataMap(map);
+		
+		node.addDataMap(domain.getMap("map"));
 
 		domain.addNode(node);
 
@@ -185,7 +189,7 @@ public class DataBaseImpl extends DataBase
 		} catch (ExecutionException ee) {
 			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
 		} catch (SQLException sqle) {
-			throw new DataBaseException("SQLException : Cannot initialize connection.");
+			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
 		} finally {
 		   future.cancel(true);
 		}
@@ -514,12 +518,56 @@ public class DataBaseImpl extends DataBase
 			//Doesn't work, handle timeout manually
 			//pool.setLoginTimeout(3);
 			checkContext(pool, Core.Properties.get("org.dyndns.doujindb.db.connection_timeout").asNumber());
+			
+			DbAdapter adpt = new org.apache.cayenne.dba.AutoAdapter(pool);
+			
+			/**
+			 * Check whether to create the 'auto_pk_support' table.
+			 * @see https://issues.apache.org/jira/browse/CAY-1040
+			 */
+			boolean auto_pk_support = true;
+			Connection conn = DriverManager.getConnection(url, username, password);
+			DatabaseMetaData dmd = conn.getMetaData();
+			/**
+			 * Can't use conn.getSchema() here, MySQL jdbc driver throws AbstractMethodError
+			 */
+			ResultSet schemas = dmd.getSchemas();
+			while(schemas.next())
+			{
+				//ResultSet tables = dmd.getTables(null, schemas.getString(1), null, null);
+				ResultSet tables = dmd.getTables(null, schemas.getString("TABLE_SCHEM"), null, null);
+				while(tables.next())
+				{
+					String table = tables.getString("TABLE_NAME");
+					if(table.equalsIgnoreCase("auto_pk_support"))
+					{
+						auto_pk_support = false;
+						break;
+					}
+				}
+				if(!auto_pk_support)
+					break;
+			}
+			conn.close();
+			if(auto_pk_support)
+			{
+				DbGenerator generator = new DbGenerator(adpt, domain.getMap("map"));
+				generator.setShouldCreatePKSupport(true);
+				generator.setShouldDropPKSupport(false);
+				generator.setShouldCreateTables(false);
+				generator.setShouldDropTables(false);
+				generator.setShouldCreateFKConstraints(false);
+				generator.runGenerator(pool);
+			}
+				
+			node.setAdapter(adpt);
+			
 			connection = url;
 		} catch (SQLException sqle) {
 			throw new DataBaseException(sqle);
+		} catch (Exception e) {
+			throw new DataBaseException(e);
 		}
-
-		node.setAdapter(new org.apache.cayenne.dba.AutoAdapter(node.getDataSource()));
 		
 		autocommit = Core.Properties.get("org.dyndns.doujindb.db.autocommit").asBoolean();
 	}

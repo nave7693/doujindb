@@ -90,8 +90,11 @@ public final class Core implements Runnable
 		
 		Database = DataBase.getInstance();
 		
-		String title = "DoujinDB v" + Core.class.getPackage().getSpecificationVersion();
-		UI = new UI(title);
+		String version = Core.class.getPackage().getSpecificationVersion();
+		if(version != null)
+			UI = new UI("DoujinDB v" + version);
+		else
+			UI = new UI("Development Trunk~");
 		Core.Logger.log("User interface loaded.", Level.INFO);
 		
 		if(isConfigurationWizard)

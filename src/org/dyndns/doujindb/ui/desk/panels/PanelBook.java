@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -259,7 +261,17 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		for(Convention conv : Core.Database.getConventions(null))
+		Iterator<Convention> i = Core.Database.getConventions(null).iterator();
+		TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
+		{
+			@Override
+			public int compare(Convention c1, Convention c2) {
+				return c1.getTagName().compareTo(c2.getTagName());
+			}
+		});
+		while(i.hasNext())
+			set.add(i.next());
+		for(Convention conv : set)
 			comboConvention.addItem(conv);
 		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());

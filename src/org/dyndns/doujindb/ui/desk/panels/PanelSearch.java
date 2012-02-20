@@ -442,12 +442,11 @@ public final class PanelSearch extends JPanel implements Validable
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Artist> result = Core.Database.getArtists(query);
-							labelResults.setText("Found : " + result.size());
 							for(Artist a : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try
@@ -691,12 +690,11 @@ public final class PanelSearch extends JPanel implements Validable
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Circle> result = Core.Database.getCircles(query);
-							labelResults.setText("Found : " + result.size());
 							for(Circle c : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try
@@ -850,6 +848,8 @@ public final class PanelSearch extends JPanel implements Validable
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					if(tableResults.getSelectedRowCount() == 1)
+						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
 					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
@@ -862,7 +862,7 @@ public final class PanelSearch extends JPanel implements Validable
 							int selected = pop.getResult();
 							switch(selected)
 							{
-							case 0:{
+							case 1:{
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
@@ -879,6 +879,35 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								tableResults.validate();
 								break;
+							}
+							case 0:{
+								Book book = ((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableResults.getSelectedRow()), 0));
+
+								Book clone = Core.Database.doInsert(Book.class);
+								clone.setJapaneseName(book.getJapaneseName());
+								clone.setTranslatedName(book.getTranslatedName());
+								clone.setRomanjiName(book.getRomanjiName());
+								clone.setInfo(book.getInfo());
+								clone.setDate(book.getDate());
+								clone.setRating(book.getRating());
+								clone.setConvention(book.getConvention());
+								clone.setType(book.getType());
+								clone.setPages(book.getPages());
+								clone.setAdult(book.isAdult());
+								clone.setDecensored(book.isDecensored());
+								clone.setTranslated(book.isTranslated());
+								clone.setColored(book.isColored());
+								for(Artist a : book.getArtists())
+									clone.addArtist(a);
+								for(Content c : book.getContents())
+									clone.addContent(c);
+								for(Parody p : book.getParodies())
+									clone.addParody(p);
+								if(Core.Database.isAutocommit())
+									Core.Database.doCommit();
+								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, clone));			
+								DouzWindow window = Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, clone);
+								window.setTitle("(Clone) " + window.getTitle());
 							}
 							}
 						}
@@ -971,12 +1000,11 @@ public final class PanelSearch extends JPanel implements Validable
 							query.Translated = checkTranslated.isSelected();
 							query.Decensored = checkDecensored.isSelected();
 							RecordSet<Book> result = Core.Database.getBooks(query);
-							labelResults.setText("Found : " + result.size());
 							for(Book b : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try
@@ -1184,12 +1212,11 @@ public final class PanelSearch extends JPanel implements Validable
 							if(!textTagName.getText().equals(""))
 								query.TagName = textTagName.getText();
 							RecordSet<Content> result = Core.Database.getContents(query);
-							labelResults.setText("Found : " + result.size());
 							for(Content t : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try
@@ -1397,12 +1424,11 @@ public final class PanelSearch extends JPanel implements Validable
 							if(!textTagName.getText().equals(""))
 								query.TagName = textTagName.getText();
 							RecordSet<Convention> result = Core.Database.getConventions(query);
-							labelResults.setText("Found : " + result.size());
 							for(Convention e : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try
@@ -1646,12 +1672,11 @@ public final class PanelSearch extends JPanel implements Validable
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Parody> result = Core.Database.getParodies(query);
-							labelResults.setText("Found : " + result.size());
 							for(Parody p : result)
 							{
 								if(stopped)
 								{
-									labelResults.setText("Found");
+									labelResults.setText("Found : " + tableModel.getRowCount());
 									break;
 								}
 								try

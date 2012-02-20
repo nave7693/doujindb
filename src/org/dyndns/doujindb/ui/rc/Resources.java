@@ -112,6 +112,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/MediaManager","jdesktop/explorer/mediamanager.png");
 		iconKeys.put("JDesktop/Explorer/Edit","jdesktop/explorer/edit.png");
 		iconKeys.put("JDesktop/Explorer/Delete","jdesktop/explorer/delete.png");
+		iconKeys.put("JDesktop/Explorer/Clone","jdesktop/explorer/clone.png");
 		iconKeys.put("JDesktop/Explorer/ComboBox/Arrow","jdesktop/explorer/combobox/arrow.png");
 		iconKeys.put("JFrame/RecycleBin/Restore","jframe/recyclebin/restore.png");
 		iconKeys.put("JFrame/RecycleBin/Delete","jframe/recyclebin/delete.png");

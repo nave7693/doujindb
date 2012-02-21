@@ -548,6 +548,15 @@ public class DataBaseImpl extends DataBase
 				if(!auto_pk_support)
 					break;
 			}
+			if(auto_pk_support)
+			{
+				ResultSet tables = dmd.getTables(null, null, "AUTO_PK_SUPPORT", null);
+				while(tables.next())
+				{
+					auto_pk_support = false;
+					break;
+				}
+			}
 			conn.close();
 			if(auto_pk_support)
 			{

@@ -456,6 +456,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
@@ -704,6 +705,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
@@ -1014,6 +1016,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
@@ -1226,6 +1229,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
@@ -1438,6 +1442,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();
@@ -1686,6 +1691,7 @@ public final class PanelSearch extends JPanel implements Validable
 								}
 								catch (InterruptedException ie) { ; }
 							}
+							labelResults.setText("Found : " + tableModel.getRowCount());
 						} catch (DataBaseException dbe) {
 							Core.Logger.log(dbe.getMessage(), Level.ERROR);
 							dbe.printStackTrace();

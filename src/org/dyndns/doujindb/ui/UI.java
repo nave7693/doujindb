@@ -1088,33 +1088,39 @@ public void layoutContainer(Container parent)
 	        column);
 		if(table.getModel().getRowCount() < 1)
 			return this;
-	    super.setIcon(null);
-        if(value.equals("{Message}"))
-        {
-	        super.setText("");
-	        super.setIcon(renderIcon.get("Message"));
+		try
+		{
+			super.setIcon(null);
+	        if(value.equals("{Message}"))
+	        {
+		        super.setText("");
+		        super.setIcon(renderIcon.get("Message"));
+		        return this;
+		    }
+		    if(value.equals("{Warning}"))
+		    {
+		    	super.setText("");
+		        super.setIcon(renderIcon.get("Warning"));
+		        return this;
+		    }
+		    if(value.equals("{Error}"))
+		    {
+		       	super.setText("");
+		       	super.setIcon(renderIcon.get("Error"));
+		       	return this;
+		    }
+		    super.setText(value.toString());
+	        super.setIcon(null);
+	        super.setForeground(Color.GRAY);
+	        if(table.getValueAt(row, 0).equals("{Warning}"))
+		       	super.setForeground(Color.ORANGE);
+		    else
+		       	if(table.getValueAt(row, 0).equals("{Error}"))
+		       		super.setForeground(Color.RED);
 	        return this;
-	    }
-	    if(value.equals("{Warning}"))
-	    {
-	    	super.setText("");
-	        super.setIcon(renderIcon.get("Warning"));
-	        return this;
-	    }
-	    if(value.equals("{Error}"))
-	    {
-	       	super.setText("");
-	       	super.setIcon(renderIcon.get("Error"));
-	       	return this;
-	    }
-	    super.setText(value.toString());
-        super.setIcon(null);
-        super.setForeground(Color.GRAY);
-        if(table.getValueAt(row, 0).equals("{Warning}"))
-	       	super.setForeground(Color.ORANGE);
-	    else
-	       	if(table.getValueAt(row, 0).equals("{Error}"))
-	       		super.setForeground(Color.RED);
+		} catch (ArrayIndexOutOfBoundsException aioobe) {
+			// OH WELL
+		}
         return this;
 	}
 	}

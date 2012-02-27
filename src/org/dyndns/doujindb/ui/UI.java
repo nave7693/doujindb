@@ -334,7 +334,6 @@ public UI(String title)
 	super.setJMenuBar(menuBar);
 	Core.Logger.log("JMenuBar added.", Level.INFO);
 	
-	//org.dyndns.doujindb.core.Plugins.init();
 	try
 	{
 		Core.Plugins = new Vector<Plugin>();
@@ -1071,6 +1070,7 @@ public void layoutContainer(Container parent)
 	public Renderer(Hashtable<String,ImageIcon> renderingData)
 	{
 	    super();
+	    super.setFont(Core.Resources.Font);
 	    renderIcon = new Hashtable<String,ImageIcon>();
 	    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
 	    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
@@ -1091,34 +1091,34 @@ public void layoutContainer(Container parent)
 	        hasFocus,
 	        row,
 	        column);
-	    super.setIcon((ImageIcon)null);
-	    try
+	    super.setIcon(null);
+        if(value.equals("{Message}"))
+        {
+	        super.setText("");
+	        super.setIcon(renderIcon.get("Message"));
+	        return this;
+	    }
+	    if(value.equals("{Warning}"))
 	    {
-	        if(value.equals("{Message}"))
-	        {
-	            JLabel lab = new JLabel((ImageIcon)renderIcon.get("Message"));
-	            return lab;
-	        }
-	        if(value.equals("{Warning}"))
-	        {
-	            JLabel lab = new JLabel((ImageIcon)renderIcon.get("Warning"));
-	            return lab;
-	        }
-	        if(value.equals("{Error}"))
-	        {
-	            JLabel lab = new JLabel((ImageIcon)renderIcon.get("Error"));
-	            return lab;
-	        }
-	        JLabel lab = new JLabel(value.toString());
-	        lab.setFont(Core.Resources.Font);
-	        if(table.getValueAt(row, 0).equals("{Warning}"))
-	        	lab.setForeground(Color.ORANGE);
-	        else
-	            if(table.getValueAt(row, 0).equals("{Error}"))
-	            	lab.setForeground(Color.RED);
-	        return lab;
-	    }catch(Exception e) {}
-	    return this;
+	    	super.setText("");
+	        super.setIcon(renderIcon.get("Warning"));
+	        return this;
+	    }
+	    if(value.equals("{Error}"))
+	    {
+	       	super.setText("");
+	       	super.setIcon(renderIcon.get("Error"));
+	       	return this;
+	    }
+	    super.setText(value.toString());
+        super.setIcon(null);
+        super.setForeground(Color.GRAY);
+	    if(table.getValueAt(row, 0).equals("{Warning}"))
+	       	super.setForeground(Color.ORANGE);
+	    else
+	       	if(table.getValueAt(row, 0).equals("{Error}"))
+	       		super.setForeground(Color.RED);
+        return this;
 	}
 	}
 

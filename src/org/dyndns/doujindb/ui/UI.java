@@ -1077,20 +1077,17 @@ public void layoutContainer(Container parent)
 	    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
 	}
 
-	public Component getTableCellRendererComponent(
-	    JTable table,
-	    Object value,
-	    boolean isSelected,
-	    boolean hasFocus,
-	    int row,
-	    int column) {
-	    super.getTableCellRendererComponent(
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+	{
+		super.getTableCellRendererComponent(
 	        table,
 	        value,
 	        isSelected,
 	        hasFocus,
 	        row,
 	        column);
+		if(table.getModel().getRowCount() < 1)
+			return this;
 	    super.setIcon(null);
         if(value.equals("{Message}"))
         {
@@ -1113,7 +1110,7 @@ public void layoutContainer(Container parent)
 	    super.setText(value.toString());
         super.setIcon(null);
         super.setForeground(Color.GRAY);
-	    if(table.getValueAt(row, 0).equals("{Warning}"))
+        if(table.getValueAt(row, 0).equals("{Warning}"))
 	       	super.setForeground(Color.ORANGE);
 	    else
 	       	if(table.getValueAt(row, 0).equals("{Error}"))

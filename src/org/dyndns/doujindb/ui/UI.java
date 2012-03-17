@@ -1091,6 +1091,7 @@ public void layoutContainer(Container parent)
 		try
 		{
 			super.setIcon(null);
+			super.setBorder(null);
 	        if(value.equals("{Message}"))
 	        {
 		        super.setText("");

@@ -94,7 +94,7 @@ public final class Core implements Runnable
 		if(version != null)
 			UI = new UI("DoujinDB v" + version);
 		else
-			UI = new UI("Development Trunk~");
+			UI = new UI("DoujinDB - Development Trunk~");
 		Core.Logger.log("User interface loaded.", Level.INFO);
 		
 		if(isConfigurationWizard)

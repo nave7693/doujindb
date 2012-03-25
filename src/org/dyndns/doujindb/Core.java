@@ -33,10 +33,10 @@ public final class Core implements Runnable
 		boolean isConfigurationWizard = false;
 		try
 		{
-			System.setProperty("doujindb.home", java.net.URLDecoder.decode(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8"));
+			System.setProperty("doujindb.home", new File(java.net.URLDecoder.decode(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")).getParent());
 		} catch (UnsupportedEncodingException uee)
 		{
-			System.setProperty("doujindb.home", Core.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			System.setProperty("doujindb.home", new File(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent());
 		}
 		try
 		{

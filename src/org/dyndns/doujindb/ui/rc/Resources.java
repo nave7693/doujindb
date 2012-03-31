@@ -1,8 +1,7 @@
 package org.dyndns.doujindb.ui.rc;
 
 import java.awt.Font;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 import java.util.zip.*;
 
@@ -181,7 +180,7 @@ public final class Resources
 					exc.printStackTrace();
 				}
 			zip.close();
-		}catch(FileNotFoundException fnfe)
+		}catch(Exception e)
 		{
 			;
 		}

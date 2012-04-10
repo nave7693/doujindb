@@ -18,6 +18,7 @@ public final class DouzPopupMenu implements ActionListener
 	public static final int SELECTION_NONE = -1;
 	public static final int SELECTION_CANCELED = -2;
 	private int selection = SELECTION_NONE;
+	private String choice = null;
 	
 	public DouzPopupMenu(String title, Hashtable<String,ImageIcon> items)
 	{
@@ -45,6 +46,7 @@ public final class DouzPopupMenu implements ActionListener
 		{
 			this.items[k] = new JMenuItem(i, items.get(i));
 			this.items[k].addActionListener(this);
+			this.items[k].setName(i);
 			popup.add(this.items[k]);
 			k++;
 		}
@@ -60,6 +62,11 @@ public final class DouzPopupMenu implements ActionListener
 		return selection;
 	}
 	
+	public String getChoice()
+	{
+		return choice;
+	}
+	
 	public void show(Component comp, int x, int y)
 	{
 		popup.show(comp, x, y);
@@ -69,10 +76,11 @@ public final class DouzPopupMenu implements ActionListener
 	public void actionPerformed(ActionEvent ae)
 	{
 		int i = 0;
-		for(JMenuItem itm : items)
-			if(itm == ae.getSource())
+		for(JMenuItem item : items)
+			if(item == ae.getSource())
 			{
 				selection = i;
+				choice = item.getName();
 				return;
 			}				
 			else

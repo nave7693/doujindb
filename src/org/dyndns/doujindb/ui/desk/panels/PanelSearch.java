@@ -861,10 +861,9 @@ public final class PanelSearch extends JPanel implements Validable
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
+							String choice = pop.getChoice();
+							if(choice.equals("Delete"))
 							{
-							case 1:{
 								try {
 									for(int index : tableResults.getSelectedRows())
 									{
@@ -880,9 +879,9 @@ public final class PanelSearch extends JPanel implements Validable
 									dbe.printStackTrace();
 								}
 								tableResults.validate();
-								break;
 							}
-							case 0:{
+							if(choice.equals("Clone"))
+							{
 								Book book = ((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableResults.getSelectedRow()), 0));
 
 								Book clone = Core.Database.doInsert(Book.class);
@@ -910,7 +909,6 @@ public final class PanelSearch extends JPanel implements Validable
 								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, clone));			
 								DouzWindow window = Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, clone);
 								window.setTitle("(Clone) " + window.getTitle());
-							}
 							}
 						}
 					}.start();

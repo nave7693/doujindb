@@ -345,15 +345,23 @@ public final class PanelSearch extends JPanel implements Validable
 							{
 							case 0:{
 								try {
+									Vector<Artist> deleted = new Vector<Artist>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Artist a = (Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										a.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(a);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, a));
 									}
+									for(Artist a : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(a))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();
@@ -595,15 +603,23 @@ public final class PanelSearch extends JPanel implements Validable
 							{
 							case 0:{
 								try {
+									Vector<Circle> deleted = new Vector<Circle>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Circle c = (Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										c.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(c);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, c));
 									}
+									for(Circle c : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(c))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();
@@ -865,15 +881,23 @@ public final class PanelSearch extends JPanel implements Validable
 							if(choice.equals("Delete"))
 							{
 								try {
+									Vector<Book> deleted = new Vector<Book>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Book b = (Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										b.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(b);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, b));
 									}
+									for(Book b : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(b))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();
@@ -1135,15 +1159,23 @@ public final class PanelSearch extends JPanel implements Validable
 							{
 							case 0:{
 								try {
+									Vector<Content> deleted = new Vector<Content>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Content t = (Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										t.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(t);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, t));
 									}
+									for(Content t : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(t))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();
@@ -1348,15 +1380,23 @@ public final class PanelSearch extends JPanel implements Validable
 							{
 							case 0:{
 								try {
+									Vector<Convention> deleted = new Vector<Convention>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Convention e = (Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										e.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(e);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, e));
 									}
+									for(Convention e : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(e))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();
@@ -1579,15 +1619,23 @@ public final class PanelSearch extends JPanel implements Validable
 							{
 							case 0:{
 								try {
+									Vector<Parody> deleted = new Vector<Parody>();
 									for(int index : tableResults.getSelectedRows())
 									{
 										Parody p = (Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										p.doRecycle();
-										tableModel.removeRow(index);
+										deleted.add(p);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
 										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, p));
 									}
+									for(Parody p : deleted)
+										for(int index=0; index<tableModel.getColumnCount();index++)
+											if(((Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(p))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
 									dbe.printStackTrace();

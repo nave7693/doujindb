@@ -1066,6 +1066,8 @@ public void layoutContainer(Container parent)
 	private final class Renderer extends DefaultTableCellRenderer
 	{
 	    private Hashtable<String,ImageIcon> renderIcon;
+	    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
+		private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
 	
 	public Renderer(Hashtable<String,ImageIcon> renderingData)
 	{
@@ -1112,7 +1114,7 @@ public void layoutContainer(Container parent)
 		    }
 		    super.setText(value.toString());
 	        super.setIcon(null);
-	        super.setForeground(Color.GRAY);
+	        super.setForeground(foregroundColor);
 	        if(table.getValueAt(row, 0).equals("{Warning}"))
 		       	super.setForeground(Color.ORANGE);
 		    else

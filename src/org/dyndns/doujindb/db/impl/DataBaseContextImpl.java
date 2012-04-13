@@ -12,8 +12,6 @@ import org.dyndns.doujindb.db.records.*;
 
 public final class DataBaseContextImpl implements DataBaseContext
 {
-	private static final long serialVersionUID = 0xFEED0001L;
-	
 	private ObjectContext context;
 	
 	public DataBaseContextImpl(ObjectContext context) throws DataBaseException

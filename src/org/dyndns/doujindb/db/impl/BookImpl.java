@@ -348,5 +348,6 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			for(org.dyndns.doujindb.db.cayenne.Parody parody : result)
 				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(parody);
 		}
+		setConvention(null);
 	}
 }

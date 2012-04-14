@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.desk;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
@@ -12,7 +13,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
-
 
 @SuppressWarnings("serial")
 public final class DouzWindow extends JInternalFrame implements LayoutManager, Validable
@@ -64,6 +64,15 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 			}        
 		});
 		setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+		// Dispose itself when ESC is pressed from the keyboard
+		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+	    rootPane.registerKeyboardAction(new ActionListener()
+		    {
+		    	public void actionPerformed(ActionEvent actionEvent)
+		    	{
+		    		dispose();
+		    	}
+		    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 		switch(type)
 		{
 			case WINDOW_SEARCH:
@@ -252,5 +261,5 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 	public Dimension preferredLayoutSize(Container parent)
 	{
 		return getPreferredSize();
-	}	
+	}
 }

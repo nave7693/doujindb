@@ -13,7 +13,6 @@ public final class DouzDialog extends JInternalFrame implements LayoutManager
 	{
 		super("", true, true, true, true);
 		setLayout(this);
-		//TODO setMinimumSize(new Dimension(350,250));
 		getDesktopIcon().setUI(new BasicDesktopIconUI()
 		{
 			protected void installComponents()

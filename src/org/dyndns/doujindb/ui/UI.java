@@ -1199,7 +1199,7 @@ public void layoutContainer(Container parent)
 				bottom.add(centered, BorderLayout.SOUTH);
 				bottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 				panel.add(bottom);
-				panel.setPreferredSize(new Dimension(350,120));
+				panel.setPreferredSize(new Dimension(350,145));
 				try {
 					Core.UI.Desktop.showDialog(
 							panel,
@@ -1244,7 +1244,7 @@ public void layoutContainer(Container parent)
 				bottom.add(centered, BorderLayout.SOUTH);
 				bottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 				panel.add(bottom);
-				panel.setPreferredSize(new Dimension(350,120));
+				panel.setPreferredSize(new Dimension(350,145));
 				try {
 					Core.UI.Desktop.showDialog(
 							panel,

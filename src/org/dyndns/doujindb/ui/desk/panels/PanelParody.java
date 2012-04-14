@@ -253,5 +253,8 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 
 		@Override
 		public void setWeblink(String weblink) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
 	}
 }

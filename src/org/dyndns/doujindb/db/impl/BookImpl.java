@@ -329,4 +329,24 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRecycled();
 	}
+
+	@Override
+	public void removeAll() throws DataBaseException
+	{
+		{
+			Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
+			for(org.dyndns.doujindb.db.cayenne.Artist artist : result)
+				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(artist);
+		}
+		{
+			Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
+			for(org.dyndns.doujindb.db.cayenne.Content content : result)
+				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(content);
+		}
+		{
+			Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
+			for(org.dyndns.doujindb.db.cayenne.Parody parody : result)
+				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(parody);
+		}
+	}
 }

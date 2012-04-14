@@ -151,4 +151,12 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getRecycled();
 	}
+
+	@Override
+	public void removeAll() throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
+		for(org.dyndns.doujindb.db.cayenne.Artist artist : result)
+			((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(artist);
+	}
 }

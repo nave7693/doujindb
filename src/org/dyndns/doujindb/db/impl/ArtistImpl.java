@@ -161,4 +161,19 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Artist)ref).getRecycled();
 	}
+
+	@Override
+	public void removeAll() throws DataBaseException
+	{
+		{
+			Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getBooks();
+			for(org.dyndns.doujindb.db.cayenne.Book book : result)
+				((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromBooks(book);
+		}
+		{
+			Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getCircles();
+			for(org.dyndns.doujindb.db.cayenne.Circle circle : result)
+				((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromCircles(circle);
+		}
+	}
 }

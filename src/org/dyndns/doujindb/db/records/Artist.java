@@ -24,4 +24,5 @@ public interface Artist extends Record, CntBook, CntCircle
 	public void addCircle(Circle circle) throws DataBaseException;
 	public void removeBook(Book book) throws DataBaseException;
 	public void removeCircle(Circle circle) throws DataBaseException;
+	public void removeAll() throws DataBaseException;
 }

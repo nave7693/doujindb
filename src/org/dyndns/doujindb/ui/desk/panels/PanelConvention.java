@@ -438,5 +438,8 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 
 		@Override
 		public void removeAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
 	}
 }

@@ -130,4 +130,12 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getRecycled();
 	}
+
+	@Override
+	public void removeAll() throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
+		for(org.dyndns.doujindb.db.cayenne.Book book : result)
+			((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(book);
+	}
 }

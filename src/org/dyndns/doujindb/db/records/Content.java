@@ -22,4 +22,5 @@ public interface Content extends Record, CntBook
 	public Set<String> getAliases() throws DataBaseException;
 	public void addAlias(String alias) throws DataBaseException;
 	public void removeAlias(String alias) throws DataBaseException;
+	public void removeAll() throws DataBaseException;
 }

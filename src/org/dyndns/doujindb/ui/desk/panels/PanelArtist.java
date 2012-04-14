@@ -294,5 +294,8 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 
 		@Override
 		public void removeCircle(Circle circle) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
 	}
 }

@@ -70,4 +70,5 @@ public interface Book extends Record, CntArtist, CntCircle, CntContent, CntConve
 	public void removeArtist(Artist artist) throws DataBaseException;
 	public void removeContent(Content content) throws DataBaseException;
 	public void removeParody(Parody parody) throws DataBaseException;
+	public void removeAll() throws DataBaseException;
 }

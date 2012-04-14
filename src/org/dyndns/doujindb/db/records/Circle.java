@@ -22,4 +22,5 @@ public interface Circle extends Record, CntArtist, CntBook
 	public RecordSet<Book> getBooks() throws DataBaseException;
 	public void addArtist(Artist artist) throws DataBaseException;
 	public void removeArtist(Artist artist) throws DataBaseException;
+	public void removeAll() throws DataBaseException;
 }

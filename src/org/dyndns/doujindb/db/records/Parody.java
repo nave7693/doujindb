@@ -21,4 +21,5 @@ public interface Parody extends Record, CntBook
 	public RecordSet<Book> getBooks() throws DataBaseException;
 	public void addBook(Book book) throws DataBaseException;
 	public void removeBook(Book book) throws DataBaseException;
+	public void removeAll() throws DataBaseException;
 }

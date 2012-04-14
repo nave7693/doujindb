@@ -136,4 +136,12 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	{
 		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getRecycled();
 	}
+
+	@Override
+	public void removeAll() throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getBooks();
+		for(org.dyndns.doujindb.db.cayenne.Book book : result)
+			((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromBooks(book);
+	}
 }

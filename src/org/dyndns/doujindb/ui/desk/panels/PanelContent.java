@@ -419,5 +419,8 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 
 		@Override
 		public void removeAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
 	}
 }

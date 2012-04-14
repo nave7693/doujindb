@@ -883,5 +883,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 
 		@Override
 		public void removeParody(Parody parody) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
 	}
 }

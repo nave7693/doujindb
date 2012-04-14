@@ -193,54 +193,41 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									;
 									for(Artist value : checkboxListArtist.getSelectedItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										for(Circle o : value.getCircles())
-											value.removeCircle(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Book value : checkboxListBook.getSelectedItems())
 									{
-										for(Artist o : value.getArtists())
-											value.removeArtist(o);
-										for(Content o : value.getContents())
-											value.removeContent(o);
-										for(Parody o : value.getParodies())
-											value.removeParody(o);
-										value.setConvention(null);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getSelectedItems())
 									{
-										for(Artist o : value.getArtists())
-											value.removeArtist(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getSelectedItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Content value : checkboxListContent.getSelectedItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Parody value : checkboxListParody.getSelectedItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									;
 									System.gc();
@@ -345,54 +332,41 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									;
 									for(Artist value : checkboxListArtist.getItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										for(Circle o : value.getCircles())
-											value.removeCircle(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Book value : checkboxListBook.getItems())
 									{
-										for(Artist o : value.getArtists())
-											value.removeArtist(o);
-										for(Content o : value.getContents())
-											value.removeContent(o);
-										for(Parody o : value.getParodies())
-											value.removeParody(o);
-										value.setConvention(null);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Circle value : checkboxListCircle.getItems())
 									{
-										for(Artist o : value.getArtists())
-											value.removeArtist(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
 									}
 									for(Convention value : checkboxListConvention.getItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Content value : checkboxListContent.getItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									for(Parody value : checkboxListParody.getItems())
 									{
-										for(Book o : value.getBooks())
-											value.removeBook(o);
-										Core.Database.doCommit();
+										value.removeAll();
 										Core.Database.doDelete(value);
+										Core.Database.doCommit();
 									}
 									System.gc();
 									;

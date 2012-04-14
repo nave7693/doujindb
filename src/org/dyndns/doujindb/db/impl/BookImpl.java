@@ -340,7 +340,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		}
 		{
 			Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
-			for(org.dyndns.doujindb.db.cayenne.Content content : result)
+			Set<org.dyndns.doujindb.db.cayenne.Content> result_shadow = new HashSet<org.dyndns.doujindb.db.cayenne.Content>();
+			result_shadow.addAll(result);
+			for(org.dyndns.doujindb.db.cayenne.Content content : result_shadow)
 				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(content);
 		}
 		{

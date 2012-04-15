@@ -378,5 +378,9 @@ public class DouzCheckBoxTreeCellRenderer implements TreeCellRenderer
             }
         }
     }
-
+    
+    public void clearSelection()
+    {
+    	checkedPaths = new HashSet();
+    }
 }

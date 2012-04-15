@@ -129,17 +129,12 @@ public class PanelBookMedia extends JPanel implements Validable
 								for(TreePath path : paths)
 								try
 								{
-									Object os[] = path.getPath();
-									DataFile ds;
-									if(os[0].toString().startsWith("/"))
-										ds = root_ds.child(os[0].toString().substring(1));
-									else
-										ds = root_ds.child(os[0].toString());
-									for(int k=1;k<os.length;k++)
-										if(os[k].toString().startsWith("/"))
-											ds = ds.child(os[k].toString().substring(1));
-										else
-											ds = ds.child(os[k].toString());
+									StringBuilder sb = new StringBuilder();
+									Object[] nodes = path.getPath();
+									for(int i = 0;i < nodes.length;i++) {
+										sb.append(nodes[i].toString());
+									}
+									DataFile ds = root_ds.child(sb.toString());
 									dss.add(ds);
 								} catch (Exception e) { e.printStackTrace(); }
 							}
@@ -165,7 +160,18 @@ public class PanelBookMedia extends JPanel implements Validable
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae)
-			{
+			{//FIXME
+//				System.out.println("displayUI()");
+//				for(TreePath tp : treeMedia.getSelectionPaths())
+//				{
+//					StringBuilder sb = new StringBuilder();
+//					Object[] nodes = tp.getPath();
+//					for(int i = 0;i < nodes.length;i++) {
+//						sb.append(nodes[i].toString());
+//					}
+//					System.out.println("" + sb.toString());
+//				}asdas
+//				
 				if(treeMedia.CheckBoxRenderer.getCheckedPaths().length < 1)
 					return;
 				JPanel panel = new JPanel();
@@ -208,10 +214,6 @@ public class PanelBookMedia extends JPanel implements Validable
 							{
 								Object os[] = path.getPath();
 								DataFile ds = root_ds;
-//								if(os[0].toString().startsWith("/"))
-//									ds = root_ds.child(os[0].toString().substring(1));
-//								else
-//									ds = root_ds.child(os[0].toString());
 								for(int k=1;k<os.length;k++)
 									if(os[k].toString().startsWith("/"))
 										ds = ds.child(os[k].toString().substring(1));
@@ -293,9 +295,9 @@ public class PanelBookMedia extends JPanel implements Validable
 				{
 					String root_id = "/";
 					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
-					//String file = new File((File)Core.Properties.getValue("org.dyndns.doujindb.dat.datastore"), tokenBook.getID()).getAbsolutePath();
-					//buildTree(file, root);
 					buildTree(Core.Repository.child(tokenBook.getID()), root);
+					treeMedia.clearSelection();
+					treeMedia.CheckBoxRenderer.clearSelection();
 					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
 					dtm.setRoot(root);
 					SwingUtilities.invokeLater(new Runnable()

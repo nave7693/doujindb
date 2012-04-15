@@ -379,6 +379,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelJapaneseName);
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
@@ -637,6 +646,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelJapaneseName);
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
@@ -943,6 +961,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelJapaneseName);
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
@@ -1193,6 +1220,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelTagName);
 			pane.add(textTagName);
 			pane.add(labelResults);
@@ -1414,6 +1450,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelTagName);
 			pane.add(textTagName);
 			pane.add(labelResults);
@@ -1653,6 +1698,15 @@ public final class PanelSearch extends JPanel implements Validable
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
 			buttonSearch.addActionListener(this);
+			// Simulate search button press
+			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+			pane.registerKeyboardAction(new ActionListener()
+			    {
+			    	public void actionPerformed(ActionEvent actionEvent)
+			    	{
+			    		buttonSearch.doClick();
+			    	}
+			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 			pane.add(labelJapaneseName);
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);

@@ -406,6 +406,8 @@ public class PanelBookMedia extends JPanel implements Validable
 		        parent.insert(sub, k);
 		        buildTree(ds, sub);
 	        }else{
+	        	if(ds.getName().startsWith("."))
+	        		continue;
 		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(ds.getName());
 		        parent.insert(sub, k);
 	        }

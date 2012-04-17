@@ -106,6 +106,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Book/Media/Delete","jdesktop/explorer/book/media/delete.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Browse","jdesktop/explorer/book/media/browse.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Reload","jdesktop/explorer/book/media/reload.png");
+		iconKeys.put("JDesktop/Explorer/Book/Media/Package","jdesktop/explorer/book/media/package.png");
 		iconKeys.put("JDesktop/Explorer/RecycleBin","jdesktop/explorer/recyclebin.png");
 		iconKeys.put("JDesktop/Explorer/SharedItems","jdesktop/explorer/shareditems.png");
 		iconKeys.put("JDesktop/Explorer/MediaManager","jdesktop/explorer/mediamanager.png");

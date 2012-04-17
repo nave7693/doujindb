@@ -4,21 +4,30 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.ui.desk.DouzDialog;
+import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
@@ -30,6 +39,7 @@ public class PanelBookMedia extends JPanel implements Validable
 	private JButton buttonUpload;
 	private JButton buttonDownload;
 	private JButton buttonDelete;
+	private JButton buttonPackage;
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
 	
@@ -160,18 +170,7 @@ public class PanelBookMedia extends JPanel implements Validable
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae)
-			{//FIXME
-//				System.out.println("displayUI()");
-//				for(TreePath tp : treeMedia.getSelectionPaths())
-//				{
-//					StringBuilder sb = new StringBuilder();
-//					Object[] nodes = tp.getPath();
-//					for(int i = 0;i < nodes.length;i++) {
-//						sb.append(nodes[i].toString());
-//					}
-//					System.out.println("" + sb.toString());
-//				}asdas
-//				
+			{
 				if(treeMedia.CheckBoxRenderer.getCheckedPaths().length < 1)
 					return;
 				JPanel panel = new JPanel();
@@ -245,6 +244,46 @@ public class PanelBookMedia extends JPanel implements Validable
 			}
 		});
 		add(buttonDelete);
+		buttonPackage = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"));
+		buttonPackage.setFocusable(false);
+		buttonPackage.setToolTipText("Package");
+		buttonPackage.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae)
+			{
+				new Thread(getClass().getName()+"/ActionPerformed/Package")
+				{
+					@Override
+					public void run()
+					{
+						try
+						{
+							JFileChooser fc = Core.UI.getFileChooser();
+							fc.setMultiSelectionEnabled(true);
+							int prev_option = fc.getFileSelectionMode();
+							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							{
+								fc.setMultiSelectionEnabled(false);
+								fc.setFileSelectionMode(prev_option);
+								return;
+							}
+							File file = fc.getSelectedFile();
+							Thread packager = new Packager(tokenBook, file);
+							packager.start();
+							try { while(packager.isAlive()) sleep(10); } catch (Exception e) { }
+							fc.setMultiSelectionEnabled(false);
+							fc.setFileSelectionMode(prev_option);
+						} catch (Exception e) {
+							Core.Logger.log(e.getMessage(), Level.ERROR);
+							e.printStackTrace();
+						}
+					}
+				}.start();
+			}
+		});
+		add(buttonPackage);
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -256,6 +295,7 @@ public class PanelBookMedia extends JPanel implements Validable
 				buttonUpload.setBounds(width-20,1,20,20);
 				buttonDownload.setBounds(width-40,1,20,20);
 				buttonDelete.setBounds(width-60,1,20,20);
+				buttonPackage.setBounds(width-80,1,20,20);
 				treeMediaScroll.setBounds(1,21,width-2,height-25);
 			}
 			@Override
@@ -852,6 +892,262 @@ public class PanelBookMedia extends JPanel implements Validable
 							"Uploading - Error");
 				} catch (PropertyVetoException pve) { } 
 			}
+		}
+	}
+	
+	private static final class Packager extends Thread
+	{
+		private final String PACKAGE_INDEX = ".xml";
+		private final String PACKAGE_PREVIEW = ".preview";
+		
+		private long progress_bytes_current = 0;
+		private long progress_bytes_max = 1;
+		private long progress_file_current = 0;
+		private long progress_file_max = 1;
+		private long progress_overall_current = 0;
+		private long progress_overall_max = 1;
+		private JProgressBar progressbar_bytes;
+		private JProgressBar progressbar_file;
+		private JProgressBar progressbar_overall;
+		private JButton cancel;
+		private boolean stopped = false;
+		private Timer clock;
+		private Book book;
+		private File destdir;
+		
+		public Packager(Book book, File dest)
+		{
+			this.book = book;
+			this.destdir = dest;
+		}
+		
+		@Override
+		public void run()
+		{
+			super.setPriority(Thread.MIN_PRIORITY);
+			JPanel comp = new JPanel();
+			comp.setMinimumSize(new Dimension(250,75));
+			comp.setPreferredSize(new Dimension(250,75));
+			comp.setLayout(new GridLayout(4,1));
+			cancel = new JButton("Cancel");
+			cancel.setFont(Core.Resources.Font);
+			cancel.setMnemonic('C');
+			cancel.setFocusable(false);
+			cancel.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					clock.stop();
+					stopped = true;
+					DouzDialog window = (DouzDialog) cancel.getRootPane().getParent();
+					window.dispose();
+				}					
+			});
+			progressbar_bytes = new JProgressBar(1,100);
+			progressbar_bytes.setStringPainted(true);
+			progressbar_bytes.setFont(Core.Resources.Font);
+			progressbar_file = new JProgressBar(1,100);
+			progressbar_file.setStringPainted(true);
+			progressbar_file.setFont(Core.Resources.Font);
+			progressbar_overall = new JProgressBar(1,100);
+			progressbar_overall.setStringPainted(true);
+			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+			comp.add(progressbar_overall);
+			comp.add(progressbar_file);
+			comp.add(progressbar_bytes);
+			comp.add(cancel);
+			clock = new Timer(50, new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					int bytes = (int)(progress_bytes_current*100/progress_bytes_max);
+					progressbar_bytes.setString(bytes+"%");
+					progressbar_bytes.setValue(bytes);
+					int file = (int)(progress_file_current*100/progress_file_max);
+					progressbar_file.setString(file+"%");
+					progressbar_file.setValue(file);
+					int overall = (int)(progress_overall_current*100/progress_overall_max);
+					//progressbar_overall.setString(overall+"%");
+					progressbar_overall.setValue(overall);
+				}					
+			});
+			clock.start();
+			try
+			{
+				Core.UI.Desktop.showDialog(
+						comp,
+						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"),
+						"Exporting ...");
+				progress_overall_max = 1;
+				{
+					File zip = new File(destdir, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
+					DataFile ds = Core.Repository.child(book.getID());
+					progress_file_max = count(ds);
+					progress_file_current = 0;
+					progressbar_overall.setString(book.toString());
+					try
+					{
+						ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zip));
+						zout.setLevel(9);
+						;
+						ZipEntry entry = new ZipEntry(PACKAGE_INDEX);
+						zout.putNextEntry(entry);
+						writeMetadata(book, zout);
+						zout.closeEntry();
+						;
+						zip("", ds.children(), zout);
+						zout.close();
+					} catch (IOException ioe) {
+						zip.delete();
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+					}
+					progress_overall_current++;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				Core.Logger.log(e.getMessage(), Level.WARNING);
+			}
+			clock.stop();
+			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
+			window.dispose();
+		}
+		
+		private int count(DataFile ds_root) throws RepositoryException
+		{
+			int count = 0;
+			for(DataFile ds : ds_root.children())
+				if(ds.isDirectory())
+					count += count(ds);
+				else
+					count += 1;
+			return count;
+		}
+		
+		private void zip(String base, Set<DataFile> dss, ZipOutputStream zout) throws IOException, Exception
+		{
+			for(DataFile ds : dss)
+			{
+				if(ds.isDirectory())
+				{
+					ZipEntry entry = new ZipEntry(base + ds.getName() + "/");
+					entry.setMethod(ZipEntry.DEFLATED);
+					try {
+						zout.putNextEntry(entry);
+						zout.closeEntry();
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+					}
+					zip(base + ds.getName() + "/", ds.children(), zout);
+				}else
+				{
+					if(ds.getName().equals(PACKAGE_PREVIEW))
+						continue;
+					int read;
+					byte[] buff = new byte[0x800];
+					ZipEntry entry = new ZipEntry(base + ds.getName());
+					entry.setMethod(ZipEntry.DEFLATED);
+					try
+					{
+						InputStream in = ds.getInputStream();
+						zout.putNextEntry(entry);
+						progress_bytes_max = ds.size();
+						progress_bytes_current = 0;
+						while ((read = in.read(buff)) != -1)
+						{
+							zout.write(buff, 0, read);
+							progress_bytes_current += read;
+							if(stopped)
+								throw new Exception("Thread stopped by user input.");
+						}
+						zout.closeEntry();
+						progress_file_current++;
+						in.close();
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+					}
+				}
+			}
+		}
+		
+		private void writeMetadata(Book book, OutputStream dest) throws DataBaseException
+		{
+			XMLBook doujin = new XMLBook();
+			doujin.japaneseName = book.getJapaneseName();
+			doujin.translatedName = book.getTranslatedName();
+			doujin.romanjiName = book.getRomanjiName();
+			doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
+			doujin.Released = book.getDate();
+			doujin.Type = book.getType();
+			doujin.Pages = book.getPages();
+			doujin.Adult = book.isAdult();
+			doujin.Decensored = book.isDecensored();
+			doujin.Colored = book.isColored();
+			doujin.Translated = book.isTranslated();
+			doujin.Rating = book.getRating();
+			doujin.Info = book.getInfo();
+			for(Artist a : book.getArtists())
+				doujin.artists.add(a.getJapaneseName());
+			for(Circle c : book.getCircles())
+				doujin.circles.add(c.getJapaneseName());
+			for(Parody p : book.getParodies())
+				doujin.parodies.add(p.getJapaneseName());
+			for(Content ct : book.getContents())
+				doujin.contents.add(ct.getTagName());
+			try
+			{
+				JAXBContext context = JAXBContext.newInstance(XMLBook.class);
+				Marshaller m = context.createMarshaller();
+				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+				m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+				m.marshal(doujin, dest);
+			} catch (Exception e) {
+				Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+				e.printStackTrace();
+			}
+		}
+		
+		@XmlRootElement(name="Doujin")
+		@SuppressWarnings("unused")
+		private static final class XMLBook
+		{
+			@XmlElement(required=true)
+			private String japaneseName;
+			@XmlElement(required=false)
+			private String translatedName = "";
+			@XmlElement(required=false)
+			private String romanjiName = "";
+			@XmlElement(required=false)
+			private String Convention = "";
+			@XmlElement(required=false)
+			private Date Released;
+			@XmlElement(required=false)
+			private Type Type;
+			@XmlElement(required=false)
+			private int Pages;
+			@XmlElement(required=false)
+			private boolean Adult;
+			@XmlElement(required=false)
+			private boolean Decensored;
+			@XmlElement(required=false)
+			private boolean Translated;
+			@XmlElement(required=false)
+			private boolean Colored;
+			@XmlElement(required=false)
+			private Rating Rating;
+			@XmlElement(required=false)
+			private String Info;
+			@XmlElement(name="Artist", required=false)
+			private List<String> artists = new Vector<String>();
+			@XmlElement(name="Circle", required=false)
+			private List<String> circles = new Vector<String>();
+			@XmlElement(name="Parody", required=false)
+			private List<String> parodies = new Vector<String>();
+			@XmlElement(name="Content", required=false)
+			private List<String> contents = new Vector<String>();
 		}
 	}
 }

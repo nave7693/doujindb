@@ -323,7 +323,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 								@Override
 								public void actionPerformed(ActionEvent ae) 
 								{
-									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
+									recycleEmpty.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
 									recycleRestore.setEnabled(false);
 									recycleDelete.setEnabled(false);
 									recycleEmpty.setEnabled(false);
@@ -378,7 +378,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									recycleRestore.setEnabled(true);
 									recycleDelete.setEnabled(true);
 									recycleEmpty.setEnabled(true);
-									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Empty"));
+									recycleEmpty.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Empty"));
 									;
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();

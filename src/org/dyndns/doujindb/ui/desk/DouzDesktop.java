@@ -198,11 +198,11 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	
 	public DouzWindow openWindow(DouzWindow.Type type, Object param) throws DataBaseException
 	{
-		if(checkWindow(type,param))
+		if(checkWindow(type, param))
 			return null;
 		DouzWindow window = new DouzWindow(type, param);
 		window.setBounds(0,0,450,450);
-		window.setMinimumSize(new Dimension(400,350));
+		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
 		try
 		{
@@ -215,13 +215,14 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
+	
 	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds) throws DataBaseException
 	{
-		if(checkWindow(type,param))
+		if(checkWindow(type, param))
 			return null;
 		DouzWindow window = new DouzWindow(type, param);
 		window.setBounds(0,0,450,450);
-		window.setMinimumSize(new Dimension(400,350));
+		window.setMinimumSize(new Dimension(400, 350));
 		window.setBounds(bounds);
 		super.add(window);
 		try
@@ -235,9 +236,10 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
+	
 	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title) throws DataBaseException
 	{
-		if(checkWindow(type,param))
+		if(checkWindow(type, param))
 			return null;
 		DouzWindow window = new DouzWindow(type, param);
 		window.setFrameIcon(icon);
@@ -253,6 +255,7 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 		}
 		return window;
 	}
+	
 	private boolean checkWindow(DouzWindow.Type type, Object token)
 	{
 		for(JInternalFrame jif : getAllFrames())

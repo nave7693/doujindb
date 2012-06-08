@@ -56,7 +56,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 			}
 			@Override public Dimension getPreferredSize(JComponent c)
 			{
-				return new Dimension(145,25);
+				return new Dimension(145, 25);
 			}
 			protected void uninstallComponents()
 			{

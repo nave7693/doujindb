@@ -314,11 +314,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 							.getValueAt(
 									tableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -581,11 +587,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -867,11 +879,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1155,11 +1173,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1385,11 +1409,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1633,11 +1663,17 @@ public final class PanelSearch extends JPanel implements Validable
 				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						Record item = (Record)tableResults.getModel()
+						final Record item = (Record)tableResults.getModel()
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
+						new SwingWorker<Boolean, Object>() {
+							@Override
+							public Boolean doInBackground() {
+								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
+								return true;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

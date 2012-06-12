@@ -65,9 +65,15 @@ public final class Core implements Runnable
 		}
 		if(java.awt.GraphicsEnvironment.isHeadless()) 
 		{
-			Logger.log("DoujinDB cannot run on headless systems.", Level.ERROR);
+			Logger.log("DoujinDB cannot run on headless systems.", Level.FATAL);
 			return;
 		}
+		
+		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
+		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
+			Core.Logger.log("Repository folder is the temporary system folder.", Level.WARNING);
+		Core.Logger.log("Repository loaded.", Level.INFO);
+		
 		Logger.log("Loading user interface ...", Level.INFO);
 		try
 		{
@@ -78,15 +84,10 @@ public final class Core implements Runnable
 			Core.Logger.log(e.getMessage(), Level.ERROR);
 			return;
 		}
-		Core.Logger.log("System resources loaded.", Level.INFO);
+		Core.Logger.log("Resources loaded.", Level.INFO);
 		
 		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
-		
-		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
-		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
-			Core.Logger.log("Repository folder is the temporary system folder.", Level.WARNING);
-		Core.Logger.log("Repository loaded.", Level.INFO);
 		
 		Database = DataBase.getInstance();
 		

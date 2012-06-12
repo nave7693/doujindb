@@ -11,6 +11,6 @@ public final class Factory
 {
 	public static Logger getService() throws Exception
 	{
-		return new StdOutLogger();
+		return new SystemLogger();
 	}
 }

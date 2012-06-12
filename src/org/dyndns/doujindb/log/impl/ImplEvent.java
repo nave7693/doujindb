@@ -1,7 +1,5 @@
 package org.dyndns.doujindb.log.impl;
 
-import java.lang.management.ManagementFactory;
-
 import org.dyndns.doujindb.log.*;
 
 /**  
@@ -9,7 +7,7 @@ import org.dyndns.doujindb.log.*;
 * @author  nozomu
 * @version 1.0
 */
-final class ImplEvent implements Event
+final class ImplEvent implements LogEvent
 {	
 	private String message;
 	private Object source;
@@ -20,8 +18,12 @@ final class ImplEvent implements Event
 	{
 		this.message = message;
 		this.level = level;
-		this.source = new Throwable().fillInStackTrace().getStackTrace()[2].getClassName();
-		this.timestamp = ManagementFactory.getRuntimeMXBean().getUptime();
+		/* _BEGIN_HACK_ */
+		String source = new Throwable().fillInStackTrace().getStackTrace()[2].getClassName();
+		source = source.substring(source.lastIndexOf('.') != -1 ? source.lastIndexOf('.') + 1 : 0);
+		/* _END_HACK_ */
+		this.source = source;
+		this.timestamp = System.currentTimeMillis();
 	}
 	
 	public String getMessage()

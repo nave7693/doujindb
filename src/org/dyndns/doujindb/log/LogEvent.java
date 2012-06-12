@@ -5,7 +5,7 @@ package org.dyndns.doujindb.log;
 * @author  nozomu
 * @version 1.0
 */
-public interface Event
+public interface LogEvent
 {
 	public String getMessage();
 	

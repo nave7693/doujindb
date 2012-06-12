@@ -9,7 +9,7 @@ public interface Logger
 {
 	public void log(String message, Level level);
 	
-	void log(Event event);
+	void log(LogEvent event);
 	
 	public void loggerAttach(Logger logger);
 	

@@ -1,27 +1,30 @@
 package org.dyndns.doujindb.log.impl;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.dyndns.doujindb.log.*;
 
 /**  
-* StdOutLogger.java - Logger writing on the standard output.
+* SystemLogger.java - Logger writing on the standard output.
 * @author  nozomu
 * @version 1.0
 */
-final class StdOutLogger implements Logger
+final class SystemLogger implements Logger
 {
 	private Vector<Logger> loggers = new Vector<Logger>();
 	private OutputStream stream = System.out;
+	private SimpleDateFormat sdf;
 	
-	StdOutLogger()
+	SystemLogger()
 	{
-		
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 	
 	@Override
-	public void log(Event event)
+	public void log(LogEvent event)
 	{
 		try
 		{
@@ -29,7 +32,7 @@ final class StdOutLogger implements Logger
 			switch(event.getLevel())
 			{
 				case INFO:
-					level_string = "Message";
+					level_string = "Info";
 					break;
 				case WARNING:
 					level_string = "Warning";
@@ -37,16 +40,15 @@ final class StdOutLogger implements Logger
 				case ERROR:
 					level_string = "Error";
 					break;
+				case DEBUG:
+					level_string = "Debug";
+					break;
+				case FATAL:
+					level_string = "Fatal";
+					break;
 			}
-//			stream.write(
-//					String.format("[0x%08x:%s] %s # %s\r\n",
-//							event.getTime(),
-//							level_string,
-//							event.getSource(),
-//							event.getMessage()
-//						).getBytes());
 			stream.write(
-					String.format(new java.sql.Time(event.getTime()) + ":%s - %s ! %s\r\n",
+					String.format(sdf.format(new Date(event.getTime())) + " [%s] %s: %s\r\n",
 							level_string,
 							event.getSource(),
 							event.getMessage()

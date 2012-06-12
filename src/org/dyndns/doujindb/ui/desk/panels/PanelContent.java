@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
@@ -28,7 +27,6 @@ import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 @SuppressWarnings("serial")
 public final class PanelContent implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Content tokenContent;
 	
 	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
@@ -48,10 +46,8 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
 	
-	public PanelContent(DouzWindow parent, JComponent pane, Content token) throws DataBaseException
+	public PanelContent(JComponent pane, Content token) throws DataBaseException
 	{
-		parentWindow = parent;
-
 		if(token != null)
 			tokenContent = token;
 		else
@@ -60,11 +56,11 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		pane.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
-		textTagName = new JTextField(tokenContent.getTagName());
+		textTagName = new JTextField("");
 		textTagName.setFont(font);
 		labelInfo = new JLabel("Info");
 		labelInfo.setFont(font);
-		textInfo = new JTextArea(tokenContent.getInfo());
+		textInfo = new JTextArea("");
 		textInfo.setFont(font);
 		scrollInfo = new JScrollPane(textInfo);
 		tabLists = new JTabbedPane();
@@ -213,8 +209,6 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		});
 		scrollAlias = new JScrollPane(listAlias);
 		panel.add(scrollAlias);
-		for(String alias : tokenContent.getAliases())
-			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 		panel.setLayout(new LayoutManager()
 		{
 			@Override
@@ -256,6 +250,15 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 		pane.add(scrollInfo);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
+		
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -287,60 +290,43 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
-		if(textTagName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textTagName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textTagName.setBorder(brd2);
-					else
-						textTagName.setBorder(brd1);
-					hasBorder = !hasBorder;
+			if(tokenContent instanceof NullContent)
+				tokenContent = Core.Database.doInsert(Content.class);
+			tokenContent.setTagName(textTagName.getText());
+			tokenContent.setInfo(textInfo.getText());
+			for(String a : tokenContent.getAliases())
+				if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
+					tokenContent.removeAlias(a);
+			Enumeration<String> aliases = ((DefaultListModel<String>)listAlias.getModel()).elements();
+			while(aliases.hasMoreElements())
+				tokenContent.addAlias(aliases.nextElement());
+			for(Book b : tokenContent.getBooks())
+				if(!editorWorks.contains(b))
+					tokenContent.removeBook(b);
+			java.util.Iterator<Book> books = editorWorks.iterator();
+			while(books.hasNext())
+				tokenContent.addBook(books.next());
+
+			new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenContent instanceof NullContent)
-					tokenContent = Core.Database.doInsert(Content.class);
-				tokenContent.setTagName(textTagName.getText());
-				tokenContent.setInfo(textInfo.getText());
-				for(String a : tokenContent.getAliases())
-					if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
-						tokenContent.removeAlias(a);
-				Enumeration<String> aliases = ((DefaultListModel<String>)listAlias.getModel()).elements();
-				while(aliases.hasMoreElements())
-					tokenContent.addAlias(aliases.nextElement());
-				for(Book b : tokenContent.getBooks())
-					if(!editorWorks.contains(b))
-						tokenContent.removeBook(b);
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-					tokenContent.addBook(books.next());
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenContent));					
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, tokenContent, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenContent));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -358,6 +344,14 @@ public final class PanelContent implements Validable, LayoutManager, ActionListe
 				editorWorks.validateUI(ve);
 		}else
 			editorWorks.validateUI(ve);
+	}
+	
+	private void loadData()
+	{
+		textTagName.setText(tokenContent.getTagName());
+		textInfo.setText(tokenContent.getInfo());
+		for(String alias : tokenContent.getAliases())
+			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 	}
 	
 	private final class NullContent implements Content

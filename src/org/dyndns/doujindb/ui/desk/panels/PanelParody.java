@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -13,16 +12,13 @@ import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
-@SuppressWarnings("serial")
 public final class PanelParody implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Parody tokenParody;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
@@ -38,10 +34,8 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	private RecordBookEditor editorWorks;
 	private JButton buttonConfirm;
 	
-	public PanelParody(DouzWindow parent, JComponent pane, Parody token) throws DataBaseException
+	public PanelParody(JComponent pane, Parody token) throws DataBaseException
 	{
-		parentWindow = parent;
-		
 		if(token != null)
 			tokenParody = token;
 		else
@@ -50,19 +44,19 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
-		textJapaneseName = new JTextField(tokenParody.getJapaneseName());
+		textJapaneseName = new JTextField("");
 		textJapaneseName.setFont(font);
 		labelTranslatedName = new JLabel("Translated Name");
 		labelTranslatedName.setFont(font);
-		textTranslatedName = new JTextField(tokenParody.getTranslatedName());
+		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
 		labelRomanjiName = new JLabel("Romanji Name");
 		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField(tokenParody.getRomanjiName());
+		textRomanjiName = new JTextField("");
 		textRomanjiName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
-		textWeblink = new JTextField(tokenParody.getWeblink());
+		textWeblink = new JTextField("");
 		textWeblink.setFont(font);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -85,7 +79,15 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -121,55 +123,39 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
-		if(textJapaneseName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textJapaneseName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textJapaneseName.setBorder(brd2);
-					else
-						textJapaneseName.setBorder(brd1);
-					hasBorder = !hasBorder;
+			if(tokenParody instanceof NullParody)
+				tokenParody = Core.Database.doInsert(Parody.class);
+			tokenParody.setJapaneseName(textJapaneseName.getText());
+			tokenParody.setTranslatedName(textTranslatedName.getText());
+			tokenParody.setRomanjiName(textRomanjiName.getText());
+			tokenParody.setWeblink(textWeblink.getText());
+			for(Book b : tokenParody.getBooks())
+				if(!editorWorks.contains(b))
+					tokenParody.removeBook(b);
+			java.util.Iterator<Book> books = editorWorks.iterator();
+			while(books.hasNext())
+				tokenParody.addBook(books.next());
+
+				new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenParody instanceof NullParody)
-					tokenParody = Core.Database.doInsert(Parody.class);
-				tokenParody.setJapaneseName(textJapaneseName.getText());
-				tokenParody.setTranslatedName(textTranslatedName.getText());
-				tokenParody.setRomanjiName(textRomanjiName.getText());
-				tokenParody.setWeblink(textWeblink.getText());
-				for(Book b : tokenParody.getBooks())
-					if(!editorWorks.contains(b))
-						tokenParody.removeBook(b);
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-					tokenParody.addBook(books.next());
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenParody));				
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, tokenParody, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenParody));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -189,6 +175,14 @@ public final class PanelParody implements Validable, LayoutManager, ActionListen
 				editorWorks.validateUI(ve);
 		}else
 			editorWorks.validateUI(ve);
+	}
+	
+	private void loadData()
+	{
+		textJapaneseName.setText(tokenParody.getJapaneseName());
+		textTranslatedName.setText(tokenParody.getTranslatedName());
+		textRomanjiName.setText(tokenParody.getRomanjiName());
+		textWeblink.setText(tokenParody.getWeblink());
 	}
 	
 	private final class NullParody implements Parody

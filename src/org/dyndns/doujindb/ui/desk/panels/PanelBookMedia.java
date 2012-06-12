@@ -313,8 +313,14 @@ public class PanelBookMedia extends JPanel implements Validable
 			     return parent.getPreferredSize();
 			}
 		});
-		displayUI();
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				displayUI();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	
 	private void displayUI()

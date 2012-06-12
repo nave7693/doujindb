@@ -46,10 +46,10 @@ import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 @SuppressWarnings("serial")
 public final class PanelBook implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Book tokenBook;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private JPanel panelInfo;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
@@ -81,10 +81,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
 	
-	public PanelBook(DouzWindow parent, JComponent pane, Book token) throws DataBaseException
+	public PanelBook(JComponent pane, Book token) throws DataBaseException
 	{
-		parentWindow = parent;
-		
 		if(token != null)
 			tokenBook = token;
 		else
@@ -95,44 +93,25 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		tabLists.setFocusable(false);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
-		textJapaneseName = new JTextField(tokenBook.getJapaneseName());
+		textJapaneseName = new JTextField("");
 		textJapaneseName.setFont(font);
 		labelTranslatedName = new JLabel("Translated Name");
 		labelTranslatedName.setFont(font);
-		textTranslatedName = new JTextField(tokenBook.getTranslatedName());
+		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
 		labelRomanjiName = new JLabel("Romanji Name");
 		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField(tokenBook.getRomanjiName());
+		textRomanjiName = new JTextField("");
 		textRomanjiName.setFont(font);
 		labelInfo = new JLabel("Info");
 		labelInfo.setFont(font);
-		textInfo = new JTextArea(tokenBook.getInfo());
+		textInfo = new JTextArea("");
 		textInfo.setFont(font);
 		scrollInfo = new JScrollPane(textInfo);
 		labelPreview = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
 		labelPreview.setName("no-preview");
 		if(tokenBook.getID() == null)
 			labelPreview.setEnabled(false);
-		else
-		try
-		{
-			DataFile ds = Core.Repository.child(tokenBook.getID());
-			ds.mkdir();
-			ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
-			if(ds.exists())
-			{
-				InputStream in = ds.getInputStream();
-				labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-				labelPreview.setName("preview");
-				in.close();
-			}
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-			//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-		}
 		labelPreview.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -253,50 +232,34 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		comboType = new JComboBox<Book.Type>();
 		comboType.setFont(font);
 		comboType.setFocusable(false);
-		for(Type tokenType : Type.values())
-			comboType.addItem(tokenType);
-		comboType.setSelectedItem(tokenBook.getType());
 		labelConvention = new JLabel("Convention");
 		comboConvention = new JComboBox<Convention>();
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(false);
 		comboConvention.addItem(null);
-		Iterator<Convention> i = Core.Database.getConventions(null).iterator();
-		TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
-		{
-			@Override
-			public int compare(Convention c1, Convention c2) {
-				return c1.getTagName().compareTo(c2.getTagName());
-			}
-		});
-		while(i.hasNext())
-			set.add(i.next());
-		for(Convention conv : set)
-			comboConvention.addItem(conv);
-		comboConvention.setSelectedItem(tokenBook.getConvention());
 		editorRating = new BookRatingEditor(tokenBook.getRating());
-		checkAdult = new JCheckBox("Adult", tokenBook.isAdult());
+		checkAdult = new JCheckBox("Adult", false);
 		checkAdult.setFont(font);
 		checkAdult.setFocusable(false);
-		checkDecensored = new JCheckBox("Decensored", tokenBook.isDecensored());
+		checkDecensored = new JCheckBox("Decensored", false);
 		checkDecensored.setFont(font);
 		checkDecensored.setFocusable(false);
-		checkTranslated = new JCheckBox("Translated", tokenBook.isTranslated());
+		checkTranslated = new JCheckBox("Translated", false);
 		checkTranslated.setFont(font);
 		checkTranslated.setFocusable(false);
-		checkColored = new JCheckBox("Colored", tokenBook.isColored());
+		checkColored = new JCheckBox("Colored", false);
 		checkColored.setFont(font);
 		checkColored.setFocusable(false);
 		labelDate = new JLabel("Date");
 		labelDate.setFont(font);
-		textDate = new JTextField(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
+		textDate = new JTextField("");
 		textDate.setFont(font);
 		labelPages = new JLabel("Pages");
 		labelPages.setFont(font);
-		textPages = new JTextField("" + tokenBook.getPages());
+		textPages = new JTextField("");
 		textPages.setFont(font);
-		JPanel rootInfo = new JPanel();
-		rootInfo.setLayout(new LayoutManager()
+		panelInfo = new JPanel();
+		panelInfo.setLayout(new LayoutManager()
 		{
 			@Override
 			public void layoutContainer(Container parent)
@@ -341,28 +304,28 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			     return parent.getPreferredSize();
 			}
 		});
-		rootInfo.add(labelJapaneseName);
-		rootInfo.add(textJapaneseName);
-		rootInfo.add(labelTranslatedName);
-		rootInfo.add(textTranslatedName);
-		rootInfo.add(labelRomanjiName);
-		rootInfo.add(textRomanjiName);
-		rootInfo.add(labelInfo);
-		rootInfo.add(scrollInfo);
-		rootInfo.add(editorRating);
-		rootInfo.add(checkAdult);
-		rootInfo.add(checkDecensored);
-		rootInfo.add(checkTranslated);
-		rootInfo.add(checkColored);
-		rootInfo.add(labelConvention);
-		rootInfo.add(comboConvention);
-		rootInfo.add(labelDate);
-		rootInfo.add(textDate);
-		rootInfo.add(labelPages);
-		rootInfo.add(textPages);
-		rootInfo.add(labelType);
-		rootInfo.add(comboType);
-		tabLists.addTab("General", Core.Resources.Icons.get("JDesktop/Explorer/Book/Info"), rootInfo);
+		panelInfo.add(labelJapaneseName);
+		panelInfo.add(textJapaneseName);
+		panelInfo.add(labelTranslatedName);
+		panelInfo.add(textTranslatedName);
+		panelInfo.add(labelRomanjiName);
+		panelInfo.add(textRomanjiName);
+		panelInfo.add(labelInfo);
+		panelInfo.add(scrollInfo);
+		panelInfo.add(editorRating);
+		panelInfo.add(checkAdult);
+		panelInfo.add(checkDecensored);
+		panelInfo.add(checkTranslated);
+		panelInfo.add(checkColored);
+		panelInfo.add(labelConvention);
+		panelInfo.add(comboConvention);
+		panelInfo.add(labelDate);
+		panelInfo.add(textDate);
+		panelInfo.add(labelPages);
+		panelInfo.add(textPages);
+		panelInfo.add(labelType);
+		panelInfo.add(comboType);
+		tabLists.addTab("General", Core.Resources.Icons.get("JDesktop/Explorer/Book/Info"), panelInfo);
 		editorArtists = new RecordArtistEditor(tokenBook);
 		tabLists.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
 		editorCircles = new RecordCircleEditor(tokenBook);
@@ -372,10 +335,10 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);
 		editorParodies = new RecordParodyEditor(tokenBook);
 		tabLists.addTab("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), editorParodies);
-		if(token != null)
+		if(tokenBook.getID() != null)
 		{
 			mediaManager = new PanelBookMedia(tokenBook);
-			rootInfo.add(labelPreview);
+			panelInfo.add(labelPreview);
 			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), mediaManager);
 		} else {
 			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
@@ -389,14 +352,23 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				editorParodies.getCheckBoxList(),
 				null
 		}));
+		pane.add(tabLists);
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
 		buttonConfirm.addActionListener(this);
-		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -423,7 +395,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
 		java.util.Date date = null;
 		int pages = 0;
 		_pages:
@@ -451,14 +422,13 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				});
 				tmr.start();
 				buttonConfirm.setEnabled(true);
-				buttonConfirm.setIcon(null);
 				return;
 			}
 		}
 		if(!textDate.getText().equals("--/--/----"))
 		try
 		{
-			tokenBook.setDate(date = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(textDate.getText()));
+			date = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(textDate.getText());
 		} catch(ParseException pe)
 		{
 			final Border brd1 = textDate.getBorder();
@@ -484,82 +454,64 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		if(date == null && !textDate.getText().equals("--/--/----"))
 		{
 			buttonConfirm.setEnabled(true);
-			buttonConfirm.setIcon(null);
 			return;
 		}
-		if(textJapaneseName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textJapaneseName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textJapaneseName.setBorder(brd2);
-					else
-						textJapaneseName.setBorder(brd1);
-					hasBorder = !hasBorder;
-				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenBook instanceof NullBook)
-					tokenBook = Core.Database.doInsert(Book.class);
-				tokenBook.setJapaneseName(textJapaneseName.getText());
-				tokenBook.setTranslatedName(textTranslatedName.getText());
-				tokenBook.setRomanjiName(textRomanjiName.getText());
-				tokenBook.setInfo(textInfo.getText());
-				tokenBook.setDate(date);
-				tokenBook.setRating(editorRating.getRating());
-				tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
-				tokenBook.setType((Type)comboType.getSelectedItem());
-				tokenBook.setPages(pages);
-				tokenBook.setAdult(checkAdult.isSelected());
-				tokenBook.setDecensored(checkDecensored.isSelected());
-				tokenBook.setTranslated(checkTranslated.isSelected());
-				tokenBook.setColored(checkColored.isSelected());
-				for(Artist b : tokenBook.getArtists())
-					if(!editorArtists.contains(b))
-						tokenBook.removeArtist(b);
-				java.util.Iterator<Artist> Artists = editorArtists.iterator();
-				while(Artists.hasNext())
-					tokenBook.addArtist(Artists.next());
-				for(Content c : tokenBook.getContents())
-					if(!editorContents.contains(c))
-						tokenBook.removeContent(c);
-				java.util.Iterator<Content> contents = editorContents.iterator();
-				while(contents.hasNext())
-					tokenBook.addContent(contents.next());
-				for(Parody c : tokenBook.getParodies())
-					if(!editorParodies.contains(c))
-						tokenBook.removeParody(c);
-				java.util.Iterator<Parody> parodies = editorParodies.iterator();
-				while(parodies.hasNext())
-					tokenBook.addParody(parodies.next());
-				{
+			if(tokenBook instanceof NullBook)
+				tokenBook = Core.Database.doInsert(Book.class);
+			tokenBook.setJapaneseName(textJapaneseName.getText());
+			tokenBook.setTranslatedName(textTranslatedName.getText());
+			tokenBook.setRomanjiName(textRomanjiName.getText());
+			tokenBook.setInfo(textInfo.getText());
+			tokenBook.setDate(date);
+			tokenBook.setRating(editorRating.getRating());
+			tokenBook.setConvention((Convention)comboConvention.getSelectedItem());
+			tokenBook.setType((Type)comboType.getSelectedItem());
+			tokenBook.setPages(pages);
+			tokenBook.setAdult(checkAdult.isSelected());
+			tokenBook.setDecensored(checkDecensored.isSelected());
+			tokenBook.setTranslated(checkTranslated.isSelected());
+			tokenBook.setColored(checkColored.isSelected());
+			for(Artist b : tokenBook.getArtists())
+				if(!editorArtists.contains(b))
+					tokenBook.removeArtist(b);
+			java.util.Iterator<Artist> Artists = editorArtists.iterator();
+			while(Artists.hasNext())
+				tokenBook.addArtist(Artists.next());
+			for(Content c : tokenBook.getContents())
+				if(!editorContents.contains(c))
+					tokenBook.removeContent(c);
+			java.util.Iterator<Content> contents = editorContents.iterator();
+			while(contents.hasNext())
+				tokenBook.addContent(contents.next());
+			for(Parody c : tokenBook.getParodies())
+				if(!editorParodies.contains(c))
+					tokenBook.removeParody(c);
+			java.util.Iterator<Parody> parodies = editorParodies.iterator();
+			while(parodies.hasNext())
+				tokenBook.addParody(parodies.next());
+			
+			new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
 					if(tokenBook.getID() != null)
-						writeXML(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
+						xmlBook(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenBook));			
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, tokenBook, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenBook));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -623,7 +575,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		}
 	}
 	
-	private void writeXML(Book book, OutputStream dest) throws DataBaseException
+	private void xmlBook(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.japaneseName = book.getJapaneseName();
@@ -655,6 +607,57 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			m.marshal(doujin, dest);
 		} catch (Exception e) {
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+		}
+	}
+	
+	private void loadData()
+	{
+		textJapaneseName.setText(tokenBook.getJapaneseName());
+		textTranslatedName.setText(tokenBook.getTranslatedName());
+		textRomanjiName.setText(tokenBook.getRomanjiName());
+		textInfo.setText(tokenBook.getInfo());
+		comboType.removeAllItems();
+		for(Type tokenType : Type.values())
+			comboType.addItem(tokenType);
+		comboType.setSelectedItem(tokenBook.getType());
+		Iterator<Convention> i = Core.Database.getConventions(null).iterator();
+		TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
+		{
+			@Override
+			public int compare(Convention c1, Convention c2) {
+				return c1.getTagName().compareTo(c2.getTagName());
+			}
+		});
+		while(i.hasNext())
+			set.add(i.next());
+		comboConvention.removeAllItems();
+		for(Convention conv : set)
+			comboConvention.addItem(conv);
+		comboConvention.setSelectedItem(tokenBook.getConvention());
+		checkAdult.setSelected(tokenBook.isAdult());
+		checkDecensored.setSelected(tokenBook.isDecensored());
+		checkTranslated.setSelected(tokenBook.isTranslated());
+		checkColored.setSelected(tokenBook.isColored());
+		textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
+		textPages.setText("" + tokenBook.getPages());
+		try
+		{
+			if(tokenBook.getID() == null)
+				return;
+			DataFile ds = Core.Repository.child(tokenBook.getID());
+			ds.mkdir();
+			ds = Core.Repository.getPreview(tokenBook.getID());
+			if(ds.exists())
+			{
+				InputStream in = ds.getInputStream();
+				labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+				labelPreview.setName("preview");
+				in.close();
+			}
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

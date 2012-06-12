@@ -318,13 +318,7 @@ public final class PanelSearch extends JPanel implements Validable
 							.getValueAt(
 									tableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -591,13 +585,7 @@ public final class PanelSearch extends JPanel implements Validable
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -883,13 +871,7 @@ public final class PanelSearch extends JPanel implements Validable
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1177,13 +1159,7 @@ public final class PanelSearch extends JPanel implements Validable
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1413,13 +1389,7 @@ public final class PanelSearch extends JPanel implements Validable
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1667,13 +1637,7 @@ public final class PanelSearch extends JPanel implements Validable
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						new SwingWorker<Boolean, Object>() {
-							@Override
-							public Boolean doInBackground() {
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
-								return true;
-							}
-						}.execute();
+						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

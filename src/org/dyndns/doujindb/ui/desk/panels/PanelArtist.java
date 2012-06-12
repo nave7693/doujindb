@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -14,15 +13,12 @@ import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.events.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-@SuppressWarnings("serial")
 public final class PanelArtist implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Artist tokenArtist;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
@@ -39,10 +35,8 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 	private RecordCircleEditor editorCircles;
 	private JButton buttonConfirm;
 	
-	public PanelArtist(DouzWindow parent, JComponent pane, Artist token) throws DataBaseException
+	public PanelArtist(JComponent pane, Artist token) throws DataBaseException
 	{
-		parentWindow = parent;
-
 		if(token != null)
 			tokenArtist = token;
 		else
@@ -51,19 +45,19 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
-		textJapaneseName = new JTextField(tokenArtist.getJapaneseName());
+		textJapaneseName = new JTextField("");
 		textJapaneseName.setFont(font);
 		labelTranslatedName = new JLabel("Translated Name");
 		labelTranslatedName.setFont(font);
-		textTranslatedName = new JTextField(tokenArtist.getTranslatedName());
+		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
 		labelRomanjiName = new JLabel("Romanji Name");
 		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField(tokenArtist.getRomanjiName());
+		textRomanjiName = new JTextField("");
 		textRomanjiName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
-		textWeblink = new JTextField(tokenArtist.getWeblink());
+		textWeblink = new JTextField("");
 		textWeblink.setFont(font);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -89,7 +83,15 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 		pane.add(textWeblink);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -125,61 +127,45 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
-		if(textJapaneseName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textJapaneseName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textJapaneseName.setBorder(brd2);
-					else
-						textJapaneseName.setBorder(brd1);
-					hasBorder = !hasBorder;
+			if(tokenArtist instanceof NullArtist)
+				tokenArtist = Core.Database.doInsert(Artist.class);
+			tokenArtist.setJapaneseName(textJapaneseName.getText());
+			tokenArtist.setTranslatedName(textTranslatedName.getText());
+			tokenArtist.setRomanjiName(textRomanjiName.getText());
+			tokenArtist.setWeblink(textWeblink.getText());
+			for(Book b : tokenArtist.getBooks())
+				if(!editorWorks.contains(b))
+					tokenArtist.removeBook(b);
+			java.util.Iterator<Book> books = editorWorks.iterator();
+			while(books.hasNext())
+				tokenArtist.addBook(books.next());
+			for(Circle c : tokenArtist.getCircles())
+				if(!editorCircles.contains(c))
+					tokenArtist.removeCircle(c);
+			java.util.Iterator<Circle> circles = editorCircles.iterator();
+			while(circles.hasNext())
+				tokenArtist.addCircle(circles.next());
+			
+			new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenArtist instanceof NullArtist)
-					tokenArtist = Core.Database.doInsert(Artist.class);
-				tokenArtist.setJapaneseName(textJapaneseName.getText());
-				tokenArtist.setTranslatedName(textTranslatedName.getText());
-				tokenArtist.setRomanjiName(textRomanjiName.getText());
-				tokenArtist.setWeblink(textWeblink.getText());
-				for(Book b : tokenArtist.getBooks())
-					if(!editorWorks.contains(b))
-						tokenArtist.removeBook(b);
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-					tokenArtist.addBook(books.next());
-				for(Circle c : tokenArtist.getCircles())
-					if(!editorCircles.contains(c))
-						tokenArtist.removeCircle(c);
-				java.util.Iterator<Circle> circles = editorCircles.iterator();
-				while(circles.hasNext())
-					tokenArtist.addCircle(circles.next());
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenArtist));
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, tokenArtist, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenArtist));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -205,6 +191,14 @@ public final class PanelArtist implements Validable, LayoutManager, ActionListen
 			editorCircles.validateUI(ve);
 			editorWorks.validateUI(ve);
 		}
+	}
+	
+	private void loadData()
+	{
+		textJapaneseName.setText(tokenArtist.getJapaneseName());
+		textTranslatedName.setText(tokenArtist.getTranslatedName());
+		textRomanjiName.setText(tokenArtist.getRomanjiName());
+		textWeblink.setText(tokenArtist.getWeblink());
 	}
 	
 	private final class NullArtist implements Artist

@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
@@ -27,7 +26,6 @@ import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 public final class PanelConvention implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Convention tokenConvention;
 	
 	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
@@ -50,10 +48,8 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	private JButton buttonConfirm;
 	
 	@SuppressWarnings("serial")
-	public PanelConvention(DouzWindow parent, JComponent pane, Convention token) throws DataBaseException
+	public PanelConvention(JComponent pane, Convention token) throws DataBaseException
 	{
-		parentWindow = parent;
-		
 		if(token != null)
 			tokenConvention = token;
 		else
@@ -62,15 +58,15 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		pane.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
-		textTagName = new JTextField(tokenConvention.getTagName());
+		textTagName = new JTextField("");
 		textTagName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
-		textWeblink = new JTextField(tokenConvention.getWeblink());
+		textWeblink = new JTextField("");
 		textWeblink.setFont(font);
 		labelInfo = new JLabel("Info");
 		labelInfo.setFont(font);
-		textInfo = new JTextArea(tokenConvention.getInfo());
+		textInfo = new JTextArea("");
 		textInfo.setFont(font);
 		scrollInfo = new JScrollPane(textInfo);
 		tabLists = new JTabbedPane();
@@ -219,8 +215,6 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		});
 		scrollAlias = new JScrollPane(listAlias);
 		panel.add(scrollAlias);
-		for(String alias : tokenConvention.getAliases())
-			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 		panel.setLayout(new LayoutManager()
 		{
 			@Override
@@ -264,7 +258,15 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		pane.add(scrollInfo);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -294,66 +296,49 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 	{
 	     return parent.getPreferredSize();
 	}
-	@SuppressWarnings("serial")
+
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
-		if(textTagName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textTagName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction ()
-			{
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textTagName.setBorder(brd2);
-					else
-						textTagName.setBorder(brd1);
-					hasBorder = !hasBorder;
+			if(tokenConvention instanceof NullConvention)
+				tokenConvention = Core.Database.doInsert(Convention.class);
+			tokenConvention.setTagName(textTagName.getText());
+			tokenConvention.setWeblink(textWeblink.getText());
+			tokenConvention.setInfo(textInfo.getText());
+			for(String a : tokenConvention.getAliases())
+				if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
+					tokenConvention.removeAlias(a);
+			Enumeration<String> aliases = ((DefaultListModel<String>)listAlias.getModel()).elements();
+			while(aliases.hasMoreElements())
+				tokenConvention.addAlias(aliases.nextElement());
+			for(Book b : tokenConvention.getBooks())
+				if(!editorWorks.contains(b))
+					tokenConvention.removeBook(b);
+			java.util.Iterator<Book> books = editorWorks.iterator();
+			while(books.hasNext())
+				tokenConvention.addBook(books.next());
+
+			new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenConvention instanceof NullConvention)
-					tokenConvention = Core.Database.doInsert(Convention.class);
-				tokenConvention.setTagName(textTagName.getText());
-				tokenConvention.setWeblink(textWeblink.getText());
-				tokenConvention.setInfo(textInfo.getText());
-				for(String a : tokenConvention.getAliases())
-					if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
-						tokenConvention.removeAlias(a);
-				Enumeration<String> aliases = ((DefaultListModel<String>)listAlias.getModel()).elements();
-				while(aliases.hasMoreElements())
-					tokenConvention.addAlias(aliases.nextElement());
-				for(Book b : tokenConvention.getBooks())
-					if(!editorWorks.contains(b))
-						tokenConvention.removeBook(b);
-				java.util.Iterator<Book> books = editorWorks.iterator();
-				while(books.hasNext())
-					tokenConvention.addBook(books.next());
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenConvention));			
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, tokenConvention, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenConvention));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -371,6 +356,15 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 				editorWorks.validateUI(ve);
 		}else
 			editorWorks.validateUI(ve);
+	}
+	
+	private void loadData()
+	{
+		textTagName.setText(tokenConvention.getTagName());
+		textWeblink.setText(tokenConvention.getWeblink());
+		textInfo.setText(tokenConvention.getInfo());
+		for(String alias : tokenConvention.getAliases())
+			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 	}
 	
 	private final class NullConvention implements Convention

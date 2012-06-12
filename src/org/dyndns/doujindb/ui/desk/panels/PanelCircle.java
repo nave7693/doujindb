@@ -7,8 +7,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.border.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
@@ -25,10 +23,8 @@ import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
-@SuppressWarnings("serial")
 public final class PanelCircle implements Validable, LayoutManager, ActionListener
 {
-	private DouzWindow parentWindow;
 	private Circle tokenCircle;
 	
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
@@ -46,10 +42,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	private RecordArtistEditor editorArtists;
 	private JButton buttonConfirm;
 	
-	public PanelCircle(DouzWindow parent, JComponent pane, Circle token) throws DataBaseException
+	public PanelCircle(JComponent pane, Circle token) throws DataBaseException
 	{
-		parentWindow = parent;
-		
 		if(token != null)
 			tokenCircle = token;
 		else
@@ -58,43 +52,24 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		pane.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
-		textJapaneseName = new JTextField(tokenCircle.getJapaneseName());
+		textJapaneseName = new JTextField("");
 		textJapaneseName.setFont(font);
 		labelTranslatedName = new JLabel("Translated Name");
 		labelTranslatedName.setFont(font);
-		textTranslatedName = new JTextField(tokenCircle.getTranslatedName());
+		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
 		labelRomanjiName = new JLabel("Romanji Name");
 		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField(tokenCircle.getRomanjiName());
+		textRomanjiName = new JTextField("");
 		textRomanjiName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
-		textWeblink = new JTextField(tokenCircle.getWeblink());
+		textWeblink = new JTextField("");
 		textWeblink.setFont(font);
 		labelBanner = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
 		labelBanner.setName("no-banner");
 		if(tokenCircle.getID() == null)
 			labelBanner.setEnabled(false);
-		else
-		try
-		{
-			DataFile ds = Core.Repository.child(tokenCircle.getID());
-			ds.mkdir();
-			ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
-			if(ds.exists())
-			{
-				InputStream in = ds.getInputStream();
-				labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-				labelBanner.setName("banner");
-				in.close();
-			}
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-			//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-		}
 		labelBanner.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -227,7 +202,15 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		pane.add(labelBanner);
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+
+		new SwingWorker<Void, Object>() {
+			@Override
+			public Void doInBackground() {
+				loadData();
+				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				return null;
+			}
+		}.execute();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -264,55 +247,39 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
-		buttonConfirm.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
-		if(textJapaneseName.getText().length()<1)
+		try
 		{
-			final Border brd1 = textJapaneseName.getBorder();
-			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
-			final Timer tmr = new Timer(100, new AbstractAction () {
-				boolean hasBorder = true;
-				int count = 0;
-				public void actionPerformed (ActionEvent e) {
-					if(count++ > 4)
-						((javax.swing.Timer)e.getSource()).stop();
-					if (hasBorder)
-						textJapaneseName.setBorder(brd2);
-					else
-						textJapaneseName.setBorder(brd1);
-					hasBorder = !hasBorder;
+			if(tokenCircle instanceof NullCircle)
+				tokenCircle = Core.Database.doInsert(Circle.class);
+			tokenCircle.setJapaneseName(textJapaneseName.getText());
+			tokenCircle.setTranslatedName(textTranslatedName.getText());
+			tokenCircle.setRomanjiName(textRomanjiName.getText());
+			tokenCircle.setWeblink(textWeblink.getText());
+			for(Artist c : tokenCircle.getArtists())
+				if(!editorArtists.contains(c))
+				tokenCircle.removeArtist(c);
+			java.util.Iterator<Artist> Artists = editorArtists.iterator();
+			while(Artists.hasNext())
+				tokenCircle.addArtist(Artists.next());
+
+			new SwingWorker<Void, Object>() {
+				@Override
+				public Void doInBackground() {
+					if(Core.Database.isAutocommit())
+						Core.Database.doCommit();
+					return null;
 				}
-			});
-			tmr.start();
-		}else
-		{
-			Rectangle rect = parentWindow.getBounds();
-			parentWindow.dispose();
-			Core.UI.Desktop.remove(parentWindow);
-			try
-			{
-				if(tokenCircle instanceof NullCircle)
-					tokenCircle = Core.Database.doInsert(Circle.class);
-				tokenCircle.setJapaneseName(textJapaneseName.getText());
-				tokenCircle.setTranslatedName(textTranslatedName.getText());
-				tokenCircle.setRomanjiName(textRomanjiName.getText());
-				tokenCircle.setWeblink(textWeblink.getText());
-				for(Artist c : tokenCircle.getArtists())
-					if(!editorArtists.contains(c))
-					tokenCircle.removeArtist(c);
-				java.util.Iterator<Artist> Artists = editorArtists.iterator();
-				while(Artists.hasNext())
-					tokenCircle.addArtist(Artists.next());
-				if(Core.Database.isAutocommit())
-					Core.Database.doCommit();
-				Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenCircle));				
-				Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, tokenCircle, rect);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
+				@Override
+				public void done() {
+					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenCircle));
+					buttonConfirm.setEnabled(true);
+				}
+			}.execute();
+		} catch (DataBaseException dbe) {
+			buttonConfirm.setEnabled(true);
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
 		}
-		buttonConfirm.setEnabled(true);
-		buttonConfirm.setIcon(null);
 	}
 	@Override
 	public void validateUI(DouzEvent ve)
@@ -341,6 +308,33 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		{
 			editorArtists.validateUI(ve);
 			editorWorks.validateUI(ve);
+		}
+	}
+	
+	private void loadData()
+	{
+		textJapaneseName.setText(tokenCircle.getJapaneseName());
+		textTranslatedName.setText(tokenCircle.getTranslatedName());
+		textRomanjiName.setText(tokenCircle.getRomanjiName());
+		textWeblink.setText(tokenCircle.getWeblink());
+		try
+		{
+			if(tokenCircle.getID() == null)
+				return;
+			DataFile ds = Core.Repository.child(tokenCircle.getID());
+			ds.mkdir();
+			ds = Core.Repository.getPreview(tokenCircle.getID());
+			if(ds.exists())
+			{
+				InputStream in = ds.getInputStream();
+				labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+				labelBanner.setName("banner");
+				in.close();
+			}
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

@@ -23,32 +23,32 @@ public final class EditPanel extends JPanel implements Validable
 		{
 		case WINDOW_ARTIST:
 		{
-			child = new PanelArtist(parent, this, (Artist)token);
+			child = new PanelArtist(this, (Artist)token);
 			break;
 		}
 		case WINDOW_BOOK:
 		{
-			child = new PanelBook(parent, this, (Book)token);
+			child = new PanelBook(this, (Book)token);
 			break;
 		}
 		case WINDOW_CIRCLE:
 		{
-			child = new PanelCircle(parent, this, (Circle)token);
+			child = new PanelCircle(this, (Circle)token);
 			break;
 		}
 		case WINDOW_CONTENT:
 		{
-			child = new PanelContent(parent, this, (Content)token);
+			child = new PanelContent(this, (Content)token);
 			break;
 		}
 		case WINDOW_CONVENTION:
 		{
-			child = new PanelConvention(parent, this, (Convention)token);
+			child = new PanelConvention(this, (Convention)token);
 			break;
 		}
 		case WINDOW_PARODY:
 		{
-			child = new PanelParody(parent, this, (Parody)token);
+			child = new PanelParody(this, (Parody)token);
 			break;
 		}
 		case WINDOW_RECYCLEBIN:

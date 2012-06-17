@@ -34,7 +34,6 @@ import org.dyndns.doujindb.conf.Properties;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.log.Event;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
 import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
@@ -338,7 +337,7 @@ public UI(String title)
 	{
 		Core.Plugins = new Vector<Plugin>();
 		Core.Plugins.add(new DoujinshiDBScanner());
-		Core.Plugins.add(new ImageScanner());
+		//FIXME Core.Plugins.add(new ImageScanner());
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
@@ -1154,7 +1153,7 @@ public void layoutContainer(Container parent)
 	}
 
 	@Override
-	public void log(Event event)
+	public void log(LogEvent event)
 	{
 		switch(event.getLevel())
 		{

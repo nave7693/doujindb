@@ -4,10 +4,8 @@ import java.io.*;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 //import org.dyndns.doujindb.dat.rmi.*;
-import org.dyndns.doujindb.log.Level;
 
 /** 
 * RepositoryImpl.java - Repository on a local disk.
@@ -277,7 +275,6 @@ public final class RepositoryImpl implements Repository, Serializable
 			try {
 				return getName().compareTo(ds.getName());
 			} catch (RepositoryException dse) {
-				Core.Logger.log(dse.getMessage(), Level.ERROR);
 				dse.printStackTrace();
 			}
 			return -2;

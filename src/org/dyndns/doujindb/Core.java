@@ -81,7 +81,7 @@ public final class Core implements Runnable
 			Resources.Font = Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		} catch (Exception e)
 		{
-			Core.Logger.log(e.getMessage(), Level.ERROR);
+			Core.Logger.log(e.getMessage(), Level.FATAL);
 			return;
 		}
 		Core.Logger.log("Resources loaded.", Level.INFO);

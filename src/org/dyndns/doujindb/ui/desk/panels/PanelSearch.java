@@ -17,7 +17,7 @@ import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
 public final class PanelSearch extends JPanel implements Validable

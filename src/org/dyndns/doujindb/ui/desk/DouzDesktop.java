@@ -10,11 +10,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.ui.desk.events.DouzEvent;
-import org.dyndns.doujindb.ui.desk.events.Validable;
+import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
 public final class DouzDesktop extends JDesktopPane implements Validable

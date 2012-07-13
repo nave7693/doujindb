@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.events;
+package org.dyndns.doujindb.ui.desk.event;
 
 public interface Validable
 {

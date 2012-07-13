@@ -5,7 +5,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
 public final class EditPanel extends JPanel implements Validable

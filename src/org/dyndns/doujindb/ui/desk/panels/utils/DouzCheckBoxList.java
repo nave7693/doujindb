@@ -17,7 +17,7 @@ import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
 public final class DouzCheckBoxList<T extends Record> extends JPanel implements Validable, LayoutManager

@@ -11,7 +11,7 @@ import javax.swing.plaf.basic.BasicDesktopIconUI;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.plug.Plugin;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
 
 @SuppressWarnings("serial")

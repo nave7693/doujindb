@@ -18,7 +18,7 @@ import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;

@@ -39,7 +39,7 @@ import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
 import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DouzDesktop.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.rc.*;
 
 /**  

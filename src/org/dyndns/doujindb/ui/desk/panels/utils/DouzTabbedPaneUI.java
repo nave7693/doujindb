@@ -9,8 +9,8 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import org.dyndns.doujindb.ui.desk.events.DouzEvent;
-import org.dyndns.doujindb.ui.desk.events.Validable;
+import org.dyndns.doujindb.ui.desk.event.DouzEvent;
+import org.dyndns.doujindb.ui.desk.event.Validable;
 
 public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements Validable
 {

@@ -22,7 +22,7 @@ import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -69,32 +69,39 @@ public final class DoujinshiDBScanner implements Plugin
 	
 	public DoujinshiDBScanner()
 	{
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.apikey"))
-			APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").asString();
-		else
+		Property prop;
 		{
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.apikey");
-			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey");
-			prop.setValue(APIKEY);
-			prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
-		}	
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.threshold"))
-			THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").asNumber();
-		else
-		{
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.threshold");
-			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold");
-			prop.setValue(THRESHOLD);
-			prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.apikey"))
+				APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").asString();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.apikey");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey");
+				prop.setValue(APIKEY);
+				prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
+			}	
 		}
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.resize_cover"))
-			RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").asBoolean();
-		else
 		{
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-			Property prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-			prop.setValue(RESIZE_COVER);
-			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.threshold"))
+				THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").asNumber();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.threshold");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold");
+				prop.setValue(THRESHOLD);
+				prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
+			}	
+		}
+		{
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.resize_cover"))
+				RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").asBoolean();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.resize_cover");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover");
+				prop.setValue(RESIZE_COVER);
+				prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
+			}	
 		}
 		
 		Context = Core.Database.getContext(UUID);
@@ -1295,7 +1302,7 @@ public final class DoujinshiDBScanner implements Plugin
 									if(importedBook.getJapaneseName().equals(book_.getJapaneseName()) && !importedBook.getID().equals(book_.getID()))
 									{
 										status = TASK_WARNING;
-										warningMessage = "Possible duplicate item detected [ID='"+book_.getID()+"'].";
+										warningMessage = "Possible duplicate item detected [ID='"+book_.getID()+"']."; //FIXME When detecting multiple dupes???
 									}
 							} catch (Exception e) {
 								e.printStackTrace();

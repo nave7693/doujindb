@@ -10,7 +10,7 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.containers.CntArtist;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.events.*;
+import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
 @SuppressWarnings("serial")

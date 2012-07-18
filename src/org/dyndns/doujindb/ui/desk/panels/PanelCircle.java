@@ -12,18 +12,19 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
-public final class PanelCircle implements Validable, LayoutManager, ActionListener
+public final class PanelCircle implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Circle tokenCircle;
 	
@@ -207,7 +208,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			@Override
 			public Void doInBackground() {
 				loadData();
-				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				validateUI();
 				return null;
 			}
 		}.execute();
@@ -271,7 +272,7 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenCircle));
+					Core.UI.Desktop.recordUpdated(tokenCircle);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -281,8 +282,8 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			dbe.printStackTrace();
 		}
 	}
-	@Override
-	public void validateUI(DouzEvent ve)
+	
+	public void validateUI()
 	{
 		if(tokenCircle.isRecycled())
 		{
@@ -298,17 +299,6 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 			labelBanner.setEnabled(false);
 		else
 			labelBanner.setEnabled(true);
-		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
-		{
-			if(ve.getParameter() instanceof Artist)
-				editorArtists.validateUI(ve);
-			if(ve.getParameter() instanceof Book)
-				editorWorks.validateUI(ve);
-		}else
-		{
-			editorArtists.validateUI(ve);
-			editorWorks.validateUI(ve);
-		}
 	}
 	
 	private void loadData()
@@ -423,4 +413,46 @@ public final class PanelCircle implements Validable, LayoutManager, ActionListen
 		@Override
 		public void removeAll() throws DataBaseException { }
 	}
+
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		if(rcd instanceof Artist)
+			editorArtists.recordAdded(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordAdded(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		if(rcd instanceof Artist)
+			editorArtists.recordDeleted(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordDeleted(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		if(rcd instanceof Artist)
+			editorArtists.recordUpdated(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void databaseConnected() {}
+	
+	@Override
+	public void databaseDisconnected() {}
+	
+	@Override
+	public void databaseCommit() {}
+	
+	@Override
+	public void databaseRollback() {}
 }

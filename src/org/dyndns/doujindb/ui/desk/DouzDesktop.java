@@ -11,12 +11,12 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
-public final class DouzDesktop extends JDesktopPane implements Validable
+public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 {
 	private JLabel wallpaper;
 	private ImageIcon wallpaperImage;
@@ -360,20 +360,35 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 	}
 
 	@Override
-	public void validateUI(DouzEvent ve)
+	public void recordAdded(Record rcd)
 	{
-		if(ve.getType() == DouzEvent.Type.DATABASE_DISCONNECT)
-		{
-			for(JInternalFrame jif : getAllFrames())
-			{
-				try{ ((DouzWindow)jif).dispose(); }catch(Exception e) { e.printStackTrace(); }
-			}
-			return;
-		}
 		for(JInternalFrame jif : getAllFrames())
 		{
-			try{ ((DouzWindow)jif).validateUI(ve); }catch(Exception e) { e.printStackTrace(); }
+			try{ ((DouzWindow)jif).recordAdded(rcd); } catch(Exception e) { e.printStackTrace(); }
 		}
+	}
+
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		for(JInternalFrame jif : getAllFrames())
+		{
+			try{ ((DouzWindow)jif).recordDeleted(rcd); } catch(Exception e) { e.printStackTrace(); }
+		}
+	}
+
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		for(JInternalFrame jif : getAllFrames())
+		{
+			try{ ((DouzWindow)jif).recordUpdated(rcd); } catch(Exception e) { e.printStackTrace(); }
+		}
+	}
+
+	@Override
+	public void databaseConnected()
+	{
 		try {
 			if(Core.Database.getRecycled().size() > 0)
 				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
@@ -383,6 +398,42 @@ public final class DouzDesktop extends JDesktopPane implements Validable
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
 		}
-		super.validate();
+	}
+
+	@Override
+	public void databaseDisconnected()
+	{
+		for(JInternalFrame jif : getAllFrames())
+		{
+			try{ ((DouzWindow)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
+		}
+	}
+
+	@Override
+	public void databaseCommit()
+	{
+		try {
+			if(Core.Database.getRecycled().size() > 0)
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
+			else
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		}
+	}
+
+	@Override
+	public void databaseRollback()
+	{
+		try {
+			if(Core.Database.getRecycled().size() > 0)
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
+			else
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		}
 	}
 }

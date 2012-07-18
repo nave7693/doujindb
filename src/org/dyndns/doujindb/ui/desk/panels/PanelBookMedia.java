@@ -24,15 +24,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
 @SuppressWarnings("serial")
-public class PanelBookMedia extends JPanel implements Validable
+public class PanelBookMedia extends JPanel implements DataBaseListener
 {
 	private Book tokenBook;
 	private JButton buttonReload;
@@ -91,7 +92,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							DataFile up_folder = Core.Repository.child(tokenBook.getID());
 							Thread uploader = new Uploader(up_folder, files);
 							uploader.start();
-							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) { }
+							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();	
@@ -150,7 +151,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							}
 							Thread downloader = new Downloader(dl_folder, dss);
 							downloader.start();
-							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) { }
+							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 							displayUI();
@@ -272,7 +273,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							File file = fc.getSelectedFile();
 							Thread packager = new Packager(tokenBook, file);
 							packager.start();
-							try { while(packager.isAlive()) sleep(10); } catch (Exception e) { }
+							try { while(packager.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 						} catch (Exception e) {
@@ -298,15 +299,19 @@ public class PanelBookMedia extends JPanel implements Validable
 				buttonPackage.setBounds(width-80,1,20,20);
 				treeMediaScroll.setBounds(1,21,width-2,height-25);
 			}
+			
 			@Override
-			public void addLayoutComponent(String key,Component c){}
+			public void addLayoutComponent(String key,Component c) {}
+			
 			@Override
-			public void removeLayoutComponent(Component c){}
+			public void removeLayoutComponent(Component c) {}
+			
 			@Override
 			public Dimension minimumLayoutSize(Container parent)
 			{
 			     return new Dimension(256,256+20);
 			}
+			
 			@Override
 			public Dimension preferredLayoutSize(Container parent)
 			{
@@ -317,7 +322,6 @@ public class PanelBookMedia extends JPanel implements Validable
 			@Override
 			public Void doInBackground() {
 				displayUI();
-				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 				return null;
 			}
 		}.execute();
@@ -482,21 +486,6 @@ public class PanelBookMedia extends JPanel implements Validable
 	     }
 	}*/
 	
-	@Override
-	public void validateUI(DouzEvent ve)
-	{
-		if(tokenBook.isRecycled())
-		{
-			buttonReload.setEnabled(false);
-			buttonUpload.setEnabled(false);
-			buttonDownload.setEnabled(false);
-			buttonDelete.setEnabled(false);
-			treeMedia.setEnabled(false);
-			treeMediaScroll.setEnabled(false);
-		}
-		super.validate();		
-	}
-	
 	private final class Downloader extends Thread
 	{
 		private String label_file_current = "";
@@ -623,7 +612,7 @@ public class PanelBookMedia extends JPanel implements Validable
 					try
 					{
 						download(ds);
-					} catch (Exception e) { }
+					} catch (Exception e) {}
 					/*try
 					{
 						File dst = new File(dl_root, ds.getName());
@@ -710,7 +699,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							panel,
 							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
 							"Downloading - Error");
-				} catch (PropertyVetoException pve) { } 
+				} catch (PropertyVetoException pve) {} 
 			}
 		}
 	}
@@ -896,7 +885,7 @@ public class PanelBookMedia extends JPanel implements Validable
 							panel,
 							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"),
 							"Uploading - Error");
-				} catch (PropertyVetoException pve) { } 
+				} catch (PropertyVetoException pve) {} 
 			}
 		}
 	}
@@ -1156,4 +1145,36 @@ public class PanelBookMedia extends JPanel implements Validable
 			private List<String> contents = new Vector<String>();
 		}
 	}
+
+	@Override
+	public void recordAdded(Record rcd) {}
+	
+	@Override
+	public void recordDeleted(Record rcd) {}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		if(tokenBook.equals(rcd) && tokenBook.isRecycled())
+		{
+			buttonReload.setEnabled(false);
+			buttonUpload.setEnabled(false);
+			buttonDownload.setEnabled(false);
+			buttonDelete.setEnabled(false);
+			treeMedia.setEnabled(false);
+			treeMediaScroll.setEnabled(false);
+		}
+	}
+	
+	@Override
+	public void databaseConnected() {}
+	
+	@Override
+	public void databaseDisconnected() {}
+	
+	@Override
+	public void databaseCommit() {}
+	
+	@Override
+	public void databaseRollback() {}
 }

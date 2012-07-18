@@ -6,13 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -31,7 +25,9 @@ import javax.swing.plaf.basic.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
+import org.dyndns.doujindb.conf.event.*;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.Plugin;
@@ -48,7 +44,7 @@ import org.dyndns.doujindb.ui.rc.*;
 * @version 1.0
 */
 @SuppressWarnings("unused")
-public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, Validable
+public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, DataBaseListener, ConfigurationListener
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -837,7 +833,7 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_COMMIT, null));
+						Desktop.databaseCommit();
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -904,7 +900,7 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_ROLLBACK, null));
+						Desktop.databaseRollback();
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -943,7 +939,7 @@ public void layoutContainer(Container parent)
 						Core.Database.doRollback();
 						uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
 						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
-						Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_CONNECT, null));
+						Desktop.databaseConnected();
 					} catch (DataBaseException dbe) {
 						Core.Database.disconnect();
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -962,7 +958,7 @@ public void layoutContainer(Container parent)
 				Core.Database.disconnect();
 				Core.Logger.log("Disconnected from remote host.", Level.INFO);
 				uiStatusBar.setText("Disconnected.");
-				Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DISCONNECT, null));
+				Desktop.databaseDisconnected();
 			} catch (RuntimeException re)
 			{
 				Core.Logger.log("" + re.getMessage(), Level.ERROR);
@@ -2226,18 +2222,6 @@ public void layoutContainer(Container parent)
 			}
 		}
 	}
-
-	@Override
-	public void validateUI(DouzEvent ve)
-	{
-		if(ve.getType() == DouzEvent.Type.SETTINGS_CHANGED)
-		{
-			String key = (String) ve.getParameter();
-			uiPanelSettings.reload(key);
-			return;
-		}
-		Desktop.validateUI(ve);	
-	}
 	
 	@SuppressWarnings("serial")
 	private static final class ConfigurationWizard extends JComponent implements Runnable, LayoutManager
@@ -2770,5 +2754,59 @@ public void layoutContainer(Container parent)
 			}
 			super.getLayout().layoutContainer(this);
 		}
+	}
+
+	@Override
+	public void propertyAdded(String prop) {}
+
+	@Override
+	public void propertyDeleted(String prop) {}
+
+	@Override
+	public void propertyUpdated(String prop)
+	{
+		uiPanelSettings.reload(prop);
+	}
+
+	@Override
+	public void recordAdded(Record rcd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void recordDeleted(Record rcd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void recordUpdated(Record rcd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void databaseConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void databaseDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void databaseCommit() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void databaseRollback() {
+		// TODO Auto-generated method stub
+		
 	}
 }

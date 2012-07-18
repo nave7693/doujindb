@@ -13,16 +13,17 @@ import javax.swing.table.TableRowSorter;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.DataBaseAdapter;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
-public final class PanelSearch extends JPanel implements Validable
+public final class PanelSearch extends JPanel implements DataBaseListener
 {
-	private Validable panel;
+	private DataBaseListener child;
 	
 	public enum Type
 	{
@@ -41,32 +42,32 @@ public final class PanelSearch extends JPanel implements Validable
 		{
 		case ISEARCH_ARTIST:
 		{
-			panel = new IPanelArtist(this, tab, index);
+			child = new IPanelArtist(this, tab, index);
 			break;
 		}
 		case ISEARCH_BOOK:
 		{
-			panel = new IPanelBook(this, tab, index);
+			child = new IPanelBook(this, tab, index);
 			break;
 		}
 		case ISEARCH_CIRCLE:
 		{
-			panel = new IPanelCircle(this, tab, index);
+			child = new IPanelCircle(this, tab, index);
 			break;
 		}
 		case ISEARCH_CONTENT:
 		{
-			panel = new IPanelContent(this, tab, index);
+			child = new IPanelContent(this, tab, index);
 			break;
 		}
 		case ISEARCH_CONVENTION:
 		{
-			panel = new IPanelConvention(this, tab, index);
+			child = new IPanelConvention(this, tab, index);
 			break;
 		}
 		case ISEARCH_PARODY:
 		{
-			panel = new IPanelParody(this, tab, index);
+			child = new IPanelParody(this, tab, index);
 			break;
 		}
 		}
@@ -234,7 +235,7 @@ public final class PanelSearch extends JPanel implements Validable
 			}
 	}
 	
-	private final class IPanelArtist implements Validable, LayoutManager, ActionListener
+	private final class IPanelArtist extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -353,7 +354,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(a);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, a));
+										Core.UI.Desktop.recordDeleted(a);
 									}
 									for(Artist a : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -400,6 +401,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -417,20 +419,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -496,12 +503,9 @@ public final class PanelSearch extends JPanel implements Validable
 				stopped = true;
 			}
 		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}	
 	}
-	private final class IPanelCircle implements Validable, LayoutManager, ActionListener
+	
+	private final class IPanelCircle extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -620,7 +624,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(c);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, c));
+										Core.UI.Desktop.recordDeleted(c);
 									}
 									for(Circle c : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -667,6 +671,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -684,20 +689,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -762,12 +772,9 @@ public final class PanelSearch extends JPanel implements Validable
 				stopped = true;
 			}
 		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}	
 	}
-	private final class IPanelBook implements Validable, LayoutManager, ActionListener
+	
+	private final class IPanelBook extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -907,7 +914,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(b);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, b));
+										Core.UI.Desktop.recordDeleted(b);
 									}
 									for(Book b : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -948,7 +955,7 @@ public final class PanelSearch extends JPanel implements Validable
 									clone.addParody(p);
 								if(Core.Database.isAutocommit())
 									Core.Database.doCommit();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, clone));			
+								Core.UI.Desktop.recordAdded(clone);		
 								DouzWindow window = Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, clone);
 								window.setTitle("(Clone) " + window.getTitle());
 							}
@@ -986,6 +993,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -1007,20 +1015,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -1088,12 +1101,9 @@ public final class PanelSearch extends JPanel implements Validable
 				stopped = true;
 			}
 		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}		
 	}
-	private final class IPanelContent implements Validable, LayoutManager, ActionListener
+	
+	private final class IPanelContent extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -1194,7 +1204,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(t);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, t));
+										Core.UI.Desktop.recordDeleted(t);
 									}
 									for(Content t : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -1235,6 +1245,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -1246,20 +1257,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -1317,13 +1333,10 @@ public final class PanelSearch extends JPanel implements Validable
 				buttonSearch.setMnemonic('S');
 				stopped = true;
 			}
-		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}		
+		}	
 	}
-	private final class IPanelConvention implements Validable, LayoutManager, ActionListener
+	
+	private final class IPanelConvention extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -1424,7 +1437,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(e);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, e));
+										Core.UI.Desktop.recordDeleted(e);
 									}
 									for(Convention e : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -1465,6 +1478,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -1476,20 +1490,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -1548,12 +1567,9 @@ public final class PanelSearch extends JPanel implements Validable
 				stopped = true;
 			}
 		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}	
 	}
-	private final class IPanelParody implements Validable, LayoutManager, ActionListener
+	
+	private final class IPanelParody extends DataBaseAdapter implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tab;
 		private int index;
@@ -1672,7 +1688,7 @@ public final class PanelSearch extends JPanel implements Validable
 										deleted.add(p);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, p));
+										Core.UI.Desktop.recordDeleted(p);
 									}
 									for(Parody p : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -1719,6 +1735,7 @@ public final class PanelSearch extends JPanel implements Validable
 			pane.add(scrollResults);
 			pane.add(buttonSearch);
 		}
+		
 		@Override
 		public void layoutContainer(Container parent)
 		{
@@ -1736,20 +1753,25 @@ public final class PanelSearch extends JPanel implements Validable
 			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
 			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		     return parent.getMinimumSize();
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		     return parent.getPreferredSize();
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -1814,15 +1836,47 @@ public final class PanelSearch extends JPanel implements Validable
 				stopped = true;
 			}
 		}
-		@Override
-		public void validateUI(DouzEvent ve) {
-			;
-		}	
 	}
+	
 	@Override
-	public void validateUI(DouzEvent ve)
+	public void recordAdded(Record rcd)
 	{
-		panel.validateUI(ve);
-		super.validate();
+		child.recordAdded(rcd);
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		child.recordDeleted(rcd);
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		child.recordUpdated(rcd);
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		child.databaseConnected();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		child.databaseDisconnected();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		child.databaseCommit();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		child.databaseRollback();
 	}
 }

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.event;
+package org.dyndns.doujindb.db.event;
 
 import org.dyndns.doujindb.db.Record;
 

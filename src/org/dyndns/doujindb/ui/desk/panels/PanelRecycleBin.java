@@ -12,13 +12,13 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-public final class PanelRecycleBin implements Validable, LayoutManager, MouseListener
+public final class PanelRecycleBin implements DataBaseListener, LayoutManager, MouseListener
 {
 	@SuppressWarnings("unused")
 	private DouzWindow parentWindow;
@@ -87,36 +87,36 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 							for(Artist value : checkboxListArtist.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							for(Book value : checkboxListBook.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							for(Circle value : checkboxListCircle.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							for(Convention value : checkboxListConvention.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							for(Content value : checkboxListContent.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							for(Parody value : checkboxListParody.getSelectedItems())
 							{
 								value.doRestore();
-								Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_INSERT, value));
+								Core.UI.Desktop.recordAdded(value);
 							}
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
-							Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+							Core.UI.Desktop.databaseCommit();
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
@@ -244,7 +244,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									;
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+									Core.UI.Desktop.databaseCommit();
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -382,7 +382,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 									;
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
-									Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+									Core.UI.Desktop.databaseCommit();
 									;
 									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -464,13 +464,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListArtist.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListArtist.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListArtist.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListArtist.filterChanged();
 			    }
 			});
 			checkboxListArtist = new DouzCheckBoxList<Artist>(deleted_a, searchField);
@@ -485,13 +485,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListBook.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListBook.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListBook.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListBook.filterChanged();
 			    }
 			});
 			checkboxListBook = new DouzCheckBoxList<Book>(deleted_b, searchField);
@@ -506,13 +506,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListCircle.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListCircle.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListCircle.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListCircle.filterChanged();
 			    }
 			});
 			checkboxListCircle = new DouzCheckBoxList<Circle>(deleted_c, searchField);
@@ -527,13 +527,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListConvention.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListConvention.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListConvention.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListConvention.filterChanged();
 			    }
 			});
 			checkboxListConvention = new DouzCheckBoxList<Convention>(deleted_cv, searchField);
@@ -548,13 +548,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListContent.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListContent.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListContent.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListContent.filterChanged();
 			    }
 			});
 			checkboxListContent = new DouzCheckBoxList<Content>(deleted_cn, searchField);
@@ -569,13 +569,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			searchField.getDocument().addDocumentListener(new DocumentListener()
 			{
 			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListParody.filterChanged();
 			    }
 			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListParody.filterChanged();
 			    }
 			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListParody.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+			    	checkboxListParody.filterChanged();
 			    }
 			});
 			checkboxListParody = new DouzCheckBoxList<Parody>(deleted_p, searchField);
@@ -716,8 +716,13 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		checkboxListContent.addMouseListener(this);
 		checkboxListParody.addMouseListener(this);
 		;
-		SwingUtilities.invokeLater(new Runnable(){public void run(){split.revalidate();}});
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				split.revalidate();
+			}
+		});
 	}
 	
 	@Override
@@ -733,22 +738,26 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		recycleEmpty.setBounds(3,75+65+2,125,20);
 		split.setBounds(0, 0, width,  height);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 	     return parent.getPreferredSize();
 	}
-	@Override
-	public void validateUI(DouzEvent ve)
+	
+	private void validateUI()
 	{
 		Vector<Artist> deleted_a = new Vector<Artist>();
 		Vector<Book> deleted_b = new Vector<Book>();
@@ -887,6 +896,7 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			buttonToggle.addActionListener(this);
 			add(buttonToggle);
 		}
+		
 		@Override
 		public void run()
 		{
@@ -936,20 +946,25 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 			titleBar.setBounds(0, 0, width - 20, 20);
 			bodyComponent.setBounds(0, 20, width, height - 20);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) {}
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) {}
+		
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
 		    return new Dimension(0, 20);
 		}
+		
 		@Override
 		public Dimension preferredLayoutSize(Container parent)
 		{
 		    return new Dimension(250, 250);
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
@@ -991,12 +1006,58 @@ public final class PanelRecycleBin implements Validable, LayoutManager, MouseLis
 		labelListContent.setText("Contents (" + checkboxListContent.getSelectedItemCount() + "/" + checkboxListContent.getItemCount() + ")");
 		labelListParody.setText("Parodies (" + checkboxListParody.getSelectedItemCount() + "/" + checkboxListParody.getItemCount() + ")");
 	}
+	
 	@Override
 	public void mouseEntered(MouseEvent me) {}
+	
 	@Override
 	public void mouseExited(MouseEvent me) {}
+	
 	@Override
 	public void mousePressed(MouseEvent me) {}
+	
 	@Override
 	public void mouseReleased(MouseEvent me) {}
+
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		validateUI();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		validateUI();
+	}
 }

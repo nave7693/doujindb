@@ -9,10 +9,10 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import org.dyndns.doujindb.ui.desk.event.DouzEvent;
-import org.dyndns.doujindb.ui.desk.event.Validable;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 
-public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements Validable
+public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements DataBaseListener
 {
 	private DouzCheckBoxList<?>[] checkBoxLists;
 	
@@ -21,7 +21,7 @@ public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements Validab
 		checkBoxLists = cbls;
 		for(DouzCheckBoxList<?> cbl : cbls)
 			if(cbl != null)
-				cbl.setValidableParent(this);
+				cbl.setParent(this);
 	}
 	
 	@Override
@@ -68,9 +68,24 @@ public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements Validab
 	}
 
 	@Override
-	public void validateUI(DouzEvent ve)
-	{
-		tabPane.repaint();
-	}
+	public void recordAdded(Record rcd) { tabPane.repaint(); }
+
+	@Override
+	public void recordDeleted(Record rcd) { tabPane.repaint(); }
+
+	@Override
+	public void recordUpdated(Record rcd) { tabPane.repaint(); }
+
+	@Override
+	public void databaseConnected() { tabPane.repaint(); }
+
+	@Override
+	public void databaseDisconnected() { tabPane.repaint(); }
+
+	@Override
+	public void databaseCommit() { tabPane.repaint(); }
+
+	@Override
+	public void databaseRollback() { tabPane.repaint(); }
 
 }

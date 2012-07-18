@@ -8,14 +8,15 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.CntParody;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
 @SuppressWarnings("serial")
-public class RecordParodyEditor extends JSplitPane implements Validable
+public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 {
 	private CntParody tokenIParody;
 	private DouzCheckBoxList<Parody> checkboxList;
@@ -31,13 +32,13 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		    	checkboxList.filterChanged();
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		    	checkboxList.filterChanged();
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+		    	checkboxList.filterChanged();
 		    }
 		});
 		checkboxList = new DouzCheckBoxList<Parody>(Core.Database.getParodies(null), searchField);
@@ -63,23 +64,6 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	@Override
-	public void validateUI(DouzEvent ve)
-	{
-		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
-			checkboxList.validateUI(ve);
-		else
-		{
-			try {
-				checkboxList.setSelectedItems(tokenIParody.getParodies());
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
-		}
-		validate();
-	}
-	
 	public DouzCheckBoxList<Parody> getCheckBoxList()
 	{
 		return checkboxList;
@@ -90,5 +74,54 @@ public class RecordParodyEditor extends JSplitPane implements Validable
 	{
 		checkboxList.setEnabled(enabled);
 		searchField.setEnabled(enabled);
+	}
+
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		checkboxList.recordAdded(rcd);
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		checkboxList.recordDeleted(rcd);
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		if(tokenIParody.equals(rcd))
+			try {
+				checkboxList.setSelectedItems(tokenIParody.getParodies());
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			}
+		checkboxList.recordUpdated(rcd);
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		checkboxList.databaseConnected();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		checkboxList.databaseDisconnected();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		checkboxList.databaseCommit();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		checkboxList.databaseRollback();
 	}
 }

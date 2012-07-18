@@ -10,15 +10,15 @@ import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.plug.Plugin;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
 
 @SuppressWarnings("serial")
-public final class DouzWindow extends JInternalFrame implements LayoutManager, Validable
+public final class DouzWindow extends JInternalFrame implements LayoutManager, DataBaseListener
 {
 	private JComponent root = new JPanel();
-	private Vector<Validable> validable = new Vector<Validable>();
+	private Vector<DataBaseListener> listeners = new Vector<DataBaseListener>();
 	private Type type;
 	private Object item;
 	
@@ -26,7 +26,6 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 	{
 		WINDOW_SEARCH,
 		WINDOW_RECYCLEBIN,
-		WINDOW_MEDIAMANAGER,
 		WINDOW_PLUGIN,
 		WINDOW_ARTIST,
 		WINDOW_BOOK,
@@ -83,22 +82,22 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				pane.setFocusable(false);
 				PanelSearch sp;
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_ARTIST, pane, 0);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), sp);
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_BOOK, pane, 1);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Book", Core.Resources.Icons.get("JDesktop/Explorer/Book"), sp);
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_CIRCLE, pane, 2);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Circle", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), sp);
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_CONVENTION, pane, 3);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Convention", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), sp);
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_CONTENT, pane, 4);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Content", Core.Resources.Icons.get("JDesktop/Explorer/Content"), sp);
 				sp = new PanelSearch(PanelSearch.Type.ISEARCH_PARODY, pane, 5);
-				validable.add(sp);
+				listeners.add(sp);
 				pane.addTab("Parody", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), sp);
 				add(pane);
 				root = pane;
@@ -113,7 +112,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_ARTIST, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -126,7 +125,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_BOOK, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -139,7 +138,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CIRCLE, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -152,7 +151,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONTENT, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -165,7 +164,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_CONVENTION, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -178,7 +177,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 					setTitle(((Record)item).toString());
 				EditPanel ep = new EditPanel(this, Type.WINDOW_PARODY, item);
 				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -188,17 +187,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				setTitle("Recycle Bin");
 				EditPanel ep = new EditPanel(this, Type.WINDOW_RECYCLEBIN, null);
 				root = ep;
-				validable.add(ep);
-				add(root);
-				break;
-			}
-			case WINDOW_MEDIAMANAGER:
-			{
-				setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/MediaManager"));
-				setTitle("Media files");
-				EditPanel ep = new EditPanel(this, Type.WINDOW_MEDIAMANAGER, null);
-				root = ep;
-				validable.add(ep);
+				listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -208,7 +197,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 				setFrameIcon(Core.Resources.Icons.get("JFrame/Tab/Plugins"));
 				setTitle(plugin.getName());
 				root = plugin.getUI();
-				//TODO validable.add(ep);
+				//TODO listeners.add(ep);
 				add(root);
 				break;
 			}
@@ -227,39 +216,82 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, V
 	}
 	
 	@Override
-	public void validateUI(DouzEvent ve)
-	{
-		{
-			for(Validable v : validable)
-				v.validateUI(ve);
-			super.validate();
-		}
-		if((ve.getParameter() == item) && (ve.getType() == DouzEvent.Type.DATABASE_DELETE))
-		{
-			dispose();
-			Core.UI.Desktop.remove(this);
-			return;
-		}
-	}
-	@Override
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
 		root.setBounds(0, 0, width, height);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 		return getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 		return getPreferredSize();
+	}
+	
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		for(DataBaseListener l : listeners)
+			l.recordAdded(rcd);
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		if(item.equals(rcd))
+		{
+			super.dispose();
+			Core.UI.Desktop.remove(this);
+		}
+		for(DataBaseListener l : listeners)
+			l.recordDeleted(rcd);
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		for(DataBaseListener l : listeners)
+			l.recordUpdated(rcd);
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		for(DataBaseListener l : listeners)
+			l.databaseConnected();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		for(DataBaseListener l : listeners)
+			l.databaseDisconnected();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		for(DataBaseListener l : listeners)
+			l.databaseCommit();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		for(DataBaseListener l : listeners)
+			l.databaseRollback();
 	}
 }

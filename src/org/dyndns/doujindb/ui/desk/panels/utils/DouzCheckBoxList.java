@@ -9,6 +9,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -20,7 +21,7 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
-public final class DouzCheckBoxList<T extends Record> extends JPanel implements Validable, LayoutManager
+public final class DouzCheckBoxList<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
 {
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
@@ -28,12 +29,13 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	private JTextField filterField;
 	private Model model;
 	private Hashtable<Class,ImageIcon> iconData;
-	private Validable validableParent;
+	private DataBaseListener parent;
 	
 	public DouzCheckBoxList(Iterable<T> data, JTextField filter)
 	{
 		this(data, filter, null);
 	}
+	
 	public DouzCheckBoxList(Iterable<T> data, JTextField filter, Hashtable<Class,ImageIcon> icons)
 	{
 		super();
@@ -129,6 +131,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		CheckBoxItem<T>[] checkboxItems = tmp.toArray(new CheckBoxItem[0]);
 		return checkboxItems;
   	}
+	
 	private class CheckBoxItem<K>
 	{
 		private boolean isChecked;
@@ -151,7 +154,8 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			return item;
 		}
 	}
-	private class Model extends AbstractListModel implements Validable
+	
+	private class Model extends AbstractListModel implements DataBaseListener
 	{
 		ArrayList<CheckBoxItem<T>> items;
 		ArrayList<CheckBoxItem<T>> filterItems;
@@ -165,6 +169,7 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			for(CheckBoxItem<T> o : data)
 				filterItems.add(o);
 		}
+		
 		public Object getElementAt (int index)
 		{
 			if (index < filterItems.size())
@@ -172,11 +177,13 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			else
 				return null;
 		}
+		
 		public int getSize()
 		{
 			return filterItems.size();
 		}
-		private void refreshUI()
+		
+		private void validateUI()
 		{
 			try
 			{
@@ -202,39 +209,48 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 			}catch(PatternSyntaxException pse){}
 			fireContentsChanged(this, 0, getSize());
 		}
+		
 		@Override
-		public void validateUI(DouzEvent ve)
+		public void recordAdded(Record rcd)
 		{
-			switch(ve.getType())
-			{
-			case DATABASE_REFRESH:
-				refreshUI();
-				if(validableParent != null)
-					validableParent.validateUI(ve);
-				break;
-			case DATABASE_UPDATE:
-				refreshUI();
-				break;
-			case DATABASE_INSERT:
-				model.items.add(new CheckBoxItem(ve.getParameter()));
-				refreshUI();
-				break;
-			case DATABASE_DELETE:
-				CheckBoxItem<?> removed = null;
-				for(CheckBoxItem<?> cbi : model.items)
-					if(cbi.getItem().equals(ve.getParameter()))
-					{
-						removed = cbi;
-						break;
-					}
-				if(removed != null)
-					model.items.remove(removed);
-				refreshUI();
-				break;
-			default:
-				;
-			}
+			model.items.add(new CheckBoxItem(rcd));
+			validateUI();
 		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			CheckBoxItem<?> removed = null;
+			for(CheckBoxItem<?> cbi : model.items)
+				if(cbi.getItem().equals(rcd))
+				{
+					removed = cbi;
+					break;
+				}
+			if(removed != null)
+				model.items.remove(removed);
+			validateUI();
+		}
+		
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			validateUI();
+			if(parent != null)
+				parent.recordUpdated(rcd);
+		}
+		
+		@Override
+		public void databaseConnected() {}
+		
+		@Override
+		public void databaseDisconnected() {}
+		
+		@Override
+		public void databaseCommit() {}
+		
+		@Override
+		public void databaseRollback() {}
 	}
 	
 	private class Renderer extends JCheckBox implements ListCellRenderer
@@ -280,16 +296,9 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	@Override
 	public void removeLayoutComponent(Component c) {}
 	
-	@Override
-	public void validateUI(DouzEvent ve)
+	public void setParent(DataBaseListener parent)
 	{
-		model.validateUI(ve);
-		listData.validate();
-	}
-	
-	public void setValidableParent(Validable parent)
-	{
-		validableParent = parent;
+		this.parent = parent;
 	}
 	
 	public void setSelectedItems(Iterable<T> items)
@@ -302,7 +311,6 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 				if(cb.getItem().equals(item))
 					cb.setChecked(true);
 			}
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	public Iterable<T> getSelectedItems()
@@ -347,7 +355,6 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 		model.items.clear();
 		for(T item : items)
 			model.items.add(new CheckBoxItem<T>(item));
-		validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
 	}
 	
 	public Iterable<T> getItems()
@@ -363,5 +370,59 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	public int getItemCount()
 	{
 		return model.items.size();
+	}
+	
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		model.recordAdded(rcd);
+		listData.validate();
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		model.recordDeleted(rcd);
+		listData.validate();
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		model.recordUpdated(rcd);
+		listData.validate();
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		model.databaseConnected();
+		listData.validate();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		model.databaseDisconnected();
+		listData.validate();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		model.databaseCommit();
+		listData.validate();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		model.databaseRollback();
+		listData.validate();
+	}
+	
+	public void filterChanged()
+	{
+		model.validateUI();
 	}
 }

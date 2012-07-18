@@ -27,7 +27,9 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -38,13 +40,12 @@ import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
 @SuppressWarnings("serial")
-public final class PanelBook implements Validable, LayoutManager, ActionListener
+public final class PanelBook implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Book tokenBook;
 	
@@ -363,7 +364,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			@Override
 			public Void doInBackground() {
 				loadData();
-				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				validateUI();
 				return null;
 			}
 		}.execute();
@@ -503,7 +504,7 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenBook));
+					Core.UI.Desktop.recordUpdated(tokenBook);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -513,8 +514,8 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 			dbe.printStackTrace();
 		}
 	}
-	@Override
-	public void validateUI(DouzEvent ve)
+	
+	public void validateUI()
 	{
 		if(tokenBook.isRecycled())
 		{
@@ -556,23 +557,6 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
-		{
-			if(ve.getParameter() instanceof Artist)
-				editorArtists.validateUI(ve);
-			if(ve.getParameter() instanceof Circle)
-				editorCircles.validateUI(ve);
-			if(ve.getParameter() instanceof Content)
-				editorContents.validateUI(ve);
-			if(ve.getParameter() instanceof Parody)
-				editorParodies.validateUI(ve);
-		}else
-		{
-			editorArtists.validateUI(ve);
-			editorCircles.validateUI(ve);
-			editorContents.validateUI(ve);
-			editorParodies.validateUI(ve);
-		}
 	}
 	
 	private void xmlBook(Book book, OutputStream dest) throws DataBaseException
@@ -890,4 +874,58 @@ public final class PanelBook implements Validable, LayoutManager, ActionListener
 		@Override
 		public void removeAll() throws DataBaseException { }
 	}
+
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordAdded(rcd);
+		if(rcd instanceof Artist)
+			editorArtists.recordAdded(rcd);
+		if(rcd instanceof Content)
+			editorContents.recordAdded(rcd);
+		if(rcd instanceof Parody)
+			editorParodies.recordAdded(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordDeleted(rcd);
+		if(rcd instanceof Artist)
+			editorArtists.recordDeleted(rcd);
+		if(rcd instanceof Content)
+			editorContents.recordDeleted(rcd);
+		if(rcd instanceof Parody)
+			editorParodies.recordDeleted(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordUpdated(rcd);
+		if(rcd instanceof Artist)
+			editorArtists.recordUpdated(rcd);
+		if(rcd instanceof Content)
+			editorContents.recordUpdated(rcd);
+		if(rcd instanceof Parody)
+			editorParodies.recordUpdated(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void databaseConnected() {}
+	
+	@Override
+	public void databaseDisconnected() {}
+	
+	@Override
+	public void databaseCommit() {}
+	
+	@Override
+	public void databaseRollback() {}
 }

@@ -14,17 +14,18 @@ import javax.swing.text.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
 import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
 
-public final class PanelConvention implements Validable, LayoutManager, ActionListener
+public final class PanelConvention implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Convention tokenConvention;
 	
@@ -198,7 +199,6 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 														Core.Database.doCommit();
 												}
 											});
-											Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_DELETE, item));
 										}
 								} catch (DataBaseException dbe) {
 									Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -263,7 +263,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			@Override
 			public Void doInBackground() {
 				loadData();
-				validateUI(new DouzEvent(DouzEvent.Type.DATABASE_REFRESH, null));
+				validateUI();
 				return null;
 			}
 		}.execute();
@@ -330,7 +330,7 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.validateUI(new DouzEvent(DouzEvent.Type.DATABASE_UPDATE, tokenConvention));
+					Core.UI.Desktop.recordUpdated(tokenConvention);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -340,8 +340,8 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			dbe.printStackTrace();
 		}
 	}
-	@Override
-	public void validateUI(DouzEvent ve)
+	
+	public void validateUI()
 	{
 		if(tokenConvention.isRecycled())
 		{
@@ -350,12 +350,6 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-		if(ve.getType() != DouzEvent.Type.DATABASE_UPDATE)
-		{
-			if(ve.getParameter() instanceof Book)
-				editorWorks.validateUI(ve);
-		}else
-			editorWorks.validateUI(ve);
 	}
 	
 	private void loadData()
@@ -436,4 +430,40 @@ public final class PanelConvention implements Validable, LayoutManager, ActionLi
 		@Override
 		public void removeAll() throws DataBaseException { }
 	}
+
+	@Override
+	public void recordAdded(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordAdded(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordDeleted(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		validateUI();
+	}
+	
+	@Override
+	public void databaseConnected() {}
+	
+	@Override
+	public void databaseDisconnected() {}
+	
+	@Override
+	public void databaseCommit() {}
+	
+	@Override
+	public void databaseRollback() {}
 }

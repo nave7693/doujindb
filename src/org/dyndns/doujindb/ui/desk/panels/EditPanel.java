@@ -3,14 +3,15 @@ package org.dyndns.doujindb.ui.desk.panels;
 import javax.swing.*;
 
 import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings("serial")
-public final class EditPanel extends JPanel implements Validable
+public final class EditPanel extends JPanel implements DataBaseListener
 {
-	private Validable child;
+	private DataBaseListener child;
 	
 	public EditPanel(DouzWindow parent, DouzWindow.Type type) throws DataBaseException
 	{
@@ -56,17 +57,48 @@ public final class EditPanel extends JPanel implements Validable
 			child = new PanelRecycleBin(parent, this);
 			break;
 		}
-		case WINDOW_MEDIAMANAGER:
-		{
-			child = new PanelMediaManager(parent, this);
-			break;
-		}
 		}
 	}
+	
 	@Override
-	public void validateUI(DouzEvent ve)
+	public void recordAdded(Record rcd)
 	{
-		child.validateUI(ve);
-		super.validate();
+		child.recordAdded(rcd);
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		child.recordDeleted(rcd);
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd)
+	{
+		child.recordUpdated(rcd);
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		child.databaseConnected();
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		child.databaseDisconnected();
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		child.databaseCommit();
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		child.databaseRollback();
 	}
 }

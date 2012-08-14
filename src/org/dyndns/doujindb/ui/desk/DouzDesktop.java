@@ -23,6 +23,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	private JButton buttonWallpaper;
 	
 	private JButton buttonRecycleBin;
+	private JButton buttonTools;
 	//TODO private JButton buttonMediaManager;
 	
 	private Vector<JButton> buttonPlugins;
@@ -95,6 +96,26 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 			}
 		});
 		super.add(buttonRecycleBin);
+		buttonTools = new JButton(Core.Resources.Icons.get("JDesktop/Tools/Enabled"));
+		buttonTools.setDisabledIcon(Core.Resources.Icons.get("JDesktop/Tools/Disabled"));
+		buttonTools.setToolTipText("Tools");
+		buttonTools.setFocusable(false);
+		buttonTools.setContentAreaFilled(false);
+		buttonTools.setBorder(null);
+		buttonTools.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae)
+			{
+				try {
+					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_TOOLS, null);
+				} catch (DataBaseException dbe) {
+					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					dbe.printStackTrace();
+				}
+			}
+		});
+		super.add(buttonTools);
 		//TODO ?
 		/*buttonMediaManager = new JButton(Core.Resources.Icons.get("JDesktop/MediaManager/Enabled"));
 		buttonMediaManager.setDisabledIcon(Core.Resources.Icons.get("JDesktop/MediaManager/Disabled"));
@@ -125,8 +146,10 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 				wallpaper.setBounds(0,0,wallpaperImage.getIconWidth(),wallpaperImage.getIconHeight());
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				buttonRecycleBin.setBounds(5,5,32,32);
+				buttonTools.setBounds(5+32,5,32,32);
 				//TODO buttonMediaManager.setBounds(5 + 40,5,32,32);
 				buttonRecycleBin.setEnabled(Core.Database.isConnected());
+				buttonTools.setEnabled(Core.Database.isConnected());
 				//TODO buttonMediaManager.setEnabled(Core.Database.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)

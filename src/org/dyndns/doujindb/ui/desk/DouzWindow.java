@@ -26,6 +26,7 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, D
 	{
 		WINDOW_SEARCH,
 		WINDOW_RECYCLEBIN,
+		WINDOW_TOOLS,
 		WINDOW_PLUGIN,
 		WINDOW_ARTIST,
 		WINDOW_BOOK,
@@ -189,6 +190,17 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, D
 				root = ep;
 				listeners.add(ep);
 				add(root);
+				break;
+			}
+			case WINDOW_TOOLS:
+			{
+				setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Tools"));
+				setTitle("Tools");
+				EditPanel ep = new EditPanel(this, Type.WINDOW_TOOLS, null);
+				root = ep;
+				listeners.add(ep);
+				add(root);
+				//FIXME org.dyndns.doujindb.util.RepositoryIndexer.rebuildIndexes();
 				break;
 			}
 			case WINDOW_PLUGIN:

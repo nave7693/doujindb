@@ -108,6 +108,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Book/Media/Reload","jdesktop/explorer/book/media/reload.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Package","jdesktop/explorer/book/media/package.png");
 		iconKeys.put("JDesktop/Explorer/RecycleBin","jdesktop/explorer/recyclebin.png");
+		iconKeys.put("JDesktop/Explorer/Tools","jdesktop/explorer/tools.png");
 		iconKeys.put("JDesktop/Explorer/SharedItems","jdesktop/explorer/shareditems.png");
 		iconKeys.put("JDesktop/Explorer/MediaManager","jdesktop/explorer/mediamanager.png");
 		iconKeys.put("JDesktop/Explorer/Edit","jdesktop/explorer/edit.png");
@@ -140,6 +141,8 @@ public final class Resources
 		iconKeys.put("JDesktop/RecycleBin/Full","jdesktop/recyclebin/full.png");
 		iconKeys.put("JDesktop/RecycleBin/Empty","jdesktop/recyclebin/empty.png");
 		iconKeys.put("JDesktop/RecycleBin/Disabled","jdesktop/recyclebin/disabled.png");
+		iconKeys.put("JDesktop/Tools/Enabled","jdesktop/tools/enabled.png");
+		iconKeys.put("JDesktop/Tools/Disabled","jdesktop/tools/disabled.png");
 		iconKeys.put("JDesktop/SharedItems","jdesktop/shareditems.png");
 		iconKeys.put("JDesktop/SharedItems/Connected","jdesktop/shareditems/connected.png");
 		iconKeys.put("JDesktop/SharedItems/Disconnected","jdesktop/shareditems/disconnected.png");

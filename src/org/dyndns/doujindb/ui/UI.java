@@ -2359,9 +2359,9 @@ public void layoutContainer(Container parent)
 											/**
 											 * SQL error messages are too verbose,
 											 * mask them off with a common error message
-											 * and print the stack trace to the standar output.
+											 * and print the stack trace to the standard output.
 											 */
-											uiCompDatabaseLabelResult.setText("<html>Cannot obtains SQL connection.</html>");
+											uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
 											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
 											uiCompDatabaseLabelResult.setForeground(Color.RED);
 											sqle.printStackTrace();
@@ -2383,7 +2383,7 @@ public void layoutContainer(Container parent)
 												conn.close();
 											} catch (Exception e) {}
 										} else {
-											uiCompDatabaseLabelResult.setText("<html>Cannot obtains SQL connection.</html>");
+											uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
 											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
 											uiCompDatabaseLabelResult.setForeground(Color.RED);
 										}

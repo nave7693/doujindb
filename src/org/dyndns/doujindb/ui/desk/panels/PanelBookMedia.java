@@ -192,7 +192,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -225,7 +225,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 						}
 						displayUI();
-						DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -369,7 +369,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 	private final class MediaTree extends JTree
 	{
 		private MediaTreeRenderer renderer;
-		public DouzCheckBoxTreeCellRenderer CheckBoxRenderer;
+		public CheckBoxTreeCellRendererEx CheckBoxRenderer;
 
 	public MediaTree(TreeNode root)
 	{
@@ -381,7 +381,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 		super.setScrollsOnExpand(true);
 		renderer = new MediaTreeRenderer();
 		super.setCellRenderer(renderer);
-		CheckBoxRenderer = new DouzCheckBoxTreeCellRenderer(this, super.getCellRenderer()); 
+		CheckBoxRenderer = new CheckBoxTreeCellRendererEx(this, super.getCellRenderer()); 
 		super.setCellRenderer(CheckBoxRenderer);
 	}
 
@@ -570,7 +570,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				{
 					clock.stop();
 					stopped = true;
-					DouzDialog window = (DouzDialog) cancel.getRootPane().getParent();
+					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -655,7 +655,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				dbe.printStackTrace();
 			}
 			clock.stop();
-			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
+			DialogEx window = (DialogEx) comp.getRootPane().getParent();
 			window.dispose();
 			;
 			if(errors.size() == 0)
@@ -683,7 +683,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -789,7 +789,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				{
 					clock.stop();
 					stopped = true;
-					DouzDialog window = (DouzDialog) cancel.getRootPane().getParent();
+					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -841,7 +841,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				Core.Logger.log(pve.getMessage(), Level.WARNING);
 			}
 			clock.stop();
-			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
+			DialogEx window = (DialogEx) comp.getRootPane().getParent();
 			window.dispose();
 			;
 			if(errors.size() == 0)
@@ -869,7 +869,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -935,7 +935,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				{
 					clock.stop();
 					stopped = true;
-					DouzDialog window = (DouzDialog) cancel.getRootPane().getParent();
+					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -1005,7 +1005,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				Core.Logger.log(e.getMessage(), Level.WARNING);
 			}
 			clock.stop();
-			DouzDialog window = (DouzDialog) comp.getRootPane().getParent();
+			DialogEx window = (DialogEx) comp.getRootPane().getParent();
 			window.dispose();
 		}
 		

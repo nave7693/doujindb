@@ -13,11 +13,11 @@ public final class EditPanel extends JPanel implements DataBaseListener
 {
 	private DataBaseListener child;
 	
-	public EditPanel(DouzWindow parent, DouzWindow.Type type) throws DataBaseException
+	public EditPanel(WindowEx parent, WindowEx.Type type) throws DataBaseException
 	{
 		this(parent, type, null);
 	}
-	public EditPanel(DouzWindow parent, DouzWindow.Type type, Object token) throws DataBaseException
+	public EditPanel(WindowEx parent, WindowEx.Type type, Object token) throws DataBaseException
 	{
 		super();
 		switch(type)

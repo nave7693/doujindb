@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 {
 	private CntParody tokenIParody;
-	private DouzCheckBoxList<Parody> checkboxList;
+	private CheckBoxListEx<Parody> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -41,7 +41,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		    	checkboxList.filterChanged();
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Parody>(Core.Database.getParodies(null), searchField);
+		checkboxList = new CheckBoxListEx<Parody>(Core.Database.getParodies(null), searchField);
 		checkboxList.setSelectedItems(tokenIParody.getParodies());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -64,7 +64,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	public DouzCheckBoxList<Parody> getCheckBoxList()
+	public CheckBoxListEx<Parody> getCheckBoxList()
 	{
 		return checkboxList;
 	}

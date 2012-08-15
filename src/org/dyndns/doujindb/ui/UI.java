@@ -34,7 +34,7 @@ import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
 import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.DouzDesktop.*;
+import org.dyndns.doujindb.ui.desk.DesktopEx.*;
 import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.rc.*;
 
@@ -67,7 +67,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JButton uiPanelSettingsSave;
 	private JButton uiPanelSettingsLoad;
 	
-	public DouzDesktop Desktop;
+	public DesktopEx Desktop;
 	private JButton uiPanelDesktopShow;
 	private JButton uiPanelDesktopSearch;
 	private JButton uiPanelDesktopAdd;
@@ -424,7 +424,7 @@ public UI(String title)
 	uiStatusBarDisconnect.setToolTipText("Disconnect");
 	bogus.add(uiStatusBarDisconnect);	
 	bogus.add(uiStatusBar);
-	Desktop = new DouzDesktop();
+	Desktop = new DesktopEx();
 	bogus.add(Desktop);
 	uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
 	bogus = new JPanel();
@@ -669,7 +669,7 @@ public void layoutContainer(Container parent)
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -706,7 +706,7 @@ public void layoutContainer(Container parent)
 		if(event.getSource() == uiPanelDesktopSearch)
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_SEARCH, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_SEARCH, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -730,7 +730,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -740,7 +740,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -750,7 +750,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -760,7 +760,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -770,7 +770,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -780,7 +780,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
 			try {
-				Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, null);
+				Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -811,7 +811,7 @@ public void layoutContainer(Container parent)
 				@Override
 				public void actionPerformed(ActionEvent ae) 
 				{
-					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -839,7 +839,7 @@ public void layoutContainer(Container parent)
 					} catch (Exception e) {
 						Core.Logger.log(e.getMessage(), Level.ERROR);
 					}
-					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -878,7 +878,7 @@ public void layoutContainer(Container parent)
 				@Override
 				public void actionPerformed(ActionEvent ae) 
 				{
-					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -906,7 +906,7 @@ public void layoutContainer(Container parent)
 					} catch (Exception e) {
 						Core.Logger.log(e.getMessage(), Level.ERROR);
 					}
-					DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -1182,7 +1182,7 @@ public void layoutContainer(Container parent)
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -1227,7 +1227,7 @@ public void layoutContainer(Container parent)
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
 				});
@@ -2631,7 +2631,7 @@ public void layoutContainer(Container parent)
 					Core.Properties.get("org.dyndns.doujindb.dat.datastore").setValue(uiCompDatastoreTextStore.getText());
 					Core.Properties.get("org.dyndns.doujindb.dat.temp").setValue(uiCompDatastoreTextTemp.getText());
 					Core.Properties.save();
-					DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});
@@ -2649,7 +2649,7 @@ public void layoutContainer(Container parent)
 				@Override
 				public void actionPerformed(ActionEvent ae) 
 				{
-					DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+					DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					
 			});

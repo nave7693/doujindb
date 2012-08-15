@@ -465,7 +465,7 @@ public final class DoujinshiDBScanner implements Plugin
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 							tbl.put("OK", IconCompleted);
-							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
+							final PopupMenuEx pop = new PopupMenuEx("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
 							{
@@ -491,7 +491,7 @@ public final class DoujinshiDBScanner implements Plugin
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 							tbl.put("Stop", IconStop);
-							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
+							final PopupMenuEx pop = new PopupMenuEx("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
 							{
@@ -518,7 +518,7 @@ public final class DoujinshiDBScanner implements Plugin
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 							tbl.put("Reset", IconReset);
 							tbl.put("Remove", IconRemove);
-							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
+							final PopupMenuEx pop = new PopupMenuEx("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
 							{
@@ -547,7 +547,7 @@ public final class DoujinshiDBScanner implements Plugin
 						{
 							Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 							tbl.put("Stop", IconStop);
-							final DouzPopupMenu pop = new DouzPopupMenu("Task Option(s)", tbl);
+							final PopupMenuEx pop = new PopupMenuEx("Task Option(s)", tbl);
 							pop.show((Component)me.getSource(), me.getX(), me.getY());
 							new Thread(getClass().getName()+"/MouseClicked")
 							{
@@ -852,7 +852,7 @@ public final class DoujinshiDBScanner implements Plugin
 									Desktop desktop = Desktop.getDesktop();
 									desktop.open(workpath);
 								} catch (IOException ioe) { }
-								DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+								DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 								window.dispose();
 							}					
 						});
@@ -946,7 +946,7 @@ public final class DoujinshiDBScanner implements Plugin
 											Desktop desktop = Desktop.getDesktop();
 											desktop.open(workpath);
 										} catch (IOException ioe) { }
-										DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+										DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 										window.dispose();
 									}					
 								});
@@ -1044,7 +1044,7 @@ public final class DoujinshiDBScanner implements Plugin
 													Desktop desktop = Desktop.getDesktop();
 													desktop.browse(uri);
 												} catch (IOException ioe) { }
-												DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+												DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 												window.dispose();
 											}					
 										});
@@ -1098,7 +1098,7 @@ public final class DoujinshiDBScanner implements Plugin
 										{
 											if(check.isSelected())
 												threshold = Double.parseDouble(result_star.replaceAll("%", "").replaceAll(",", "."));
-											DouzDialog window = (DouzDialog)((JComponent)ae.getSource()).getRootPane().getParent();
+											DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 											window.dispose();
 										}					
 									});
@@ -1432,7 +1432,7 @@ public final class DoujinshiDBScanner implements Plugin
 						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
-								Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);
+								Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1455,7 +1455,7 @@ public final class DoujinshiDBScanner implements Plugin
 						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
-									Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, b);
+									Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

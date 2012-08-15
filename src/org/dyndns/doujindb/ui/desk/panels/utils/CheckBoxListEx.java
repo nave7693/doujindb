@@ -21,7 +21,7 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.event.*;
 
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
-public final class DouzCheckBoxList<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
+public final class CheckBoxListEx<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
 {
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
@@ -31,12 +31,12 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
 	private Hashtable<Class,ImageIcon> iconData;
 	private DataBaseListener parent;
 	
-	public DouzCheckBoxList(Iterable<T> data, JTextField filter)
+	public CheckBoxListEx(Iterable<T> data, JTextField filter)
 	{
 		this(data, filter, null);
 	}
 	
-	public DouzCheckBoxList(Iterable<T> data, JTextField filter, Hashtable<Class,ImageIcon> icons)
+	public CheckBoxListEx(Iterable<T> data, JTextField filter, Hashtable<Class,ImageIcon> icons)
 	{
 		super();
 		super.setLayout(this);
@@ -80,27 +80,27 @@ public final class DouzCheckBoxList<T extends Record> extends JPanel implements 
         		try {
 	        		if(token instanceof Artist)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, (Record)token);
 	        		}
 	        		if(token instanceof Book)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, (Record)token);
 	        		}
 	        		if(token instanceof Circle)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, (Record)token);
 	        		}
 	        		if(token instanceof Convention)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, (Record)token);
 	        		}
 	        		if(token instanceof Content)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, (Record)token);
 	        		}
 	        		if(token instanceof Parody)
 	        		{
-	        			Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, (Record)token);
+	        			Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, (Record)token);
 	        		}
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);

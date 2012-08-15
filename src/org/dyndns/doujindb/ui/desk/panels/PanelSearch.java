@@ -319,7 +319,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 							.getValueAt(
 									tableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_ARTIST, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -332,7 +332,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -589,7 +589,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CIRCLE, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -602,7 +602,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -878,7 +878,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -893,7 +893,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					if(tableResults.getSelectedRowCount() == 1)
 						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -956,7 +956,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								if(Core.Database.isAutocommit())
 									Core.Database.doCommit();
 								Core.UI.Desktop.recordAdded(clone);		
-								DouzWindow window = Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_BOOK, clone);
+								WindowEx window = Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, clone);
 								window.setTitle("(Clone) " + window.getTitle());
 							}
 						}
@@ -1169,7 +1169,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONTENT, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1182,7 +1182,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -1402,7 +1402,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_CONVENTION, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1415,7 +1415,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -1653,7 +1653,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_PARODY, item);
+						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1666,7 +1666,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{

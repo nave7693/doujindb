@@ -21,7 +21,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public final class PanelRecycleBin implements DataBaseListener, LayoutManager, MouseListener
 {
 	@SuppressWarnings("unused")
-	private DouzWindow parentWindow;
+	private WindowEx parentWindow;
 	
 	private JSplitPane split;
 	private JLabel recycleLabelInfo;
@@ -34,20 +34,20 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	private KFramedPanel panelFramed[] = new KFramedPanel[6];
 	private JScrollPane scrollPanelBase;
 	private JPanel panelBase;
-	private DouzCheckBoxList<Artist> checkboxListArtist;
+	private CheckBoxListEx<Artist> checkboxListArtist;
 	private JLabel labelListArtist;
-	private DouzCheckBoxList<Circle> checkboxListCircle;
+	private CheckBoxListEx<Circle> checkboxListCircle;
 	private JLabel labelListCircle;
-	private DouzCheckBoxList<Book> checkboxListBook;
+	private CheckBoxListEx<Book> checkboxListBook;
 	private JLabel labelListBook;
-	private DouzCheckBoxList<Convention> checkboxListConvention;
+	private CheckBoxListEx<Convention> checkboxListConvention;
 	private JLabel labelListConvention;
-	private DouzCheckBoxList<Content> checkboxListContent;
+	private CheckBoxListEx<Content> checkboxListContent;
 	private JLabel labelListContent;
-	private DouzCheckBoxList<Parody> checkboxListParody;
+	private CheckBoxListEx<Parody> checkboxListParody;
 	private JLabel labelListParody;
 	
-	public PanelRecycleBin(DouzWindow parent, JComponent pane)
+	public PanelRecycleBin(WindowEx parent, JComponent pane)
 	{
 		parentWindow = parent;
 		pane.setLayout(this);
@@ -171,7 +171,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 								@Override
 								public void actionPerformed(ActionEvent ae) 
 								{
-									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
 							});
@@ -246,7 +246,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
 									;
-									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
 							});
@@ -310,7 +310,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 								@Override
 								public void actionPerformed(ActionEvent ae) 
 								{
-									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
 							});
@@ -384,7 +384,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
 									;
-									DouzDialog window = (DouzDialog) ((JComponent)ae.getSource()).getRootPane().getParent();
+									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
 							});
@@ -473,7 +473,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListArtist.filterChanged();
 			    }
 			});
-			checkboxListArtist = new DouzCheckBoxList<Artist>(deleted_a, searchField);
+			checkboxListArtist = new CheckBoxListEx<Artist>(deleted_a, searchField);
 			splitListA.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListA.setTopComponent(searchField);
 			splitListA.setBottomComponent(checkboxListArtist);
@@ -494,7 +494,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListBook.filterChanged();
 			    }
 			});
-			checkboxListBook = new DouzCheckBoxList<Book>(deleted_b, searchField);
+			checkboxListBook = new CheckBoxListEx<Book>(deleted_b, searchField);
 			splitListB.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListB.setTopComponent(searchField);
 			splitListB.setBottomComponent(checkboxListBook);
@@ -515,7 +515,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListCircle.filterChanged();
 			    }
 			});
-			checkboxListCircle = new DouzCheckBoxList<Circle>(deleted_c, searchField);
+			checkboxListCircle = new CheckBoxListEx<Circle>(deleted_c, searchField);
 			splitListC.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListC.setTopComponent(searchField);
 			splitListC.setBottomComponent(checkboxListCircle);
@@ -536,7 +536,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListConvention.filterChanged();
 			    }
 			});
-			checkboxListConvention = new DouzCheckBoxList<Convention>(deleted_cv, searchField);
+			checkboxListConvention = new CheckBoxListEx<Convention>(deleted_cv, searchField);
 			splitListCV.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListCV.setTopComponent(searchField);
 			splitListCV.setBottomComponent(checkboxListConvention);
@@ -557,7 +557,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListContent.filterChanged();
 			    }
 			});
-			checkboxListContent = new DouzCheckBoxList<Content>(deleted_cn, searchField);
+			checkboxListContent = new CheckBoxListEx<Content>(deleted_cn, searchField);
 			splitListCN.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListCN.setTopComponent(searchField);
 			splitListCN.setBottomComponent(checkboxListContent);
@@ -578,7 +578,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			    	checkboxListParody.filterChanged();
 			    }
 			});
-			checkboxListParody = new DouzCheckBoxList<Parody>(deleted_p, searchField);
+			checkboxListParody = new CheckBoxListEx<Parody>(deleted_p, searchField);
 			splitListP.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitListP.setTopComponent(searchField);
 			splitListP.setBottomComponent(checkboxListParody);
@@ -660,7 +660,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Select All", Core.Resources.Icons.get("JFrame/RecycleBin/SelectAll"));
 					tbl.put("Deselect All", Core.Resources.Icons.get("JFrame/RecycleBin/DeselectAll"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Recycle Bin", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Recycle Bin", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{

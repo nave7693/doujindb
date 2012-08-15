@@ -16,7 +16,7 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 
 @SuppressWarnings("serial")
-public final class DouzDesktop extends JDesktopPane implements DataBaseListener
+public final class DesktopEx extends JDesktopPane implements DataBaseListener
 {
 	private JLabel wallpaper;
 	private ImageIcon wallpaperImage;
@@ -28,7 +28,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	
 	private Vector<JButton> buttonPlugins;
 	
-	public DouzDesktop()
+	public DesktopEx()
 	{
 		super();
 		setOpaque(false);
@@ -88,7 +88,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_RECYCLEBIN, null);
+					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_RECYCLEBIN, null);
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -108,7 +108,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_TOOLS, null);
+					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_TOOLS, null);
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -129,7 +129,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openWindow(DouzWindow.Type.WINDOW_MEDIAMANAGER, null);
+					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_MEDIAMANAGER, null);
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -197,7 +197,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 				public void actionPerformed(ActionEvent ae)
 				{
 					try {
-						openWindow(DouzWindow.Type.WINDOW_PLUGIN, plugin);
+						openWindow(WindowEx.Type.WINDOW_PLUGIN, plugin);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -212,17 +212,17 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	@Deprecated
 	public Component add(Component comp)
 	{
-		if(!(comp instanceof DouzWindow))
+		if(!(comp instanceof WindowEx))
 			return super.add(comp);
 		else
 			return super.add(comp);//throw new InvalidWindowStateException("Don't use Component.add(), use open() instead.");
 	}
 	
-	public DouzWindow openWindow(DouzWindow.Type type, Object param) throws DataBaseException
+	public WindowEx openWindow(WindowEx.Type type, Object param) throws DataBaseException
 	{
 		if(checkWindow(type, param))
 			return null;
-		DouzWindow window = new DouzWindow(type, param);
+		WindowEx window = new WindowEx(type, param);
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
@@ -238,11 +238,11 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Rectangle bounds) throws DataBaseException
+	public WindowEx openWindow(WindowEx.Type type, Object param, Rectangle bounds) throws DataBaseException
 	{
 		if(checkWindow(type, param))
 			return null;
-		DouzWindow window = new DouzWindow(type, param);
+		WindowEx window = new WindowEx(type, param);
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		window.setBounds(bounds);
@@ -259,11 +259,11 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public DouzWindow openWindow(DouzWindow.Type type, Object param, Icon icon, String title) throws DataBaseException
+	public WindowEx openWindow(WindowEx.Type type, Object param, Icon icon, String title) throws DataBaseException
 	{
 		if(checkWindow(type, param))
 			return null;
-		DouzWindow window = new DouzWindow(type, param);
+		WindowEx window = new WindowEx(type, param);
 		window.setFrameIcon(icon);
 		window.setTitle(title);
 		try
@@ -278,11 +278,11 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	private boolean checkWindow(DouzWindow.Type type, Object token)
+	private boolean checkWindow(WindowEx.Type type, Object token)
 	{
 		for(JInternalFrame jif : getAllFrames())
 		{
-			DouzWindow window = (DouzWindow)jif;
+			WindowEx window = (WindowEx)jif;
 			if(token == null && window.getItem() == null)
 				if(window.getType().equals(type))
 				{
@@ -322,7 +322,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 		for(JInternalFrame jif : getAllFrames())
 			try
 			{	
-				DouzWindow window = (DouzWindow)jif;
+				WindowEx window = (WindowEx)jif;
 				window.setIcon(true);
 			}
 			catch (PropertyVetoException pve) { ; }
@@ -334,7 +334,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 		JComponent glass = Core.UI.getGlassPane();
 		if(glass.isVisible())
 			throw new PropertyVetoException("Dialog already open.", null);
-		final DouzDialog window = new DouzDialog(comp, icon, title);
+		final DialogEx window = new DialogEx(comp, icon, title);
 		window.pack();
 		window.setMaximizable(false);
 		window.setIconifiable(false);
@@ -387,7 +387,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	{
 		for(JInternalFrame jif : getAllFrames())
 		{
-			try{ ((DouzWindow)jif).recordAdded(rcd); } catch(Exception e) { e.printStackTrace(); }
+			try{ ((WindowEx)jif).recordAdded(rcd); } catch(Exception e) { e.printStackTrace(); }
 		}
 	}
 
@@ -396,7 +396,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	{
 		for(JInternalFrame jif : getAllFrames())
 		{
-			try{ ((DouzWindow)jif).recordDeleted(rcd); } catch(Exception e) { e.printStackTrace(); }
+			try{ ((WindowEx)jif).recordDeleted(rcd); } catch(Exception e) { e.printStackTrace(); }
 		}
 	}
 
@@ -405,7 +405,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	{
 		for(JInternalFrame jif : getAllFrames())
 		{
-			try{ ((DouzWindow)jif).recordUpdated(rcd); } catch(Exception e) { e.printStackTrace(); }
+			try{ ((WindowEx)jif).recordUpdated(rcd); } catch(Exception e) { e.printStackTrace(); }
 		}
 	}
 
@@ -428,7 +428,7 @@ public final class DouzDesktop extends JDesktopPane implements DataBaseListener
 	{
 		for(JInternalFrame jif : getAllFrames())
 		{
-			try{ ((DouzWindow)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
+			try{ ((WindowEx)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
 		}
 	}
 

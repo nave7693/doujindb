@@ -5,11 +5,11 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 @SuppressWarnings("serial")
-public final class DouzDialog extends JInternalFrame implements LayoutManager
+public final class DialogEx extends JInternalFrame implements LayoutManager
 {
 	private JComponent root = new JPanel();
 	
-	DouzDialog(JComponent comp, Icon icon, String title)
+	DialogEx(JComponent comp, Icon icon, String title)
 	{
 		super("", true, true, true, true);
 		setLayout(this);

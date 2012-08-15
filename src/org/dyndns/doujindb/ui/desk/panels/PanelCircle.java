@@ -21,8 +21,8 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
+import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 public final class PanelCircle implements DataBaseListener, LayoutManager, ActionListener
 {
@@ -89,7 +89,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 						tbl.put("Add Banner", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));
 					else
 						tbl.put("Remove Banner", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
-					final DouzPopupMenu pop = new DouzPopupMenu("", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("", tbl);
 					pop.show(lab, me.getX(), me.getY());
 					new Thread(getClass().getName()+"/PopupMenu")
 					{
@@ -98,7 +98,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException e) { }
-							if(pop.getResult() == DouzPopupMenu.SELECTION_CANCELED)
+							if(pop.getResult() == PopupMenuEx.SELECTION_CANCELED)
 								return;
 							if(isAdd)
 							{
@@ -184,7 +184,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
-		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
 				editorWorks.getCheckBoxList(),
 				editorArtists.getCheckBoxList()
 		}));

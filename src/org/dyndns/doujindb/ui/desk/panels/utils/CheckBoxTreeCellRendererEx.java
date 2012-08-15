@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 @SuppressWarnings({"unchecked","rawtypes"})
-public class DouzCheckBoxTreeCellRenderer implements TreeCellRenderer
+public class CheckBoxTreeCellRendererEx implements TreeCellRenderer
 {
     enum Status
     {
@@ -34,7 +34,7 @@ public class DouzCheckBoxTreeCellRenderer implements TreeCellRenderer
     private MouseHandler handler;
 
     /** Create a per-tree instance of the checkbox renderer. */
-	public DouzCheckBoxTreeCellRenderer(JTree tree, TreeCellRenderer original) {
+	public CheckBoxTreeCellRendererEx(JTree tree, TreeCellRenderer original) {
         this.tree = tree;
         this.renderer = original;
         checkedPaths = new HashSet();

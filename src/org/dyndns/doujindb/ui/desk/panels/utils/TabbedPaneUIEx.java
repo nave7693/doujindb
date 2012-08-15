@@ -12,14 +12,14 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 
-public final class DouzTabbedPaneUI extends BasicTabbedPaneUI implements DataBaseListener
+public final class TabbedPaneUIEx extends BasicTabbedPaneUI implements DataBaseListener
 {
-	private DouzCheckBoxList<?>[] checkBoxLists;
+	private CheckBoxListEx<?>[] checkBoxLists;
 	
-	public DouzTabbedPaneUI(DouzCheckBoxList<?>[] cbls)
+	public TabbedPaneUIEx(CheckBoxListEx<?>[] cbls)
 	{
 		checkBoxLists = cbls;
-		for(DouzCheckBoxList<?> cbl : cbls)
+		for(CheckBoxListEx<?> cbl : cbls)
 			if(cbl != null)
 				cbl.setParent(this);
 	}

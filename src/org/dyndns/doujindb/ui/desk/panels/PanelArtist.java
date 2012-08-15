@@ -66,7 +66,7 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorCircles = new RecordCircleEditor(tokenArtist);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
-		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
 				editorWorks.getCheckBoxList(),
 				editorCircles.getCheckBoxList()
 		}));

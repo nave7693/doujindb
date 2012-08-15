@@ -11,7 +11,7 @@ import org.dyndns.doujindb.Core;
 
 
 
-public final class DouzPopupMenu implements ActionListener
+public final class PopupMenuEx implements ActionListener
 {
 	private JPopupMenu popup;
 	private JMenuItem[] items;
@@ -20,7 +20,7 @@ public final class DouzPopupMenu implements ActionListener
 	private int selection = SELECTION_NONE;
 	private String choice = null;
 	
-	public DouzPopupMenu(String title, Hashtable<String,ImageIcon> items)
+	public PopupMenuEx(String title, Hashtable<String,ImageIcon> items)
 	{
 		popup = new JPopupMenu();
 		popup.addPopupMenuListener(new PopupMenuListener()

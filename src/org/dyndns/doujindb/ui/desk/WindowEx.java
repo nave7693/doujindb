@@ -15,7 +15,7 @@ import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.desk.panels.*;
 
 @SuppressWarnings("serial")
-public final class DouzWindow extends JInternalFrame implements LayoutManager, DataBaseListener
+public final class WindowEx extends JInternalFrame implements LayoutManager, DataBaseListener
 {
 	private JComponent root = new JPanel();
 	private Vector<DataBaseListener> listeners = new Vector<DataBaseListener>();
@@ -36,11 +36,11 @@ public final class DouzWindow extends JInternalFrame implements LayoutManager, D
 		WINDOW_PARODY
 	}
 	
-	DouzWindow(Type type) throws DataBaseException, RemoteException
+	WindowEx(Type type) throws DataBaseException, RemoteException
 	{
 		this(type, null);		
 	}
-	DouzWindow(Type type, Object param) throws DataBaseException
+	WindowEx(Type type, Object param) throws DataBaseException
 	{
 		super("", true, true, true, true);
 		{

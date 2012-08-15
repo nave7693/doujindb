@@ -22,8 +22,8 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
+import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
 public final class PanelContent implements DataBaseListener, LayoutManager, ActionListener
@@ -164,7 +164,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final DouzPopupMenu pop = new DouzPopupMenu("Options", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"/MouseClicked")
 					{
@@ -236,7 +236,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 			}
 		});
 		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Content"), panel);
-		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
 				editorWorks.getCheckBoxList(),
 				null
 		}));

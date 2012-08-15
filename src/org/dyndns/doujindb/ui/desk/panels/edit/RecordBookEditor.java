@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordBookEditor extends JSplitPane implements DataBaseListener
 {
 	private CntBook tokenIBook;
-	private DouzCheckBoxList<Book> checkboxList;
+	private CheckBoxListEx<Book> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -41,7 +41,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 		    	checkboxList.filterChanged();
 		    }
 		});
-		checkboxList = new DouzCheckBoxList<Book>(Core.Database.getBooks(null), searchField);
+		checkboxList = new CheckBoxListEx<Book>(Core.Database.getBooks(null), searchField);
 		checkboxList.setSelectedItems(tokenIBook.getBooks());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -64,7 +64,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	public DouzCheckBoxList<Book> getCheckBoxList()
+	public CheckBoxListEx<Book> getCheckBoxList()
 	{
 		return checkboxList;
 	}

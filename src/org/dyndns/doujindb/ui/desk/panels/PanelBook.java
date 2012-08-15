@@ -41,8 +41,8 @@ import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzCheckBoxList;
-import org.dyndns.doujindb.ui.desk.panels.utils.DouzTabbedPaneUI;
+import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
 public final class PanelBook implements DataBaseListener, LayoutManager, ActionListener
@@ -131,7 +131,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 						tbl.put("Add Preview", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));
 					else
 						tbl.put("Remove Preview", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
-					final DouzPopupMenu pop = new DouzPopupMenu("", tbl);
+					final PopupMenuEx pop = new PopupMenuEx("", tbl);
 					pop.show(lab, me.getX(), me.getY());
 					new Thread(getClass().getName()+"/PopupMenu")
 					{
@@ -140,7 +140,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException e) { }
-							if(pop.getResult() == DouzPopupMenu.SELECTION_CANCELED)
+							if(pop.getResult() == PopupMenuEx.SELECTION_CANCELED)
 								return;
 							if(isAdd)
 							{
@@ -345,7 +345,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
 			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
 		}
-		tabLists.setUI(new DouzTabbedPaneUI(new DouzCheckBoxList<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
 				null,
 				editorArtists.getCheckBoxList(),
 				editorCircles.getCheckBoxList(),

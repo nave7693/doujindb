@@ -27,12 +27,12 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 	
 	public enum Type
 	{
-		ISEARCH_ARTIST,
-		ISEARCH_BOOK,
-		ISEARCH_CIRCLE,
-		ISEARCH_CONTENT,
-		ISEARCH_CONVENTION,
-		ISEARCH_PARODY
+		ARTIST,
+		BOOK,
+		CIRCLE,
+		CONTENT,
+		CONVENTION,
+		PARODY
 	}
 	
 	public PanelSearch(Type tokenType, JTabbedPane tab, int index)
@@ -40,32 +40,32 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		super();
 		switch(tokenType)
 		{
-		case ISEARCH_ARTIST:
+		case ARTIST:
 		{
 			child = new IPanelArtist(this, tab, index);
 			break;
 		}
-		case ISEARCH_BOOK:
+		case BOOK:
 		{
 			child = new IPanelBook(this, tab, index);
 			break;
 		}
-		case ISEARCH_CIRCLE:
+		case CIRCLE:
 		{
 			child = new IPanelCircle(this, tab, index);
 			break;
 		}
-		case ISEARCH_CONTENT:
+		case CONTENT:
 		{
 			child = new IPanelContent(this, tab, index);
 			break;
 		}
-		case ISEARCH_CONVENTION:
+		case CONVENTION:
 		{
 			child = new IPanelConvention(this, tab, index);
 			break;
 		}
-		case ISEARCH_PARODY:
+		case PARODY:
 		{
 			child = new IPanelParody(this, tab, index);
 			break;

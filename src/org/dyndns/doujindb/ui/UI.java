@@ -35,7 +35,6 @@ import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
 import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DesktopEx.*;
-import org.dyndns.doujindb.ui.desk.event.*;
 import org.dyndns.doujindb.ui.rc.*;
 
 /**  
@@ -706,7 +705,7 @@ public void layoutContainer(Container parent)
 		if(event.getSource() == uiPanelDesktopSearch)
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_SEARCH, null);
+				Desktop.openSearch();
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();

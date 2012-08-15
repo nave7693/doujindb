@@ -9,8 +9,6 @@ import javax.swing.event.PopupMenuListener;
 
 import org.dyndns.doujindb.Core;
 
-
-
 public final class PopupMenuEx implements ActionListener
 {
 	private JPopupMenu popup;

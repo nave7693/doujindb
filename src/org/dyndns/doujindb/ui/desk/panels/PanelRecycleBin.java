@@ -31,7 +31,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	private JButton recycleDelete;
 	private JButton recycleEmpty;
 	
-	private KFramedPanel panelFramed[] = new KFramedPanel[6];
+	private DynamicPanel panelFramed[] = new DynamicPanel[6];
 	private JScrollPane scrollPanelBase;
 	private JPanel panelBase;
 	private CheckBoxListEx<Artist> checkboxListArtist;
@@ -632,18 +632,18 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			}
 		});
 		labelListArtist = new JLabel("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), JLabel.LEFT);
-		panelFramed[0] = new KFramedPanel(labelListArtist, splitListA, panelBase);
+		panelFramed[0] = new DynamicPanel(labelListArtist, splitListA, panelBase);
 		labelListBook = new JLabel("Books", Core.Resources.Icons.get("JDesktop/Explorer/Book"), JLabel.LEFT);
-		panelFramed[1] = new KFramedPanel(labelListBook, splitListB, panelBase);
+		panelFramed[1] = new DynamicPanel(labelListBook, splitListB, panelBase);
 		labelListCircle = new JLabel("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), JLabel.LEFT);
-		panelFramed[2] = new KFramedPanel(labelListCircle, splitListC, panelBase);
+		panelFramed[2] = new DynamicPanel(labelListCircle, splitListC, panelBase);
 		labelListConvention = new JLabel("Conventions", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), JLabel.LEFT);
-		panelFramed[3] = new KFramedPanel(labelListConvention, splitListCV, panelBase);
+		panelFramed[3] = new DynamicPanel(labelListConvention, splitListCV, panelBase);
 		labelListContent = new JLabel("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), JLabel.LEFT);
-		panelFramed[4] = new KFramedPanel(labelListContent, splitListCN, panelBase);
+		panelFramed[4] = new DynamicPanel(labelListContent, splitListCN, panelBase);
 		labelListParody = new JLabel("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), JLabel.LEFT);
-		panelFramed[5] = new KFramedPanel(labelListParody, splitListP, panelBase);
-		for(KFramedPanel panel : panelFramed)
+		panelFramed[5] = new DynamicPanel(labelListParody, splitListP, panelBase);
+		for(DynamicPanel panel : panelFramed)
 			panelBase.add(panel);
 		scrollPanelBase = new JScrollPane(panelBase);
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, scrollPanelBase);
@@ -850,28 +850,26 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	}
 	
 	@SuppressWarnings("serial")
-	private final class KFramedPanel extends JPanel implements LayoutManager, Runnable, ActionListener
+	private final class DynamicPanel extends JPanel implements LayoutManager, ActionListener
 	{
 		private JLabel titleBar;
 		private Component bodyComponent;
-		private JCheckBox buttonToggle;
+		private JButton buttonToggle;
 		private Component parentComponent;
 		
 		private int STATUS;
-		private Thread process;
-		private final int STATUS_MINIMIZED = 0x01;
-		private final int STATUS_MINIMIZING = 0x02;
-		private final int STATUS_MAXIMIZED = 0x03;
-		private final int STATUS_MAXIMIZING = 0x04;
-		private int shadowHeight = 0;
+		private final int STATUS_MINIMIZED = 0x1;
+		private final int STATUS_MAXIMIZED = 0x2;
 		
-		public KFramedPanel(JLabel title, Component body, Component parent)
+		private ImageIcon ICON_CHECKED = Core.Resources.Icons.get("JPanel/ToggleButton/Checked");
+		private ImageIcon ICON_UNCHECKED = Core.Resources.Icons.get("JPanel/ToggleButton/Unchecked");
+		
+		public DynamicPanel(JLabel title, Component body, Component parent)
 		{
 			super();
 			setLayout(this);
 			STATUS = STATUS_MINIMIZED;
 			setSize(100, 21);
-			shadowHeight = 21;
 			setMinimumSize(new Dimension(100, 21));
 			setPreferredSize(new Dimension(250, 250));
 			setMaximumSize(new Dimension(1280, 250));
@@ -880,61 +878,10 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			add(titleBar);
 			bodyComponent = body;
 			add(bodyComponent);
-			buttonToggle = new JCheckBox()
-			{
-				@Override
-				public void paint(Graphics g)
-				{
-					//super.paint(g);
-					if(STATUS == STATUS_MAXIMIZED || STATUS == STATUS_MAXIMIZING)
-						g.drawImage(Core.Resources.Icons.get("JPanel/ToggleButton/Checked").getImage(), 2, 2, this);
-					if(STATUS == STATUS_MINIMIZED || STATUS == STATUS_MINIMIZING)
-						g.drawImage(Core.Resources.Icons.get("JPanel/ToggleButton/Unchecked").getImage(), 2, 2, this);
-				}
-			};
+			buttonToggle = new JButton(ICON_CHECKED);
 			buttonToggle.setSelected(true);
 			buttonToggle.addActionListener(this);
 			add(buttonToggle);
-		}
-		
-		@Override
-		public void run()
-		{
-			while(true)
-			{
-				if(STATUS == STATUS_MINIMIZING)
-				{
-					if(shadowHeight <= getMinimumSize().getHeight())
-					{
-						STATUS = STATUS_MINIMIZED;
-						parentComponent.validate();
-						//SwingUtilities.invokeLater(new Runnable(){public void run(){getParent().validate();}});
-						return;
-					}
-					//setPreferredSize(new Dimension(250, getHeight() - 1));
-					setSize(new Dimension(getWidth(), --shadowHeight));
-				}
-				if(STATUS == STATUS_MAXIMIZING)
-				{
-					if(shadowHeight >= getMaximumSize().getHeight())
-					{
-						STATUS = STATUS_MAXIMIZED;
-						parentComponent.validate();
-						//SwingUtilities.invokeLater(new Runnable(){public void run(){getParent().validate();}});
-						return;
-					}
-					//setPreferredSize(new Dimension(250, getHeight() + 1));
-					setSize(new Dimension(getWidth(), ++shadowHeight));
-				}
-				SwingUtilities.invokeLater(new Runnable(){public void run(){parentComponent.validate();}});
-				try { Thread.sleep(2); } catch (InterruptedException ie) { }
-			}
-		}
-		
-		@Override
-		public int getHeight()
-		{
-			return shadowHeight;
 		}
 
 		@Override
@@ -968,30 +915,17 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(buttonToggle.isSelected())
+			if(STATUS == STATUS_MAXIMIZED)
 			{
-				if(STATUS != STATUS_MAXIMIZED)
-				{
-					buttonToggle.setSelected(false);
-					return;
-				}
-				buttonToggle.setSelected(true);
-				shadowHeight = getHeight();
-				STATUS = STATUS_MINIMIZING;
-				process = new Thread(this, getClass().getCanonicalName()+"/ActionPerformed/Toggle");
-				process.start();
-			}else
-			{
-				if(STATUS != STATUS_MINIMIZED)
-				{
-					buttonToggle.setSelected(true);
-					return;
-				}
-				buttonToggle.setSelected(false);
-				shadowHeight = getHeight();
-				STATUS = STATUS_MAXIMIZING;
-				process = new Thread(this, getClass().getCanonicalName()+"/ActionPerformed/Toggle");
-				process.start();
+				STATUS = STATUS_MINIMIZED;
+				buttonToggle.setIcon(ICON_CHECKED);
+				setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
+				parentComponent.validate();
+			} else {
+				STATUS = STATUS_MAXIMIZED;
+				buttonToggle.setIcon(ICON_UNCHECKED);
+				setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
+				parentComponent.validate();
 			}
 		}
 	}

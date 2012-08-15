@@ -6,6 +6,7 @@ import java.awt.image.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -14,6 +15,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
+import org.dyndns.doujindb.ui.desk.panels.*;
 
 @SuppressWarnings("serial")
 public final class DesktopEx extends JDesktopPane implements DataBaseListener
@@ -24,7 +26,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private JButton buttonRecycleBin;
 	private JButton buttonTools;
-	//TODO private JButton buttonMediaManager;
 	
 	private Vector<JButton> buttonPlugins;
 	
@@ -88,7 +89,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_RECYCLEBIN, null);
+					Core.UI.Desktop.openRecycleBin();
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -108,7 +109,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_TOOLS, null);
+					Core.UI.Desktop.openTools();
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -116,27 +117,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 		});
 		super.add(buttonTools);
-		//TODO ?
-		/*buttonMediaManager = new JButton(Core.Resources.Icons.get("JDesktop/MediaManager/Enabled"));
-		buttonMediaManager.setDisabledIcon(Core.Resources.Icons.get("JDesktop/MediaManager/Disabled"));
-		buttonMediaManager.setToolTipText("Media files");
-		buttonMediaManager.setFocusable(false);
-		buttonMediaManager.setContentAreaFilled(false);
-		buttonMediaManager.setBorder(null);
-		buttonMediaManager.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae)
-			{
-				try {
-					Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_MEDIAMANAGER, null);
-				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					dbe.printStackTrace();
-				}
-			}
-		});
-		super.add(buttonMediaManager);*/
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -147,10 +127,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				buttonRecycleBin.setBounds(5,5,32,32);
 				buttonTools.setBounds(5+32,5,32,32);
-				//TODO buttonMediaManager.setBounds(5 + 40,5,32,32);
 				buttonRecycleBin.setEnabled(Core.Database.isConnected());
 				buttonTools.setEnabled(Core.Database.isConnected());
-				//TODO buttonMediaManager.setEnabled(Core.Database.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
@@ -197,7 +175,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				public void actionPerformed(ActionEvent ae)
 				{
 					try {
-						openWindow(WindowEx.Type.WINDOW_PLUGIN, plugin);
+						openPlugin(plugin);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -218,11 +196,34 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			return super.add(comp);//throw new InvalidWindowStateException("Don't use Component.add(), use open() instead.");
 	}
 	
-	public WindowEx openWindow(WindowEx.Type type, Object param) throws DataBaseException
+	public WindowEx openWindow(WindowEx.Type type, Record rcd) throws DataBaseException
 	{
-		if(checkWindow(type, param))
+		if(checkWindow(type, rcd))
 			return null;
-		WindowEx window = new WindowEx(type, param);
+		WindowEx window;
+		switch(type)
+		{
+		case WINDOW_ARTIST:
+			window = new WindowArtistImpl(rcd);
+			break;
+		case WINDOW_BOOK:
+			window = new WindowBookImpl(rcd);
+			break;
+		case WINDOW_CIRCLE:
+			window = new WindowCircleImpl(rcd);
+			break;
+		case WINDOW_CONTENT:
+			window = new WindowContentImpl(rcd);
+			break;
+		case WINDOW_CONVENTION:
+			window = new WindowConventionImpl(rcd);
+			break;
+		case WINDOW_PARODY:
+			window = new WindowParodyImpl(rcd);
+			break;
+		default:
+			throw new DataBaseException("'" + type + "' is not a valid Record type.");
+		}
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
@@ -238,14 +239,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openWindow(WindowEx.Type type, Object param, Rectangle bounds) throws DataBaseException
+	public WindowEx openRecycleBin() throws DataBaseException
 	{
-		if(checkWindow(type, param))
+		if(checkWindow(WindowEx.Type.WINDOW_RECYCLEBIN))
 			return null;
-		WindowEx window = new WindowEx(type, param);
+		WindowEx window = new WindowRecycleBinImpl();
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
-		window.setBounds(bounds);
 		super.add(window);
 		try
 		{
@@ -259,13 +259,14 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openWindow(WindowEx.Type type, Object param, Icon icon, String title) throws DataBaseException
+	public WindowEx openSearch() throws DataBaseException
 	{
-		if(checkWindow(type, param))
+		if(checkWindow(WindowEx.Type.WINDOW_SEARCH))
 			return null;
-		WindowEx window = new WindowEx(type, param);
-		window.setFrameIcon(icon);
-		window.setTitle(title);
+		WindowEx window = new WindowSearchImpl();
+		window.setBounds(0,0,450,450);
+		window.setMinimumSize(new Dimension(400, 350));
+		super.add(window);
 		try
 		{
 			window.setVisible(true);
@@ -276,6 +277,111 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			Core.Logger.log(pve.getMessage(), Level.WARNING);
 		}
 		return window;
+	}
+	
+	public WindowEx openTools() throws DataBaseException
+	{
+		if(checkWindow(WindowEx.Type.WINDOW_TOOLS))
+			return null;
+		WindowEx window = new WindowToolsImpl();
+		window.setBounds(0,0,450,450);
+		window.setMinimumSize(new Dimension(400, 350));
+		super.add(window);
+		try
+		{
+			window.setVisible(true);
+			window.setSelected(true);
+		} catch (PropertyVetoException pve)
+		{
+			pve.printStackTrace();
+			Core.Logger.log(pve.getMessage(), Level.WARNING);
+		}
+		return window;
+	}
+	
+	public WindowEx openPlugin(Plugin plug) throws DataBaseException
+	{
+		if(plug == null)
+			throw new IllegalArgumentException("Argument 'Plugin' cannot be null.");
+		if(checkWindow(WindowEx.Type.WINDOW_PLUGIN, plug))
+			return null;
+		WindowEx window = new WindowPluginImpl(plug);
+		window.setBounds(0,0,450,450);
+		window.setMinimumSize(new Dimension(400, 350));
+		super.add(window);
+		try
+		{
+			window.setVisible(true);
+			window.setSelected(true);
+		} catch (PropertyVetoException pve)
+		{
+			pve.printStackTrace();
+			Core.Logger.log(pve.getMessage(), Level.WARNING);
+		}
+		return window;
+	}
+	
+//	public WindowEx openWindow(WindowEx.Type type, Object param, Rectangle bounds) throws DataBaseException
+//	{
+//		if(checkWindow(type, param))
+//			return null;
+//		WindowEx window = new WindowEx(type, param);
+//		window.setBounds(0,0,450,450);
+//		window.setMinimumSize(new Dimension(400, 350));
+//		window.setBounds(bounds);
+//		super.add(window);
+//		try
+//		{
+//			window.setVisible(true);
+//			window.setSelected(true);
+//		} catch (PropertyVetoException pve)
+//		{
+//			pve.printStackTrace();
+//			Core.Logger.log(pve.getMessage(), Level.WARNING);
+//		}
+//		return window;
+//	}
+//	
+//	public WindowEx openWindow(WindowEx.Type type, Object param, Icon icon, String title) throws DataBaseException
+//	{
+//		if(checkWindow(type, param))
+//			return null;
+//		WindowEx window = new WindowEx(type, param);
+//		window.setFrameIcon(icon);
+//		window.setTitle(title);
+//		try
+//		{
+//			window.setVisible(true);
+//			window.setSelected(true);
+//		} catch (PropertyVetoException pve)
+//		{
+//			pve.printStackTrace();
+//			Core.Logger.log(pve.getMessage(), Level.WARNING);
+//		}
+//		return window;
+//	}
+	
+	private boolean checkWindow(WindowEx.Type type)
+	{
+		for(JInternalFrame jif : getAllFrames())
+		{
+			WindowEx window = (WindowEx)jif;
+			if(window.getType().equals(type))
+			{
+				try
+				{
+					window.setVisible(true);
+					window.setSelected(true);
+					window.setIcon(false);
+				} catch (PropertyVetoException pve)
+				{
+					pve.printStackTrace();
+					Core.Logger.log(pve.getMessage(), Level.WARNING);
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean checkWindow(WindowEx.Type type, Object token)
@@ -283,8 +389,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		for(JInternalFrame jif : getAllFrames())
 		{
 			WindowEx window = (WindowEx)jif;
-			if(token == null && window.getItem() == null)
-				if(window.getType().equals(type))
+			
+			if(window instanceof WindowPluginImpl)
+			{
+				Plugin plug = ((WindowPluginImpl)window).plugin;
+				if(plug.equals(token))
 				{
 					try
 					{
@@ -298,21 +407,54 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 					}
 					return true;
 				}
-			if(token != null && window.getItem() != null)
-				if(window.getItem().equals(token))
-				{
-					try
+			}
+			else
+			{
+				Record rcd = null;
+				if(window instanceof WindowArtistImpl)
+					rcd = ((WindowArtistImpl)window).record;
+				if(window instanceof WindowBookImpl)
+					rcd = ((WindowBookImpl)window).record;
+				if(window instanceof WindowCircleImpl)
+					rcd = ((WindowCircleImpl)window).record;
+				if(window instanceof WindowContentImpl)
+					rcd = ((WindowContentImpl)window).record;
+				if(window instanceof WindowConventionImpl)
+					rcd = ((WindowConventionImpl)window).record;
+				if(window instanceof WindowParodyImpl)
+					rcd = ((WindowParodyImpl)window).record;
+				
+				if(token == null && rcd == null)
+					if(window.getType().equals(type))
 					{
-						window.setVisible(true);
-						window.setSelected(true);
-						window.setIcon(false);
-					} catch (PropertyVetoException pve)
-					{
-						pve.printStackTrace();
-						Core.Logger.log(pve.getMessage(), Level.WARNING);
+						try
+						{
+							window.setVisible(true);
+							window.setSelected(true);
+							window.setIcon(false);
+						} catch (PropertyVetoException pve)
+						{
+							pve.printStackTrace();
+							Core.Logger.log(pve.getMessage(), Level.WARNING);
+						}
+						return true;
 					}
-					return true;
-				}
+				if(token != null && rcd != null)
+					if(rcd.equals(token))
+					{
+						try
+						{
+							window.setVisible(true);
+							window.setSelected(true);
+							window.setIcon(false);
+						} catch (PropertyVetoException pve)
+						{
+							pve.printStackTrace();
+							Core.Logger.log(pve.getMessage(), Level.WARNING);
+						}
+						return true;
+					}
+			}
 		}
 		return false;
 	}
@@ -457,6 +599,299 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
+		}
+	}
+	
+	private final class WindowArtistImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowArtistImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_ARTIST;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
+			if(this.record == null)
+				super.setTitle("Add Artist");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_ARTIST, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowBookImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowBookImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_BOOK;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book"));
+			if(this.record == null)
+				super.setTitle("Add Book");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_BOOK, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowCircleImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowCircleImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_CIRCLE;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
+			if(this.record == null)
+				super.setTitle("Add Circle");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_CIRCLE, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowContentImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowContentImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_CONTENT;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
+			if(this.record == null)
+				super.setTitle("Add Content");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_CONTENT, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowConventionImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowConventionImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_CONVENTION;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+			if(this.record == null)
+				super.setTitle("Add Convention");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_CONVENTION, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowParodyImpl extends WindowEx
+	{
+		private Record record;
+		
+		WindowParodyImpl(Record rcd) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_PARODY;
+				this.record = rcd;
+			}
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
+			if(this.record == null)
+				super.setTitle("Add Parody");
+			else
+				super.setTitle(this.record.toString());
+			EditPanel editor = new EditPanel(this, Type.WINDOW_PARODY, this.record);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+		
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(record.equals(rcd))
+			{
+				super.dispose();
+				Core.UI.Desktop.remove(this);
+			}
+			super.recordDeleted(rcd);
+		}
+	}
+	
+	private final class WindowSearchImpl extends WindowEx
+	{
+		WindowSearchImpl() throws DataBaseException
+		{
+			super();
+			this.type = Type.WINDOW_SEARCH;
+			super.setFrameIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/Search"));
+			super.setTitle("Search");
+			JTabbedPane pane = new JTabbedPane();
+			pane.setFocusable(false);
+			PanelSearch sp;
+			sp = new PanelSearch(PanelSearch.Type.ARTIST, pane, 0);
+			listeners.add(sp);
+			pane.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), sp);
+			sp = new PanelSearch(PanelSearch.Type.BOOK, pane, 1);
+			listeners.add(sp);
+			pane.addTab("Book", Core.Resources.Icons.get("JDesktop/Explorer/Book"), sp);
+			sp = new PanelSearch(PanelSearch.Type.CIRCLE, pane, 2);
+			listeners.add(sp);
+			pane.addTab("Circle", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), sp);
+			sp = new PanelSearch(PanelSearch.Type.CONVENTION, pane, 3);
+			listeners.add(sp);
+			pane.addTab("Convention", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), sp);
+			sp = new PanelSearch(PanelSearch.Type.CONTENT, pane, 4);
+			listeners.add(sp);
+			pane.addTab("Content", Core.Resources.Icons.get("JDesktop/Explorer/Content"), sp);
+			sp = new PanelSearch(PanelSearch.Type.PARODY, pane, 5);
+			listeners.add(sp);
+			pane.addTab("Parody", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), sp);
+			super.add(pane);
+			super.setVisible(true);
+		}
+	}
+	
+	private final class WindowRecycleBinImpl extends WindowEx
+	{
+		WindowRecycleBinImpl() throws DataBaseException
+		{
+			super();
+			this.type = Type.WINDOW_RECYCLEBIN;
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"));
+			super.setTitle("Recycle Bin");
+			EditPanel editor = new EditPanel(this, Type.WINDOW_RECYCLEBIN, null);
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+	}
+	
+	private final class WindowToolsImpl extends WindowEx
+	{
+		WindowToolsImpl() throws DataBaseException
+		{
+			super();
+			this.type = Type.WINDOW_TOOLS;
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Tools"));
+			super.setTitle("Tools");
+			EditPanel editor = new EditPanel(this, Type.WINDOW_TOOLS, null);
+			//TODO org.dyndns.doujindb.util.RepositoryIndexer.rebuildIndexes();
+			listeners.add(editor);
+			super.add(editor);
+			super.setVisible(true);
+		}
+	}
+
+	private final class WindowPluginImpl extends WindowEx
+	{
+		private Plugin plugin;
+		
+		WindowPluginImpl(Plugin plugin) throws DataBaseException
+		{
+			super();
+			{
+				this.type = Type.WINDOW_PLUGIN;
+				this.plugin = plugin;
+			}			
+			super.setFrameIcon(Core.Resources.Icons.get("JFrame/Tab/Plugins"));
+			super.setTitle(plugin.getName());
+			/**
+			 * Interface Plugin does not extends/implement DatabaseListener.
+			 * A plugin may not be related to DB operations
+			 * Maybe it's better if a plugin register itself for getting DB events
+			 */
+			//FIXME listeners.add(plugin);
+			super.add(plugin.getUI());
+			super.setVisible(true);
 		}
 	}
 }

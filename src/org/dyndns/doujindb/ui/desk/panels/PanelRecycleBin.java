@@ -2,12 +2,12 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
+
 import java.beans.PropertyVetoException;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import javax.swing.*;
-import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.RepositoryException;
@@ -16,9 +16,8 @@ import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
-public final class PanelRecycleBin implements DataBaseListener, LayoutManager, MouseListener
+public final class PanelRecycleBin implements DataBaseListener, LayoutManager, ListSelectionListener
 {
 	@SuppressWarnings("unused")
 	private WindowEx parentWindow;
@@ -34,19 +33,20 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	private DynamicPanel panelFramed[] = new DynamicPanel[6];
 	private JScrollPane scrollPanelBase;
 	private JPanel panelBase;
-	private CheckBoxListEx<Artist> checkboxListArtist;
+	private JList<Artist> listArtist;
 	private JLabel labelListArtist;
-	private CheckBoxListEx<Circle> checkboxListCircle;
+	private JList<Circle> listCircle;
 	private JLabel labelListCircle;
-	private CheckBoxListEx<Book> checkboxListBook;
+	private JList<Book> listBook;
 	private JLabel labelListBook;
-	private CheckBoxListEx<Convention> checkboxListConvention;
+	private JList<Convention> listConvention;
 	private JLabel labelListConvention;
-	private CheckBoxListEx<Content> checkboxListContent;
+	private JList<Content> listContent;
 	private JLabel labelListContent;
-	private CheckBoxListEx<Parody> checkboxListParody;
+	private JList<Parody> listParody;
 	private JLabel labelListParody;
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PanelRecycleBin(WindowEx parent, JComponent pane)
 	{
 		parentWindow = parent;
@@ -84,39 +84,73 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 					{
 						try
 						{
-							for(Artist value : checkboxListArtist.getSelectedItems())
+							DefaultListModel model;
+							Vector<Artist> artists = new Vector<Artist>();
+							Vector<Book> books = new Vector<Book>();
+							Vector<Circle> circles = new Vector<Circle>();
+							Vector<Content> contents = new Vector<Content>();
+							Vector<Convention> conventions = new Vector<Convention>();
+							Vector<Parody> parodies = new Vector<Parody>();
+							for(int index : listArtist.getSelectedIndices())
+								artists.add(listArtist.getModel().getElementAt(index));
+							for(int index : listBook.getSelectedIndices())
+								books.add(listBook.getModel().getElementAt(index));
+							for(int index : listCircle.getSelectedIndices())
+								circles.add(listCircle.getModel().getElementAt(index));
+							for(int index : listContent.getSelectedIndices())
+								contents.add(listContent.getModel().getElementAt(index));
+							for(int index : listConvention.getSelectedIndices())
+								conventions.add(listConvention.getModel().getElementAt(index));
+							for(int index : listParody.getSelectedIndices())
+								parodies.add(listParody.getModel().getElementAt(index));
+							model = (DefaultListModel) listArtist.getModel();
+							for(Artist artist : artists)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								artist.doRestore();
+								Core.UI.Desktop.recordAdded(artist);
+								model.removeElement(artist);
 							}
-							for(Book value : checkboxListBook.getSelectedItems())
+							model = (DefaultListModel) listBook.getModel();
+							for(Book book : books)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								book.doRestore();
+								Core.UI.Desktop.recordAdded(book);
+								model.removeElement(book);
 							}
-							for(Circle value : checkboxListCircle.getSelectedItems())
+							model = (DefaultListModel) listCircle.getModel();
+							for(Circle circle : circles)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								circle.doRestore();
+								Core.UI.Desktop.recordAdded(circle);
+								model.removeElement(circle);
 							}
-							for(Convention value : checkboxListConvention.getSelectedItems())
+							model = (DefaultListModel) listContent.getModel();
+							for(Content content : contents)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								content.doRestore();
+								Core.UI.Desktop.recordAdded(content);
+								model.removeElement(content);
 							}
-							for(Content value : checkboxListContent.getSelectedItems())
+							model = (DefaultListModel) listConvention.getModel();
+							for(Convention convention : conventions)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								convention.doRestore();
+								Core.UI.Desktop.recordAdded(convention);
+								model.removeElement(convention);
 							}
-							for(Parody value : checkboxListParody.getSelectedItems())
+							model = (DefaultListModel) listParody.getModel();
+							for(Parody parody : parodies)
 							{
-								value.doRestore();
-								Core.UI.Desktop.recordAdded(value);
+								parody.doRestore();
+								Core.UI.Desktop.recordAdded(parody);
+								model.removeElement(parody);
 							}
+			
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 							Core.UI.Desktop.databaseCommit();
+							
+							loadData();
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
@@ -145,12 +179,12 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 					@Override
 					public void run()
 					{
-						if(!checkboxListArtist.getSelectedItems().iterator().hasNext() &&
-								!checkboxListBook.getSelectedItems().iterator().hasNext() &&
-								!checkboxListCircle.getSelectedItems().iterator().hasNext() &&
-								!checkboxListConvention.getSelectedItems().iterator().hasNext() &&
-								!checkboxListContent.getSelectedItems().iterator().hasNext() &&
-								!checkboxListParody.getSelectedItems().iterator().hasNext())
+						if(listArtist.getSelectedIndices().length == 0 &&
+								listBook.getSelectedIndices().length == 0 &&
+								listCircle.getSelectedIndices().length == 0 &&
+								listContent.getSelectedIndices().length == 0 &&
+								listConvention.getSelectedIndices().length == 0 &&
+								listParody.getSelectedIndices().length == 0)
 							return;
 						{
 							JPanel panel = new JPanel();
@@ -187,65 +221,95 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/Loading"));
 									recycleRestore.setEnabled(false);
 									recycleDelete.setEnabled(false);
-									recycleEmpty.setEnabled(false);
-									;
-									try {
-									;
-									for(Artist value : checkboxListArtist.getSelectedItems())
+									recycleEmpty.setEnabled(false);							
+									
+									try
 									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Book value : checkboxListBook.getSelectedItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
-									}
-									for(Circle value : checkboxListCircle.getSelectedItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
-									}
-									for(Convention value : checkboxListConvention.getSelectedItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Content value : checkboxListContent.getSelectedItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Parody value : checkboxListParody.getSelectedItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									;
-									System.gc();
-									;
+										DefaultListModel model;
+										Vector<Artist> artists = new Vector<Artist>();
+										Vector<Book> books = new Vector<Book>();
+										Vector<Circle> circles = new Vector<Circle>();
+										Vector<Content> contents = new Vector<Content>();
+										Vector<Convention> conventions = new Vector<Convention>();
+										Vector<Parody> parodies = new Vector<Parody>();
+										for(int index : listArtist.getSelectedIndices())
+											artists.add(listArtist.getModel().getElementAt(index));
+										for(int index : listBook.getSelectedIndices())
+											books.add(listBook.getModel().getElementAt(index));
+										for(int index : listCircle.getSelectedIndices())
+											circles.add(listCircle.getModel().getElementAt(index));
+										for(int index : listContent.getSelectedIndices())
+											contents.add(listContent.getModel().getElementAt(index));
+										for(int index : listConvention.getSelectedIndices())
+											conventions.add(listConvention.getModel().getElementAt(index));
+										for(int index : listParody.getSelectedIndices())
+											parodies.add(listParody.getModel().getElementAt(index));
+										model = (DefaultListModel) listArtist.getModel();
+										for(Artist artist : artists)
+										{
+											artist.removeAll();
+											model.removeElement(artist);
+											Core.Database.doDelete(artist);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listBook.getModel();
+										for(Book book : books)
+										{
+											book.removeAll();
+											model.removeElement(book);
+											Core.Database.doDelete(book);
+											Core.Database.doCommit();
+											try { Core.Repository.child(book.getID()).delete(); } catch (RepositoryException dse) { ; }
+										}
+										model = (DefaultListModel) listCircle.getModel();
+										for(Circle circle : circles)
+										{
+											circle.removeAll();
+											model.removeElement(circle);
+											Core.Database.doDelete(circle);
+											Core.Database.doCommit();
+											try { Core.Repository.child(circle.getID()).delete(); } catch (RepositoryException dse) { ; }
+										}
+										model = (DefaultListModel) listContent.getModel();
+										for(Content content : contents)
+										{
+											content.removeAll();
+											model.removeElement(content);
+											Core.Database.doDelete(content);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listConvention.getModel();
+										for(Convention convention : conventions)
+										{
+											convention.removeAll();
+											model.removeElement(convention);
+											Core.Database.doDelete(convention);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listParody.getModel();
+										for(Parody parody : parodies)
+										{
+											parody.removeAll();
+											model.removeElement(parody);
+											Core.Database.doDelete(parody);
+											Core.Database.doCommit();
+										}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									;
+
 									recycleRestore.setEnabled(true);
 									recycleDelete.setEnabled(true);
 									recycleEmpty.setEnabled(true);
 									recycleDelete.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Delete"));
-									;
+
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
-									;
+									
+									loadData();
+
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
@@ -284,13 +348,6 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 					@Override
 					public void run()
 					{
-						if(!checkboxListArtist.getItems().iterator().hasNext() &&
-								!checkboxListBook.getItems().iterator().hasNext() &&
-								!checkboxListCircle.getItems().iterator().hasNext() &&
-								!checkboxListConvention.getItems().iterator().hasNext() &&
-								!checkboxListContent.getItems().iterator().hasNext() &&
-								!checkboxListParody.getItems().iterator().hasNext())
-							return;
 						{
 							JPanel panel = new JPanel();
 							panel.setSize(250, 150);
@@ -327,63 +384,94 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 									recycleRestore.setEnabled(false);
 									recycleDelete.setEnabled(false);
 									recycleEmpty.setEnabled(false);
-									;
-									try {
-									;
-									for(Artist value : checkboxListArtist.getItems())
+
+									try
 									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Book value : checkboxListBook.getItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
-									}
-									for(Circle value : checkboxListCircle.getItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-										try { Core.Repository.child(value.getID()).delete(); } catch (RepositoryException dse) { ; }
-									}
-									for(Convention value : checkboxListConvention.getItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Content value : checkboxListContent.getItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									for(Parody value : checkboxListParody.getItems())
-									{
-										value.removeAll();
-										Core.Database.doDelete(value);
-										Core.Database.doCommit();
-									}
-									System.gc();
-									;
+										DefaultListModel model;
+										Vector<Artist> artists = new Vector<Artist>();
+										Vector<Book> books = new Vector<Book>();
+										Vector<Circle> circles = new Vector<Circle>();
+										Vector<Content> contents = new Vector<Content>();
+										Vector<Convention> conventions = new Vector<Convention>();
+										Vector<Parody> parodies = new Vector<Parody>();
+										for(int i=0;i<listArtist.getModel().getSize();i++)
+											artists.add(listArtist.getModel().getElementAt(i));
+										for(int i=0;i<listBook.getModel().getSize();i++)
+											books.add(listBook.getModel().getElementAt(i));
+										for(int i=0;i<listCircle.getModel().getSize();i++)
+											circles.add(listCircle.getModel().getElementAt(i));
+										for(int i=0;i<listContent.getModel().getSize();i++)
+											contents.add(listContent.getModel().getElementAt(i));
+										for(int i=0;i<listConvention.getModel().getSize();i++)
+											conventions.add(listConvention.getModel().getElementAt(i));
+										for(int i=0;i<listParody.getModel().getSize();i++)
+											parodies.add(listParody.getModel().getElementAt(i));
+										model = (DefaultListModel) listArtist.getModel();
+										for(Artist artist : artists)
+										{
+											artist.removeAll();
+											model.removeElement(artist);
+											Core.Database.doDelete(artist);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listBook.getModel();
+										for(Book book : books)
+										{
+											book.removeAll();
+											model.removeElement(book);
+											Core.Database.doDelete(book);
+											Core.Database.doCommit();
+											try { Core.Repository.child(book.getID()).delete(); } catch (RepositoryException dse) { ; }
+										}
+										model = (DefaultListModel) listCircle.getModel();
+										for(Circle circle : circles)
+										{
+											circle.removeAll();
+											model.removeElement(circle);
+											Core.Database.doDelete(circle);
+											Core.Database.doCommit();
+											try { Core.Repository.child(circle.getID()).delete(); } catch (RepositoryException dse) { ; }
+										}
+										model = (DefaultListModel) listContent.getModel();
+										for(Content content : contents)
+										{
+											content.removeAll();
+											model.removeElement(content);
+											Core.Database.doDelete(content);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listConvention.getModel();
+										for(Convention convention : conventions)
+										{
+											convention.removeAll();
+											model.removeElement(convention);
+											Core.Database.doDelete(convention);
+											Core.Database.doCommit();
+										}
+										model = (DefaultListModel) listParody.getModel();
+										for(Parody parody : parodies)
+										{
+											parody.removeAll();
+											model.removeElement(parody);
+											Core.Database.doDelete(parody);
+											Core.Database.doCommit();
+										}
 									} catch (DataBaseException dbe) {
 										Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										dbe.printStackTrace();
 									}
-									;
+
 									recycleRestore.setEnabled(true);
 									recycleDelete.setEnabled(true);
 									recycleEmpty.setEnabled(true);
 									recycleEmpty.setIcon(Core.Resources.Icons.get("JFrame/RecycleBin/Empty"));
-									;
+
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
-									;
+									
+									loadData();
+
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
 								}					
@@ -459,129 +547,101 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 		JSplitPane splitListCV = new JSplitPane();
 		JSplitPane splitListCN = new JSplitPane();
 		JSplitPane splitListP = new JSplitPane();
+		Color foreground = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+		Color background = (Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker();
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListArtist.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListArtist.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListArtist.filterChanged();
-			    }
-			});
-			checkboxListArtist = new CheckBoxListEx<Artist>(deleted_a, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Artist o : deleted_a)
+				model.add(0, o);
+			listArtist = new JList<Artist>();
+			listArtist.setModel(model);
+			listArtist.setBackground(background);
+			listArtist.setForeground(foreground);
+			listArtist.setSelectionBackground(foreground);
+			listArtist.setSelectionForeground(background);
+			listArtist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListA.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListA.setTopComponent(searchField);
-			splitListA.setBottomComponent(checkboxListArtist);
+			splitListA.setBottomComponent(new JScrollPane(listArtist));
 			splitListA.setDividerSize(0);
 			splitListA.setEnabled(false);	
 		}
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListBook.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListBook.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListBook.filterChanged();
-			    }
-			});
-			checkboxListBook = new CheckBoxListEx<Book>(deleted_b, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Book o : deleted_b)
+				model.add(0, o);
+			listBook = new JList<Book>();
+			listBook.setModel(model);
+			listBook.setBackground(background);
+			listBook.setForeground(foreground);
+			listBook.setSelectionBackground(foreground);
+			listBook.setSelectionForeground(background);
+			listBook.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListB.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListB.setTopComponent(searchField);
-			splitListB.setBottomComponent(checkboxListBook);
+			splitListB.setBottomComponent(new JScrollPane(listBook));
 			splitListB.setDividerSize(0);
 			splitListB.setEnabled(false);	
 		}
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListCircle.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListCircle.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListCircle.filterChanged();
-			    }
-			});
-			checkboxListCircle = new CheckBoxListEx<Circle>(deleted_c, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Circle o : deleted_c)
+				model.add(0, o);
+			listCircle = new JList<Circle>();
+			listCircle.setModel(model);
+			listCircle.setBackground(background);
+			listCircle.setForeground(foreground);
+			listCircle.setSelectionBackground(foreground);
+			listCircle.setSelectionForeground(background);
+			listCircle.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListC.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListC.setTopComponent(searchField);
-			splitListC.setBottomComponent(checkboxListCircle);
+			splitListC.setBottomComponent(new JScrollPane(listCircle));
 			splitListC.setDividerSize(0);
 			splitListC.setEnabled(false);	
 		}
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListConvention.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListConvention.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListConvention.filterChanged();
-			    }
-			});
-			checkboxListConvention = new CheckBoxListEx<Convention>(deleted_cv, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Convention o : deleted_cv)
+				model.add(0, o);
+			listConvention = new JList<Convention>();
+			listConvention.setModel(model);
+			listConvention.setBackground(background);
+			listConvention.setForeground(foreground);
+			listConvention.setSelectionBackground(foreground);
+			listConvention.setSelectionForeground(background);
+			listConvention.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListCV.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListCV.setTopComponent(searchField);
-			splitListCV.setBottomComponent(checkboxListConvention);
+			splitListCV.setBottomComponent(new JScrollPane(listConvention));
 			splitListCV.setDividerSize(0);
 			splitListCV.setEnabled(false);	
 		}
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListContent.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListContent.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListContent.filterChanged();
-			    }
-			});
-			checkboxListContent = new CheckBoxListEx<Content>(deleted_cn, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Content o : deleted_cn)
+				model.add(0, o);
+			listContent = new JList<Content>();
+			listContent.setModel(model);
+			listContent.setBackground(background);
+			listContent.setForeground(foreground);
+			listContent.setSelectionBackground(foreground);
+			listContent.setSelectionForeground(background);
+			listContent.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListCN.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListCN.setTopComponent(searchField);
-			splitListCN.setBottomComponent(checkboxListContent);
+			splitListCN.setBottomComponent(new JScrollPane(listContent));
 			splitListCN.setDividerSize(0);
 			splitListCN.setEnabled(false);	
 		}
 		{
-			JTextField searchField = new JTextField(".*");
-			searchField.getDocument().addDocumentListener(new DocumentListener()
-			{
-			    public void insertUpdate(DocumentEvent e) {
-			    	checkboxListParody.filterChanged();
-			    }
-			    public void removeUpdate(DocumentEvent e) {
-			    	checkboxListParody.filterChanged();
-			    }
-			    public void changedUpdate(DocumentEvent e) {
-			    	checkboxListParody.filterChanged();
-			    }
-			});
-			checkboxListParody = new CheckBoxListEx<Parody>(deleted_p, searchField);
+			DefaultListModel model = new DefaultListModel();
+			for(Parody o : deleted_p)
+				model.add(0, o);
+			listParody = new JList<Parody>();
+			listParody.setModel(model);
+			listParody.setBackground(background);
+			listParody.setForeground(foreground);
+			listParody.setSelectionBackground(foreground);
+			listParody.setSelectionForeground(background);
+			listParody.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			splitListP.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListP.setTopComponent(searchField);
-			splitListP.setBottomComponent(checkboxListParody);
+			splitListP.setBottomComponent(new JScrollPane(listParody));
 			splitListP.setDividerSize(0);
 			splitListP.setEnabled(false);	
 		}
@@ -673,33 +733,23 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 							switch(selected)
 							{
 							case 0:{
-								checkboxListArtist.setSelectedItems(checkboxListArtist.getItems());
-								checkboxListBook.setSelectedItems(checkboxListBook.getItems());
-								checkboxListCircle.setSelectedItems(checkboxListCircle.getItems());
-								checkboxListContent.setSelectedItems(checkboxListContent.getItems());
-								checkboxListConvention.setSelectedItems(checkboxListConvention.getItems());
-								checkboxListParody.setSelectedItems(checkboxListParody.getItems());
-								labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
-								labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");
-								labelListCircle.setText("Circles (" + checkboxListCircle.getSelectedItemCount() + "/" + checkboxListCircle.getItemCount() + ")");
-								labelListConvention.setText("Conventions (" + checkboxListConvention.getSelectedItemCount() + "/" + checkboxListConvention.getItemCount() + ")");
-								labelListContent.setText("Contents (" + checkboxListContent.getSelectedItemCount() + "/" + checkboxListContent.getItemCount() + ")");
-								labelListParody.setText("Parodies (" + checkboxListParody.getSelectedItemCount() + "/" + checkboxListParody.getItemCount() + ")");
+								listArtist.setSelectionInterval(0, listArtist.getModel().getSize() - 1);
+								listBook.setSelectionInterval(0, listBook.getModel().getSize() - 1);
+								listCircle.setSelectionInterval(0, listCircle.getModel().getSize() - 1);
+								listContent.setSelectionInterval(0, listContent.getModel().getSize() - 1);
+								listConvention.setSelectionInterval(0, listConvention.getModel().getSize() - 1);
+								listParody.setSelectionInterval(0, listParody.getModel().getSize() - 1);
+								loadData();
 								break;
 							}
 							case 1:{
-								checkboxListArtist.setSelectedItems(new Vector<Artist>());
-								checkboxListBook.setSelectedItems(new Vector<Book>());
-								checkboxListCircle.setSelectedItems(new Vector<Circle>());
-								checkboxListContent.setSelectedItems(new Vector<Content>());
-								checkboxListConvention.setSelectedItems(new Vector<Convention>());
-								checkboxListParody.setSelectedItems(new Vector<Parody>());
-								labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
-								labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");
-								labelListCircle.setText("Circles (" + checkboxListCircle.getSelectedItemCount() + "/" + checkboxListCircle.getItemCount() + ")");
-								labelListConvention.setText("Conventions (" + checkboxListConvention.getSelectedItemCount() + "/" + checkboxListConvention.getItemCount() + ")");
-								labelListContent.setText("Contents (" + checkboxListContent.getSelectedItemCount() + "/" + checkboxListContent.getItemCount() + ")");
-								labelListParody.setText("Parodies (" + checkboxListParody.getSelectedItemCount() + "/" + checkboxListParody.getItemCount() + ")");
+								listArtist.clearSelection();
+								listBook.clearSelection();
+								listCircle.clearSelection();
+								listContent.clearSelection();
+								listConvention.clearSelection();
+								listParody.clearSelection();
+								loadData();
 								break;
 							}
 							}
@@ -709,18 +759,19 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			  }
 		});
 		;
-		checkboxListArtist.addMouseListener(this);
-		checkboxListBook.addMouseListener(this);
-		checkboxListCircle.addMouseListener(this);
-		checkboxListConvention.addMouseListener(this);
-		checkboxListContent.addMouseListener(this);
-		checkboxListParody.addMouseListener(this);
+		listArtist.addListSelectionListener(this);
+		listBook.addListSelectionListener(this);
+		listCircle.addListSelectionListener(this);
+		listConvention.addListSelectionListener(this);
+		listContent.addListSelectionListener(this);
+		listParody.addListSelectionListener(this);
 		;
 		SwingUtilities.invokeLater(new Runnable()
 		{
 			public void run()
 			{
 				split.revalidate();
+				loadData();
 			}
 		});
 	}
@@ -757,82 +808,8 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	     return parent.getPreferredSize();
 	}
 	
-	private void validateUI()
+	private void loadData()
 	{
-		Vector<Artist> deleted_a = new Vector<Artist>();
-		Vector<Book> deleted_b = new Vector<Book>();
-		Vector<Circle> deleted_c = new Vector<Circle>();
-		Vector<Convention> deleted_cv = new Vector<Convention>();
-		Vector<Content> deleted_cn = new Vector<Content>();
-		Vector<Parody> deleted_p = new Vector<Parody>();
-		try {
-			for(Record r : Core.Database.getRecycled())
-			{
-				if(r instanceof Artist)
-				{
-					deleted_a.add((Artist)r);
-					continue;
-				}
-				if(r instanceof Book)
-				{
-					deleted_b.add((Book)r);
-					continue;
-				}
-				if(r instanceof Circle)
-				{
-					deleted_c.add((Circle)r);
-					continue;
-				}
-				if(r instanceof Convention)
-				{
-					deleted_cv.add((Convention)r);
-					continue;
-				}
-				if(r instanceof Content)
-				{
-					deleted_cn.add((Content)r);
-					continue;
-				}
-				if(r instanceof Parody)
-				{
-					deleted_p.add((Parody)r);
-					continue;
-				}
-			}
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
-		}
-		{
-			Iterable<Artist> iterable = checkboxListArtist.getSelectedItems();
-			checkboxListArtist.setItems(deleted_a);
-			checkboxListArtist.setSelectedItems(iterable);
-		}
-		{
-			Iterable<Book> iterable = checkboxListBook.getSelectedItems();
-			checkboxListBook.setItems(deleted_b);
-			checkboxListBook.setSelectedItems(iterable);
-		}
-		{
-			Iterable<Circle> iterable = checkboxListCircle.getSelectedItems();
-			checkboxListCircle.setItems(deleted_c);
-			checkboxListCircle.setSelectedItems(iterable);
-		}
-		{
-			Iterable<Convention> iterable = checkboxListConvention.getSelectedItems();
-			checkboxListConvention.setItems(deleted_cv);
-			checkboxListConvention.setSelectedItems(iterable);
-		}
-		{
-			Iterable<Content> iterable = checkboxListContent.getSelectedItems();
-			checkboxListContent.setItems(deleted_cn);
-			checkboxListContent.setSelectedItems(iterable);
-		}
-		{
-			Iterable<Parody> iterable = checkboxListParody.getSelectedItems();
-			checkboxListParody.setItems(deleted_p);
-			checkboxListParody.setSelectedItems(iterable);
-		}
 		long count;
 		try {
 			count = Core.Database.getRecycled().size();
@@ -841,12 +818,12 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
 		}
-		labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
-		labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");
-		labelListCircle.setText("Circles (" + checkboxListCircle.getSelectedItemCount() + "/" + checkboxListCircle.getItemCount() + ")");
-		labelListConvention.setText("Conventions (" + checkboxListConvention.getSelectedItemCount() + "/" + checkboxListConvention.getItemCount() + ")");
-		labelListContent.setText("Contents (" + checkboxListContent.getSelectedItemCount() + "/" + checkboxListContent.getItemCount() + ")");
-		labelListParody.setText("Parodies (" + checkboxListParody.getSelectedItemCount() + "/" + checkboxListParody.getItemCount() + ")");
+		labelListArtist.setText("Artists (" + (listArtist.getSelectedIndices().length) + "/" + listArtist.getModel().getSize() + ")");
+		labelListBook.setText("Books (" + (listBook.getSelectedIndices().length) + "/" + listBook.getModel().getSize() + ")");
+		labelListCircle.setText("Circles (" + (listCircle.getSelectedIndices().length) + "/" + listCircle.getModel().getSize() + ")");
+		labelListConvention.setText("Conventions (" + (listConvention.getSelectedIndices().length) + "/" + listConvention.getModel().getSize() + ")");
+		labelListContent.setText("Contents (" + (listContent.getSelectedIndices().length) + "/" + listContent.getModel().getSize() + ")");
+		labelListParody.setText("Parodies (" + (listParody.getSelectedIndices().length) + "/" + listParody.getModel().getSize() + ")");
 	}
 	
 	@SuppressWarnings("serial")
@@ -931,67 +908,74 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, M
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent me)
-	{
-		labelListArtist.setText("Artists (" + checkboxListArtist.getSelectedItemCount() + "/" + checkboxListArtist.getItemCount() + ")");
-		labelListBook.setText("Books (" + checkboxListBook.getSelectedItemCount() + "/" + checkboxListBook.getItemCount() + ")");
-		labelListCircle.setText("Circles (" + checkboxListCircle.getSelectedItemCount() + "/" + checkboxListCircle.getItemCount() + ")");
-		labelListConvention.setText("Conventions (" + checkboxListConvention.getSelectedItemCount() + "/" + checkboxListConvention.getItemCount() + ")");
-		labelListContent.setText("Contents (" + checkboxListContent.getSelectedItemCount() + "/" + checkboxListContent.getItemCount() + ")");
-		labelListParody.setText("Parodies (" + checkboxListParody.getSelectedItemCount() + "/" + checkboxListParody.getItemCount() + ")");
-	}
+	public void recordAdded(Record rcd) {}
 	
 	@Override
-	public void mouseEntered(MouseEvent me) {}
-	
-	@Override
-	public void mouseExited(MouseEvent me) {}
-	
-	@Override
-	public void mousePressed(MouseEvent me) {}
-	
-	@Override
-	public void mouseReleased(MouseEvent me) {}
-
-	@Override
-	public void recordAdded(Record rcd)
-	{
-		validateUI();
-	}
-	
-	@Override
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public void recordDeleted(Record rcd)
 	{
-		validateUI();
+		if(rcd instanceof Artist)
+		{
+			DefaultListModel model = (DefaultListModel)listArtist.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
+		if(rcd instanceof Book)
+		{
+			DefaultListModel model = (DefaultListModel)listBook.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
+		if(rcd instanceof Circle)
+		{
+			DefaultListModel model = (DefaultListModel)listCircle.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
+		if(rcd instanceof Content)
+		{
+			DefaultListModel model = (DefaultListModel)listContent.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
+		if(rcd instanceof Convention)
+		{
+			DefaultListModel model = (DefaultListModel)listConvention.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
+		if(rcd instanceof Parody)
+		{
+			DefaultListModel model = (DefaultListModel)listParody.getModel();
+			model.add(0, rcd);
+			loadData();
+			return;
+		}
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
-	{
-		validateUI();
-	}
+	public void recordUpdated(Record rcd) {}
 	
 	@Override
-	public void databaseConnected()
-	{
-		validateUI();
-	}
+	public void databaseConnected() {}
 	
 	@Override
-	public void databaseDisconnected()
-	{
-		validateUI();
-	}
+	public void databaseDisconnected() {}
 	
 	@Override
-	public void databaseCommit()
-	{
-		validateUI();
-	}
+	public void databaseCommit() {}
 	
 	@Override
-	public void databaseRollback()
+	public void databaseRollback() {}
+
+	@Override
+	public void valueChanged(ListSelectionEvent lse)
 	{
-		validateUI();
+		loadData();
 	}
 }

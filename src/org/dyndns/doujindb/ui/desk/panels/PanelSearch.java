@@ -352,9 +352,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Artist a = (Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										a.doRecycle();
 										deleted.add(a);
+										Core.UI.Desktop.recordDeleted(a);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(a);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Artist a : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -623,9 +624,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Circle c = (Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										c.doRecycle();
 										deleted.add(c);
+										Core.UI.Desktop.recordDeleted(c);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(c);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Circle c : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -914,9 +916,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Book b = (Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										b.doRecycle();
 										deleted.add(b);
+										Core.UI.Desktop.recordDeleted(b);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(b);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Book b : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -955,9 +958,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 									clone.addContent(c);
 								for(Parody p : book.getParodies())
 									clone.addParody(p);
+								Core.UI.Desktop.recordAdded(clone);	
 								if(Core.Database.isAutocommit())
 									Core.Database.doCommit();
-								Core.UI.Desktop.recordAdded(clone);		
+								Core.UI.Desktop.databaseCommit();	
 								WindowEx window = Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, clone);
 								window.setTitle("(Clone) " + window.getTitle());
 							}
@@ -1205,9 +1209,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Content t = (Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										t.doRecycle();
 										deleted.add(t);
+										Core.UI.Desktop.recordDeleted(t);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(t);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Content t : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -1439,9 +1444,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Convention e = (Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										e.doRecycle();
 										deleted.add(e);
+										Core.UI.Desktop.recordDeleted(e);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(e);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Convention e : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)
@@ -1691,9 +1697,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 										Parody p = (Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
 										p.doRecycle();
 										deleted.add(p);
+										Core.UI.Desktop.recordDeleted(p);
 										if(Core.Database.isAutocommit())
 											Core.Database.doCommit();
-										Core.UI.Desktop.recordDeleted(p);
+										Core.UI.Desktop.databaseCommit();
 									}
 									for(Parody p : deleted)
 										for(int index=0; index<tableModel.getColumnCount();index++)

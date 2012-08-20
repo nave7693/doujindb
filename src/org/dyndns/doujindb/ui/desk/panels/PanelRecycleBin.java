@@ -150,7 +150,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 								Core.Database.doCommit();
 							Core.UI.Desktop.databaseCommit();
 							
-							loadData();
+							syncData();
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
@@ -308,7 +308,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
 									
-									loadData();
+									syncData();
 
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -470,7 +470,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 										Core.Database.doCommit();
 									Core.UI.Desktop.databaseCommit();
 									
-									loadData();
+									syncData();
 
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -739,7 +739,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 								listContent.setSelectionInterval(0, listContent.getModel().getSize() - 1);
 								listConvention.setSelectionInterval(0, listConvention.getModel().getSize() - 1);
 								listParody.setSelectionInterval(0, listParody.getModel().getSize() - 1);
-								loadData();
+								syncData();
 								break;
 							}
 							case 1:{
@@ -749,7 +749,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 								listContent.clearSelection();
 								listConvention.clearSelection();
 								listParody.clearSelection();
-								loadData();
+								syncData();
 								break;
 							}
 							}
@@ -771,7 +771,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 			public void run()
 			{
 				split.revalidate();
-				loadData();
+				syncData();
 			}
 		});
 	}
@@ -808,7 +808,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 	     return parent.getPreferredSize();
 	}
 	
-	private void loadData()
+	private void syncData()
 	{
 		long count;
 		try {
@@ -918,42 +918,42 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 		{
 			DefaultListModel model = (DefaultListModel)listArtist.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 		if(rcd instanceof Book)
 		{
 			DefaultListModel model = (DefaultListModel)listBook.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 		if(rcd instanceof Circle)
 		{
 			DefaultListModel model = (DefaultListModel)listCircle.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 		if(rcd instanceof Content)
 		{
 			DefaultListModel model = (DefaultListModel)listContent.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 		if(rcd instanceof Convention)
 		{
 			DefaultListModel model = (DefaultListModel)listConvention.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 		if(rcd instanceof Parody)
 		{
 			DefaultListModel model = (DefaultListModel)listParody.getModel();
 			model.add(0, rcd);
-			loadData();
+			syncData();
 			return;
 		}
 	}
@@ -976,6 +976,6 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		loadData();
+		syncData();
 	}
 }

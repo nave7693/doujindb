@@ -523,10 +523,24 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
             }
         });
 	}
+	
+	private void syncData()
+	{
+		try {
+			if(Core.Database.getRecycled().size() > 0)
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
+			else
+				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+		} catch (DataBaseException dbe) {
+			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			dbe.printStackTrace();
+		}
+	}
 
 	@Override
 	public void recordAdded(Record rcd)
 	{
+		syncData();
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((WindowEx)jif).recordAdded(rcd); } catch(Exception e) { e.printStackTrace(); }
@@ -536,6 +550,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void recordDeleted(Record rcd)
 	{
+		syncData();
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((WindowEx)jif).recordDeleted(rcd); } catch(Exception e) { e.printStackTrace(); }
@@ -545,6 +560,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void recordUpdated(Record rcd)
 	{
+		syncData();
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((WindowEx)jif).recordUpdated(rcd); } catch(Exception e) { e.printStackTrace(); }
@@ -554,20 +570,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseConnected()
 	{
-		try {
-			if(Core.Database.getRecycled().size() > 0)
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
-			else
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
-		}
+		syncData();
 	}
 
 	@Override
 	public void databaseDisconnected()
 	{
+		//syncData();
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((WindowEx)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
@@ -577,29 +586,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseCommit()
 	{
-		try {
-			if(Core.Database.getRecycled().size() > 0)
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
-			else
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
-		}
+		syncData();
 	}
 
 	@Override
 	public void databaseRollback()
 	{
-		try {
-			if(Core.Database.getRecycled().size() > 0)
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
-			else
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
-		}
+		syncData();
 	}
 	
 	private final class WindowArtistImpl extends WindowEx

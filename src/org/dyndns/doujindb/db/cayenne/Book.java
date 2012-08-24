@@ -12,7 +12,7 @@ public class Book extends _Book {
 	protected void postAdd() {
 		super.setJapaneseName("");
 		super.setTranslatedName("");
-		super.setRomanjiName("");
+		super.setRomajiName("");
 		super.setInfo("");
 		super.setRating(Rating.UNRATED);
 		super.setType(Type.同人誌);

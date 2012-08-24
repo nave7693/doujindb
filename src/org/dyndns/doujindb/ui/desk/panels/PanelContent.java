@@ -22,7 +22,7 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
@@ -236,7 +236,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 			}
 		});
 		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Content"), panel);
-		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getCheckBoxList(),
 				null
 		}));
@@ -254,7 +254,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				loadData();
+				syncData();
 				validateUI();
 				return null;
 			}
@@ -340,7 +340,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		}
 	}
 	
-	private void loadData()
+	private void syncData()
 	{
 		textTagName.setText(tokenContent.getTagName());
 		textInfo.setText(tokenContent.getInfo());

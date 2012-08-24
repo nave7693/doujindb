@@ -1112,7 +1112,7 @@ public final class DoujinshiDBScanner implements Plugin
 								Book book = Context.doInsert(Book.class);
 								book.setJapaneseName(xmlbook.NAME_JP);
 								book.setTranslatedName(xmlbook.NAME_EN);
-								book.setRomanjiName(xmlbook.NAME_R);
+								book.setRomajiName(xmlbook.NAME_R);
 								book.setDate(xmlbook.DATE_RELEASED);
 								book.setPages(xmlbook.DATA_PAGES);
 								book.setAdult(xmlbook.DATA_AGE == 1);
@@ -1147,7 +1147,7 @@ public final class DoujinshiDBScanner implements Plugin
 												for(Artist artist : artists)
 													if((artist.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 														(artist.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-														(artist.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+														(artist.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 													{
 														book.addArtist(artist);
 														alink.put(xmlitem.ID, artist);
@@ -1156,7 +1156,7 @@ public final class DoujinshiDBScanner implements Plugin
 												Artist a = Context.doInsert(Artist.class);
 												a.setJapaneseName(xmlitem.NAME_JP);
 												a.setTranslatedName(xmlitem.NAME_EN);
-												a.setRomanjiName(xmlitem.NAME_R);
+												a.setRomajiName(xmlitem.NAME_R);
 												book.addArtist(a);
 												alink.put(xmlitem.ID, a);
 											}
@@ -1172,7 +1172,7 @@ public final class DoujinshiDBScanner implements Plugin
 												for(Circle circle : circles)
 													if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 															(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-															(circle.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+															(circle.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 													{
 														// book.addCircle(circle);
 														clink.put(xmlitem.ID, circle);
@@ -1181,7 +1181,7 @@ public final class DoujinshiDBScanner implements Plugin
 												Circle c = Context.doInsert(Circle.class);
 												c.setJapaneseName(xmlitem.NAME_JP);
 												c.setTranslatedName(xmlitem.NAME_EN);
-												c.setRomanjiName(xmlitem.NAME_R);
+												c.setRomajiName(xmlitem.NAME_R);
 												// book.addCircle(c);
 												clink.put(xmlitem.ID, c);
 											}
@@ -1237,7 +1237,7 @@ public final class DoujinshiDBScanner implements Plugin
 											for(Parody parody : parodies)
 												if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 														(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-														(parody.getRomanjiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+														(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 												{
 													book.addParody(parody);
 													break _case;
@@ -1245,7 +1245,7 @@ public final class DoujinshiDBScanner implements Plugin
 											Parody p = Context.doInsert(Parody.class);
 											p.setJapaneseName(xmlitem.NAME_JP);
 											p.setTranslatedName(xmlitem.NAME_EN);
-											p.setRomanjiName(xmlitem.NAME_R);
+											p.setRomajiName(xmlitem.NAME_R);
 											book.addParody(p);
 											}
 											break;

@@ -13,23 +13,23 @@ import org.dyndns.doujindb.log.*;
 
 public final class RepositoryIndexer
 {
-	public static void rebuildIndexes()
+	public static void index()
 	{
-		RepositoryIndexer.rebuildIndexes(Core.Database.getBooks(null));
+		RepositoryIndexer.index(Core.Database.getBooks(null));
 	}
 	
-	public static void rebuildIndexes(Iterable<Book> books)
+	public static void index(Iterable<Book> books)
 	{
 		for(Book book : books)
-			RepositoryIndexer.xmlBook(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
+			RepositoryIndexer.metadata(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
 	}
 	
-	private static void xmlBook(Book book, OutputStream dest) throws DataBaseException
+	public static void metadata(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.japaneseName = book.getJapaneseName();
 		doujin.translatedName = book.getTranslatedName();
-		doujin.romanjiName = book.getRomanjiName();
+		doujin.romajiName = book.getRomajiName();
 		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
 		doujin.Released = book.getDate();
 		doujin.Type = book.getType();
@@ -68,7 +68,7 @@ public final class RepositoryIndexer
 		@XmlElement(required=false)
 		private String translatedName = "";
 		@XmlElement(required=false)
-		private String romanjiName = "";
+		private String romajiName = "";
 		@XmlElement(required=false)
 		private String Convention = "";
 		@XmlElement(required=false)

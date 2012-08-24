@@ -41,7 +41,7 @@ import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
@@ -55,8 +55,8 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
 	private JTextField textTranslatedName;
-	private JLabel labelRomanjiName;
-	private JTextField textRomanjiName;
+	private JLabel labelRomajiName;
+	private JTextField textRomajiName;
 	private JLabel labelInfo;
 	private JTextArea textInfo;
 	private JScrollPane scrollInfo;
@@ -100,10 +100,10 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		labelTranslatedName.setFont(font);
 		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
-		labelRomanjiName = new JLabel("Romanji Name");
-		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField("");
-		textRomanjiName.setFont(font);
+		labelRomajiName = new JLabel("Romaji Name");
+		labelRomajiName.setFont(font);
+		textRomajiName = new JTextField("");
+		textRomajiName.setFont(font);
 		labelInfo = new JLabel("Info");
 		labelInfo.setFont(font);
 		textInfo = new JTextArea("");
@@ -271,8 +271,8 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				textJapaneseName.setBounds(103, 3, width - 106, 15);
 				labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 				textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-				labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-				textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+				labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+				textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 				labelConvention.setBounds(3, 3 + 45, 100, 20);
 				comboConvention.setBounds(103, 3 + 45, width - 106, 20);				
 				labelType.setBounds(3, 3 + 65, 100, 20);
@@ -309,8 +309,8 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		panelInfo.add(textJapaneseName);
 		panelInfo.add(labelTranslatedName);
 		panelInfo.add(textTranslatedName);
-		panelInfo.add(labelRomanjiName);
-		panelInfo.add(textRomanjiName);
+		panelInfo.add(labelRomajiName);
+		panelInfo.add(textRomajiName);
 		panelInfo.add(labelInfo);
 		panelInfo.add(scrollInfo);
 		panelInfo.add(editorRating);
@@ -345,7 +345,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
 			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
 		}
-		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				null,
 				editorArtists.getCheckBoxList(),
 				editorCircles.getCheckBoxList(),
@@ -363,7 +363,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				loadData();
+				syncData();
 				validateUI();
 				return null;
 			}
@@ -463,7 +463,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				tokenBook = Core.Database.doInsert(Book.class);
 			tokenBook.setJapaneseName(textJapaneseName.getText());
 			tokenBook.setTranslatedName(textTranslatedName.getText());
-			tokenBook.setRomanjiName(textRomanjiName.getText());
+			tokenBook.setRomajiName(textRomajiName.getText());
 			tokenBook.setInfo(textInfo.getText());
 			tokenBook.setDate(date);
 			tokenBook.setRating(editorRating.getRating());
@@ -497,7 +497,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				@Override
 				public Void doInBackground() {
 					if(tokenBook.getID() != null)
-						xmlBook(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
+						metadata(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
 					if(Core.Database.isAutocommit())
 						Core.Database.doCommit();
 					return null;
@@ -521,7 +521,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		{
 			textJapaneseName.setEditable(false);
 			textTranslatedName.setEditable(false);
-			textRomanjiName.setEditable(false);
+			textRomajiName.setEditable(false);
 			textInfo.setEditable(false);
 			textDate.setEditable(false);
 			textPages.setEditable(false);
@@ -559,12 +559,12 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			}
 	}
 	
-	private void xmlBook(Book book, OutputStream dest) throws DataBaseException
+	private void metadata(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.japaneseName = book.getJapaneseName();
 		doujin.translatedName = book.getTranslatedName();
-		doujin.romanjiName = book.getRomanjiName();
+		doujin.romajiName = book.getRomajiName();
 		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
 		doujin.Released = book.getDate();
 		doujin.Type = book.getType();
@@ -594,11 +594,11 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		}
 	}
 	
-	private void loadData()
+	private void syncData()
 	{
 		textJapaneseName.setText(tokenBook.getJapaneseName());
 		textTranslatedName.setText(tokenBook.getTranslatedName());
-		textRomanjiName.setText(tokenBook.getRomanjiName());
+		textRomajiName.setText(tokenBook.getRomajiName());
 		textInfo.setText(tokenBook.getInfo());
 		comboType.removeAllItems();
 		for(Type tokenType : Type.values())
@@ -654,7 +654,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		@XmlElement(required=false)
 		private String translatedName = "";
 		@XmlElement(required=false)
-		private String romanjiName = "";
+		private String romajiName = "";
 		@XmlElement(required=false)
 		private String Convention = "";
 		@XmlElement(required=false)
@@ -706,7 +706,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		public String getTranslatedName() throws DataBaseException { return ""; }
 
 		@Override
-		public String getRomanjiName() throws DataBaseException { return ""; }
+		public String getRomajiName() throws DataBaseException { return ""; }
 
 		@Override
 		public void setJapaneseName(String japaneseName) throws DataBaseException { }
@@ -715,7 +715,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		public void setTranslatedName(String translatedName) throws DataBaseException { }
 
 		@Override
-		public void setRomanjiName(String romanjiName) throws DataBaseException { }
+		public void setRomajiName(String romajiName) throws DataBaseException { }
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override

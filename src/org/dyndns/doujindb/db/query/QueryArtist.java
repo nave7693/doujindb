@@ -9,7 +9,7 @@ public final class QueryArtist
 {
 	public String ID = null;
 	public String JapaneseName = null;
-	public String RomanjiName = null;
+	public String RomajiName = null;
 	public String TranslatedName = null;
 	public String Weblink = null;
 }

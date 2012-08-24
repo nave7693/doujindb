@@ -989,7 +989,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 						;
 						ZipEntry entry = new ZipEntry(PACKAGE_INDEX);
 						zout.putNextEntry(entry);
-						writeMetadata(book, zout);
+						metadata(book, zout);
 						zout.closeEntry();
 						;
 						zip("", ds.children(), zout);
@@ -1068,12 +1068,12 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 			}
 		}
 		
-		private void writeMetadata(Book book, OutputStream dest) throws DataBaseException
+		private void metadata(Book book, OutputStream dest) throws DataBaseException
 		{
 			XMLBook doujin = new XMLBook();
 			doujin.japaneseName = book.getJapaneseName();
 			doujin.translatedName = book.getTranslatedName();
-			doujin.romanjiName = book.getRomanjiName();
+			doujin.romajiName = book.getRomajiName();
 			doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
 			doujin.Released = book.getDate();
 			doujin.Type = book.getType();
@@ -1114,7 +1114,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 			@XmlElement(required=false)
 			private String translatedName = "";
 			@XmlElement(required=false)
-			private String romanjiName = "";
+			private String romajiName = "";
 			@XmlElement(required=false)
 			private String Convention = "";
 			@XmlElement(required=false)

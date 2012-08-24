@@ -21,7 +21,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 public final class PanelCircle implements DataBaseListener, LayoutManager, ActionListener
@@ -33,8 +33,8 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
 	private JTextField textTranslatedName;
-	private JLabel labelRomanjiName;
-	private JTextField textRomanjiName;
+	private JLabel labelRomajiName;
+	private JTextField textRomajiName;
 	private JLabel labelWeblink;
 	private JTextField textWeblink;
 	private JLabel labelBanner;
@@ -59,10 +59,10 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		labelTranslatedName.setFont(font);
 		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
-		labelRomanjiName = new JLabel("Romanji Name");
-		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField("");
-		textRomanjiName.setFont(font);
+		labelRomajiName = new JLabel("Romaji Name");
+		labelRomajiName.setFont(font);
+		textRomajiName = new JTextField("");
+		textRomajiName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
 		textWeblink = new JTextField("");
@@ -184,7 +184,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
-		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getCheckBoxList(),
 				editorArtists.getCheckBoxList()
 		}));
@@ -196,8 +196,8 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		pane.add(textJapaneseName);
 		pane.add(labelTranslatedName);
 		pane.add(textTranslatedName);
-		pane.add(labelRomanjiName);
-		pane.add(textRomanjiName);
+		pane.add(labelRomajiName);
+		pane.add(textRomajiName);
 		pane.add(labelWeblink);
 		pane.add(textWeblink);
 		pane.add(labelBanner);
@@ -207,7 +207,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				loadData();
+				syncData();
 				validateUI();
 				return null;
 			}
@@ -222,8 +222,8 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		textJapaneseName.setBounds(103, 3, width - 106, 15);
 		labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 		textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-		labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-		textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+		labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+		textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 		labelWeblink.setBounds(3, 3 + 45, 100, 15);
 		textWeblink.setBounds(103, 3 + 45, width - 106, 15);
 		labelBanner.setBounds(3, 3 + 62, 200, 40);
@@ -254,7 +254,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 				tokenCircle = Core.Database.doInsert(Circle.class);
 			tokenCircle.setJapaneseName(textJapaneseName.getText());
 			tokenCircle.setTranslatedName(textTranslatedName.getText());
-			tokenCircle.setRomanjiName(textRomanjiName.getText());
+			tokenCircle.setRomajiName(textRomajiName.getText());
 			tokenCircle.setWeblink(textWeblink.getText());
 			for(Artist c : tokenCircle.getArtists())
 				if(!editorArtists.contains(c))
@@ -289,7 +289,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		{
 			textJapaneseName.setEditable(false);
 			textTranslatedName.setEditable(false);
-			textRomanjiName.setEditable(false);
+			textRomajiName.setEditable(false);
 			textWeblink.setEditable(false);
 			editorWorks.setEnabled(false);
 			editorArtists.setEnabled(false);
@@ -301,11 +301,11 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 			labelBanner.setEnabled(true);
 	}
 	
-	private void loadData()
+	private void syncData()
 	{
 		textJapaneseName.setText(tokenCircle.getJapaneseName());
 		textTranslatedName.setText(tokenCircle.getTranslatedName());
-		textRomanjiName.setText(tokenCircle.getRomanjiName());
+		textRomajiName.setText(tokenCircle.getRomajiName());
 		textWeblink.setText(tokenCircle.getWeblink());
 		try
 		{
@@ -368,7 +368,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		public String getTranslatedName() throws DataBaseException { return ""; }
 
 		@Override
-		public String getRomanjiName() throws DataBaseException { return ""; }
+		public String getRomajiName() throws DataBaseException { return ""; }
 
 		@Override
 		public String getWeblink() throws DataBaseException { return ""; }
@@ -380,7 +380,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		public void setTranslatedName(String translatedName) throws DataBaseException { }
 
 		@Override
-		public void setRomanjiName(String romanjiName) throws DataBaseException { }
+		public void setRomajiName(String romajiName) throws DataBaseException { }
 
 		@Override
 		public void setWeblink(String weblink) throws DataBaseException { }

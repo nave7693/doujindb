@@ -15,7 +15,7 @@ import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.CheckBoxListEx;
+import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
 
 public final class PanelParody implements DataBaseListener, LayoutManager, ActionListener
@@ -27,8 +27,8 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
 	private JTextField textTranslatedName;
-	private JLabel labelRomanjiName;
-	private JTextField textRomanjiName;
+	private JLabel labelRomajiName;
+	private JTextField textRomajiName;
 	private JLabel labelWeblink;
 	private JTextField textWeblink;
 	private JTabbedPane tabLists;
@@ -51,10 +51,10 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		labelTranslatedName.setFont(font);
 		textTranslatedName = new JTextField("");
 		textTranslatedName.setFont(font);
-		labelRomanjiName = new JLabel("Romanji Name");
-		labelRomanjiName.setFont(font);
-		textRomanjiName = new JTextField("");
-		textRomanjiName.setFont(font);
+		labelRomajiName = new JLabel("Romaji Name");
+		labelRomajiName.setFont(font);
+		textRomajiName = new JTextField("");
+		textRomajiName.setFont(font);
 		labelWeblink = new JLabel("Weblink");
 		labelWeblink.setFont(font);
 		textWeblink = new JTextField("");
@@ -63,7 +63,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenParody);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
-		tabLists.setUI(new TabbedPaneUIEx(new CheckBoxListEx<?>[]{
+		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getCheckBoxList()
 		}));
 		buttonConfirm = new JButton("Ok");
@@ -74,8 +74,8 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		pane.add(textJapaneseName);
 		pane.add(labelTranslatedName);
 		pane.add(textTranslatedName);
-		pane.add(labelRomanjiName);
-		pane.add(textRomanjiName);
+		pane.add(labelRomajiName);
+		pane.add(textRomajiName);
 		pane.add(labelWeblink);
 		pane.add(textWeblink);
 		pane.add(tabLists);
@@ -84,7 +84,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				loadData();
+				syncData();
 				validateUI();
 				return null;
 			}
@@ -99,8 +99,8 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		textJapaneseName.setBounds(103, 3, width - 106, 15);
 		labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 		textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-		labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-		textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+		labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+		textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 		labelWeblink.setBounds(3, 3 + 45, 100, 15);
 		textWeblink.setBounds(103, 3 + 45, width - 106, 15);
 		tabLists.setBounds(3, 3 + 60, width - 6, height - 90);
@@ -130,7 +130,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 				tokenParody = Core.Database.doInsert(Parody.class);
 			tokenParody.setJapaneseName(textJapaneseName.getText());
 			tokenParody.setTranslatedName(textTranslatedName.getText());
-			tokenParody.setRomanjiName(textRomanjiName.getText());
+			tokenParody.setRomajiName(textRomajiName.getText());
 			tokenParody.setWeblink(textWeblink.getText());
 			for(Book b : tokenParody.getBooks())
 				if(!editorWorks.contains(b))
@@ -165,18 +165,18 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		{
 			textJapaneseName.setEditable(false);
 			textTranslatedName.setEditable(false);
-			textRomanjiName.setEditable(false);
+			textRomajiName.setEditable(false);
 			textWeblink.setEditable(false);
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
 	}
 	
-	private void loadData()
+	private void syncData()
 	{
 		textJapaneseName.setText(tokenParody.getJapaneseName());
 		textTranslatedName.setText(tokenParody.getTranslatedName());
-		textRomanjiName.setText(tokenParody.getRomanjiName());
+		textRomajiName.setText(tokenParody.getRomajiName());
 		textWeblink.setText(tokenParody.getWeblink());
 	}
 	
@@ -226,7 +226,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		public String getTranslatedName() throws DataBaseException { return ""; }
 
 		@Override
-		public String getRomanjiName() throws DataBaseException { return ""; }
+		public String getRomajiName() throws DataBaseException { return ""; }
 
 		@Override
 		public String getWeblink() throws DataBaseException { return ""; }
@@ -238,7 +238,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		public void setTranslatedName(String translatedName) throws DataBaseException { }
 
 		@Override
-		public void setRomanjiName(String romanjiName) throws DataBaseException { }
+		public void setRomajiName(String romajiName) throws DataBaseException { }
 
 		@Override
 		public void setWeblink(String weblink) throws DataBaseException { }

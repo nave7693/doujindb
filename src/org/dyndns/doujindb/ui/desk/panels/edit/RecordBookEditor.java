@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordBookEditor extends JSplitPane implements DataBaseListener
 {
 	private CntBook tokenIBook;
-	private CheckBoxListEx<Book> checkboxList;
+	private RecordList<Book> recordList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -32,19 +32,19 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new CheckBoxListEx<Book>(Core.Database.getBooks(null), searchField);
-		checkboxList.setSelectedItems(tokenIBook.getBooks());
+		recordList = new RecordList<Book>(tokenIBook.getBooks());
+		recordList.setSelectedItems(tokenIBook.getBooks());
 		setTopComponent(searchField);
-		setBottomComponent(checkboxList);
+		setBottomComponent(recordList);
 		setDividerSize(0);
 		super.setEnabled(false);
 		validate();
@@ -53,7 +53,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	public boolean contains(Book item)
 	{
 		boolean contains = false;
-		for(Object o : checkboxList.getSelectedItems())
+		for(Object o : recordList.getSelectedItems())
 			if(o.equals(item))
 				return true;
 		return contains;
@@ -61,31 +61,31 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	
 	public java.util.Iterator<Book> iterator()
 	{
-		return checkboxList.getSelectedItems().iterator();
+		return recordList.getSelectedItems().iterator();
 	}
 	
-	public CheckBoxListEx<Book> getCheckBoxList()
+	public RecordList<Book> getCheckBoxList()
 	{
-		return checkboxList;
+		return recordList;
 	}
 
 	@Override
 	public void setEnabled(boolean enabled)
 	{
-		checkboxList.setEnabled(enabled);
+		recordList.setEnabled(enabled);
 		searchField.setEnabled(enabled);
 	}
 
 	@Override
 	public void recordAdded(Record rcd)
 	{
-		checkboxList.recordAdded(rcd);
+		recordList.recordAdded(rcd);
 	}
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
-		checkboxList.recordDeleted(rcd);
+		recordList.recordDeleted(rcd);
 	}
 	
 	@Override
@@ -93,35 +93,35 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	{
 		if(tokenIBook.equals(rcd))
 			try {
-				checkboxList.setSelectedItems(tokenIBook.getBooks());
+				recordList.setSelectedItems(tokenIBook.getBooks());
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		checkboxList.recordUpdated(rcd);
+		recordList.recordUpdated(rcd);
 	}
 	
 	@Override
 	public void databaseConnected()
 	{
-		checkboxList.databaseConnected();
+		recordList.databaseConnected();
 	}
 	
 	@Override
 	public void databaseDisconnected()
 	{
-		checkboxList.databaseDisconnected();
+		recordList.databaseDisconnected();
 	}
 	
 	@Override
 	public void databaseCommit()
 	{
-		checkboxList.databaseCommit();
+		recordList.databaseCommit();
 	}
 	
 	@Override
 	public void databaseRollback()
 	{
-		checkboxList.databaseRollback();
+		recordList.databaseRollback();
 	}
 }

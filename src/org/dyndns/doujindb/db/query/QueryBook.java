@@ -11,7 +11,7 @@ public final class QueryBook
 {
 	public String ID = null;
 	public String JapaneseName = null;
-	public String RomanjiName = null;
+	public String RomajiName = null;
 	public String TranslatedName = null;
 	public Book.Type Type = Book.Type.不詳;
 	public boolean Adult = false;

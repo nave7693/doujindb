@@ -8,7 +8,7 @@ public class Circle extends _Circle {
 	protected void postAdd() {
 		super.setJapaneseName("");
 		super.setTranslatedName("");
-		super.setRomanjiName("");
+		super.setRomajiName("");
 		super.setWeblink("");
 		super.setRecycled(false);
 	}

@@ -36,10 +36,10 @@ public interface Book extends Record, CntArtist, CntCircle, CntContent, CntConve
 	
 	public String getJapaneseName() throws DataBaseException;
 	public String getTranslatedName() throws DataBaseException;
-	public String getRomanjiName() throws DataBaseException;
+	public String getRomajiName() throws DataBaseException;
 	public void setJapaneseName(String japaneseName) throws DataBaseException;
 	public void setTranslatedName(String translatedName) throws DataBaseException;
-	public void setRomanjiName(String romanjiName) throws DataBaseException;
+	public void setRomajiName(String romajiName) throws DataBaseException;
 	public Date getDate() throws DataBaseException;
 	public Type getType() throws DataBaseException;
 	public int getPages() throws DataBaseException;

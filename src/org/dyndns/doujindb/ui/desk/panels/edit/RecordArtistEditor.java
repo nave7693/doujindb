@@ -18,7 +18,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 {
 	private CntArtist tokenIArtist;
-	private CheckBoxListEx<Artist> checkboxList;
+	private RecordList<Artist> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -31,16 +31,16 @@ public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new CheckBoxListEx<Artist>(Core.Database.getArtists(null), searchField);
+		checkboxList = new RecordList<Artist>(tokenIArtist.getArtists());
 		checkboxList.setSelectedItems(tokenIArtist.getArtists());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -63,7 +63,7 @@ public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	public CheckBoxListEx<Artist> getCheckBoxList()
+	public RecordList<Artist> getCheckBoxList()
 	{
 		return checkboxList;
 	}

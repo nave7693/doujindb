@@ -40,15 +40,15 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 
 	@Override
-	public synchronized String getRomanjiName() throws DataBaseException
+	public synchronized String getRomajiName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRomanjiName();
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getRomajiName();
 	}
 
 	@Override
-	public synchronized void setRomanjiName(String romanjiName) throws DataBaseException
+	public synchronized void setRomajiName(String romajiName) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomanjiName(romanjiName);
+		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomajiName(romajiName);
 	}
 
 	@Override

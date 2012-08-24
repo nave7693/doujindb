@@ -40,15 +40,15 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	}
 
 	@Override
-	public synchronized String getRomanjiName() throws DataBaseException
+	public synchronized String getRomajiName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getRomanjiName();
+		return ((org.dyndns.doujindb.db.cayenne.Circle)ref).getRomajiName();
 	}
 
 	@Override
-	public synchronized void setRomanjiName(String romanjiName) throws DataBaseException
+	public synchronized void setRomajiName(String romajiName) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRomanjiName(romanjiName);
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRomajiName(romajiName);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	{
 		return this.getJapaneseName();
 		/*return japaneseName + 
-			(romanjiName.equals("") ? "" : " ("+romanjiName+")") +
+			(romajiName.equals("") ? "" : " ("+romajiName+")") +
 			(translatedName.equals("") ? "" : " ("+translatedName+")");*/
 	}
 

@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 {
 	private CntParody tokenIParody;
-	private CheckBoxListEx<Parody> checkboxList;
+	private RecordList<Parody> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -32,16 +32,16 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new CheckBoxListEx<Parody>(Core.Database.getParodies(null), searchField);
+		checkboxList = new RecordList<Parody>(tokenIParody.getParodies());
 		checkboxList.setSelectedItems(tokenIParody.getParodies());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -64,7 +64,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	public CheckBoxListEx<Parody> getCheckBoxList()
+	public RecordList<Parody> getCheckBoxList()
 	{
 		return checkboxList;
 	}

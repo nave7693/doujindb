@@ -207,7 +207,8 @@ public UI(String title)
 	
 	{
     	//UIManager.put("InternalFrame.icon",Core.Resources.get("Icon:IFrame.Icon"));
-		UIManager.put("ComboBox.selectionBackground", new Color(45,45,45));
+		UIManager.put("ComboBox.selectionBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+		UIManager.put("InternalFrame.inactiveTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
 		UIManager.put("InternalFrame.font",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
 		UIManager.put("InternalFrame.titleFont",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
     	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));

@@ -55,8 +55,8 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("ID")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
-		list.add(ExpressionFactory.likeExp("romanjiName", 
-		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("romajiName", 
+		         new ExpressionParameter("RomajiName")));
 		list.add(ExpressionFactory.likeExp("translatedName", 
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
@@ -70,8 +70,8 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("ID")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
-		list.add(ExpressionFactory.likeExp("romanjiName", 
-		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("romajiName", 
+		         new ExpressionParameter("RomajiName")));
 		list.add(ExpressionFactory.likeExp("translatedName", 
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.matchExp("type", 
@@ -93,8 +93,8 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("ID")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
-		list.add(ExpressionFactory.likeExp("romanjiName", 
-		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("romajiName", 
+		         new ExpressionParameter("RomajiName")));
 		list.add(ExpressionFactory.likeExp("translatedName", 
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
@@ -128,8 +128,8 @@ public class DataBaseImpl extends DataBase
 		         new ExpressionParameter("ID")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
-		list.add(ExpressionFactory.likeExp("romanjiName", 
-		         new ExpressionParameter("RomanjiName")));
+		list.add(ExpressionFactory.likeExp("romajiName", 
+		         new ExpressionParameter("RomajiName")));
 		list.add(ExpressionFactory.likeExp("translatedName", 
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 

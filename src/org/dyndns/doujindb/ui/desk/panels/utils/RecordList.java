@@ -20,26 +20,25 @@ import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings({"unchecked", "serial", "rawtypes","unused"})
-public final class CheckBoxListEx<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
+public final class RecordList<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
 {
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
 	private JList listData;
-	private JTextField filterField;
 	private Model model;
 	private Hashtable<Class,ImageIcon> iconData;
-	private DataBaseListener parent;
 	
-	public CheckBoxListEx(Iterable<T> data, JTextField filter)
+	private String filterTerm;
+	
+	public RecordList(Iterable<T> data)
 	{
-		this(data, filter, null);
+		this(data, null);
 	}
 	
-	public CheckBoxListEx(Iterable<T> data, JTextField filter, Hashtable<Class,ImageIcon> icons)
+	public RecordList(Iterable<T> data, Hashtable<Class,ImageIcon> icons)
 	{
 		super();
 		super.setLayout(this);
-		filterField = filter;
 		iconData = icons;
 		CheckBoxItem<T>[] checkboxItems = buildCheckBoxItems(data);
 		listData = new JList();
@@ -182,20 +181,19 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 			return filterItems.size();
 		}
 		
-		private void validateUI()
+		private void syncData()
 		{
 			try
 			{
 				filterItems.clear();
-				String term = filterField.getText();
-				if(term.equals(""))
+				if(filterTerm.equals(""))
 					for (int i=0; i<items.size(); i++)
 						if (items.get(i).isChecked())
 							filterItems.add(items.get(i));
 						else
 							;
 				else
-					if(term.equals("!"))
+					if(filterTerm.equals("!"))
 						for (int i=0; i<items.size(); i++)
 							if (!items.get(i).isChecked())
 								filterItems.add(items.get(i));
@@ -203,7 +201,7 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 								;
 					else
 						for (int i=0; i<items.size(); i++)
-							if (items.get(i).getItem().toString().matches(term))
+							if (items.get(i).getItem().toString().matches(filterTerm))
 								filterItems.add(items.get(i));
 			}catch(PatternSyntaxException pse){}
 			fireContentsChanged(this, 0, getSize());
@@ -213,7 +211,7 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 		public void recordAdded(Record rcd)
 		{
 			model.items.add(new CheckBoxItem(rcd));
-			validateUI();
+			syncData();
 		}
 		
 		@Override
@@ -228,15 +226,13 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 				}
 			if(removed != null)
 				model.items.remove(removed);
-			validateUI();
+			syncData();
 		}
 		
 		@Override
 		public void recordUpdated(Record rcd)
 		{
-			validateUI();
-			if(parent != null)
-				parent.recordUpdated(rcd);
+			syncData();
 		}
 		
 		@Override
@@ -294,11 +290,6 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 
 	@Override
 	public void removeLayoutComponent(Component c) {}
-	
-	public void setParent(DataBaseListener parent)
-	{
-		this.parent = parent;
-	}
 	
 	public void setSelectedItems(Iterable<T> items)
 	{
@@ -420,8 +411,9 @@ public final class CheckBoxListEx<T extends Record> extends JPanel implements Da
 		listData.validate();
 	}
 	
-	public void filterChanged()
+	public void filterChanged(String term)
 	{
-		model.validateUI();
+		this.filterTerm = term;
+		model.syncData();
 	}
 }

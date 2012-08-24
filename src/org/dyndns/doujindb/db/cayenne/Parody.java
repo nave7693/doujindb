@@ -8,7 +8,7 @@ public class Parody extends _Parody {
 	protected void postAdd() {
 		super.setJapaneseName("");
 		super.setTranslatedName("");
-		super.setRomanjiName("");
+		super.setRomajiName("");
 		super.setWeblink("");
 		super.setRecycled(false);
 	}

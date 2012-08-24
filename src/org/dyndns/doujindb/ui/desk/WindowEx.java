@@ -57,6 +57,8 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 		    		dispose();
 		    	}
 		    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+	    javax.swing.plaf.basic.BasicInternalFrameUI ui = new javax.swing.plaf.basic.BasicInternalFrameUI(this);
+	    super.setUI(ui);
 	    super.setVisible(true);
 	}
 	

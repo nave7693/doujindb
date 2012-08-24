@@ -16,7 +16,7 @@ import org.dyndns.doujindb.db.cayenne.Circle;
 public abstract class _Artist extends CayenneDataObject {
 
     public static final String JAPANESE_NAME_PROPERTY = "japaneseName";
-    public static final String ROMANJI_NAME_PROPERTY = "romanjiName";
+    public static final String ROMAJI_NAME_PROPERTY = "romajiName";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
     public static final String WEBLINK_PROPERTY = "weblink";
     public static final String BOOKS_PROPERTY = "books";
@@ -36,11 +36,11 @@ public abstract class _Artist extends CayenneDataObject {
         return (String)readProperty("japaneseName");
     }
 
-    public void setRomanjiName(String romanjiName) {
-        writeProperty("romanjiName", romanjiName);
+    public void setRomajiName(String romajiName) {
+        writeProperty("romajiName", romajiName);
     }
-    public String getRomanjiName() {
-        return (String)readProperty("romanjiName");
+    public String getRomajiName() {
+        return (String)readProperty("romajiName");
     }
 
     public void setTranslatedName(String translatedName) {

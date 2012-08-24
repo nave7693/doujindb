@@ -123,21 +123,21 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				addColumn("");
 				addColumn("Japanese");
 				addColumn("Translated");
-				addColumn("Romanji");
+				addColumn("Romaji");
 		    }
 			if(record == Book.class)
 		    {
 				addColumn("");
 				addColumn("Japanese");
 				addColumn("Translated");
-				addColumn("Romanji");
+				addColumn("Romaji");
 		    }
 			if(record == Circle.class)
 		    {
 				addColumn("");
 				addColumn("Japanese");
 				addColumn("Translated");
-				addColumn("Romanji");
+				addColumn("Romaji");
 		    }
 			if(record == Convention.class)
 		    {
@@ -156,7 +156,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				addColumn("");
 				addColumn("Japanese");
 				addColumn("Translated");
-				addColumn("Romanji");
+				addColumn("Romaji");
 		    }
 		}
 		
@@ -168,7 +168,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				super.addRow(new Object[]{a,
 						a.getJapaneseName(),
 						a.getTranslatedName(),
-						a.getRomanjiName()});
+						a.getRomajiName()});
 			}
 			if(record instanceof Book)
 			{
@@ -176,7 +176,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				super.addRow(new Object[]{b,
 						b.getJapaneseName(),
 						b.getTranslatedName(),
-						b.getRomanjiName()});
+						b.getRomajiName()});
 			}
 			if(record instanceof Circle)
 			{
@@ -184,7 +184,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				super.addRow(new Object[]{c,
 						c.getJapaneseName(),
 						c.getTranslatedName(),
-						c.getRomanjiName()});
+						c.getRomajiName()});
 			}
 			if(record instanceof Convention)
 			{
@@ -206,7 +206,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				super.addRow(new Object[]{p,
 						p.getJapaneseName(),
 						p.getTranslatedName(),
-						p.getRomanjiName()});
+						p.getRomajiName()});
 			}
 		}
 	}
@@ -247,8 +247,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
 		private JTextField textTranslatedName;
-		private JLabel labelRomanjiName;
-		private JTextField textRomanjiName;
+		private JLabel labelRomajiName;
+		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
@@ -273,10 +273,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelTranslatedName.setFont(font);
 			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
-			labelRomanjiName = new JLabel("Romanji Name");
-			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField("");
-			textRomanjiName.setFont(font);
+			labelRomajiName = new JLabel("Romaji Name");
+			labelRomajiName.setFont(font);
+			textRomajiName = new JTextField("");
+			textRomajiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
@@ -394,8 +394,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
 			pane.add(textTranslatedName);
-			pane.add(labelRomanjiName);
-			pane.add(textRomanjiName);
+			pane.add(labelRomajiName);
+			pane.add(textRomajiName);
 			pane.add(labelWeblink);
 			pane.add(textWeblink);
 			pane.add(labelResults);
@@ -412,8 +412,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textJapaneseName.setBounds(103, 3, width - 106, 15);
 			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 			labelWeblink.setBounds(3, 3 + 45, 100, 15);
 			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
 			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
@@ -462,8 +462,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								query.JapaneseName = textJapaneseName.getText();
 							if(!textTranslatedName.getText().equals(""))
 								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomanjiName.getText().equals(""))
-								query.RomanjiName = textRomanjiName.getText();
+							if(!textRomajiName.getText().equals(""))
+								query.RomajiName = textRomajiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Artist> result = Core.Database.getArtists(query);
@@ -519,8 +519,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
 		private JTextField textTranslatedName;
-		private JLabel labelRomanjiName;
-		private JTextField textRomanjiName;
+		private JLabel labelRomajiName;
+		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
@@ -545,10 +545,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelTranslatedName.setFont(font);
 			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
-			labelRomanjiName = new JLabel("Romanji Name");
-			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField("");
-			textRomanjiName.setFont(font);
+			labelRomajiName = new JLabel("Romaji Name");
+			labelRomajiName.setFont(font);
+			textRomajiName = new JTextField("");
+			textRomajiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
@@ -666,8 +666,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
 			pane.add(textTranslatedName);
-			pane.add(labelRomanjiName);
-			pane.add(textRomanjiName);
+			pane.add(labelRomajiName);
+			pane.add(textRomajiName);
 			pane.add(labelWeblink);
 			pane.add(textWeblink);
 			pane.add(labelResults);
@@ -684,8 +684,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textJapaneseName.setBounds(103, 3, width - 106, 15);
 			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 			labelWeblink.setBounds(3, 3 + 45, 100, 15);
 			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
 			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
@@ -733,8 +733,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								query.JapaneseName = textJapaneseName.getText();
 							if(!textTranslatedName.getText().equals(""))
 								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomanjiName.getText().equals(""))
-								query.RomanjiName = textRomanjiName.getText();
+							if(!textRomajiName.getText().equals(""))
+								query.RomajiName = textRomajiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Circle> result = Core.Database.getCircles(query);
@@ -790,8 +790,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
 		private JTextField textTranslatedName;
-		private JLabel labelRomanjiName;
-		private JTextField textRomanjiName;
+		private JLabel labelRomajiName;
+		private JTextField textRomajiName;
 		private JLabel labelType;
 		private JComboBox<Book.Type> comboType;
 		private JCheckBox checkAdult;
@@ -820,10 +820,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelTranslatedName.setFont(font);
 			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
-			labelRomanjiName = new JLabel("Romanji Name");
-			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField("");
-			textRomanjiName.setFont(font);
+			labelRomajiName = new JLabel("Romaji Name");
+			labelRomajiName.setFont(font);
+			textRomajiName = new JTextField("");
+			textRomajiName.setFont(font);
 			labelType = new JLabel("Type");
 			labelType.setFont(font);
 			comboType = new JComboBox<Book.Type>();
@@ -941,7 +941,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								Book clone = Core.Database.doInsert(Book.class);
 								clone.setJapaneseName(book.getJapaneseName());
 								clone.setTranslatedName(book.getTranslatedName());
-								clone.setRomanjiName(book.getRomanjiName());
+								clone.setRomajiName(book.getRomajiName());
 								clone.setInfo(book.getInfo());
 								clone.setDate(book.getDate());
 								clone.setRating(book.getRating());
@@ -987,8 +987,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
 			pane.add(textTranslatedName);
-			pane.add(labelRomanjiName);
-			pane.add(textRomanjiName);
+			pane.add(labelRomajiName);
+			pane.add(textRomajiName);
 			pane.add(labelType);
 			pane.add(comboType);
 			pane.add(checkAdult);
@@ -1009,8 +1009,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textJapaneseName.setBounds(103, 3, width - 106, 15);
 			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);		
+			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);		
 			labelType.setBounds(3, 3 + 45, 100, 20);
 			comboType.setBounds(103, 3 + 45, 100, 20);
 			checkAdult.setBounds(3, 3 + 70, 100, 15);
@@ -1062,8 +1062,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								query.JapaneseName = textJapaneseName.getText();
 							if(!textTranslatedName.getText().equals(""))
 								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomanjiName.getText().equals(""))
-								query.RomanjiName = textRomanjiName.getText();
+							if(!textRomajiName.getText().equals(""))
+								query.RomajiName = textRomajiName.getText();
 							query.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
 							query.Adult = checkAdult.isSelected();
 							query.Colored = checkColored.isSelected();
@@ -1592,8 +1592,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
 		private JTextField textTranslatedName;
-		private JLabel labelRomanjiName;
-		private JTextField textRomanjiName;
+		private JLabel labelRomajiName;
+		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
 		private JLabel labelResults;
@@ -1618,10 +1618,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelTranslatedName.setFont(font);
 			textTranslatedName = new JTextField("");
 			textTranslatedName.setFont(font);
-			labelRomanjiName = new JLabel("Romanji Name");
-			labelRomanjiName.setFont(font);
-			textRomanjiName = new JTextField("");
-			textRomanjiName.setFont(font);
+			labelRomajiName = new JLabel("Romaji Name");
+			labelRomajiName.setFont(font);
+			textRomajiName = new JTextField("");
+			textRomajiName.setFont(font);
 			labelWeblink = new JLabel("Weblink");
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
@@ -1739,8 +1739,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			pane.add(textJapaneseName);
 			pane.add(labelTranslatedName);
 			pane.add(textTranslatedName);
-			pane.add(labelRomanjiName);
-			pane.add(textRomanjiName);
+			pane.add(labelRomajiName);
+			pane.add(textRomajiName);
 			pane.add(labelWeblink);
 			pane.add(textWeblink);
 			pane.add(labelResults);
@@ -1757,8 +1757,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textJapaneseName.setBounds(103, 3, width - 106, 15);
 			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
 			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomanjiName.setBounds(3, 3 + 30, 100, 15);
-			textRomanjiName.setBounds(103, 3 + 30, width - 106, 15);
+			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 			labelWeblink.setBounds(3, 3 + 45, 100, 15);
 			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
 			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
@@ -1806,8 +1806,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								query.JapaneseName = textJapaneseName.getText();
 							if(!textTranslatedName.getText().equals(""))
 								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomanjiName.getText().equals(""))
-								query.RomanjiName = textRomanjiName.getText();
+							if(!textRomajiName.getText().equals(""))
+								query.RomajiName = textRomajiName.getText();
 							if(!textWeblink.getText().equals(""))
 								query.Weblink = textWeblink.getText();
 							RecordSet<Parody> result = Core.Database.getParodies(query);

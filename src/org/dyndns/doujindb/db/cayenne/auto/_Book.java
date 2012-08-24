@@ -29,7 +29,7 @@ public abstract class _Book extends CayenneDataObject {
     public static final String PAGES_PROPERTY = "pages";
     public static final String PUBLISHED_PROPERTY = "published";
     public static final String RATING_PROPERTY = "rating";
-    public static final String ROMANJI_NAME_PROPERTY = "romanjiName";
+    public static final String ROMAJI_NAME_PROPERTY = "romajiName";
     public static final String TRANSLATED_PROPERTY = "translated";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
     public static final String TYPE_PROPERTY = "type";
@@ -102,11 +102,11 @@ public abstract class _Book extends CayenneDataObject {
         return (Rating)readProperty("rating");
     }
 
-    public void setRomanjiName(String romanjiName) {
-        writeProperty("romanjiName", romanjiName);
+    public void setRomajiName(String romajiName) {
+        writeProperty("romajiName", romajiName);
     }
-    public String getRomanjiName() {
-        return (String)readProperty("romanjiName");
+    public String getRomajiName() {
+        return (String)readProperty("romajiName");
     }
 
     public void setTranslated(Boolean translated) {

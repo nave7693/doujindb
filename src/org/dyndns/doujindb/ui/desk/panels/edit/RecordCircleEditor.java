@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 {
 	private CntCircle tokenICircle;
-	private CheckBoxListEx<Circle> checkboxList;
+	private RecordList<Circle> checkboxList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -32,16 +32,16 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged();
+		    	checkboxList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new CheckBoxListEx<Circle>(Core.Database.getCircles(null), searchField);
+		checkboxList = new RecordList<Circle>(tokenICircle.getCircles());
 		checkboxList.setSelectedItems(tokenICircle.getCircles());
 		setTopComponent(searchField);
 		setBottomComponent(checkboxList);
@@ -64,7 +64,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 		return checkboxList.getSelectedItems().iterator();
 	}
 	
-	public CheckBoxListEx<Circle> getCheckBoxList()
+	public RecordList<Circle> getCheckBoxList()
 	{
 		return checkboxList;
 	}

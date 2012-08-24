@@ -9,19 +9,13 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.DataBaseListener;
-
-public final class TabbedPaneUIEx extends BasicTabbedPaneUI implements DataBaseListener
+public final class TabbedPaneUIEx extends BasicTabbedPaneUI
 {
-	private CheckBoxListEx<?>[] checkBoxLists;
+	private RecordList<?>[] checkBoxLists;
 	
-	public TabbedPaneUIEx(CheckBoxListEx<?>[] cbls)
+	public TabbedPaneUIEx(RecordList<?>[] cbls)
 	{
 		checkBoxLists = cbls;
-		for(CheckBoxListEx<?> cbl : cbls)
-			if(cbl != null)
-				cbl.setParent(this);
 	}
 	
 	@Override
@@ -66,26 +60,4 @@ public final class TabbedPaneUIEx extends BasicTabbedPaneUI implements DataBaseL
 			paintFocusIndicator(g, tabPlacement, rects, tabIndex, iconRect, textRect, isSelected);
 		}
 	}
-
-	@Override
-	public void recordAdded(Record rcd) { tabPane.repaint(); }
-
-	@Override
-	public void recordDeleted(Record rcd) { tabPane.repaint(); }
-
-	@Override
-	public void recordUpdated(Record rcd) { tabPane.repaint(); }
-
-	@Override
-	public void databaseConnected() { tabPane.repaint(); }
-
-	@Override
-	public void databaseDisconnected() { tabPane.repaint(); }
-
-	@Override
-	public void databaseCommit() { tabPane.repaint(); }
-
-	@Override
-	public void databaseRollback() { tabPane.repaint(); }
-
 }

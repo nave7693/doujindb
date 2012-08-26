@@ -14,7 +14,7 @@ import org.dyndns.doujindb.log.*;
 */
 final class SystemLogger implements Logger
 {
-	private Vector<Logger> loggers = new Vector<Logger>();
+	private List<Logger> loggers = new Vector<Logger>();
 	private OutputStream stream = System.out;
 	private LinkedList<LogEvent> buffer = new LinkedList<LogEvent>();
     private final int MAX_LOG_BUFFER = 0xFF;
@@ -67,7 +67,7 @@ final class SystemLogger implements Logger
 							buffer.poll();
 						} catch (IOException ioe) { ioe.printStackTrace(); }
 					} else
-						try { sleep(100); } catch (InterruptedException e) { }
+						try { sleep(100); } catch (InterruptedException ie) { }
 				}
 			}
 		}.start();
@@ -94,7 +94,7 @@ final class SystemLogger implements Logger
 	@Override
 	public synchronized void loggerDetach(Logger logger)
 	{
-		loggers.remove(logger);			
+		loggers.remove(logger);
 	}
 
 	@Override

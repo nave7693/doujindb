@@ -6,6 +6,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 
@@ -60,8 +61,17 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    javax.swing.plaf.basic.BasicInternalFrameUI ui = new javax.swing.plaf.basic.BasicInternalFrameUI(this);
 	    super.setUI(ui);
 	    super.setVisible(true);
+	    
+	    Core.Database.addDataBaseListener(this);
 	}
 	
+	@Override
+	public void dispose()
+	{
+		Core.Database.removeDataBaseListener(this);
+		super.dispose();
+	}
+
 	public Type getType()
 	{
 		return type;
@@ -86,6 +96,20 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	{
 		for(DataBaseListener l : listeners)
 			l.recordUpdated(rcd);
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		for(DataBaseListener l : listeners)
+			l.recordRecycled(rcd);
+	}
+
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		for(DataBaseListener l : listeners)
+			l.recordRestored(rcd);
 	}
 	
 	@Override

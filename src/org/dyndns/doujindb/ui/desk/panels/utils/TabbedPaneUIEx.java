@@ -11,26 +11,26 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 public final class TabbedPaneUIEx extends BasicTabbedPaneUI
 {
-	private RecordList<?>[] checkBoxLists;
+	private RecordList<?>[] recordLists;
 	
 	public TabbedPaneUIEx(RecordList<?>[] cbls)
 	{
-		checkBoxLists = cbls;
+		recordLists = cbls;
 	}
 	
 	@Override
 	protected int calculateTabWidth(int tabPlacement, int tabIndex, FontMetrics fm)
 	{
-		if(checkBoxLists[tabIndex] == null)
+		if(recordLists[tabIndex] == null)
 			return super.calculateTabWidth(tabPlacement, tabIndex, fm);
 		else
-			return super.calculateTabWidth(tabPlacement, tabIndex, fm) + fm.stringWidth(" (" + checkBoxLists[tabIndex].getVisibleItemCount() + ")");
+			return super.calculateTabWidth(tabPlacement, tabIndex, fm) + fm.stringWidth(" (" + recordLists[tabIndex].getRecordCount() + ")");
 	}
 
 	@Override
 	protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect)
 	{
-		if(checkBoxLists[tabIndex] == null)
+		if(recordLists[tabIndex] == null)
 		{
 			super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
 			return;
@@ -51,9 +51,9 @@ public final class TabbedPaneUIEx extends BasicTabbedPaneUI
 			FontMetrics metrics = g.getFontMetrics(font);
 			Icon icon = getIconForTab(tabIndex);
 
-			layoutLabel(tabPlacement, metrics, tabIndex, title + " (" + checkBoxLists[tabIndex].getVisibleItemCount() + ")", icon, tabRect, iconRect, textRect, isSelected);
+			layoutLabel(tabPlacement, metrics, tabIndex, title + " (" + recordLists[tabIndex].getRecordCount() + ")", icon, tabRect, iconRect, textRect, isSelected);
 			
-			paintText(g, tabPlacement, font, metrics, tabIndex, title + " (" + checkBoxLists[tabIndex].getVisibleItemCount() + ")", textRect, isSelected);
+			paintText(g, tabPlacement, font, metrics, tabIndex, title + " (" + recordLists[tabIndex].getRecordCount() + ")", textRect, isSelected);
 
 			paintIcon(g, tabPlacement, tabIndex, icon, iconRect, isSelected);
 

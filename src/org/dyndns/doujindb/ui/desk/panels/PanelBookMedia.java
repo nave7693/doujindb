@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
@@ -33,7 +31,7 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.utils.*;
 
 @SuppressWarnings("serial")
-public class PanelBookMedia extends JPanel implements DataBaseListener
+public class PanelBookMedia extends JPanel
 {
 	private Book tokenBook;
 	private JButton buttonReload;
@@ -59,7 +57,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				displayUI();
+				syncData();
 			}			
 		});
 		add(buttonReload);
@@ -95,7 +93,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							displayUI();	
+							syncData();	
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 							e.printStackTrace();
@@ -154,7 +152,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							displayUI();
+							syncData();
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 							e.printStackTrace();
@@ -224,7 +222,7 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 						}
-						displayUI();
+						syncData();
 						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
@@ -298,6 +296,13 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 				buttonDelete.setBounds(width-60,1,20,20);
 				buttonPackage.setBounds(width-80,1,20,20);
 				treeMediaScroll.setBounds(1,21,width-2,height-25);
+				
+				buttonReload.setEnabled(!tokenBook.isRecycled());
+				buttonUpload.setEnabled(!tokenBook.isRecycled());
+				buttonDownload.setEnabled(!tokenBook.isRecycled());
+				buttonDelete.setEnabled(!tokenBook.isRecycled());
+				treeMedia.setEnabled(!tokenBook.isRecycled());
+				treeMediaScroll.setEnabled(!tokenBook.isRecycled());
 			}
 			
 			@Override
@@ -321,13 +326,13 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				displayUI();
+				syncData();
 				return null;
 			}
 		}.execute();
 	}
 	
-	private void displayUI()
+	private void syncData()
 	{
 		try {
 			if(!Core.Database.getBooks(null).contains(tokenBook))
@@ -1145,36 +1150,4 @@ public class PanelBookMedia extends JPanel implements DataBaseListener
 			private List<String> contents = new Vector<String>();
 		}
 	}
-
-	@Override
-	public void recordAdded(Record rcd) {}
-	
-	@Override
-	public void recordDeleted(Record rcd) {}
-	
-	@Override
-	public void recordUpdated(Record rcd)
-	{
-		if(tokenBook.equals(rcd) && tokenBook.isRecycled())
-		{
-			buttonReload.setEnabled(false);
-			buttonUpload.setEnabled(false);
-			buttonDownload.setEnabled(false);
-			buttonDelete.setEnabled(false);
-			treeMedia.setEnabled(false);
-			treeMediaScroll.setEnabled(false);
-		}
-	}
-	
-	@Override
-	public void databaseConnected() {}
-	
-	@Override
-	public void databaseDisconnected() {}
-	
-	@Override
-	public void databaseCommit() {}
-	
-	@Override
-	public void databaseRollback() {}
 }

@@ -237,7 +237,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		});
 		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Content"), panel);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getCheckBoxList(),
+				editorWorks.getRecordList(),
 				null
 		}));
 		buttonConfirm = new JButton("Ok");
@@ -255,11 +255,11 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -272,20 +272,25 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		tabLists.setBounds(3, 3 + 90, width - 6, height - 120);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 	     return parent.getPreferredSize();
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
@@ -318,7 +323,6 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenContent);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -329,8 +333,12 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		}
 	}
 	
-	public void validateUI()
+	private void syncData()
 	{
+		textTagName.setText(tokenContent.getTagName());
+		textInfo.setText(tokenContent.getInfo());
+		for(String alias : tokenContent.getAliases())
+			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 		if(tokenContent.isRecycled())
 		{
 			textTagName.setEditable(false);
@@ -338,14 +346,6 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-	}
-	
-	private void syncData()
-	{
-		textTagName.setText(tokenContent.getTagName());
-		textInfo.setText(tokenContent.getInfo());
-		for(String alias : tokenContent.getAliases())
-			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
 	}
 	
 	private final class NullContent implements Content
@@ -413,19 +413,14 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Book)
-			editorWorks.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -433,7 +428,23 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
 	}
 	
 	@Override

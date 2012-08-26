@@ -67,8 +67,8 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 		editorCircles = new RecordCircleEditor(tokenArtist);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getCheckBoxList(),
-				editorCircles.getCheckBoxList()
+				editorWorks.getRecordList(),
+				editorCircles.getRecordList()
 		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
@@ -89,11 +89,11 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -110,10 +110,13 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 		tabLists.setBounds(3, 3 + 60, width - 6, height - 90);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
@@ -124,6 +127,7 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 	{
 	     return parent.getPreferredSize();
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
@@ -158,7 +162,6 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenArtist);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -168,9 +171,13 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 			dbe.printStackTrace();
 		}
 	}
-
-	public void validateUI()
+	
+	private void syncData()
 	{
+		textJapaneseName.setText(tokenArtist.getJapaneseName());
+		textTranslatedName.setText(tokenArtist.getTranslatedName());
+		textRomajiName.setText(tokenArtist.getRomajiName());
+		textWeblink.setText(tokenArtist.getWeblink());
 		if(tokenArtist.isRecycled())
 		{
 			textJapaneseName.setEditable(false);
@@ -181,14 +188,6 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 			editorCircles.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-	}
-	
-	private void syncData()
-	{
-		textJapaneseName.setText(tokenArtist.getJapaneseName());
-		textTranslatedName.setText(tokenArtist.getTranslatedName());
-		textRomajiName.setText(tokenArtist.getRomajiName());
-		textWeblink.setText(tokenArtist.getWeblink());
 	}
 	
 	private final class NullArtist implements Artist
@@ -284,14 +283,7 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Circle)
-			editorCircles.recordAdded(rcd);
-		if(rcd instanceof Book)
-			editorWorks.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
 	public void recordDeleted(Record rcd)
@@ -300,7 +292,7 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 			editorCircles.recordDeleted(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -310,7 +302,27 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 			editorCircles.recordUpdated(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordRecycled(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordRecycled(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordRestored(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordRestored(rcd);
+		syncData();
 	}
 	
 	@Override

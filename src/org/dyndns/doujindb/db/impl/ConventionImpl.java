@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db.impl;
 import java.io.*;
 import java.util.*;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -24,7 +25,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	@Override
 	public synchronized void setTagName(String tagName) throws DataBaseException
 	{
+		if(getTagName().equals(tagName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setTagName(tagName);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -36,7 +40,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	@Override
 	public synchronized void setInfo(String info) throws DataBaseException
 	{
+		if(getInfo().equals(info))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setInfo(info);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}	
 	
 	@Override
@@ -48,7 +55,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	@Override
 	public synchronized void setWeblink(String weblink) throws DataBaseException
 	{
+		if(getWeblink().equals(weblink))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setWeblink(weblink);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -57,7 +67,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			if(!r.getRecycled())
+			//FIXME ? if(!r.getRecycled())
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
@@ -87,6 +97,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(book);
 	}
 
 	@Override
@@ -96,6 +108,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(book);
 	}
 	
 	@Override
@@ -136,12 +150,14 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(true);
+		((DataBaseImpl)Core.Database)._recordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(false);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -153,8 +169,14 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	@Override
 	public void removeAll() throws DataBaseException
 	{
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
-		for(org.dyndns.doujindb.db.cayenne.Book book : result)
-			((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(book);
+		for(Book book : getBooks())
+		{
+			((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
+					(org.dyndns.doujindb.db.cayenne.Book)
+					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(book);
+		}
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

@@ -243,7 +243,7 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		});
 		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), panel);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getCheckBoxList(),
+				editorWorks.getRecordList(),
 				null
 		}));
 		buttonConfirm = new JButton("Ok");
@@ -263,11 +263,11 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -282,15 +282,19 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		tabLists.setBounds(3, 3 + 105, width - 6, height - 135);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
@@ -330,7 +334,6 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenConvention);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -341,17 +344,6 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		}
 	}
 	
-	public void validateUI()
-	{
-		if(tokenConvention.isRecycled())
-		{
-			textTagName.setEditable(false);
-			textInfo.setEditable(false);
-			editorWorks.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
-	}
-	
 	private void syncData()
 	{
 		textTagName.setText(tokenConvention.getTagName());
@@ -359,6 +351,13 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		textInfo.setText(tokenConvention.getInfo());
 		for(String alias : tokenConvention.getAliases())
 			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
+		if(tokenConvention.isRecycled())
+		{
+			textTagName.setEditable(false);
+			textInfo.setEditable(false);
+			editorWorks.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
 	}
 	
 	private final class NullConvention implements Convention
@@ -432,19 +431,14 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Book)
-			editorWorks.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -452,7 +446,23 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
 	}
 	
 	@Override

@@ -185,6 +185,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			super.add(buttonPlugin);
 			buttonPlugins.add(buttonPlugin);
 		}
+		
+		Core.Database.addDataBaseListener(this);
 	}
 	
 	@Deprecated
@@ -320,47 +322,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		return window;
 	}
-	
-//	public WindowEx openWindow(WindowEx.Type type, Object param, Rectangle bounds) throws DataBaseException
-//	{
-//		if(checkWindow(type, param))
-//			return null;
-//		WindowEx window = new WindowEx(type, param);
-//		window.setBounds(0,0,450,450);
-//		window.setMinimumSize(new Dimension(400, 350));
-//		window.setBounds(bounds);
-//		super.add(window);
-//		try
-//		{
-//			window.setVisible(true);
-//			window.setSelected(true);
-//		} catch (PropertyVetoException pve)
-//		{
-//			pve.printStackTrace();
-//			Core.Logger.log(pve.getMessage(), Level.WARNING);
-//		}
-//		return window;
-//	}
-//	
-//	public WindowEx openWindow(WindowEx.Type type, Object param, Icon icon, String title) throws DataBaseException
-//	{
-//		if(checkWindow(type, param))
-//			return null;
-//		WindowEx window = new WindowEx(type, param);
-//		window.setFrameIcon(icon);
-//		window.setTitle(title);
-//		try
-//		{
-//			window.setVisible(true);
-//			window.setSelected(true);
-//		} catch (PropertyVetoException pve)
-//		{
-//			pve.printStackTrace();
-//			Core.Logger.log(pve.getMessage(), Level.WARNING);
-//		}
-//		return window;
-//	}
-	
+
 	private boolean checkWindow(WindowEx.Type type)
 	{
 		for(JInternalFrame jif : getAllFrames())
@@ -538,34 +500,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		syncData();
-		for(JInternalFrame jif : getAllFrames())
-		{
-			try{ ((WindowEx)jif).recordAdded(rcd); } catch(Exception e) { e.printStackTrace(); }
-		}
-	}
+	public void recordAdded(Record rcd) { }
 
 	@Override
-	public void recordDeleted(Record rcd)
-	{
-		syncData();
-		for(JInternalFrame jif : getAllFrames())
-		{
-			try{ ((WindowEx)jif).recordDeleted(rcd); } catch(Exception e) { e.printStackTrace(); }
-		}
-	}
+	public void recordDeleted(Record rcd) { }
 
 	@Override
-	public void recordUpdated(Record rcd)
-	{
-		syncData();
-		for(JInternalFrame jif : getAllFrames())
-		{
-			try{ ((WindowEx)jif).recordUpdated(rcd); } catch(Exception e) { e.printStackTrace(); }
-		}
-	}
+	public void recordUpdated(Record rcd) { }
 
 	@Override
 	public void databaseConnected()
@@ -576,7 +517,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseDisconnected()
 	{
-		//syncData();
 		for(JInternalFrame jif : getAllFrames())
 		{
 			try{ ((WindowEx)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
@@ -594,6 +534,12 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	{
 		syncData();
 	}
+	
+	@Override
+	public void recordRecycled(Record rcd) { }
+
+	@Override
+	public void recordRestored(Record rcd) { }
 	
 	private final class WindowArtistImpl extends WindowEx
 	{

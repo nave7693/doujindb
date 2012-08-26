@@ -64,7 +64,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		editorWorks = new RecordBookEditor(tokenParody);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getCheckBoxList()
+				editorWorks.getRecordList()
 		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
@@ -85,11 +85,11 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -106,20 +106,25 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		tabLists.setBounds(3, 3 + 60, width - 6, height - 90);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 	     return parent.getPreferredSize();
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
@@ -148,7 +153,6 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenParody);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -159,8 +163,12 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		}
 	}
 	
-	public void validateUI()
+	private void syncData()
 	{
+		textJapaneseName.setText(tokenParody.getJapaneseName());
+		textTranslatedName.setText(tokenParody.getTranslatedName());
+		textRomajiName.setText(tokenParody.getRomajiName());
+		textWeblink.setText(tokenParody.getWeblink());
 		if(tokenParody.isRecycled())
 		{
 			textJapaneseName.setEditable(false);
@@ -170,14 +178,6 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 			editorWorks.setEnabled(false);
 			buttonConfirm.setEnabled(false);
 		}
-	}
-	
-	private void syncData()
-	{
-		textJapaneseName.setText(tokenParody.getJapaneseName());
-		textTranslatedName.setText(tokenParody.getTranslatedName());
-		textRomajiName.setText(tokenParody.getRomajiName());
-		textWeblink.setText(tokenParody.getWeblink());
 	}
 	
 	private final class NullParody implements Parody
@@ -248,19 +248,14 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Book)
-			editorWorks.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -268,7 +263,23 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Book)
+			editorWorks.recordUpdated(rcd);
+		syncData();
 	}
 	
 	@Override

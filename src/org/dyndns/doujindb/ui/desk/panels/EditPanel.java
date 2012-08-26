@@ -79,6 +79,18 @@ public final class EditPanel extends JPanel implements DataBaseListener
 	}
 	
 	@Override
+	public void recordRecycled(Record rcd)
+	{
+		child.recordRecycled(rcd);
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		child.recordRestored(rcd);
+	}
+	
+	@Override
 	public void databaseConnected()
 	{
 		child.databaseConnected();

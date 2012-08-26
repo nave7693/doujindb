@@ -347,10 +347,10 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		}
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				null,
-				editorArtists.getCheckBoxList(),
-				editorCircles.getCheckBoxList(),
-				editorContents.getCheckBoxList(),
-				editorParodies.getCheckBoxList(),
+				editorArtists.getRecordList(),
+				editorCircles.getRecordList(),
+				editorContents.getRecordList(),
+				editorParodies.getRecordList(),
 				null
 		}));
 		pane.add(tabLists);
@@ -364,7 +364,6 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
@@ -378,20 +377,25 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		tabLists.setBounds(1, 1, width - 6, height - 30);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 	     return parent.getPreferredSize();
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
@@ -504,7 +508,6 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenBook);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -515,8 +518,39 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		}
 	}
 	
-	public void validateUI()
+	private void metadata(Book book, OutputStream dest) throws DataBaseException
 	{
+		XMLBook doujin = new XMLBook();
+		doujin.japaneseName = book.getJapaneseName();
+		doujin.translatedName = book.getTranslatedName();
+		doujin.romajiName = book.getRomajiName();
+		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
+		doujin.Released = book.getDate();
+		doujin.Type = book.getType();
+		doujin.Pages = book.getPages();
+		doujin.Adult = book.isAdult();
+		doujin.Decensored = book.isDecensored();
+		doujin.Colored = book.isColored();
+		doujin.Translated = book.isTranslated();
+		doujin.Rating = book.getRating();
+		doujin.Info = book.getInfo();
+		for(Artist a : book.getArtists())
+			doujin.artists.add(a.getJapaneseName());
+		for(Circle c : book.getCircles())
+			doujin.circles.add(c.getJapaneseName());
+		for(Parody p : book.getParodies())
+			doujin.parodies.add(p.getJapaneseName());
+		for(Content ct : book.getContents())
+			doujin.contents.add(ct.getTagName());
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.marshal(doujin, dest);
+		} catch (Exception e) {
+			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+		}
 		if(tokenBook.isRecycled())
 		{
 			textJapaneseName.setEditable(false);
@@ -557,41 +591,6 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-	}
-	
-	private void metadata(Book book, OutputStream dest) throws DataBaseException
-	{
-		XMLBook doujin = new XMLBook();
-		doujin.japaneseName = book.getJapaneseName();
-		doujin.translatedName = book.getTranslatedName();
-		doujin.romajiName = book.getRomajiName();
-		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
-		doujin.Released = book.getDate();
-		doujin.Type = book.getType();
-		doujin.Pages = book.getPages();
-		doujin.Adult = book.isAdult();
-		doujin.Decensored = book.isDecensored();
-		doujin.Colored = book.isColored();
-		doujin.Translated = book.isTranslated();
-		doujin.Rating = book.getRating();
-		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists())
-			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles())
-			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies())
-			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents())
-			doujin.contents.add(ct.getTagName());
-		try
-		{
-			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(doujin, dest);
-		} catch (Exception e) {
-			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-		}
 	}
 	
 	private void syncData()
@@ -876,18 +875,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Circle)
-			editorCircles.recordAdded(rcd);
-		if(rcd instanceof Artist)
-			editorArtists.recordAdded(rcd);
-		if(rcd instanceof Content)
-			editorContents.recordAdded(rcd);
-		if(rcd instanceof Parody)
-			editorParodies.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) {}
 	
 	@Override
 	public void recordDeleted(Record rcd)
@@ -900,7 +888,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			editorContents.recordDeleted(rcd);
 		if(rcd instanceof Parody)
 			editorParodies.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -914,7 +902,35 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 			editorContents.recordUpdated(rcd);
 		if(rcd instanceof Parody)
 			editorParodies.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordRecycled(rcd);
+		if(rcd instanceof Artist)
+			editorArtists.recordRecycled(rcd);
+		if(rcd instanceof Content)
+			editorContents.recordRecycled(rcd);
+		if(rcd instanceof Parody)
+			editorParodies.recordRecycled(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Circle)
+			editorCircles.recordRestored(rcd);
+		if(rcd instanceof Artist)
+			editorArtists.recordRestored(rcd);
+		if(rcd instanceof Content)
+			editorContents.recordRestored(rcd);
+		if(rcd instanceof Parody)
+			editorParodies.recordRestored(rcd);
+		syncData();
 	}
 	
 	@Override

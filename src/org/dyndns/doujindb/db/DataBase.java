@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db;
 import org.dyndns.doujindb.db.impl.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.event.*;
 
 /**  
 * DataBase.java - DoujinDB database instance.
@@ -62,4 +63,8 @@ public abstract class DataBase
 	public abstract String getConnection() throws DataBaseException;
 
 	public abstract boolean isAutocommit() throws DataBaseException;
+	
+	public abstract void addDataBaseListener(DataBaseListener dbl);
+	
+	public abstract void removeDataBaseListener(DataBaseListener dbl);
 }

@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db.impl;
 import java.io.*;
 import java.util.*;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -24,7 +25,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setJapaneseName(String japaneseName) throws DataBaseException
 	{
+		if(getJapaneseName().equals(japaneseName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setJapaneseName(japaneseName);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -36,7 +40,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setTranslatedName(String translatedName) throws DataBaseException
 	{
+		if(getTranslatedName().equals(translatedName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslatedName(translatedName);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -48,7 +55,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setRomajiName(String romajiName) throws DataBaseException
 	{
+		if(getRomajiName().equals(romajiName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomajiName(romajiName);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -57,7 +67,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
-			if(!r.getRecycled())
+			//FIXME ? if(!r.getRecycled())
 				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
@@ -74,9 +84,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		 */
 		Set<org.dyndns.doujindb.db.cayenne.Circle> result = new HashSet<org.dyndns.doujindb.db.cayenne.Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists())
-			if(!a.getRecycled())
+			//FIXME ? if(!a.getRecycled())
 				for(org.dyndns.doujindb.db.cayenne.Circle c : a.getCircles())
-					if(!c.getRecycled())
+					//FIXME ? if(!c.getRecycled())
 						result.add(c);
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
 			set.add(new CircleImpl(r));
@@ -103,7 +113,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setDate(Date released) throws DataBaseException
 	{
+		if(getDate().equals(released))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPublished(released);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -115,7 +128,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setType(Type type) throws DataBaseException
 	{
+		if(getType().equals(type))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setType(type);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -127,7 +143,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setAdult(boolean adult) throws DataBaseException
 	{
+		if(isAdult() == adult)
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setAdult(adult);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -139,7 +158,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setDecensored(boolean decensored) throws DataBaseException
 	{
+		if(isDecensored() == decensored)
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setDecensored(decensored);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -151,7 +173,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setTranslated(boolean translated) throws DataBaseException
 	{
+		if(isTranslated() == translated)
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslated(translated);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 	
 	@Override
@@ -163,7 +188,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setColored(boolean colored) throws DataBaseException
 	{
+		if(isColored() == colored)
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setColor(colored);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -175,7 +203,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setRating(Rating rating) throws DataBaseException
 	{
+		if(getRating().equals(rating))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRating(rating);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 	
 	@Override
@@ -184,7 +215,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Content> set = new TreeSet<Content>();
 		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
 		for(org.dyndns.doujindb.db.cayenne.Content r : result)
-			if(!r.getRecycled())
+			//FIXME ? if(!r.getRecycled())
 				set.add(new ContentImpl(r));
 		return new RecordSetImpl<Content>(set);
 	}
@@ -198,7 +229,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setPages(int pages) throws DataBaseException
 	{
+		if(getPages() == pages)
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPages(pages);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -212,10 +246,13 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setConvention(Convention convention) throws DataBaseException
 	{
+		if(getConvention().equals(convention))
+			return;
 		if(convention == null)
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof(null);
 		else
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -227,7 +264,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setInfo(String info) throws DataBaseException
 	{
+		if(getInfo().equals(info))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setInfo(info);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 	
 	@Override
@@ -251,6 +291,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(artist);
 	}
 
 	@Override
@@ -260,6 +302,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(artist);
 	}
 
 	@Override
@@ -271,6 +315,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Content)
 			((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
 		);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(content);
 	}
 
 	@Override
@@ -282,6 +328,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Parody)
 			((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
 		);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(parody);
 	}
 
 	@Override
@@ -291,6 +339,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Content)
 				((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
 			);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(content);
 	}
 
 	@Override
@@ -300,6 +350,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Parody)
 				((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
 			);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordRestored(parody);
 	}
 	
 	@Override
@@ -316,12 +368,14 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(true);
+		((DataBaseImpl)Core.Database)._recordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(false);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -333,23 +387,37 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public void removeAll() throws DataBaseException
 	{
+		for(Artist artist : getArtists())
 		{
-			Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
-			for(org.dyndns.doujindb.db.cayenne.Artist artist : result)
-				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(artist);
+			for(Circle circle : artist.getCircles())
+			{
+				((DataBaseImpl)Core.Database)._recordUpdated(circle);
+			}
+			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(
+					(org.dyndns.doujindb.db.cayenne.Artist)
+					((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(artist);
 		}
+		for(Content content : getContents())
 		{
-			Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
-			Set<org.dyndns.doujindb.db.cayenne.Content> result_shadow = new HashSet<org.dyndns.doujindb.db.cayenne.Content>();
-			result_shadow.addAll(result);
-			for(org.dyndns.doujindb.db.cayenne.Content content : result_shadow)
-				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(content);
+			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(
+					(org.dyndns.doujindb.db.cayenne.Content)
+					((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(content);
 		}
+		for(Parody parody : getParodies())
 		{
-			Set<org.dyndns.doujindb.db.cayenne.Parody> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getParodies();
-			for(org.dyndns.doujindb.db.cayenne.Parody parody : result)
-				((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(parody);
+			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(
+					(org.dyndns.doujindb.db.cayenne.Parody)
+					((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(parody);
 		}
+		if(getConvention() != null)
+			((DataBaseImpl)Core.Database)._recordRestored(getConvention());
 		setConvention(null);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 }

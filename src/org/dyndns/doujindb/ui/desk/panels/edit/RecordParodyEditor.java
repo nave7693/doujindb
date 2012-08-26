@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 {
 	private CntParody tokenIParody;
-	private RecordList<Parody> checkboxList;
+	private RecordList<Parody> recordList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -32,19 +32,18 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new RecordList<Parody>(tokenIParody.getParodies());
-		checkboxList.setSelectedItems(tokenIParody.getParodies());
+		recordList = new RecordList<Parody>(tokenIParody.getParodies(), Parody.class);
 		setTopComponent(searchField);
-		setBottomComponent(checkboxList);
+		setBottomComponent(recordList);
 		setDividerSize(0);
 		super.setEnabled(false);
 		validate();
@@ -53,7 +52,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 	public boolean contains(Parody item)
 	{
 		boolean contains = false;
-		for(Object o : checkboxList.getSelectedItems())
+		for(Object o : recordList.getRecords())
 			if(o.equals(item))
 				return true;
 		return contains;
@@ -61,31 +60,31 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 	
 	public java.util.Iterator<Parody> iterator()
 	{
-		return checkboxList.getSelectedItems().iterator();
+		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Parody> getCheckBoxList()
+	public RecordList<Parody> getRecordList()
 	{
-		return checkboxList;
+		return recordList;
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled)
 	{
-		checkboxList.setEnabled(enabled);
+		recordList.setEnabled(enabled);
 		searchField.setEnabled(enabled);
 	}
 
 	@Override
 	public void recordAdded(Record rcd)
 	{
-		checkboxList.recordAdded(rcd);
+		recordList.recordAdded(rcd);
 	}
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
-		checkboxList.recordDeleted(rcd);
+		recordList.recordDeleted(rcd);
 	}
 	
 	@Override
@@ -93,35 +92,47 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 	{
 		if(tokenIParody.equals(rcd))
 			try {
-				checkboxList.setSelectedItems(tokenIParody.getParodies());
+				//TODO ? recordList.setSelectedItems(tokenIParody.getParodies());
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		checkboxList.recordUpdated(rcd);
+		recordList.recordUpdated(rcd);
 	}
 	
 	@Override
 	public void databaseConnected()
 	{
-		checkboxList.databaseConnected();
+		recordList.databaseConnected();
 	}
 	
 	@Override
 	public void databaseDisconnected()
 	{
-		checkboxList.databaseDisconnected();
+		recordList.databaseDisconnected();
 	}
 	
 	@Override
 	public void databaseCommit()
 	{
-		checkboxList.databaseCommit();
+		recordList.databaseCommit();
 	}
 	
 	@Override
 	public void databaseRollback()
 	{
-		checkboxList.databaseRollback();
+		recordList.databaseRollback();
+	}
+
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		recordList.recordRecycled(rcd);
+	}
+
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		recordList.recordRestored(rcd);
 	}
 }

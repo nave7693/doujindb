@@ -41,8 +41,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		recordList = new RecordList<Book>(tokenIBook.getBooks());
-		recordList.setSelectedItems(tokenIBook.getBooks());
+		recordList = new RecordList<Book>(tokenIBook.getBooks(), Book.class);
 		setTopComponent(searchField);
 		setBottomComponent(recordList);
 		setDividerSize(0);
@@ -53,7 +52,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	public boolean contains(Book item)
 	{
 		boolean contains = false;
-		for(Object o : recordList.getSelectedItems())
+		for(Object o : recordList.getRecords())
 			if(o.equals(item))
 				return true;
 		return contains;
@@ -61,10 +60,10 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	
 	public java.util.Iterator<Book> iterator()
 	{
-		return recordList.getSelectedItems().iterator();
+		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Book> getCheckBoxList()
+	public RecordList<Book> getRecordList()
 	{
 		return recordList;
 	}
@@ -93,7 +92,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	{
 		if(tokenIBook.equals(rcd))
 			try {
-				recordList.setSelectedItems(tokenIBook.getBooks());
+				//TODO ? recordList.setSelectedItems(tokenIBook.getBooks());
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -123,5 +122,17 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	public void databaseRollback()
 	{
 		recordList.databaseRollback();
+	}
+
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		recordList.recordRecycled(rcd);
+	}
+
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		recordList.recordRestored(rcd);
 	}
 }

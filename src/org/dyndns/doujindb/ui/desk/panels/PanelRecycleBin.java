@@ -107,48 +107,41 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 							for(Artist artist : artists)
 							{
 								artist.doRestore();
-								Core.UI.Desktop.recordAdded(artist);
 								model.removeElement(artist);
 							}
 							model = (DefaultListModel) listBook.getModel();
 							for(Book book : books)
 							{
 								book.doRestore();
-								Core.UI.Desktop.recordAdded(book);
 								model.removeElement(book);
 							}
 							model = (DefaultListModel) listCircle.getModel();
 							for(Circle circle : circles)
 							{
 								circle.doRestore();
-								Core.UI.Desktop.recordAdded(circle);
 								model.removeElement(circle);
 							}
 							model = (DefaultListModel) listContent.getModel();
 							for(Content content : contents)
 							{
 								content.doRestore();
-								Core.UI.Desktop.recordAdded(content);
 								model.removeElement(content);
 							}
 							model = (DefaultListModel) listConvention.getModel();
 							for(Convention convention : conventions)
 							{
 								convention.doRestore();
-								Core.UI.Desktop.recordAdded(convention);
 								model.removeElement(convention);
 							}
 							model = (DefaultListModel) listParody.getModel();
 							for(Parody parody : parodies)
 							{
 								parody.doRestore();
-								Core.UI.Desktop.recordAdded(parody);
 								model.removeElement(parody);
 							}
 			
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
-							Core.UI.Desktop.databaseCommit();
 							
 							syncData();
 						}catch(ArrayIndexOutOfBoundsException aioobe)
@@ -306,7 +299,6 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
-									Core.UI.Desktop.databaseCommit();
 									
 									syncData();
 
@@ -468,7 +460,6 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
-									Core.UI.Desktop.databaseCommit();
 									
 									syncData();
 
@@ -911,8 +902,14 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 	public void recordAdded(Record rcd) {}
 	
 	@Override
+	public void recordDeleted(Record rcd) { }
+	
+	@Override
+	public void recordUpdated(Record rcd) { }
+	
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public void recordDeleted(Record rcd)
+	@Override
+	public void recordRecycled(Record rcd)
 	{
 		if(rcd instanceof Artist)
 		{
@@ -957,21 +954,21 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 			return;
 		}
 	}
+
+	@Override
+	public void recordRestored(Record rcd) { }
 	
 	@Override
-	public void recordUpdated(Record rcd) {}
+	public void databaseConnected() { }
 	
 	@Override
-	public void databaseConnected() {}
+	public void databaseDisconnected() { }
 	
 	@Override
-	public void databaseDisconnected() {}
+	public void databaseCommit() { }
 	
 	@Override
-	public void databaseCommit() {}
-	
-	@Override
-	public void databaseRollback() {}
+	public void databaseRollback() { }
 
 	@Override
 	public void valueChanged(ListSelectionEvent lse)

@@ -43,7 +43,7 @@ import org.dyndns.doujindb.ui.rc.*;
 * @version 1.0
 */
 @SuppressWarnings("unused")
-public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, DataBaseListener, ConfigurationListener
+public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, ConfigurationListener
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -833,7 +833,6 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.databaseCommit();
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -900,7 +899,6 @@ public void layoutContainer(Container parent)
 						{
 							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
 						}
-						Desktop.databaseRollback();
 						validate();
 						repaint();
 					} catch (Exception e) {
@@ -939,7 +937,6 @@ public void layoutContainer(Container parent)
 						Core.Database.doRollback();
 						uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
 						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
-						Desktop.databaseConnected();
 					} catch (DataBaseException dbe) {
 						Core.Database.disconnect();
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
@@ -958,7 +955,6 @@ public void layoutContainer(Container parent)
 				Core.Database.disconnect();
 				Core.Logger.log("Disconnected from remote host.", Level.INFO);
 				uiStatusBar.setText("Disconnected.");
-				Desktop.databaseDisconnected();
 			} catch (RuntimeException re)
 			{
 				Core.Logger.log("" + re.getMessage(), Level.ERROR);
@@ -2766,47 +2762,5 @@ public void layoutContainer(Container parent)
 	public void propertyUpdated(String prop)
 	{
 		uiPanelSettings.reload(prop);
-	}
-
-	@Override
-	public void recordAdded(Record rcd) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void recordDeleted(Record rcd) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void recordUpdated(Record rcd) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void databaseConnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void databaseDisconnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void databaseCommit() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void databaseRollback() {
-		// TODO Auto-generated method stub
-		
 	}
 }

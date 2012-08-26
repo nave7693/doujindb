@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db.impl;
 import java.io.*;
 import java.util.*;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 
@@ -24,7 +25,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public synchronized void setJapaneseName(String japaneseName) throws DataBaseException
 	{
+		if(getJapaneseName().equals(japaneseName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setJapaneseName(japaneseName);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -36,7 +40,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public synchronized void setTranslatedName(String translatedName) throws DataBaseException
 	{
+		if(getTranslatedName().equals(translatedName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setTranslatedName(translatedName);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -48,7 +55,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public synchronized void setRomajiName(String romajiName) throws DataBaseException
 	{
+		if(getRomajiName().equals(romajiName))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setRomajiName(romajiName);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -60,7 +70,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public synchronized void setWeblink(String weblink) throws DataBaseException
 	{
+		if(getWeblink().equals(weblink))
+			return;
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setWeblink(weblink);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -69,7 +82,7 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			if(!r.getRecycled())
+			//FIXME ? if(!r.getRecycled())
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
@@ -80,7 +93,7 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 		Set<Circle> set = new TreeSet<Circle>();
 		Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getCircles();
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
-			if(!r.getRecycled())
+			//FIXME ? if(!r.getRecycled())
 				set.add(new CircleImpl(r));
 		return new RecordSetImpl<Circle>(set);
 	}
@@ -103,6 +116,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(book);
 	}
 
 	@Override
@@ -114,6 +129,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(circle);
 	}
 
 	@Override
@@ -123,6 +140,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(book);
 	}
 
 	@Override
@@ -132,6 +151,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
 		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(circle);
 	}
 
 	@Override
@@ -148,12 +169,14 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setRecycled(true);
+		((DataBaseImpl)Core.Database)._recordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Artist)ref).setRecycled(false);
+		((DataBaseImpl)Core.Database)._recordRestored(this);
 	}
 
 	@Override
@@ -165,15 +188,22 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	@Override
 	public void removeAll() throws DataBaseException
 	{
+		for(Book book : getBooks())
 		{
-			Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getBooks();
-			for(org.dyndns.doujindb.db.cayenne.Book book : result)
-				((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromBooks(book);
+			((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromBooks(
+					(org.dyndns.doujindb.db.cayenne.Book)
+					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(book);
 		}
+		for(Circle circle : getCircles())
 		{
-			Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Artist)ref).getCircles();
-			for(org.dyndns.doujindb.db.cayenne.Circle circle : result)
-				((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromCircles(circle);
+			((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromCircles(
+					(org.dyndns.doujindb.db.cayenne.Circle)
+					((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
+				);
+			((DataBaseImpl)Core.Database)._recordUpdated(circle);
 		}
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

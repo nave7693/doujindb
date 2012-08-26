@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.desk.panels.utils.*;
 public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 {
 	private CntCircle tokenICircle;
-	private RecordList<Circle> checkboxList;
+	private RecordList<Circle> recordList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	
@@ -32,19 +32,18 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 		searchField.getDocument().addDocumentListener(new DocumentListener()
 		{
 		    public void insertUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void removeUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		    public void changedUpdate(DocumentEvent e) {
-		    	checkboxList.filterChanged(searchField.getText());
+		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		checkboxList = new RecordList<Circle>(tokenICircle.getCircles());
-		checkboxList.setSelectedItems(tokenICircle.getCircles());
+		recordList = new RecordList<Circle>(tokenICircle.getCircles(), Circle.class);
 		setTopComponent(searchField);
-		setBottomComponent(checkboxList);
+		setBottomComponent(recordList);
 		setDividerSize(0);
 		super.setEnabled(false);
 		validate();
@@ -53,7 +52,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	public boolean contains(Circle item)
 	{
 		boolean contains = false;
-		for(Object o : checkboxList.getSelectedItems())
+		for(Object o : recordList.getRecords())
 			if(o.equals(item))
 				return true;
 		return contains;
@@ -61,31 +60,31 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	
 	public java.util.Iterator<Circle> iterator()
 	{
-		return checkboxList.getSelectedItems().iterator();
+		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Circle> getCheckBoxList()
+	public RecordList<Circle> getRecordList()
 	{
-		return checkboxList;
+		return recordList;
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled)
 	{
-		checkboxList.setEnabled(enabled);
+		recordList.setEnabled(enabled);
 		searchField.setEnabled(enabled);
 	}
 
 	@Override
 	public void recordAdded(Record rcd)
 	{
-		checkboxList.recordAdded(rcd);
+		recordList.recordAdded(rcd);
 	}
 	
 	@Override
 	public void recordDeleted(Record rcd)
 	{
-		checkboxList.recordDeleted(rcd);
+		recordList.recordDeleted(rcd);
 	}
 	
 	@Override
@@ -93,35 +92,47 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	{
 		if(tokenICircle.equals(rcd))
 			try {
-				checkboxList.setSelectedItems(tokenICircle.getCircles());
+				//TODO ? recordList.setSelectedItems(tokenICircle.getCircles());
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		checkboxList.recordUpdated(rcd);
+		recordList.recordUpdated(rcd);
 	}
 	
 	@Override
 	public void databaseConnected()
 	{
-		checkboxList.databaseConnected();
+		recordList.databaseConnected();
 	}
 	
 	@Override
 	public void databaseDisconnected()
 	{
-		checkboxList.databaseDisconnected();
+		recordList.databaseDisconnected();
 	}
 	
 	@Override
 	public void databaseCommit()
 	{
-		checkboxList.databaseCommit();
+		recordList.databaseCommit();
 	}
 	
 	@Override
 	public void databaseRollback()
 	{
-		checkboxList.databaseRollback();
+		recordList.databaseRollback();
+	}
+
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		recordList.recordRecycled(rcd);
+	}
+
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		recordList.recordRestored(rcd);
 	}
 }

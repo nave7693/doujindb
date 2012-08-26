@@ -185,8 +185,8 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getCheckBoxList(),
-				editorArtists.getCheckBoxList()
+				editorWorks.getRecordList(),
+				editorArtists.getRecordList()
 		}));
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
@@ -208,7 +208,6 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 			@Override
 			public Void doInBackground() {
 				syncData();
-				validateUI();
 				return null;
 			}
 		}.execute();
@@ -272,7 +271,6 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 				}
 				@Override
 				public void done() {
-					Core.UI.Desktop.recordUpdated(tokenCircle);
 					buttonConfirm.setEnabled(true);
 				}
 			}.execute();
@@ -281,24 +279,6 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
 		}
-	}
-	
-	public void validateUI()
-	{
-		if(tokenCircle.isRecycled())
-		{
-			textJapaneseName.setEditable(false);
-			textTranslatedName.setEditable(false);
-			textRomajiName.setEditable(false);
-			textWeblink.setEditable(false);
-			editorWorks.setEnabled(false);
-			editorArtists.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
-		if(tokenCircle.getID() == null)
-			labelBanner.setEnabled(false);
-		else
-			labelBanner.setEnabled(true);
 	}
 	
 	private void syncData()
@@ -326,6 +306,20 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if(tokenCircle.isRecycled())
+		{
+			textJapaneseName.setEditable(false);
+			textTranslatedName.setEditable(false);
+			textRomajiName.setEditable(false);
+			textWeblink.setEditable(false);
+			editorWorks.setEnabled(false);
+			editorArtists.setEnabled(false);
+			buttonConfirm.setEnabled(false);
+		}
+		if(tokenCircle.getID() == null)
+			labelBanner.setEnabled(false);
+		else
+			labelBanner.setEnabled(true);
 	}
 	
 	private final class NullCircle implements Circle
@@ -415,14 +409,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		if(rcd instanceof Artist)
-			editorArtists.recordAdded(rcd);
-		if(rcd instanceof Book)
-			editorWorks.recordAdded(rcd);
-		validateUI();
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
 	public void recordDeleted(Record rcd)
@@ -431,7 +418,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 			editorArtists.recordDeleted(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		validateUI();
+		syncData();
 	}
 	
 	@Override
@@ -441,7 +428,27 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 			editorArtists.recordUpdated(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordUpdated(rcd);
-		validateUI();
+		syncData();
+	}
+	
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		if(rcd instanceof Artist)
+			editorArtists.recordRecycled(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordRecycled(rcd);
+		syncData();
+	}
+	
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		if(rcd instanceof Artist)
+			editorArtists.recordRestored(rcd);
+		if(rcd instanceof Book)
+			editorWorks.recordRestored(rcd);
+		syncData();
 	}
 	
 	@Override

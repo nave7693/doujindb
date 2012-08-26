@@ -22,8 +22,10 @@ import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
+import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.log.Level;
 
 /**  
 * DataBase.java - DoujinDB database instance implementation.
@@ -45,6 +47,10 @@ public class DataBaseImpl extends DataBase
 	private static SelectQuery queryConvention;
 	private static SelectQuery queryContent;
 	private static SelectQuery queryParody;
+	
+	private List<DataBaseListener> listeners = new Vector<DataBaseListener>();
+	private LinkedList<DataBaseEvent> buffer = new LinkedList<DataBaseEvent>();
+	private final int MAX_EVENT_BUFFER = 0xFF;
 	
 	{
 		List<Expression> list;
@@ -156,6 +162,63 @@ public class DataBaseImpl extends DataBase
 		context = domain.createDataContext();
 
 		contexts = new Hashtable<String, DataBaseContext>();
+		
+		new Thread(getClass().getName()+"/EventPoller")
+		{
+			@Override
+			public void run()
+			{
+				super.setPriority(Thread.MIN_PRIORITY);
+				while(true)
+				{
+					if(!buffer.isEmpty())
+					{
+						DataBaseEvent event = buffer.peek();
+						switch(event.type)
+						{
+							case RECORD_ADDED:
+								for(DataBaseListener dbl : listeners)
+									dbl.recordAdded(event.record);
+								break;
+							case RECORD_DELETED:
+								for(DataBaseListener dbl : listeners)
+									dbl.recordDeleted(event.record);
+								break;
+							case RECORD_UPDATED:
+								for(DataBaseListener dbl : listeners)
+									dbl.recordUpdated(event.record);
+								break;
+							case RECORD_RECYCLED:
+								for(DataBaseListener dbl : listeners)
+									dbl.recordRecycled(event.record);
+								break;
+							case RECORD_RESTORED:
+								for(DataBaseListener dbl : listeners)
+									dbl.recordRestored(event.record);
+								break;
+							case DATABASE_CONNECTED:
+								for(DataBaseListener dbl : listeners)
+									dbl.databaseConnected();
+								break;
+							case DATABASE_DISCONNECTED:
+								for(DataBaseListener dbl : listeners)
+									dbl.databaseDisconnected();
+								break;
+							case DATABASE_COMMIT:
+								for(DataBaseListener dbl : listeners)
+									dbl.databaseCommit();
+								break;
+							case DATABASE_ROLLBACK:
+								for(DataBaseListener dbl : listeners)
+									dbl.databaseRollback();
+								break;
+						}
+						buffer.poll();
+					} else
+						try { sleep(100); } catch (InterruptedException ie) { }
+				}
+			}
+		}.start();
 	}
 	
 	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
@@ -248,18 +311,24 @@ public class DataBaseImpl extends DataBase
 	public synchronized void doCommit() throws DataBaseException
 	{
 		context.commitChanges();
+		
+		this._databaseCommit();
 	}
 
 	@Override
 	public synchronized void doRollback() throws DataBaseException
 	{
 		context.rollbackChanges();
+		
+		this._databaseRollback();
 	}
 	
 	@Override
 	public synchronized void doDelete(Record record) throws DataBaseException
 	{
 		context.deleteObject(((RecordImpl)record).ref);
+		
+		this._recordDeleted(record);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -477,17 +546,41 @@ public class DataBaseImpl extends DataBase
 	public <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException
 	{
 		if(clazz == Artist.class)
-			return (T) newArtist();
+		{
+			T record = (T) newArtist();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		if(clazz == Book.class)
-			return (T) newBook();
+		{
+			T record = (T) newBook();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		if(clazz == Circle.class)
-			return (T) newCircle();
+		{
+			T record = (T) newCircle();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		if(clazz == Content.class)
-			return (T) newContent();
+		{
+			T record = (T) newContent();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		if(clazz == Convention.class)
-			return (T) newConvention();
+		{
+			T record = (T) newConvention();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		if(clazz == Parody.class)
-			return (T) newParody();
+		{
+			T record = (T) newParody();
+			this._recordAdded((Record)record);
+			return record;
+		}
 		throw new DataBaseException("Invalid record class '" + clazz + "' specified.");
 	}
 
@@ -535,7 +628,6 @@ public class DataBaseImpl extends DataBase
 			while(schemas.next())
 			{
 				ResultSet tables = dmd.getTables(null, schemas.getString(1), null, null);
-				//ResultSet tables = dmd.getTables(null, schemas.getString("TABLE_SCHEM"), null, null);
 				while(tables.next())
 				{
 					String table = tables.getString("TABLE_NAME");
@@ -579,12 +671,16 @@ public class DataBaseImpl extends DataBase
 		}
 		
 		autocommit = Core.Properties.get("org.dyndns.doujindb.db.autocommit").asBoolean();
+		
+		this._databaseConnected();
 	}
 	
 	@Override
 	public void disconnect() throws DataBaseException
 	{
 		node.setDataSource(null);
+		
+		this._databaseDisconnected();
 	}
 	
 	@Override
@@ -644,5 +740,120 @@ public class DataBaseImpl extends DataBase
 				iae.printStackTrace();
 			}
 		return map;
+	}
+
+	@Override
+	public void addDataBaseListener(DataBaseListener dbl)
+	{
+		if(!listeners.contains(dbl))
+			listeners.add(dbl);
+	}
+
+	@Override
+	public void removeDataBaseListener(DataBaseListener dbl)
+	{
+		listeners.remove(dbl);
+	}
+	
+	private static final class DataBaseEvent
+	{
+		private enum Type
+		{
+			RECORD_ADDED,
+			RECORD_DELETED,
+			RECORD_UPDATED,
+			RECORD_RECYCLED,
+			RECORD_RESTORED,
+			DATABASE_CONNECTED,
+			DATABASE_DISCONNECTED,
+			DATABASE_COMMIT,
+			DATABASE_ROLLBACK
+		}
+		
+		private Type type;
+		private Record record;
+		
+		private DataBaseEvent(Type type)
+		{
+			this(type, null);
+		}
+		
+		private DataBaseEvent(Type type, Record record)
+		{
+			this.type = type;
+			this.record = record;
+		}
+	}
+	
+	private void _recordAdded(Record rcd)
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, rcd));
+	}
+
+	private void _recordDeleted(Record rcd)
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
+	}
+
+	void _recordUpdated(Record rcd)
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd));
+	}
+	
+	void _recordRecycled(Record rcd)
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, rcd));
+	}
+
+	void _recordRestored(Record rcd)
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, rcd));
+	}
+
+	private void _databaseConnected()
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_CONNECTED));
+	}
+
+	private void _databaseDisconnected()
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_DISCONNECTED));
+	}
+
+	private void _databaseCommit()
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_COMMIT));
+	}
+
+	private void _databaseRollback()
+	{
+		if(buffer.size() > MAX_EVENT_BUFFER)
+			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
+		else
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
 	}
 }

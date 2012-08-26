@@ -356,7 +356,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Artist a : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(a))
 											{
 												tableModel.removeRow(index);
@@ -626,7 +626,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Circle c : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(c))
 											{
 												tableModel.removeRow(index);
@@ -916,7 +916,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Book b : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(b))
 											{
 												tableModel.removeRow(index);
@@ -1205,7 +1205,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Content t : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(t))
 											{
 												tableModel.removeRow(index);
@@ -1438,7 +1438,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Convention e : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(e))
 											{
 												tableModel.removeRow(index);
@@ -1689,7 +1689,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 											Core.Database.doCommit();
 									}
 									for(Parody p : deleted)
-										for(int index=0; index<tableModel.getColumnCount();index++)
+										for(int index=0; index<tableModel.getRowCount();index++)
 											if(((Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(p))
 											{
 												tableModel.removeRow(index);

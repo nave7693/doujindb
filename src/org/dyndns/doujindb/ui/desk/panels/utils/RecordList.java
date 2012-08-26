@@ -83,24 +83,69 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 			tableData.getColumnModel().getColumn(k).setMinWidth(125);
 		}
 		scrollPane = new JScrollPane(tableData);
-		tableData.addMouseListener(new MouseAdapter(){
-		public void mouseClicked(MouseEvent e)
-		{
-			if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+		tableData.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e)
 			{
-				try {
-					final Record item = (Record)tableData.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableData.rowAtPoint(e.getPoint())), 0);
-					Core.UI.Desktop.openWindow(type, item);
-				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					dbe.printStackTrace();
+				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				{
+					try {
+						final Record item = (Record)tableData.getModel()
+							.getValueAt(
+									tableSorter.convertRowIndexToModel(
+										tableData.rowAtPoint(e.getPoint())), 0);
+						Core.UI.Desktop.openWindow(type, item);
+					} catch (DataBaseException dbe) {
+						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						dbe.printStackTrace();
+					}
+				}else
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					// If not item is selected don't show any popup
+					if(tableData.getSelectedRowCount() < 1)
+						return;
+					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
+					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
+					pop.show((Component)e.getSource(), e.getX(), e.getY());
+					new Thread(getClass().getName()+"/MouseClicked")
+					{
+						@Override
+						public void run()
+						{
+							while(pop.isValid())
+								try { sleep(1); } catch (InterruptedException ie) { ; }
+							int selected = pop.getResult();
+							switch(selected)
+							{
+							case 0:{
+								try {
+									Vector<Record> deleted = new Vector<Record>();
+									for(int index : tableData.getSelectedRows())
+									{
+										Record rcd = (Record)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
+										deleted.add(rcd);
+									}
+									for(Record rcd : deleted)
+										for(int index=0; index<tableModel.getRowCount();index++)
+											if(((Record)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(rcd))
+											{
+												tableModel.removeRow(index);
+												break;
+											}
+								} catch (DataBaseException dbe) {
+									Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									dbe.printStackTrace();
+								}
+								tableData.validate();
+								break;
+							}
+							}
+						}
+					}.start();
 				}
-			}
-		  }
-		});
+			  }
+			});
 		for(Record rcd : data)
 			tableModel.addRecord(rcd);
 		add(scrollPane);

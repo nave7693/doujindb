@@ -21,8 +21,8 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
-import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
+import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
+import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
 public final class PanelCircle implements DataBaseListener, LayoutManager, ActionListener
 {

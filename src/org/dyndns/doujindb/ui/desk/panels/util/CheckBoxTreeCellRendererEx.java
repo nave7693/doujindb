@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels.utils;
+package org.dyndns.doujindb.ui.desk.panels.util;
 
 /**
  * Copyright (c) 2006 Timothy Wall, All Rights Reserved

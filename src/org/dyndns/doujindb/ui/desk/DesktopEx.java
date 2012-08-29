@@ -557,7 +557,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Artist");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_ARTIST, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_ARTIST, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -591,7 +591,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Book");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_BOOK, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_BOOK, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -625,7 +625,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Circle");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_CIRCLE, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_CIRCLE, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -659,7 +659,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Content");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_CONTENT, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_CONTENT, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -693,7 +693,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Convention");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_CONVENTION, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_CONVENTION, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -727,7 +727,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.setTitle("Add Parody");
 			else
 				super.setTitle(this.record.toString());
-			EditPanel editor = new EditPanel(this, Type.WINDOW_PARODY, this.record);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_PARODY, this.record);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -787,7 +787,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			this.type = Type.WINDOW_RECYCLEBIN;
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"));
 			super.setTitle("Recycle Bin");
-			EditPanel editor = new EditPanel(this, Type.WINDOW_RECYCLEBIN, null);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_RECYCLEBIN, null);
 			listeners.add(editor);
 			super.add(editor);
 			super.setVisible(true);
@@ -802,7 +802,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			this.type = Type.WINDOW_TOOLS;
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Tools"));
 			super.setTitle("Tools");
-			EditPanel editor = new EditPanel(this, Type.WINDOW_TOOLS, null);
+			PanelEditor editor = new PanelEditor(this, Type.WINDOW_TOOLS, null);
 			//TODO org.dyndns.doujindb.util.RepositoryIndexer.rebuildIndexes();
 			listeners.add(editor);
 			super.add(editor);

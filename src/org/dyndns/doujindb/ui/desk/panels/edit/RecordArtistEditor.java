@@ -12,7 +12,7 @@ import org.dyndns.doujindb.db.containers.CntArtist;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
+import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
 public class RecordArtistEditor extends JSplitPane implements DataBaseListener

@@ -9,15 +9,15 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
-public final class EditPanel extends JPanel implements DataBaseListener
+public final class PanelEditor extends JPanel implements DataBaseListener
 {
 	private DataBaseListener child;
 	
-	public EditPanel(WindowEx parent, WindowEx.Type type) throws DataBaseException
+	public PanelEditor(WindowEx parent, WindowEx.Type type) throws DataBaseException
 	{
 		this(parent, type, null);
 	}
-	public EditPanel(WindowEx parent, WindowEx.Type type, Object token) throws DataBaseException
+	public PanelEditor(WindowEx parent, WindowEx.Type type, Object token) throws DataBaseException
 	{
 		super();
 		switch(type)

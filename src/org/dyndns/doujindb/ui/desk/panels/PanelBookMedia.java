@@ -28,7 +28,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
+import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
 public class PanelBookMedia extends JPanel

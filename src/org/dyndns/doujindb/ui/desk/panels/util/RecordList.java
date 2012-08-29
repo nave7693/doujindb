@@ -1,7 +1,9 @@
-package org.dyndns.doujindb.ui.desk.panels.utils;
+package org.dyndns.doujindb.ui.desk.panels.util;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.datatransfer.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
@@ -33,7 +35,32 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 	
 	private String filterTerm;
 	
-	private WindowEx.Type type;
+	private Type type;
+	
+	private static DataFlavor flavorArtist;
+	private static DataFlavor flavorBook;
+	private static DataFlavor flavorCircle;
+	private static DataFlavor flavorConvention;
+	private static DataFlavor flavorContent;
+	private static DataFlavor flavorParody;
+	{
+		flavorArtist = new DataFlavor("doujindb/record-artist", "DoujinDB.Record.Artist");
+		flavorBook = new DataFlavor("doujindb/record-book", "DoujinDB.Record.Book");
+		flavorCircle = new DataFlavor("doujindb/record-circle", "DoujinDB.Record.Circle");
+		flavorConvention = new DataFlavor("doujindb/record-convention", "DoujinDB.Record.Convention");
+		flavorContent = new DataFlavor("doujindb/record-content", "DoujinDB.Record.Content");
+		flavorParody = new DataFlavor("doujindb/record-parody", "DoujinDB.Record.Parody");
+	}
+	
+	private enum Type
+	{
+		ARTIST,
+		BOOK,
+		CIRCLE,
+		CONTENT,
+		CONVENTION,
+		PARODY
+	}
 	
 	public RecordList(Iterable<T> data, Class<?> clazz)
 	{
@@ -46,17 +73,17 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 		super.setLayout(this);
 		iconData = icons;
 		if(clazz.equals(Artist.class))
-			type = WindowEx.Type.WINDOW_ARTIST;
+			type = Type.ARTIST;
 		if(clazz.equals(Book.class))
-			type = WindowEx.Type.WINDOW_BOOK;
+			type = Type.BOOK;
 		if(clazz.equals(Circle.class))
-			type = WindowEx.Type.WINDOW_CIRCLE;
+			type = Type.CIRCLE;
 		if(clazz.equals(Content.class))
-			type = WindowEx.Type.WINDOW_CONTENT;
+			type = Type.CONTENT;
 		if(clazz.equals(Convention.class))
-			type = WindowEx.Type.WINDOW_CONVENTION;
+			type = Type.CONVENTION;
 		if(clazz.equals(Parody.class))
-			type = WindowEx.Type.WINDOW_PARODY;
+			type = Type.PARODY;
 		tableData = new JTable();
 		tableModel = new RecordTableModel<T>(clazz);
 		tableData.setModel(tableModel);
@@ -67,6 +94,58 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 		tableEditor = new RecordTableEditor();
 		tableData.setFont(font);
+		/**
+		 * The reason is that the empty table (unlike an empty list or an empty tree) does not occupy any space in the scroll pane.
+		 * The JTable does not automatically stretch to fill the height of a JScrollPane's viewport — it only takes up as much vertical room as needed for the rows that it contains.
+		 * So, when you drag over the empty table, you are not actually over the table and the drop fails.
+		 * 
+		 * @see http://docs.oracle.com/javase/tutorial/uiswing/dnd/emptytable.html
+		 */
+		tableData.setFillsViewportHeight(true);
+		TransferHandlerEx thex;
+		switch(type)
+        {
+        case ARTIST:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        case BOOK:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        case CIRCLE:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        case CONTENT:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        case CONVENTION:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        case PARODY:
+        	thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(true);
+			tableData.setTransferHandler(thex);
+        	break;
+        default:
+        	return;
+        }
+		tableData.setDragEnabled(true);
+		tableData.setDropMode(DropMode.ON);
 		tableData.getTableHeader().setFont(font);
 		tableData.getTableHeader().setReorderingAllowed(true);
 		tableData.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
@@ -93,7 +172,29 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 							.getValueAt(
 									tableSorter.convertRowIndexToModel(
 										tableData.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(type, item);
+						switch(type)
+		                {
+		                case ARTIST:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, item);
+		                	break;
+		                case BOOK:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, item);
+		                	break;
+		                case CIRCLE:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+		                	break;
+		                case CONTENT:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, item);
+		                	break;
+		                case CONVENTION:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+		                	break;
+		                case PARODY:
+		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, item);
+		                	break;
+		                default:
+		                	return;
+		                }
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -284,7 +385,7 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 		}
 	}
 	
-	private class RecordTableModel<R extends T> extends DefaultTableModel
+	class RecordTableModel<R extends T> extends DefaultTableModel
 	{
 		public RecordTableModel(Class<?> clazz)
 		{

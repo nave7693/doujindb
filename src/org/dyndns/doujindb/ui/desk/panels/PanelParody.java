@@ -15,8 +15,8 @@ import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
-import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
+import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
+import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
 public final class PanelParody implements DataBaseListener, LayoutManager, ActionListener
 {

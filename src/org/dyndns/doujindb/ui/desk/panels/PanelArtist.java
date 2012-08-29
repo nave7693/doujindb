@@ -16,7 +16,7 @@ import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
+import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 public final class PanelArtist implements DataBaseListener, LayoutManager, ActionListener
 {

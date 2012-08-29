@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels.utils;
+package org.dyndns.doujindb.ui.desk.panels.util;
 
 import java.awt.Font;
 import java.awt.FontMetrics;

@@ -22,8 +22,8 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.utils.RecordList;
-import org.dyndns.doujindb.ui.desk.panels.utils.TabbedPaneUIEx;
+import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
+import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
 public final class PanelContent implements DataBaseListener, LayoutManager, ActionListener

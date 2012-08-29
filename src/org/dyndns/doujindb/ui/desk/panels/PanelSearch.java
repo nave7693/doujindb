@@ -19,6 +19,7 @@ import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
+import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
 
 @SuppressWarnings("serial")
 public final class PanelSearch extends JPanel implements DataBaseListener
@@ -375,6 +376,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -645,6 +651,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -962,6 +973,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1224,6 +1240,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1457,6 +1478,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);
@@ -1708,6 +1734,11 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				}
 			  }
 			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
 			buttonSearch = new JButton("Search");
 			buttonSearch.setMnemonic('S');
 			buttonSearch.setFocusable(false);

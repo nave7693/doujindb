@@ -13,7 +13,7 @@ import org.dyndns.doujindb.db.containers.CntParody;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
+import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
 public class RecordParodyEditor extends JSplitPane implements DataBaseListener

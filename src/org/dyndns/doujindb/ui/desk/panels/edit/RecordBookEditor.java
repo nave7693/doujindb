@@ -13,7 +13,7 @@ import org.dyndns.doujindb.db.containers.CntBook;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.log.Level;
-import org.dyndns.doujindb.ui.desk.panels.utils.*;
+import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
 public class RecordBookEditor extends JSplitPane implements DataBaseListener

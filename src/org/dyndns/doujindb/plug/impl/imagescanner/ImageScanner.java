@@ -71,7 +71,7 @@ public final class ImageScanner implements Plugin
 	}
 	@Override
 	public String getWeblink() {
-		return "http://doujindb.co.cc/";
+		return "http://code.google.com/p/doujindb/";
 	}
 	@Override
 	public JComponent getUI() {

@@ -1,10 +1,15 @@
 package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.Iterator;
+import java.util.TooManyListenersException;
 
 import javax.swing.*;
+import javax.swing.plaf.TabbedPaneUI;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -66,6 +71,28 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList()
 		}));
+		try
+		{
+			DropTarget dt = new DropTarget();
+			dt.addDropTargetListener(new java.awt.dnd.DropTargetAdapter()
+			{
+				@Override
+				public void dragOver(DropTargetDragEvent dtde)
+				{
+					TabbedPaneUI tabpane = tabLists.getUI();
+					for(int index=0;index<tabLists.getTabCount();index++)
+						if(tabpane.getTabBounds(tabLists, index).contains(dtde.getLocation()))
+							tabLists.setSelectedIndex(index);
+					}
+
+				@Override
+				public void drop(DropTargetDropEvent dtde) { }
+				
+			});
+			tabLists.setDropTarget(dt);
+		} catch (TooManyListenersException tmle) {
+			tmle.printStackTrace();
+		}
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);

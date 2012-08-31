@@ -1,6 +1,9 @@
 package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.File;
@@ -13,11 +16,13 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TooManyListenersException;
 import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.TabbedPaneUI;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
@@ -353,6 +358,28 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 				editorParodies.getRecordList(),
 				null
 		}));
+		try
+		{
+			DropTarget dt = new DropTarget();
+			dt.addDropTargetListener(new java.awt.dnd.DropTargetAdapter()
+			{
+				@Override
+				public void dragOver(DropTargetDragEvent dtde)
+				{
+					TabbedPaneUI tabpane = tabLists.getUI();
+					for(int index=0;index<tabLists.getTabCount();index++)
+						if(tabpane.getTabBounds(tabLists, index).contains(dtde.getLocation()))
+							tabLists.setSelectedIndex(index);
+					}
+
+				@Override
+				public void drop(DropTargetDropEvent dtde) { }
+				
+			});
+			tabLists.setDropTarget(dt);
+		} catch (TooManyListenersException tmle) {
+			tmle.printStackTrace();
+		}
 		pane.add(tabLists);
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');

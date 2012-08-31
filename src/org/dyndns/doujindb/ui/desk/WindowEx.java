@@ -69,8 +69,20 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	@Override
 	public void dispose()
 	{
-		Core.Database.removeDataBaseListener(this);
 		super.dispose();
+		/**
+		 * Why would we spawn a Thread just for removing 'this' from the DataBase Listeners?
+		 * Even if we put 'synchronized' blocks in the EventPoller thread and methods add/removeDataBaseListener() we are still calling this from the same stack.
+		 * We have to somehow avoid this, so we spawn a separate Thread here.
+		 */
+		final WindowEx window = this;
+		new Thread()
+		{
+			@Override
+			public void run() {
+				Core.Database.removeDataBaseListener(window);
+			}
+		}.start();
 	}
 
 	public Type getType()

@@ -589,7 +589,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{
@@ -623,7 +623,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{
@@ -657,7 +657,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{
@@ -691,7 +691,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{
@@ -725,7 +725,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{
@@ -759,7 +759,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		
 		@Override
-		public void recordDeleted(Record rcd)
+		public void recordRecycled(Record rcd)
 		{
 			if(record.equals(rcd))
 			{

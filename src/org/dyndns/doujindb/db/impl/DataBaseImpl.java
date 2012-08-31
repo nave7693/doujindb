@@ -173,47 +173,49 @@ public class DataBaseImpl extends DataBase
 				{
 					if(!buffer.isEmpty())
 					{
-						DataBaseEvent event = buffer.peek();
-						switch(event.type)
-						{
-							case RECORD_ADDED:
-								for(DataBaseListener dbl : listeners)
-									dbl.recordAdded(event.record);
-								break;
-							case RECORD_DELETED:
-								for(DataBaseListener dbl : listeners)
-									dbl.recordDeleted(event.record);
-								break;
-							case RECORD_UPDATED:
-								for(DataBaseListener dbl : listeners)
-									dbl.recordUpdated(event.record);
-								break;
-							case RECORD_RECYCLED:
-								for(DataBaseListener dbl : listeners)
-									dbl.recordRecycled(event.record);
-								break;
-							case RECORD_RESTORED:
-								for(DataBaseListener dbl : listeners)
-									dbl.recordRestored(event.record);
-								break;
-							case DATABASE_CONNECTED:
-								for(DataBaseListener dbl : listeners)
-									dbl.databaseConnected();
-								break;
-							case DATABASE_DISCONNECTED:
-								for(DataBaseListener dbl : listeners)
-									dbl.databaseDisconnected();
-								break;
-							case DATABASE_COMMIT:
-								for(DataBaseListener dbl : listeners)
-									dbl.databaseCommit();
-								break;
-							case DATABASE_ROLLBACK:
-								for(DataBaseListener dbl : listeners)
-									dbl.databaseRollback();
-								break;
+						synchronized(listeners) {
+							DataBaseEvent event = buffer.peek();
+							switch(event.type)
+							{
+								case RECORD_ADDED:
+									for(DataBaseListener dbl : listeners)
+										dbl.recordAdded(event.record);
+									break;
+								case RECORD_DELETED:
+									for(DataBaseListener dbl : listeners)
+										dbl.recordDeleted(event.record);
+									break;
+								case RECORD_UPDATED:
+									for(DataBaseListener dbl : listeners)
+										dbl.recordUpdated(event.record);
+									break;
+								case RECORD_RECYCLED:
+									for(DataBaseListener dbl : listeners)
+										dbl.recordRecycled(event.record);
+									break;
+								case RECORD_RESTORED:
+									for(DataBaseListener dbl : listeners)
+										dbl.recordRestored(event.record);
+									break;
+								case DATABASE_CONNECTED:
+									for(DataBaseListener dbl : listeners)
+										dbl.databaseConnected();
+									break;
+								case DATABASE_DISCONNECTED:
+									for(DataBaseListener dbl : listeners)
+										dbl.databaseDisconnected();
+									break;
+								case DATABASE_COMMIT:
+									for(DataBaseListener dbl : listeners)
+										dbl.databaseCommit();
+									break;
+								case DATABASE_ROLLBACK:
+									for(DataBaseListener dbl : listeners)
+										dbl.databaseRollback();
+									break;
+							}
+							buffer.poll();
 						}
-						buffer.poll();
 					} else
 						try { sleep(100); } catch (InterruptedException ie) { }
 				}
@@ -745,14 +747,16 @@ public class DataBaseImpl extends DataBase
 	@Override
 	public void addDataBaseListener(DataBaseListener dbl)
 	{
-		if(!listeners.contains(dbl))
-			listeners.add(dbl);
+		synchronized(listeners) {
+			if(!listeners.contains(dbl))
+				listeners.add(dbl);
+		}
 	}
 
 	@Override
 	public void removeDataBaseListener(DataBaseListener dbl)
 	{
-		listeners.remove(dbl);
+		synchronized(listeners) { listeners.remove(dbl); }
 	}
 	
 	private static final class DataBaseEvent

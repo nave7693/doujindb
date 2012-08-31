@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.desk;
 
 import java.awt.*;
+import java.awt.dnd.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.beans.*;
@@ -228,6 +229,30 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
+		DropTarget dt = new DropTarget(window , new DropTargetAdapter()
+		{
+			@Override
+			public void dragOver(DropTargetDragEvent dtde)
+			{
+				DropTarget dt = (DropTarget)dtde.getSource();
+				WindowEx window = ((WindowEx)dt.getComponent());
+				try
+				{
+					window.setVisible(true);
+					window.setSelected(true);
+					window.setIcon(false);
+				} catch (PropertyVetoException pve)
+				{
+					pve.printStackTrace();
+					Core.Logger.log(pve.getMessage(), Level.WARNING);
+				}
+			}
+			
+			@Override
+			public void drop(DropTargetDropEvent dtde) { }
+			
+		});
+		window.setDropTarget(dt);
 		super.add(window);
 		try
 		{

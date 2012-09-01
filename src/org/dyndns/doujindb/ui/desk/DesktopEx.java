@@ -598,6 +598,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 			super.recordDeleted(rcd);
 		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
+		}
 	}
 	
 	private final class WindowBookImpl extends WindowEx
@@ -631,6 +638,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				Core.UI.Desktop.remove(this);
 			}
 			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
 		}
 	}
 	
@@ -666,6 +680,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 			super.recordDeleted(rcd);
 		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
+		}
 	}
 	
 	private final class WindowContentImpl extends WindowEx
@@ -699,6 +720,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				Core.UI.Desktop.remove(this);
 			}
 			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
 		}
 	}
 	
@@ -734,6 +762,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 			super.recordDeleted(rcd);
 		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
+		}
 	}
 	
 	private final class WindowParodyImpl extends WindowEx
@@ -767,6 +802,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				Core.UI.Desktop.remove(this);
 			}
 			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordUpdated(Record rcd)
+		{
+			super.setTitle(this.record.toString());
+			super.recordUpdated(rcd);
 		}
 	}
 	

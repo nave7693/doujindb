@@ -118,8 +118,9 @@ public final class TransferHandlerEx extends TransferHandler
 			return false;
 		}
 		
-		@SuppressWarnings("unused")
-		JTable.DropLocation dl = (JTable.DropLocation)info.getDropLocation();
+		JTable table = (JTable)info.getComponent();
+		if(!table.isEnabled())
+			return false;
 		
 		return true;
 	}
@@ -141,6 +142,10 @@ public final class TransferHandlerEx extends TransferHandler
 		JTable table = (JTable)info.getComponent();
 		RecordList.RecordTableModel model = (RecordList.RecordTableModel)table.getModel();
 		JTable.DropLocation dl = (JTable.DropLocation)info.getDropLocation();
+		
+		if(!table.isEnabled())
+			return false;
+		
 		try {
 			data = (java.util.List<Record>) info.getTransferable().getTransferData(flavors.get(type));
 			 for(Record rcd : data)

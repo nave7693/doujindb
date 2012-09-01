@@ -281,6 +281,14 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 	@Override
 	public void removeLayoutComponent(Component c) {}
 	
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		tableData.setDragEnabled(enabled);
+		tableData.setEnabled(enabled);
+		super.setEnabled(enabled);
+	}
+
 	public Iterable<T> getRecords()
 	{
 		return tableModel.getRecords();

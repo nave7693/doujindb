@@ -28,7 +28,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getJapaneseName().equals(japaneseName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setJapaneseName(japaneseName);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getTranslatedName().equals(translatedName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslatedName(translatedName);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -58,7 +58,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getRomajiName().equals(romajiName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomajiName(romajiName);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -116,7 +116,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getDate().equals(released))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPublished(released);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -131,7 +131,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getType().equals(type))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setType(type);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -146,7 +146,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isAdult() == adult)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setAdult(adult);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -161,7 +161,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isDecensored() == decensored)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setDecensored(decensored);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -176,7 +176,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isTranslated() == translated)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslated(translated);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 	
 	@Override
@@ -191,7 +191,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isColored() == colored)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setColor(colored);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -206,7 +206,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getRating().equals(rating))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRating(rating);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 	
 	@Override
@@ -232,7 +232,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getPages() == pages)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPages(pages);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -252,7 +252,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof(null);
 		else
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 
 	@Override
@@ -267,7 +267,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setInfo(info);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 	
 	@Override
@@ -291,8 +291,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(artist);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(artist);
 	}
 
 	@Override
@@ -302,8 +302,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(artist);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(artist);
 	}
 
 	@Override
@@ -315,8 +315,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Content)
 			((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
 		);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(content);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(content);
 	}
 
 	@Override
@@ -328,8 +328,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Parody)
 			((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
 		);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(parody);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(parody);
 	}
 
 	@Override
@@ -339,8 +339,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Content)
 				((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
 			);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(content);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(content);
 	}
 
 	@Override
@@ -350,8 +350,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Parody)
 				((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
 			);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
-		((DataBaseImpl)Core.Database)._recordRestored(parody);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(parody);
 	}
 	
 	@Override
@@ -416,8 +416,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			((DataBaseImpl)Core.Database)._recordUpdated(parody);
 		}
 		if(getConvention() != null)
-			((DataBaseImpl)Core.Database)._recordRestored(getConvention());
+			((DataBaseImpl)Core.Database)._recordUpdated(getConvention());
 		setConvention(null);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

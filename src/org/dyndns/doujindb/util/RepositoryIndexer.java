@@ -21,10 +21,15 @@ public final class RepositoryIndexer
 	public static void index(Iterable<Book> books)
 	{
 		for(Book book : books)
-			RepositoryIndexer.metadata(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
+			RepositoryIndexer.index(book);
 	}
 	
-	public static void metadata(Book book, OutputStream dest) throws DataBaseException
+	public static void index(Book book)
+	{
+		RepositoryIndexer.metadata(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
+	}
+	
+	private static void metadata(Book book, OutputStream dest) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.japaneseName = book.getJapaneseName();

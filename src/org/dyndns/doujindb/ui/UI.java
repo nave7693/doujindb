@@ -647,7 +647,7 @@ public void layoutContainer(Container parent)
 						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
 						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
 						"eMail : N/A<br>" +
-						"Website : <a href='http://code.google.com/p/doujindb/'>http://code.google.com/p/doujindb/</a><br>" +
+						"Website : <br/><a href='http://code.google.com/p/doujindb/'>http://code.google.com/p/doujindb/</a><br>" +
 						"</span></body></html>");
 				JPanel bottom = new JPanel();
 				bottom.setLayout(new BorderLayout(5, 5));

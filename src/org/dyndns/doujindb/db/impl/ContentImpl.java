@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
 final class ContentImpl extends RecordImpl implements Content, Serializable//, Comparable<Content>
@@ -28,7 +29,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		if(getTagName().equals(tagName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setTagName(tagName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
@@ -43,7 +44,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setInfo(info);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("info"));
 	}
 	
 	@Override
@@ -82,8 +83,8 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -93,8 +94,8 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -160,8 +161,8 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 					(org.dyndns.doujindb.db.cayenne.Book)
 					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 				);
-			((DataBaseImpl)Core.Database)._recordUpdated(book);
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 		}
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

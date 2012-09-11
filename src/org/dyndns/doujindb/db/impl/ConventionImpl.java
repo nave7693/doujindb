@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
 final class ConventionImpl extends RecordImpl implements Convention, Serializable//, Comparable<Convention>
@@ -28,7 +29,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getTagName().equals(tagName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setTagName(tagName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
@@ -43,7 +44,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setInfo(info);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("info"));
 	}	
 	
 	@Override
@@ -58,7 +59,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setWeblink(weblink);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -97,8 +98,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -108,8 +109,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -175,8 +176,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 					(org.dyndns.doujindb.db.cayenne.Book)
 					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 				);
-			((DataBaseImpl)Core.Database)._recordUpdated(book);
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 		}
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

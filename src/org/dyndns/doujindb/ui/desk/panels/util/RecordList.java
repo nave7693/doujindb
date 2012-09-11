@@ -15,7 +15,7 @@ import javax.swing.table.TableRowSorter;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
@@ -306,7 +306,7 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 	public void recordDeleted(Record rcd) { }
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
 	{
 		//FIXME tableModel.recordUpdated(rcd);
 		tableData.validate();

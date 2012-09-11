@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
 final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Comparable<Parody>
@@ -28,7 +29,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getJapaneseName().equals(japaneseName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setJapaneseName(japaneseName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("japanese_name"));
 	}
 
 	@Override
@@ -43,7 +44,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getTranslatedName().equals(translatedName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setTranslatedName(translatedName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("translated_name"));
 	}
 
 	@Override
@@ -58,7 +59,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getRomajiName().equals(romajiName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRomajiName(romajiName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("romaji_name"));
 	}
 
 	@Override
@@ -73,7 +74,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setWeblink(weblink);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -105,8 +106,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -116,8 +117,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(book);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -159,8 +160,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 					(org.dyndns.doujindb.db.cayenne.Book)
 					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
 				);
-			((DataBaseImpl)Core.Database)._recordUpdated(book);
+			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
 		}
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

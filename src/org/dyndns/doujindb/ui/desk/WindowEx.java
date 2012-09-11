@@ -8,7 +8,7 @@ import javax.swing.plaf.basic.BasicDesktopIconUI;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 
 @SuppressWarnings("serial")
 public abstract class WindowEx extends JInternalFrame implements DataBaseListener
@@ -105,10 +105,10 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		for(DataBaseListener l : listeners)
-			l.recordUpdated(rcd);
+			l.recordUpdated(rcd, data);
 	}
 	
 	@Override

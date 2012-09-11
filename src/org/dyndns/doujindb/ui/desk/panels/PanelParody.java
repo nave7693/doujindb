@@ -15,7 +15,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.log.Level;
@@ -108,13 +108,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
 
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	
 	@Override
@@ -192,19 +186,27 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	
 	private void syncData()
 	{
-		textJapaneseName.setText(tokenParody.getJapaneseName());
-		textTranslatedName.setText(tokenParody.getTranslatedName());
-		textRomajiName.setText(tokenParody.getRomajiName());
-		textWeblink.setText(tokenParody.getWeblink());
-		if(tokenParody.isRecycled())
+		new SwingWorker<Void, Object>()
 		{
-			textJapaneseName.setEditable(false);
-			textTranslatedName.setEditable(false);
-			textRomajiName.setEditable(false);
-			textWeblink.setEditable(false);
-			editorWorks.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
+			@Override
+			public Void doInBackground()
+			{
+				textJapaneseName.setText(tokenParody.getJapaneseName());
+				textTranslatedName.setText(tokenParody.getTranslatedName());
+				textRomajiName.setText(tokenParody.getRomajiName());
+				textWeblink.setText(tokenParody.getWeblink());
+				if(tokenParody.isRecycled())
+				{
+					textJapaneseName.setEditable(false);
+					textTranslatedName.setEditable(false);
+					textRomajiName.setEditable(false);
+					textWeblink.setEditable(false);
+					editorWorks.setEnabled(false);
+					buttonConfirm.setEnabled(false);
+				}
+				return null;
+			}
+		}.execute();
 	}
 	
 	private final class NullParody implements Parody
@@ -286,18 +288,33 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("japanese_name"))
+				textJapaneseName.setText(tokenParody.getJapaneseName());
+			if(data.getProperty().equals("translated_name"))
+				textTranslatedName.setText(tokenParody.getTranslatedName());
+			if(data.getProperty().equals("romaji_name"))
+				textRomajiName.setText(tokenParody.getRomajiName());
+			if(data.getProperty().equals("weblink"))
+				textWeblink.setText(tokenParody.getWeblink());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Book)
+				editorWorks.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override
 	public void recordRecycled(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRecycled(rcd);
 		syncData();
 	}
 	
@@ -305,7 +322,7 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	public void recordRestored(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRestored(rcd);
 		syncData();
 	}
 	

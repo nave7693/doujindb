@@ -34,7 +34,7 @@ import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -387,13 +387,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		buttonConfirm.addActionListener(this);
 		pane.add(buttonConfirm);
 		
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	
 	@Override
@@ -622,53 +616,61 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 	
 	private void syncData()
 	{
-		textJapaneseName.setText(tokenBook.getJapaneseName());
-		textTranslatedName.setText(tokenBook.getTranslatedName());
-		textRomajiName.setText(tokenBook.getRomajiName());
-		textInfo.setText(tokenBook.getInfo());
-		comboType.removeAllItems();
-		for(Type tokenType : Type.values())
-			comboType.addItem(tokenType);
-		comboType.setSelectedItem(tokenBook.getType());
-		Iterator<Convention> i = Core.Database.getConventions(null).iterator();
-		TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
+		new SwingWorker<Void, Object>()
 		{
 			@Override
-			public int compare(Convention c1, Convention c2) {
-				return c1.getTagName().compareTo(c2.getTagName());
-			}
-		});
-		while(i.hasNext())
-			set.add(i.next());
-		comboConvention.removeAllItems();
-		for(Convention conv : set)
-			comboConvention.addItem(conv);
-		comboConvention.setSelectedItem(tokenBook.getConvention());
-		checkAdult.setSelected(tokenBook.isAdult());
-		checkDecensored.setSelected(tokenBook.isDecensored());
-		checkTranslated.setSelected(tokenBook.isTranslated());
-		checkColored.setSelected(tokenBook.isColored());
-		textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
-		textPages.setText("" + tokenBook.getPages());
-		try
-		{
-			if(tokenBook.getID() == null)
-				return;
-			DataFile ds = Core.Repository.child(tokenBook.getID());
-			ds.mkdir();
-			ds = Core.Repository.getPreview(tokenBook.getID());
-			if(ds.exists())
+			public Void doInBackground()
 			{
-				InputStream in = ds.getInputStream();
-				labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-				labelPreview.setName("preview");
-				in.close();
+				textJapaneseName.setText(tokenBook.getJapaneseName());
+				textTranslatedName.setText(tokenBook.getTranslatedName());
+				textRomajiName.setText(tokenBook.getRomajiName());
+				textInfo.setText(tokenBook.getInfo());
+				comboType.removeAllItems();
+				for(Type tokenType : Type.values())
+					comboType.addItem(tokenType);
+				comboType.setSelectedItem(tokenBook.getType());
+				Iterator<Convention> i = Core.Database.getConventions(null).iterator();
+				TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
+				{
+					@Override
+					public int compare(Convention c1, Convention c2) {
+						return c1.getTagName().compareTo(c2.getTagName());
+					}
+				});
+				while(i.hasNext())
+					set.add(i.next());
+				comboConvention.removeAllItems();
+				for(Convention conv : set)
+					comboConvention.addItem(conv);
+				comboConvention.setSelectedItem(tokenBook.getConvention());
+				checkAdult.setSelected(tokenBook.isAdult());
+				checkDecensored.setSelected(tokenBook.isDecensored());
+				checkTranslated.setSelected(tokenBook.isTranslated());
+				checkColored.setSelected(tokenBook.isColored());
+				textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
+				textPages.setText("" + tokenBook.getPages());
+				try
+				{
+					if(tokenBook.getID() == null)
+						return null;
+					DataFile ds = Core.Repository.child(tokenBook.getID());
+					ds.mkdir();
+					ds = Core.Repository.getPreview(tokenBook.getID());
+					if(ds.exists())
+					{
+						InputStream in = ds.getInputStream();
+						labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+						labelPreview.setName("preview");
+						in.close();
+					}
+				} catch (NullPointerException npe) {
+					npe.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
 			}
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		}.execute();
 	}
 	
 	@SuppressWarnings("unused")
@@ -855,7 +857,7 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		}
 
 		@Override
-		public Convention getConvention() throws DataBaseException { return null; } //FIXME
+		public Convention getConvention() throws DataBaseException { return null; }
 
 		@Override
 		public void setConvention(Convention convention) throws DataBaseException { }
@@ -919,17 +921,46 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Circle)
-			editorCircles.recordUpdated(rcd);
-		if(rcd instanceof Artist)
-			editorArtists.recordUpdated(rcd);
-		if(rcd instanceof Content)
-			editorContents.recordUpdated(rcd);
-		if(rcd instanceof Parody)
-			editorParodies.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("japanese_name"))
+				textJapaneseName.setText(tokenBook.getJapaneseName());
+			if(data.getProperty().equals("translated_name"))
+				textTranslatedName.setText(tokenBook.getTranslatedName());
+			if(data.getProperty().equals("romaji_name"))
+				textRomajiName.setText(tokenBook.getRomajiName());
+			if(data.getProperty().equals("info"))
+				textInfo.setText(tokenBook.getInfo());
+			if(data.getProperty().equals("type"))
+				comboType.setSelectedItem(tokenBook.getType());
+			if(data.getProperty().equals("adult"))
+				checkAdult.setSelected(tokenBook.isAdult());
+			if(data.getProperty().equals("decensored"))
+				checkDecensored.setSelected(tokenBook.isDecensored());
+			if(data.getProperty().equals("translated"))
+				checkTranslated.setSelected(tokenBook.isTranslated());
+			if(data.getProperty().equals("color"))
+				checkColored.setSelected(tokenBook.isColored());
+			if(data.getProperty().equals("released"))
+				textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
+			if(data.getProperty().equals("pages"))
+				textPages.setText("" + tokenBook.getPages());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Circle)
+				editorCircles.recordUpdated(rcd, data);
+			if(data.getTarget() instanceof Artist)
+				editorArtists.recordUpdated(rcd, data);
+			if(data.getTarget() instanceof Content)
+				editorContents.recordUpdated(rcd, data);
+			if(data.getTarget() instanceof Parody)
+				editorParodies.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override

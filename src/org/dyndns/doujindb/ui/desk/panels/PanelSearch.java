@@ -13,8 +13,7 @@ import javax.swing.table.TableRowSorter;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.event.DataBaseAdapter;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
@@ -1881,9 +1880,9 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		child.recordUpdated(rcd);
+		child.recordUpdated(rcd, data);
 	}
 	
 	@Override

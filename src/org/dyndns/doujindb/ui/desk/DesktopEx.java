@@ -13,7 +13,7 @@ import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
@@ -531,7 +531,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	public void recordDeleted(Record rcd) { }
 
 	@Override
-	public void recordUpdated(Record rcd) { }
+	public void recordUpdated(Record rcd, UpdateData data) { }
 
 	@Override
 	public void databaseConnected()
@@ -600,10 +600,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	
@@ -641,10 +641,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	
@@ -682,10 +682,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	
@@ -723,10 +723,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	
@@ -764,10 +764,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	
@@ -805,10 +805,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 
 		@Override
-		public void recordUpdated(Record rcd)
+		public void recordUpdated(Record rcd, UpdateData data)
 		{
 			super.setTitle(this.record.toString());
-			super.recordUpdated(rcd);
+			super.recordUpdated(rcd, data);
 		}
 	}
 	

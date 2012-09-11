@@ -21,7 +21,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.Level;
@@ -278,13 +278,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
 		
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	
 	@Override
@@ -362,17 +356,25 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	
 	private void syncData()
 	{
-		textTagName.setText(tokenContent.getTagName());
-		textInfo.setText(tokenContent.getInfo());
-		for(String alias : tokenContent.getAliases())
-			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
-		if(tokenContent.isRecycled())
+		new SwingWorker<Void, Object>()
 		{
-			textTagName.setEditable(false);
-			textInfo.setEditable(false);
-			editorWorks.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
+			@Override
+			public Void doInBackground()
+			{
+				textTagName.setText(tokenContent.getTagName());
+				textInfo.setText(tokenContent.getInfo());
+				for(String alias : tokenContent.getAliases())
+					((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
+				if(tokenContent.isRecycled())
+				{
+					textTagName.setEditable(false);
+					textInfo.setEditable(false);
+					editorWorks.setEnabled(false);
+					buttonConfirm.setEnabled(false);
+				}
+				return null;
+			}
+		}.execute();
 	}
 	
 	private final class NullContent implements Content
@@ -451,18 +453,29 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("tag_name"))
+				textTagName.setText(tokenContent.getTagName());
+			if(data.getProperty().equals("info"))
+				textInfo.setText(tokenContent.getInfo());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Book)
+				editorWorks.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override
 	public void recordRecycled(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRecycled(rcd);
 		syncData();
 	}
 	
@@ -470,7 +483,7 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	public void recordRestored(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRestored(rcd);
 		syncData();
 	}
 	

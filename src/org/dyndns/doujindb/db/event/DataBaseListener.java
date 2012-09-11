@@ -6,7 +6,7 @@ public interface DataBaseListener
 {
 	public void recordAdded(Record rcd);
 	public void recordDeleted(Record rcd);
-	public void recordUpdated(Record rcd);
+	public void recordUpdated(Record rcd, UpdateData data);
 	public void recordRecycled(Record rcd);
 	public void recordRestored(Record rcd);
 

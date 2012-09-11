@@ -18,7 +18,7 @@ import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -230,13 +230,7 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
 
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	@Override
 	public void layoutContainer(Container parent)
@@ -309,43 +303,51 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 	
 	private void syncData()
 	{
-		textJapaneseName.setText(tokenCircle.getJapaneseName());
-		textTranslatedName.setText(tokenCircle.getTranslatedName());
-		textRomajiName.setText(tokenCircle.getRomajiName());
-		textWeblink.setText(tokenCircle.getWeblink());
-		try
+		new SwingWorker<Void, Object>()
 		{
-			if(tokenCircle.getID() == null)
-				return;
-			DataFile ds = Core.Repository.child(tokenCircle.getID());
-			ds.mkdir();
-			ds = Core.Repository.getPreview(tokenCircle.getID());
-			if(ds.exists())
+			@Override
+			public Void doInBackground()
 			{
-				InputStream in = ds.getInputStream();
-				labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
-				labelBanner.setName("banner");
-				in.close();
+				textJapaneseName.setText(tokenCircle.getJapaneseName());
+				textTranslatedName.setText(tokenCircle.getTranslatedName());
+				textRomajiName.setText(tokenCircle.getRomajiName());
+				textWeblink.setText(tokenCircle.getWeblink());
+				try
+				{
+					if(tokenCircle.getID() == null)
+						return null;
+					DataFile ds = Core.Repository.child(tokenCircle.getID());
+					ds.mkdir();
+					ds = Core.Repository.getPreview(tokenCircle.getID());
+					if(ds.exists())
+					{
+						InputStream in = ds.getInputStream();
+						labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+						labelBanner.setName("banner");
+						in.close();
+					}
+				} catch (NullPointerException npe) {
+					npe.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if(tokenCircle.isRecycled())
+				{
+					textJapaneseName.setEditable(false);
+					textTranslatedName.setEditable(false);
+					textRomajiName.setEditable(false);
+					textWeblink.setEditable(false);
+					editorWorks.setEnabled(false);
+					editorArtists.setEnabled(false);
+					buttonConfirm.setEnabled(false);
+				}
+				if(tokenCircle.getID() == null)
+					labelBanner.setEnabled(false);
+				else
+					labelBanner.setEnabled(true);
+				return null;
 			}
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if(tokenCircle.isRecycled())
-		{
-			textJapaneseName.setEditable(false);
-			textTranslatedName.setEditable(false);
-			textRomajiName.setEditable(false);
-			textWeblink.setEditable(false);
-			editorWorks.setEnabled(false);
-			editorArtists.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
-		if(tokenCircle.getID() == null)
-			labelBanner.setEnabled(false);
-		else
-			labelBanner.setEnabled(true);
+		}.execute();
 	}
 	
 	private final class NullCircle implements Circle
@@ -448,13 +450,28 @@ public final class PanelCircle implements DataBaseListener, LayoutManager, Actio
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Artist)
-			editorArtists.recordUpdated(rcd);
-		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("japanese_name"))
+				textJapaneseName.setText(tokenCircle.getJapaneseName());
+			if(data.getProperty().equals("translated_name"))
+				textTranslatedName.setText(tokenCircle.getTranslatedName());
+			if(data.getProperty().equals("romaji_name"))
+				textRomajiName.setText(tokenCircle.getRomajiName());
+			if(data.getProperty().equals("weblink"))
+				textWeblink.setText(tokenCircle.getWeblink());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Artist)
+				editorArtists.recordUpdated(rcd, data);
+			if(data.getTarget() instanceof Book)
+				editorWorks.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override

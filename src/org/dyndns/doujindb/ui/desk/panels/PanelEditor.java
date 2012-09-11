@@ -4,7 +4,7 @@ import javax.swing.*;
 
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.ui.desk.*;
 
@@ -73,9 +73,9 @@ public final class PanelEditor extends JPanel implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		child.recordUpdated(rcd);
+		child.recordUpdated(rcd, data);
 	}
 	
 	@Override

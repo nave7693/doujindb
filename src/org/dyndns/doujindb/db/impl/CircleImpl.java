@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
 final class CircleImpl extends RecordImpl implements Circle, Serializable//, Comparable<Circle>
@@ -28,7 +29,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		if(getJapaneseName().equals(japaneseName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Circle)ref).setJapaneseName(japaneseName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("japanese_name"));
 	}
 
 	@Override
@@ -43,7 +44,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		if(getTranslatedName().equals(translatedName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Circle)ref).setTranslatedName(translatedName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("translated_name"));
 	}
 
 	@Override
@@ -58,7 +59,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		if(getRomajiName().equals(romajiName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Circle)ref).setRomajiName(romajiName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("romaji_name"));
 	}
 
 	@Override
@@ -73,7 +74,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Circle)ref).setWeblink(weblink);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -126,11 +127,12 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(artist);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(artist));
+		((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.link(this));
 		for(Book book : artist.getBooks())
 		{
-			((DataBaseImpl)Core.Database)._recordUpdated(book);
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
+			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
 		}
 	}
 
@@ -141,11 +143,12 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
-		((DataBaseImpl)Core.Database)._recordUpdated(artist);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
+		((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
 		for(Book book : artist.getBooks())
 		{
-			((DataBaseImpl)Core.Database)._recordUpdated(book);
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 		}
 	}
 	
@@ -186,14 +189,15 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		{
 			for(Book book : artist.getBooks())
 			{
-				((DataBaseImpl)Core.Database)._recordUpdated(book);
+				((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+				((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 			}
 			((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(
 					(org.dyndns.doujindb.db.cayenne.Artist)
 					((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
 				);
-			((DataBaseImpl)Core.Database)._recordUpdated(artist);
+			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
+			((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
 		}
-		((DataBaseImpl)Core.Database)._recordUpdated(this);
 	}
 }

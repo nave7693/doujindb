@@ -11,6 +11,7 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.CntCircle;
 import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
@@ -88,7 +89,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
 	{
 		if(tokenICircle.equals(rcd))
 			try {
@@ -97,7 +98,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
 			}
-		recordList.recordUpdated(rcd);
+		recordList.recordUpdated(rcd, data);
 	}
 	
 	@Override

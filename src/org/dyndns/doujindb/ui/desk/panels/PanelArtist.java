@@ -13,7 +13,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
@@ -110,13 +110,7 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
 
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	
 	@Override
@@ -199,20 +193,28 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 	
 	private void syncData()
 	{
-		textJapaneseName.setText(tokenArtist.getJapaneseName());
-		textTranslatedName.setText(tokenArtist.getTranslatedName());
-		textRomajiName.setText(tokenArtist.getRomajiName());
-		textWeblink.setText(tokenArtist.getWeblink());
-		if(tokenArtist.isRecycled())
+		new SwingWorker<Void, Object>()
 		{
-			textJapaneseName.setEditable(false);
-			textTranslatedName.setEditable(false);
-			textRomajiName.setEditable(false);
-			textWeblink.setEditable(false);
-			editorWorks.setEnabled(false);
-			editorCircles.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
+			@Override
+			public Void doInBackground()
+			{
+				textJapaneseName.setText(tokenArtist.getJapaneseName());
+				textTranslatedName.setText(tokenArtist.getTranslatedName());
+				textRomajiName.setText(tokenArtist.getRomajiName());
+				textWeblink.setText(tokenArtist.getWeblink());
+				if(tokenArtist.isRecycled())
+				{
+					textJapaneseName.setEditable(false);
+					textTranslatedName.setEditable(false);
+					textRomajiName.setEditable(false);
+					textWeblink.setEditable(false);
+					editorWorks.setEnabled(false);
+					editorCircles.setEnabled(false);
+					buttonConfirm.setEnabled(false);
+				}
+				return null;
+			}
+		}.execute();
 	}
 	
 	private final class NullArtist implements Artist
@@ -321,13 +323,28 @@ public final class PanelArtist implements DataBaseListener, LayoutManager, Actio
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Circle)
-			editorCircles.recordUpdated(rcd);
-		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("japanese_name"))
+				textJapaneseName.setText(tokenArtist.getJapaneseName());
+			if(data.getProperty().equals("translated_name"))
+				textTranslatedName.setText(tokenArtist.getTranslatedName());
+			if(data.getProperty().equals("romaji_name"))
+				textRomajiName.setText(tokenArtist.getRomajiName());
+			if(data.getProperty().equals("weblink"))
+				textWeblink.setText(tokenArtist.getWeblink());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Circle)
+				editorCircles.recordUpdated(rcd, data);
+			if(data.getTarget() instanceof Book)
+				editorWorks.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override

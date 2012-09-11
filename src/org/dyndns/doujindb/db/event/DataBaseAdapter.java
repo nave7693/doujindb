@@ -9,9 +9,9 @@ public class DataBaseAdapter implements DataBaseListener
 
 	@Override
 	public void recordDeleted(Record rcd) { }
-
+	
 	@Override
-	public void recordUpdated(Record rcd) { }
+	public void recordUpdated(Record rcd, UpdateData info) { }
 	
 	@Override
 	public void recordRecycled(Record rcd) { }

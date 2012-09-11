@@ -12,7 +12,7 @@ import java.util.Vector;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
@@ -905,7 +905,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 	public void recordDeleted(Record rcd) { }
 	
 	@Override
-	public void recordUpdated(Record rcd) { }
+	public void recordUpdated(Record rcd, UpdateData data) { }
 	
 	@SuppressWarnings({"unchecked","rawtypes"})
 	@Override

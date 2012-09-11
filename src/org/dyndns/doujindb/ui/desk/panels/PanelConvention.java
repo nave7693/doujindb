@@ -21,7 +21,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.log.Level;
@@ -286,13 +286,7 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		pane.add(tabLists);
 		pane.add(buttonConfirm);
 
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				syncData();
-				return null;
-			}
-		}.execute();
+		syncData();
 	}
 	
 	@Override
@@ -373,18 +367,26 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	
 	private void syncData()
 	{
-		textTagName.setText(tokenConvention.getTagName());
-		textWeblink.setText(tokenConvention.getWeblink());
-		textInfo.setText(tokenConvention.getInfo());
-		for(String alias : tokenConvention.getAliases())
-			((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
-		if(tokenConvention.isRecycled())
+		new SwingWorker<Void, Object>()
 		{
-			textTagName.setEditable(false);
-			textInfo.setEditable(false);
-			editorWorks.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
+			@Override
+			public Void doInBackground()
+			{
+				textTagName.setText(tokenConvention.getTagName());
+				textWeblink.setText(tokenConvention.getWeblink());
+				textInfo.setText(tokenConvention.getInfo());
+				for(String alias : tokenConvention.getAliases())
+					((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
+				if(tokenConvention.isRecycled())
+				{
+					textTagName.setEditable(false);
+					textInfo.setEditable(false);
+					editorWorks.setEnabled(false);
+					buttonConfirm.setEnabled(false);
+				}
+				return null;
+			}
+		}.execute();
 	}
 	
 	private final class NullConvention implements Convention
@@ -469,18 +471,31 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd)
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
-		syncData();
+		switch(data.getType())
+		{
+		case PROPERTY:
+			if(data.getProperty().equals("tag_name"))
+				textTagName.setText(tokenConvention.getTagName());
+			if(data.getProperty().equals("info"))
+				textInfo.setText(tokenConvention.getInfo());
+			if(data.getProperty().equals("weblink"))
+				textWeblink.setText(tokenConvention.getWeblink());
+			break;
+		//case LINK:
+		//case UNLINK:
+		default:
+			if(data.getTarget() instanceof Book)
+				editorWorks.recordUpdated(rcd, data);
+		}
 	}
 	
 	@Override
 	public void recordRecycled(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRecycled(rcd);
 		syncData();
 	}
 	
@@ -488,7 +503,7 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	public void recordRestored(Record rcd)
 	{
 		if(rcd instanceof Book)
-			editorWorks.recordUpdated(rcd);
+			editorWorks.recordRestored(rcd);
 		syncData();
 	}
 	

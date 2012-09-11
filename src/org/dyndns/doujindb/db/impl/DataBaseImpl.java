@@ -22,7 +22,7 @@ import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
@@ -187,7 +187,7 @@ public class DataBaseImpl extends DataBase
 									break;
 								case RECORD_UPDATED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordUpdated(event.record);
+										dbl.recordUpdated(event.record, event.data);
 									break;
 								case RECORD_RECYCLED:
 									for(DataBaseListener dbl : listeners)
@@ -776,6 +776,7 @@ public class DataBaseImpl extends DataBase
 		
 		private Type type;
 		private Record record;
+		private UpdateData data;
 		
 		private DataBaseEvent(Type type)
 		{
@@ -786,6 +787,13 @@ public class DataBaseImpl extends DataBase
 		{
 			this.type = type;
 			this.record = record;
+		}
+		
+		private DataBaseEvent(Type type, Record record, UpdateData data)
+		{
+			this.type = type;
+			this.record = record;
+			this.data = data;
 		}
 	}
 	
@@ -805,12 +813,12 @@ public class DataBaseImpl extends DataBase
 			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
 	}
 
-	void _recordUpdated(Record rcd)
+	void _recordUpdated(Record rcd, UpdateData info)
 	{
 		if(buffer.size() > MAX_EVENT_BUFFER)
 			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
 		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd));
+			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd, info));
 	}
 	
 	void _recordRecycled(Record rcd)

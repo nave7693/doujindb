@@ -596,14 +596,40 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+		
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	
@@ -637,14 +663,44 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			/**
+			 * BookImpl.toString() includes references to Artists/Circles
+			 * we call Window.setTitle() for every type of update
+			 */
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	
@@ -678,14 +734,40 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+		
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	
@@ -719,14 +801,40 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+		
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	
@@ -760,14 +868,40 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+		
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	
@@ -801,14 +935,40 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				super.dispose();
 				Core.UI.Desktop.remove(this);
 			}
-			super.recordDeleted(rcd);
 		}
 
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			super.setTitle(this.record.toString());
+			if(!record.equals(rcd))
+				return;
+			if(data.getType() == UpdateData.Type.PROPERTY)
+				super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
+		}
+		
+		@Override
+		public void recordAdded(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordAdded(rcd);
+		}
+
+		@Override
+		public void recordDeleted(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordDeleted(rcd);
+		}
+
+		@Override
+		public void recordRestored(Record rcd)
+		{
+			if(!record.equals(rcd))
+				return;
+			super.recordRestored(rcd);
 		}
 	}
 	

@@ -89,7 +89,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		if(tokenICircle.equals(rcd))
 			try {

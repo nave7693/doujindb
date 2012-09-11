@@ -53,7 +53,6 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			//FIXME ? if(!r.getRecycled())
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}

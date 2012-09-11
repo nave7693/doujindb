@@ -89,7 +89,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		if(tokenIParody.equals(rcd))
 			try {

@@ -83,7 +83,6 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		Set<Book> set = new TreeSet<Book>();
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			//FIXME ? if(!r.getRecycled())
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}

@@ -83,7 +83,6 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
-			//FIXME ? if(!r.getRecycled())
 				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
@@ -100,9 +99,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		 */
 		Set<org.dyndns.doujindb.db.cayenne.Book> result = new HashSet<org.dyndns.doujindb.db.cayenne.Book>();
 		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists())
-			//FIXME ? if(!a.getRecycled())
 				for(org.dyndns.doujindb.db.cayenne.Book b : a.getBooks())
-					//FIXME ? if(!b.getRecycled())
 						result.add(b);
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 			set.add(new BookImpl(r));

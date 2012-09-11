@@ -53,8 +53,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JMenuItem uiTrayPopupExit;
 	
 	private JComponent uiPanelGlass;
-	//TODO JDK6 private JLayer<JComponent> uiLayerPane;
-	//TODO JDK6 private BlurLayerUI uiLayerPaneUI;
 	
 	private JFileChooser uiFileChooser = new JFileChooser();
 	
@@ -505,11 +503,7 @@ public UI(String title)
 
 	uiPanelTabbed.setFont(Core.Resources.Font);
 	uiPanelTabbed.setFocusable(false);
-	
-	//TODO JDK6
-	/*uiLayerPaneUI = new BlurLayerUI();
-	uiLayerPane = new JLayer<JComponent>(uiPanelTabbed, uiLayerPaneUI);	
-	super.add(uiLayerPane);*/
+
 	super.add(uiPanelTabbed);
 	super.setLayout(this);
 	/*
@@ -529,7 +523,6 @@ public void layoutContainer(Container parent)
 {
 	int width = parent.getWidth(),
 		height = parent.getHeight();
-	//TODO JDK6 uiLayerPane.setBounds(0, 0, width, height);
 	uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
 	if(Core.Database.isConnected())
 	{

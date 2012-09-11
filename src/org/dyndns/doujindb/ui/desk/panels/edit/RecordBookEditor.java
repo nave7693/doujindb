@@ -89,7 +89,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	}
 	
 	@Override
-	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		if(tokenIBook.equals(rcd))
 			try {

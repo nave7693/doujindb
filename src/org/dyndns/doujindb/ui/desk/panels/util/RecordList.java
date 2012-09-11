@@ -306,7 +306,7 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 	public void recordDeleted(Record rcd) { }
 	
 	@Override
-	public void recordUpdated(Record rcd, UpdateData data) //TODO UpdateData
+	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		//FIXME tableModel.recordUpdated(rcd);
 		tableData.validate();

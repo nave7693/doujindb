@@ -68,7 +68,6 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Artist> set = new TreeSet<Artist>();
 		Set<org.dyndns.doujindb.db.cayenne.Artist> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists();
 		for(org.dyndns.doujindb.db.cayenne.Artist r : result)
-			//FIXME ? if(!r.getRecycled())
 				set.add(new ArtistImpl(r));
 		return new RecordSetImpl<Artist>(set);
 	}
@@ -85,9 +84,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		 */
 		Set<org.dyndns.doujindb.db.cayenne.Circle> result = new HashSet<org.dyndns.doujindb.db.cayenne.Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists())
-			//FIXME ? if(!a.getRecycled())
 				for(org.dyndns.doujindb.db.cayenne.Circle c : a.getCircles())
-					//FIXME ? if(!c.getRecycled())
 						result.add(c);
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
 			set.add(new CircleImpl(r));
@@ -216,7 +213,6 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		Set<Content> set = new TreeSet<Content>();
 		Set<org.dyndns.doujindb.db.cayenne.Content> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getContents();
 		for(org.dyndns.doujindb.db.cayenne.Content r : result)
-			//FIXME ? if(!r.getRecycled())
 				set.add(new ContentImpl(r));
 		return new RecordSetImpl<Content>(set);
 	}

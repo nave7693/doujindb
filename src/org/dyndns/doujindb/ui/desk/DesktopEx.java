@@ -895,7 +895,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			 * A plugin may not be related to DB operations
 			 * Maybe it's better if a plugin register itself for getting DB events
 			 */
-			//FIXME listeners.add(plugin);
+			// listeners.add(plugin);
 			super.add(plugin.getUI());
 			super.setVisible(true);
 		}

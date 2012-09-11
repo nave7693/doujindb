@@ -674,8 +674,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			 * BookImpl.toString() includes references to Artists/Circles
 			 * we call Window.setTitle() for every type of update
 			 */
-			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+			super.setTitle(this.record.toString());
 			super.recordUpdated(rcd, data);
 		}
 

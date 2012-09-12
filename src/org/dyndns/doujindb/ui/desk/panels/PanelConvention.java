@@ -30,7 +30,8 @@ import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
-public final class PanelConvention implements DataBaseListener, LayoutManager, ActionListener
+@SuppressWarnings("serial")
+public final class PanelConvention extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Convention tokenConvention;
 	
@@ -53,15 +54,14 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
 	
-	@SuppressWarnings("serial")
-	public PanelConvention(JComponent pane, Convention token) throws DataBaseException
+	public PanelConvention(Convention token) throws DataBaseException
 	{
 		if(token != null)
 			tokenConvention = token;
 		else
 			tokenConvention = new NullConvention();
 		
-		pane.setLayout(this);
+		super.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
 		textTagName = new JTextField("");
@@ -277,14 +277,14 @@ public final class PanelConvention implements DataBaseListener, LayoutManager, A
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
 		buttonConfirm.addActionListener(this);
-		pane.add(labelTagName);
-		pane.add(textTagName);
-		pane.add(labelWeblink);
-		pane.add(textWeblink);
-		pane.add(labelInfo);
-		pane.add(scrollInfo);
-		pane.add(tabLists);
-		pane.add(buttonConfirm);
+		super.add(labelTagName);
+		super.add(textTagName);
+		super.add(labelWeblink);
+		super.add(textWeblink);
+		super.add(labelInfo);
+		super.add(scrollInfo);
+		super.add(tabLists);
+		super.add(buttonConfirm);
 
 		syncData();
 	}

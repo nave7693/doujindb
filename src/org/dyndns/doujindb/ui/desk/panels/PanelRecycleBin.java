@@ -17,7 +17,8 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 
-public final class PanelRecycleBin implements DataBaseListener, LayoutManager, ListSelectionListener
+@SuppressWarnings("serial")
+public final class PanelRecycleBin extends JPanel implements DataBaseListener, LayoutManager, ListSelectionListener
 {
 	@SuppressWarnings("unused")
 	private WindowEx parentWindow;
@@ -47,10 +48,10 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 	private JLabel labelListParody;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public PanelRecycleBin(WindowEx parent, JComponent pane)
+	public PanelRecycleBin()
 	{
-		parentWindow = parent;
-		pane.setLayout(this);
+		super();
+		super.setLayout(this);
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(null);
 		panel1.setMaximumSize(new Dimension(130,130));
@@ -700,7 +701,7 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, scrollPanelBase);
 		split.setDividerSize(1);
 		split.setEnabled(false);
-		pane.add(split);
+		super.add(split);
 		;
 		panelBase.addMouseListener(new MouseAdapter()
 		{
@@ -817,7 +818,6 @@ public final class PanelRecycleBin implements DataBaseListener, LayoutManager, L
 		labelListParody.setText("Parodies (" + (listParody.getSelectedIndices().length) + "/" + listParody.getModel().getSize() + ")");
 	}
 	
-	@SuppressWarnings("serial")
 	private final class DynamicPanel extends JPanel implements LayoutManager, ActionListener
 	{
 		private JLabel titleBar;

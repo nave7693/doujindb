@@ -31,7 +31,7 @@ import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
-public final class PanelContent implements DataBaseListener, LayoutManager, ActionListener
+public final class PanelContent extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Content tokenContent;
 	
@@ -52,14 +52,14 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
 	
-	public PanelContent(JComponent pane, Content token) throws DataBaseException
+	public PanelContent(Content token) throws DataBaseException
 	{
 		if(token != null)
 			tokenContent = token;
 		else
 			tokenContent = new NullContent();
 		
-		pane.setLayout(this);
+		super.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
 		textTagName = new JTextField("");
@@ -271,12 +271,12 @@ public final class PanelContent implements DataBaseListener, LayoutManager, Acti
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
 		buttonConfirm.addActionListener(this);
-		pane.add(labelTagName);
-		pane.add(textTagName);
-		pane.add(labelInfo);
-		pane.add(scrollInfo);
-		pane.add(tabLists);
-		pane.add(buttonConfirm);
+		super.add(labelTagName);
+		super.add(textTagName);
+		super.add(labelInfo);
+		super.add(scrollInfo);
+		super.add(tabLists);
+		super.add(buttonConfirm);
 		
 		syncData();
 	}

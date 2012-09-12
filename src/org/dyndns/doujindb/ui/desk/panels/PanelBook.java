@@ -50,7 +50,7 @@ import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
 @SuppressWarnings("serial")
-public final class PanelBook implements DataBaseListener, LayoutManager, ActionListener
+public final class PanelBook extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Book tokenBook;
 	
@@ -87,14 +87,14 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
 	
-	public PanelBook(JComponent pane, Book token) throws DataBaseException
+	public PanelBook(Book token) throws DataBaseException
 	{
 		if(token != null)
 			tokenBook = token;
 		else
 			tokenBook = new NullBook();
 		
-		pane.setLayout(this);
+		super.setLayout(this);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		labelJapaneseName = new JLabel("Japanese Name");
@@ -380,12 +380,12 @@ public final class PanelBook implements DataBaseListener, LayoutManager, ActionL
 		} catch (TooManyListenersException tmle) {
 			tmle.printStackTrace();
 		}
-		pane.add(tabLists);
+		super.add(tabLists);
 		buttonConfirm = new JButton("Ok");
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
 		buttonConfirm.addActionListener(this);
-		pane.add(buttonConfirm);
+		super.add(buttonConfirm);
 		
 		syncData();
 	}

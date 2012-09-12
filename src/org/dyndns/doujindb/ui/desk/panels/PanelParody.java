@@ -23,7 +23,8 @@ import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
-public final class PanelParody implements DataBaseListener, LayoutManager, ActionListener
+@SuppressWarnings("serial")
+public final class PanelParody extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
 	private Parody tokenParody;
 	
@@ -40,14 +41,14 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 	private RecordBookEditor editorWorks;
 	private JButton buttonConfirm;
 	
-	public PanelParody(JComponent pane, Parody token) throws DataBaseException
+	public PanelParody(Parody token) throws DataBaseException
 	{
 		if(token != null)
 			tokenParody = token;
 		else
 			tokenParody = new NullParody();
 		
-		pane.setLayout(this);
+		super.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
 		textJapaneseName = new JTextField("");
@@ -97,16 +98,16 @@ public final class PanelParody implements DataBaseListener, LayoutManager, Actio
 		buttonConfirm.setMnemonic('O');
 		buttonConfirm.setFocusable(false);
 		buttonConfirm.addActionListener(this);
-		pane.add(labelJapaneseName);
-		pane.add(textJapaneseName);
-		pane.add(labelTranslatedName);
-		pane.add(textTranslatedName);
-		pane.add(labelRomajiName);
-		pane.add(textRomajiName);
-		pane.add(labelWeblink);
-		pane.add(textWeblink);
-		pane.add(tabLists);
-		pane.add(buttonConfirm);
+		super.add(labelJapaneseName);
+		super.add(textJapaneseName);
+		super.add(labelTranslatedName);
+		super.add(textTranslatedName);
+		super.add(labelRomajiName);
+		super.add(textRomajiName);
+		super.add(labelWeblink);
+		super.add(textWeblink);
+		super.add(tabLists);
+		super.add(buttonConfirm);
 
 		syncData();
 	}

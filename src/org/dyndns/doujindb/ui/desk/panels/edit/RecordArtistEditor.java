@@ -12,7 +12,6 @@ import org.dyndns.doujindb.db.containers.CntArtist;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
@@ -76,63 +75,46 @@ public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 	}
 
 	@Override
-	public void recordAdded(Record rcd)
-	{
-		recordList.recordAdded(rcd);
-	}
+	public void recordAdded(Record rcd) { }
 	
 	@Override
-	public void recordDeleted(Record rcd)
-	{
-		recordList.recordDeleted(rcd);
-	}
+	public void recordDeleted(Record rcd) { }
 	
 	@Override
 	public void recordUpdated(Record rcd, UpdateData data)
 	{
-		if(tokenIArtist.equals(rcd))
-			try {
-				//TODO ? recordList.setSelectedItems(tokenIArtist.getArtists());
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
-		recordList.recordUpdated(rcd, data);
+		switch(data.getType())
+		{
+		case LINK:
+			recordList.addRecord((Artist)data.getTarget());
+			break;
+		case UNLINK:
+			recordList.removeRecord((Artist)data.getTarget());
+			break;
+		}
 	}
 	
 	@Override
-	public void databaseConnected()
-	{
-		recordList.databaseConnected();
-	}
+	public void databaseConnected() { }
 	
 	@Override
-	public void databaseDisconnected()
-	{
-		recordList.databaseDisconnected();
-	}
+	public void databaseDisconnected() { }
 	
 	@Override
-	public void databaseCommit()
-	{
-		recordList.databaseCommit();
-	}
+	public void databaseCommit() { }
 	
 	@Override
-	public void databaseRollback()
-	{
-		recordList.databaseRollback();
-	}
+	public void databaseRollback() { }
 
 	@Override
 	public void recordRecycled(Record rcd)
 	{
-		recordList.recordRecycled(rcd);
+		recordList.recordsChanged();
 	}
 
 	@Override
 	public void recordRestored(Record rcd)
 	{
-		recordList.recordRestored(rcd);
+		recordList.recordsChanged();
 	}
 }

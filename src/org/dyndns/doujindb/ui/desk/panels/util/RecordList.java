@@ -21,7 +21,7 @@ import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings({"serial", "rawtypes","unused"})
-public final class RecordList<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
+public final class RecordList<T extends Record> extends JPanel implements LayoutManager
 {
 	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
@@ -294,47 +294,27 @@ public final class RecordList<T extends Record> extends JPanel implements DataBa
 		return tableModel.getRecords();
 	}
 	
+	public void addRecord(T rcd)
+	{
+		tableModel.addRecord(rcd);
+		tableData.validate();
+	}
+	
+	public void removeRecord(T rcd)
+	{
+		tableModel.removeRecord(rcd);
+		tableData.validate();
+	}
+	
+	public void recordsChanged()
+	{
+		tableSorter.allRowsChanged();
+	}
+	
 	public int getRecordCount()
 	{
 		return tableModel.getRecordCount();
 	}
-	
-	@Override
-	public void recordAdded(Record rcd) { }
-	
-	@Override
-	public void recordDeleted(Record rcd) { }
-	
-	@Override
-	public void recordUpdated(Record rcd, UpdateData data)
-	{
-		//FIXME tableModel.recordUpdated(rcd);
-		tableData.validate();
-	}
-	
-	@Override
-	public void recordRecycled(Record rcd)
-	{
-		tableSorter.allRowsChanged();
-	}
-
-	@Override
-	public void recordRestored(Record rcd)
-	{
-		tableSorter.allRowsChanged();
-	}
-	
-	@Override
-	public void databaseConnected() { }
-	
-	@Override
-	public void databaseDisconnected() { }
-	
-	@Override
-	public void databaseCommit() { }
-	
-	@Override
-	public void databaseRollback() { }
 	
 	public void filterChanged(String term)
 	{

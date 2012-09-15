@@ -301,6 +301,7 @@ public class PanelBookMedia extends JPanel
 				buttonUpload.setEnabled(!tokenBook.isRecycled());
 				buttonDownload.setEnabled(!tokenBook.isRecycled());
 				buttonDelete.setEnabled(!tokenBook.isRecycled());
+				buttonPackage.setEnabled(!tokenBook.isRecycled());
 				treeMedia.setEnabled(!tokenBook.isRecycled());
 				treeMediaScroll.setEnabled(!tokenBook.isRecycled());
 			}

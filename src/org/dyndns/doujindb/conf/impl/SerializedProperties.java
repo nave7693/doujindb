@@ -82,6 +82,12 @@ final class SerializedProperties implements Properties
 		}
 		{
 			Property prop = new PropertyImpl();
+			prop.setValue(false);
+			prop.setDescription("<html><body>Whether to check if program updates are available.</body></html>");
+			values.put("org.dyndns.doujindb.net.autocheck_updates", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
 			prop.setValue(true);
 			prop.setDescription("<html><body>Logs messages.</body></html>");
 			values.put("org.dyndns.doujindb.log.info", prop);			
@@ -106,13 +112,13 @@ final class SerializedProperties implements Properties
 		}
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue("com.mysql.jdbc.Driver");
+			prop.setValue("sql.jdbc.Driver");
 			prop.setDescription("<html><body>SQL Driver full qualified class name.</body></html>");
 			values.put("org.dyndns.doujindb.db.driver", prop);			
 		}
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue("jdbc:mysql://localhost/doujindb");
+			prop.setValue("jdbc:sql://localhost/db");
 			prop.setDescription("<html><body>SQL Connection URL</body></html>");
 			values.put("org.dyndns.doujindb.db.url", prop);			
 		}
@@ -134,22 +140,6 @@ final class SerializedProperties implements Properties
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);			
 		}
-		{
-			Property prop = new PropertyImpl();
-			prop.setValue(true);
-			prop.setDescription("<html><body>Whether to autocommit changes to the Database.</body></html>");
-			values.put("org.dyndns.doujindb.db.autocommit", prop);			
-		}
-		//values.put("org.dyndns.doujindb.dat.save_on_exit", false);
-		//descriptions.put("org.dyndns.doujindb.dat.save_on_exit", "<html><body>Whether the database should be saved on exit.</body></html>");
-		//values.put("org.dyndns.doujindb.dat.export_filename", false);
-		//descriptions.put("org.dyndns.doujindb.dat.export_filename", "<html><body>The name given to exported files.</body></html>");
-		//values.put("org.dyndns.doujindb.net.autocheck_updates", false);
-		//descriptions.put("org.dyndns.doujindb.net.autocheck_updates", "<html><body>Whether to check if program updates are available.</body></html>");
-		//values.put("org.dyndns.doujindb.net.listen_port", 8899);
-		//descriptions.put("org.dyndns.doujindb.net.listen_port", "<html><body>Network port used to accept incoming connections.</body></html>");
-		//values.put("org.dyndns.doujindb.net.connect_on_start", false);
-		//descriptions.put("org.dyndns.doujindb.net.connect_on_start", "<html><body>Whether to connect on program startup.</body></html>");
 	}
 	
 	public Iterable<String> keys()

@@ -31,10 +31,6 @@ public final class Resources
 		iconKeys.put("JFrame/Tab/Explorer/Desktop","jframe/tab/explorer/desktop.png");
 		iconKeys.put("JFrame/Tab/Explorer/Search","jframe/tab/explorer/search.png");
 		iconKeys.put("JFrame/Tab/Explorer/Add","jframe/tab/explorer/add.png");
-		iconKeys.put("JFrame/Tab/Explorer/Import","jframe/tab/explorer/import.png");
-		iconKeys.put("JFrame/Tab/Explorer/Export","jframe/tab/explorer/export.png");
-		iconKeys.put("JFrame/Tab/Explorer/Commit","jframe/tab/explorer/commit.png");
-		iconKeys.put("JFrame/Tab/Explorer/Rollback","jframe/tab/explorer/rollback.png");
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Connect","jframe/tab/explorer/statusbar/connect.png");
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Disconnect","jframe/tab/explorer/statusbar/disconnect.png");
 		iconKeys.put("JFrame/Tab/Explorer/StatusBar/Connected","jframe/tab/explorer/statusbar/connected.png");

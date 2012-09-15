@@ -89,6 +89,12 @@ final class XMLProperties implements Properties
 		}
 		{
 			Property prop = new PropertyImpl();
+			prop.setValue(false);
+			prop.setDescription("<html><body>Whether to check if program updates are available.</body></html>");
+			values.put("org.dyndns.doujindb.net.autocheck_updates", prop);			
+		}
+		{
+			Property prop = new PropertyImpl();
 			prop.setValue(true);
 			prop.setDescription("<html><body>Logs messages.</body></html>");
 			values.put("org.dyndns.doujindb.log.info", prop);			
@@ -113,13 +119,13 @@ final class XMLProperties implements Properties
 		}
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue("com.mysql.jdbc.Driver");
+			prop.setValue("sql.jdbc.Driver");
 			prop.setDescription("<html><body>SQL Driver full qualified class name.</body></html>");
 			values.put("org.dyndns.doujindb.db.driver", prop);			
 		}
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue("jdbc:mysql://localhost/doujindb");
+			prop.setValue("jdbc:sql://localhost/db");
 			prop.setDescription("<html><body>SQL Connection URL</body></html>");
 			values.put("org.dyndns.doujindb.db.url", prop);			
 		}
@@ -140,12 +146,6 @@ final class XMLProperties implements Properties
 			prop.setValue(5);
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);			
-		}
-		{
-			Property prop = new PropertyImpl();
-			prop.setValue(true);
-			prop.setDescription("<html><body>Whether to autocommit changes to the Database.</body></html>");
-			values.put("org.dyndns.doujindb.db.autocommit", prop);			
 		}
 	}
 	

@@ -69,8 +69,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JButton uiPanelDesktopSearch;
 	private JButton uiPanelDesktopAdd;
 	private JPopupMenu uiPanelDesktopAddPopup;
-	private JButton uiPanelDesktopCommit;
-	private JButton uiPanelDesktopRollback;
 	private JLabel uiStatusBar;
 	private JButton uiStatusBarConnect;
 	private JButton uiStatusBarDisconnect;
@@ -391,18 +389,6 @@ public UI(String title)
 	itm5.addActionListener(UI.this);
 	uiPanelDesktopAddPopup.add(itm5);
 	bogus.add(uiPanelDesktopAdd);
-	uiPanelDesktopCommit = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Commit"));
-	uiPanelDesktopCommit.addActionListener(this);
-	uiPanelDesktopCommit.setBorder(null);
-	uiPanelDesktopCommit.setFocusable(false);
-	uiPanelDesktopCommit.setToolTipText("Commit");
-	bogus.add(uiPanelDesktopCommit);
-	uiPanelDesktopRollback = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Rollback"));
-	uiPanelDesktopRollback.addActionListener(this);
-	uiPanelDesktopRollback.setBorder(null);
-	uiPanelDesktopRollback.setFocusable(false);
-	uiPanelDesktopRollback.setToolTipText("Rollback");
-	bogus.add(uiPanelDesktopRollback);
 	uiStatusBar = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
 	uiStatusBar.setText("Disconnected.");
 	uiStatusBar.setHorizontalAlignment(JLabel.LEFT);
@@ -529,14 +515,6 @@ public void layoutContainer(Container parent)
 		uiPanelDesktopShow.setBounds(1,1,20,20);
 		uiPanelDesktopSearch.setBounds(21,1,20,20);
 		uiPanelDesktopAdd.setBounds(41,1,20,20);
-		if(Core.Database.isAutocommit())
-		{
-			uiPanelDesktopCommit.setBounds(0,0,0,0);
-			uiPanelDesktopRollback.setBounds(0,0,0,0);
-		} else {
-			uiPanelDesktopCommit.setBounds(width - 22,1,20,20);
-			uiPanelDesktopRollback.setBounds(width - 42,1,20,20);
-		}
 		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
 		uiStatusBarConnect.setBounds(-1,-1,0,0);
 		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
@@ -552,8 +530,6 @@ public void layoutContainer(Container parent)
 		uiPanelDesktopShow.setBounds(-1,-1,0,0);
 		uiPanelDesktopSearch.setBounds(-1,-1,0,0);
 		uiPanelDesktopAdd.setBounds(-1,-1,0,0);
-		uiPanelDesktopCommit.setBounds(-1,-1,0,0);
-		uiPanelDesktopRollback.setBounds(-1,-1,0,0);
 		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
 		uiStatusBarConnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
 		uiStatusBarDisconnect.setBounds(-1,-1,0,0);
@@ -783,138 +759,6 @@ public void layoutContainer(Container parent)
 		if(event.getSource() == uiTrayPopupExit)
 		{
 			System.exit(0);
-		}
-		if(event.getSource() == uiPanelDesktopCommit)
-		{
-			JPanel panel = new JPanel();
-			panel.setSize(250, 150);
-			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Save the Database replacing the previous version?<br/><i>(This cannot be undone)</i></body></html>");
-			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			lab.setFont(Core.Resources.Font);
-			panel.add(lab);
-			JPanel bottom = new JPanel();
-			bottom.setLayout(new GridLayout(1, 2));
-			JButton canc = new JButton("Cancel");
-			canc.setFont(Core.Resources.Font);
-			canc.setMnemonic('C');
-			canc.setFocusable(false);
-			canc.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			JButton ok = new JButton("Ok");
-			ok.setFont(Core.Resources.Font);
-			ok.setMnemonic('O');
-			ok.setFocusable(false);
-			ok.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					try
-					{
-						try
-						{
-							Core.Database.doCommit();
-						} catch (DataBaseException dbe)
-						{
-							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
-						}
-						validate();
-						repaint();
-					} catch (Exception e) {
-						Core.Logger.log(e.getMessage(), Level.ERROR);
-					}
-					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			bottom.add(ok);
-			bottom.add(canc);
-			bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-			panel.add(bottom);
-			try {
-				Core.UI.Desktop.showDialog(
-						panel,
-						Core.Resources.Icons.get("JFrame/Tab/Explorer/Commit"),
-						"Commit");
-			} catch (PropertyVetoException pve)
-			{
-				Core.Logger.log(pve.getMessage(), Level.WARNING);
-			}
-			return;
-		}
-		if(event.getSource() == uiPanelDesktopRollback)
-		{
-			JPanel panel = new JPanel();
-			panel.setSize(250, 150);
-			panel.setLayout(new GridLayout(2, 1));
-			JLabel lab = new JLabel("<html><body>Load the Database ignoring current changes?<br/><i>(This cannot be undone)</i></body></html>");
-			lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			lab.setFont(Core.Resources.Font);
-			panel.add(lab);
-			JPanel bottom = new JPanel();
-			bottom.setLayout(new GridLayout(1, 2));
-			JButton canc = new JButton("Cancel");
-			canc.setFont(Core.Resources.Font);
-			canc.setMnemonic('C');
-			canc.setFocusable(false);
-			canc.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			JButton ok = new JButton("Ok");
-			ok.setFont(Core.Resources.Font);
-			ok.setMnemonic('O');
-			ok.setFocusable(false);
-			ok.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					try
-					{
-						try
-						{
-							Core.Database.doRollback();
-						} catch (DataBaseException dbe)
-						{
-							Core.Logger.log("" + dbe.getMessage(), Level.ERROR);
-						}
-						validate();
-						repaint();
-					} catch (Exception e) {
-						Core.Logger.log(e.getMessage(), Level.ERROR);
-					}
-					DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			bottom.add(ok);
-			bottom.add(canc);
-			bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-			panel.add(bottom);
-			try {
-				Core.UI.Desktop.showDialog(
-						panel,
-						Core.Resources.Icons.get("JFrame/Tab/Explorer/Rollback"),
-						"Rollback");
-			} catch (PropertyVetoException pve)
-			{
-				Core.Logger.log(pve.getMessage(), Level.WARNING);
-			}
-			return;
 		}
 		if(event.getSource() == uiStatusBarConnect)
 		{

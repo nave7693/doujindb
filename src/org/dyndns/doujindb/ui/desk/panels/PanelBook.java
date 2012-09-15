@@ -327,7 +327,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		panelInfo.add(comboType);
 		tabLists.addTab("General", Core.Resources.Icons.get("JDesktop/Explorer/Book/Info"), panelInfo);
 		editorArtists = new RecordArtistEditor(tokenBook);
-		tabLists.addTab("Artist", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
+		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
 		editorCircles = new RecordCircleEditor(tokenBook);
 		editorCircles.setEnabled(false);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);

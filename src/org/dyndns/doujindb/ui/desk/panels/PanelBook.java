@@ -15,18 +15,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.TooManyListenersException;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.TabbedPaneUI;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
@@ -41,13 +35,13 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
-import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
+import org.dyndns.doujindb.util.RepositoryIndexer;
 
 @SuppressWarnings("serial")
 public final class PanelBook extends JPanel implements DataBaseListener, LayoutManager, ActionListener
@@ -522,7 +516,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				@Override
 				public Void doInBackground() {
 					if(tokenBook.getID() != null)
-						metadata(tokenBook, Core.Repository.getMetadata(tokenBook.getID()).getOutputStream());
+						RepositoryIndexer.index(tokenBook);
 					if(Core.Database.isAutocommit())
 						Core.Database.doCommit();
 					return null;
@@ -537,81 +531,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
 		}
-	}
-	
-	private void metadata(Book book, OutputStream dest) throws DataBaseException
-	{
-		XMLBook doujin = new XMLBook();
-		doujin.japaneseName = book.getJapaneseName();
-		doujin.translatedName = book.getTranslatedName();
-		doujin.romajiName = book.getRomajiName();
-		doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
-		doujin.Released = book.getDate();
-		doujin.Type = book.getType();
-		doujin.Pages = book.getPages();
-		doujin.Adult = book.isAdult();
-		doujin.Decensored = book.isDecensored();
-		doujin.Colored = book.isColored();
-		doujin.Translated = book.isTranslated();
-		doujin.Rating = book.getRating();
-		doujin.Info = book.getInfo();
-		for(Artist a : book.getArtists())
-			doujin.artists.add(a.getJapaneseName());
-		for(Circle c : book.getCircles())
-			doujin.circles.add(c.getJapaneseName());
-		for(Parody p : book.getParodies())
-			doujin.parodies.add(p.getJapaneseName());
-		for(Content ct : book.getContents())
-			doujin.contents.add(ct.getTagName());
-		try
-		{
-			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(doujin, dest);
-		} catch (Exception e) {
-			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-		}
-		if(tokenBook.isRecycled())
-		{
-			textJapaneseName.setEditable(false);
-			textTranslatedName.setEditable(false);
-			textRomajiName.setEditable(false);
-			textInfo.setEditable(false);
-			textDate.setEditable(false);
-			textPages.setEditable(false);
-			comboType.setEnabled(false);
-			comboConvention.setEnabled(false);
-			checkAdult.setEnabled(false);
-			checkDecensored.setEnabled(false);
-			checkTranslated.setEnabled(false);
-			checkColored.setEnabled(false);
-			editorRating.setEnabled(false);
-			editorArtists.setEnabled(false);
-			editorCircles.setEnabled(false);
-			editorContents.setEnabled(false);
-			editorParodies.setEnabled(false);
-			buttonConfirm.setEnabled(false);
-		}
-		if(tokenBook.getID() == null)
-			labelPreview.setEnabled(false);
-		else
-			labelPreview.setEnabled(true);
-		try {
-			if(!Core.Database.getConventions(null).contains((Convention)comboConvention.getSelectedItem()))
-				comboConvention.setSelectedItem(null);
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
-		}
-		for(int i=0;i<comboConvention.getItemCount();i++)
-			try {
-				if(!Core.Database.getConventions(null).contains((Convention)comboConvention.getItemAt(i)) && comboConvention.getItemAt(i) != null)
-					comboConvention.removeItemAt(i);
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
 	}
 	
 	private void syncData()
@@ -671,46 +590,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				return null;
 			}
 		}.execute();
-	}
-	
-	@SuppressWarnings("unused")
-	@XmlRootElement(name="Doujin")
-	private static final class XMLBook
-	{
-		@XmlElement(required=true)
-		private String japaneseName;
-		@XmlElement(required=false)
-		private String translatedName = "";
-		@XmlElement(required=false)
-		private String romajiName = "";
-		@XmlElement(required=false)
-		private String Convention = "";
-		@XmlElement(required=false)
-		private Date Released;
-		@XmlElement(required=false)
-		private Type Type;
-		@XmlElement(required=false)
-		private int Pages;
-		@XmlElement(required=false)
-		private boolean Adult;
-		@XmlElement(required=false)
-		private boolean Decensored;
-		@XmlElement(required=false)
-		private boolean Translated;
-		@XmlElement(required=false)
-		private boolean Colored;
-		@XmlElement(required=false)
-		private Rating Rating;
-		@XmlElement(required=false)
-		private String Info;
-		@XmlElement(name="Artist", required=false)
-		private List<String> artists = new Vector<String>();
-		@XmlElement(name="Circle", required=false)
-		private List<String> circles = new Vector<String>();
-		@XmlElement(name="Parody", required=false)
-		private List<String> parodies = new Vector<String>();
-		@XmlElement(name="Content", required=false)
-		private List<String> contents = new Vector<String>();
 	}
 	
 	private final class NullBook implements Book

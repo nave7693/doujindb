@@ -17,7 +17,6 @@ import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -50,11 +49,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{
-		if(token != null)
-			tokenCircle = token;
-		else
-			tokenCircle = new NullCircle();
-		
+		tokenCircle = token;
 		super.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -250,27 +245,37 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		tabLists.setBounds(3, 3 + 62 + 42, width - 6, height - 135);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
+	
+	public Circle getRecord()
+	{
+		return tokenCircle;
+	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 	     return parent.getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 	     return parent.getPreferredSize();
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae)
 	{
 		buttonConfirm.setEnabled(false);
 		try
 		{
-			if(tokenCircle instanceof NullCircle)
+			if(tokenCircle.getID() == null)
 				tokenCircle = Core.Database.doInsert(Circle.class);
 			tokenCircle.setJapaneseName(textJapaneseName.getText());
 			tokenCircle.setTranslatedName(textTranslatedName.getText());
@@ -349,92 +354,6 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				return null;
 			}
 		}.execute();
-	}
-	
-	private final class NullCircle implements Circle
-	{
-		@Override
-		public String getID() throws DataBaseException { return null; }
-
-		@Override
-		public void doRecycle() throws DataBaseException { }
-
-		@Override
-		public void doRestore() throws DataBaseException { }
-
-		@Override
-		public boolean isRecycled() throws DataBaseException { return false; }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Book> getBooks() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public String getJapaneseName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getTranslatedName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getRomajiName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getWeblink() throws DataBaseException { return ""; }
-
-		@Override
-		public void setJapaneseName(String japaneseName) throws DataBaseException { }
-
-		@Override
-		public void setTranslatedName(String translatedName) throws DataBaseException { }
-
-		@Override
-		public void setRomajiName(String romajiName) throws DataBaseException { }
-
-		@Override
-		public void setWeblink(String weblink) throws DataBaseException { }
-		
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Artist> getArtists() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public void addArtist(Artist artist) throws DataBaseException { }
-
-		@Override
-		public void removeArtist(Artist artist) throws DataBaseException { }
-
-		@Override
-		public void removeAll() throws DataBaseException { }
 	}
 
 	@Override

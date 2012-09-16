@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TooManyListenersException;
@@ -27,7 +26,6 @@ import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -83,11 +81,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	
 	public PanelBook(Book token) throws DataBaseException
 	{
-		if(token != null)
-			tokenBook = token;
-		else
-			tokenBook = new NullBook();
-		
+		tokenBook = token;		
 		super.setLayout(this);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -393,6 +387,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	
+	public Book getRecord()
+	{
+		return tokenBook;
+	}
+	
 	@Override
 	public void addLayoutComponent(String key,Component c) {}
 	
@@ -478,7 +477,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		}
 		try
 		{
-			if(tokenBook instanceof NullBook)
+			if(tokenBook.getID() == null)
 				tokenBook = Core.Database.doInsert(Book.class);
 			tokenBook.setJapaneseName(textJapaneseName.getText());
 			tokenBook.setTranslatedName(textTranslatedName.getText());
@@ -590,196 +589,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				return null;
 			}
 		}.execute();
-	}
-	
-	private final class NullBook implements Book
-	{
-		@Override
-		public String getID() throws DataBaseException { return null; }
-
-		@Override
-		public void doRecycle() throws DataBaseException { }
-
-		@Override
-		public void doRestore() throws DataBaseException { }
-
-		@Override
-		public boolean isRecycled() throws DataBaseException { return false; }
-
-		@Override
-		public String getJapaneseName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getTranslatedName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getRomajiName() throws DataBaseException { return ""; }
-
-		@Override
-		public void setJapaneseName(String japaneseName) throws DataBaseException { }
-
-		@Override
-		public void setTranslatedName(String translatedName) throws DataBaseException { }
-
-		@Override
-		public void setRomajiName(String romajiName) throws DataBaseException { }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Circle> getCircles() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public Date getDate() throws DataBaseException { return new Date(); }
-
-		@Override
-		public Type getType() throws DataBaseException { return Type.不詳; }
-
-		@Override
-		public int getPages() throws DataBaseException { return 0; }
-
-		@Override
-		public void setPages(int pages) throws DataBaseException { }
-
-		@Override
-		public void setDate(Date date) throws DataBaseException { }
-
-		@Override
-		public void setType(Type type) throws DataBaseException { }
-
-		@Override
-		public boolean isAdult() throws DataBaseException { return false; }
-
-		@Override
-		public boolean isDecensored() throws DataBaseException { return false; }
-
-		@Override
-		public boolean isTranslated() throws DataBaseException { return false; }
-
-		@Override
-		public boolean isColored() throws DataBaseException { return false; }
-
-		@Override
-		public void setAdult(boolean adult) throws DataBaseException { }
-
-		@Override
-		public void setDecensored(boolean decensored) throws DataBaseException { }
-
-		@Override
-		public void setTranslated(boolean translated) throws DataBaseException { }
-
-		@Override
-		public void setColored(boolean colored) throws DataBaseException { }
-
-		@Override
-		public Rating getRating() throws DataBaseException { return Rating.UNRATED; }
-
-		@Override
-		public String getInfo() throws DataBaseException { return ""; }
-
-		@Override
-		public void setRating(Rating rating) throws DataBaseException { }
-
-		@Override
-		public void setInfo(String info) throws DataBaseException { }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Artist> getArtists() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Content> getContents() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public Convention getConvention() throws DataBaseException { return null; }
-
-		@Override
-		public void setConvention(Convention convention) throws DataBaseException { }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Parody> getParodies() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public void addArtist(Artist artist) throws DataBaseException { }
-
-		@Override
-		public void addContent(Content content) throws DataBaseException { }
-
-		@Override
-		public void addParody(Parody parody) throws DataBaseException { }
-
-		@Override
-		public void removeArtist(Artist artist) throws DataBaseException { }
-
-		@Override
-		public void removeContent(Content content) throws DataBaseException { }
-
-		@Override
-		public void removeParody(Parody parody) throws DataBaseException { }
-
-		@Override
-		public void removeAll() throws DataBaseException { }
 	}
 
 	@Override

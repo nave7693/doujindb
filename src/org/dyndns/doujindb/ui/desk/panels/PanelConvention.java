@@ -7,8 +7,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -20,7 +18,6 @@ import javax.swing.text.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
@@ -56,11 +53,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	
 	public PanelConvention(Convention token) throws DataBaseException
 	{
-		if(token != null)
-			tokenConvention = token;
-		else
-			tokenConvention = new NullConvention();
-		
+		tokenConvention = token;
 		super.setLayout(this);
 		labelTagName = new JLabel("Tag Name");
 		labelTagName.setFont(font);
@@ -304,6 +297,11 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	
+	public Convention getRecord()
+	{
+		return tokenConvention;
+	}
+	
 	@Override
 	public void addLayoutComponent(String key,Component c) {}
 	
@@ -328,7 +326,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		buttonConfirm.setEnabled(false);
 		try
 		{
-			if(tokenConvention instanceof NullConvention)
+			if(tokenConvention.getID() == null)
 				tokenConvention = Core.Database.doInsert(Convention.class);
 			tokenConvention.setTagName(textTagName.getText());
 			tokenConvention.setWeblink(textWeblink.getText());
@@ -387,76 +385,6 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 				return null;
 			}
 		}.execute();
-	}
-	
-	private final class NullConvention implements Convention
-	{
-		@Override
-		public String getID() throws DataBaseException { return null; }
-
-		@Override
-		public void doRecycle() throws DataBaseException { }
-
-		@Override
-		public void doRestore() throws DataBaseException { }
-
-		@Override
-		public boolean isRecycled() throws DataBaseException { return false; }
-
-		@Override
-		public String getTagName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getInfo() throws DataBaseException { return ""; }
-
-		@Override
-		public void setTagName(String tagName) throws DataBaseException { }
-
-		@Override
-		public void setInfo(String info) throws DataBaseException { }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Book> getBooks() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public void addBook(Book book) throws DataBaseException { }
-
-		@Override
-		public void removeBook(Book book) throws DataBaseException { }
-
-		@Override
-		public String getWeblink() throws DataBaseException { return ""; }
-
-		@Override
-		public void setWeblink(String weblink) throws DataBaseException { }
-
-		@Override
-		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
-
-		@Override
-		public void addAlias(String alias) throws DataBaseException { }
-
-		@Override
-		public void removeAlias(String alias) throws DataBaseException { }
-
-		@Override
-		public void removeAll() throws DataBaseException { }
 	}
 
 	@Override

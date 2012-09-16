@@ -5,7 +5,6 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
-import java.util.Iterator;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -14,7 +13,6 @@ import javax.swing.plaf.TabbedPaneUI;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
@@ -43,11 +41,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 	
 	public PanelParody(Parody token) throws DataBaseException
 	{
-		if(token != null)
-			tokenParody = token;
-		else
-			tokenParody = new NullParody();
-		
+		tokenParody = token;
 		super.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -129,6 +123,11 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	
+	public Parody getRecord()
+	{
+		return tokenParody;
+	}
+	
 	@Override
 	public void addLayoutComponent(String key,Component c) {}
 	
@@ -153,7 +152,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		buttonConfirm.setEnabled(false);
 		try
 		{
-			if(tokenParody instanceof NullParody)
+			if(tokenParody.getID() == null)
 				tokenParody = Core.Database.doInsert(Parody.class);
 			tokenParody.setJapaneseName(textJapaneseName.getText());
 			tokenParody.setTranslatedName(textTranslatedName.getText());
@@ -208,73 +207,6 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 				return null;
 			}
 		}.execute();
-	}
-	
-	private final class NullParody implements Parody
-	{
-		@Override
-		public String getID() throws DataBaseException { return null; }
-
-		@Override
-		public void doRecycle() throws DataBaseException { }
-
-		@Override
-		public void doRestore() throws DataBaseException { }
-
-		@Override
-		public boolean isRecycled() throws DataBaseException { return false; }
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public RecordSet<Book> getBooks() throws DataBaseException
-		{
-			return new RecordSet()
-			{
-
-				@Override
-				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
-				public int size() throws DataBaseException { return 0; }
-				
-			};
-		}
-
-		@Override
-		public void addBook(Book book) throws DataBaseException { }
-
-		@Override
-		public void removeBook(Book book) throws DataBaseException { }
-
-		@Override
-		public String getJapaneseName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getTranslatedName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getRomajiName() throws DataBaseException { return ""; }
-
-		@Override
-		public String getWeblink() throws DataBaseException { return ""; }
-
-		@Override
-		public void setJapaneseName(String japaneseName) throws DataBaseException { }
-
-		@Override
-		public void setTranslatedName(String translatedName) throws DataBaseException { }
-
-		@Override
-		public void setRomajiName(String romajiName) throws DataBaseException { }
-
-		@Override
-		public void setWeblink(String weblink) throws DataBaseException { }
-
-		@Override
-		public void removeAll() throws DataBaseException { }
 	}
 
 	@Override

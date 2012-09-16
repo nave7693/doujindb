@@ -400,17 +400,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			{
 				Record rcd = null;
 				if(window instanceof WindowArtistImpl)
-					rcd = ((WindowArtistImpl)window).record;
+					rcd = ((WindowArtistImpl)window).getRecord();
 				if(window instanceof WindowBookImpl)
-					rcd = ((WindowBookImpl)window).record;
+					rcd = ((WindowBookImpl)window).getRecord();
 				if(window instanceof WindowCircleImpl)
-					rcd = ((WindowCircleImpl)window).record;
+					rcd = ((WindowCircleImpl)window).getRecord();
 				if(window instanceof WindowContentImpl)
-					rcd = ((WindowContentImpl)window).record;
+					rcd = ((WindowContentImpl)window).getRecord();
 				if(window instanceof WindowConventionImpl)
-					rcd = ((WindowConventionImpl)window).record;
+					rcd = ((WindowConventionImpl)window).getRecord();
 				if(window instanceof WindowParodyImpl)
-					rcd = ((WindowParodyImpl)window).record;
+					rcd = ((WindowParodyImpl)window).getRecord();
 				
 				if(token == null && rcd == null)
 					if(window.getType().equals(type))
@@ -569,30 +569,35 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private final class WindowArtistImpl extends WindowEx
 	{
-		private Record record;
+		private PanelArtist panel;
 		
 		WindowArtistImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_ARTIST;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-			if(this.record == null)
+			this.type = Type.WINDOW_ARTIST;
+			if(rcd == null)
+			{
+				rcd = new NullArtist();
 				super.setTitle("Add Artist");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelArtist panel = new PanelArtist((Artist)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelArtist((Artist)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Artist getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -602,17 +607,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+				super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 		
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -620,7 +625,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -628,38 +633,135 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullArtist implements Artist
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Book> getBooks() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addBook(Book book) throws DataBaseException { }
+
+			@Override
+			public void removeBook(Book book) throws DataBaseException { }
+
+			@Override
+			public String getJapaneseName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getTranslatedName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getRomajiName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getWeblink() throws DataBaseException { return ""; }
+
+			@Override
+			public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+			@Override
+			public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+			@Override
+			public void setRomajiName(String romajiName) throws DataBaseException { }
+
+			@Override
+			public void setWeblink(String weblink) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Circle> getCircles() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addCircle(Circle circle) throws DataBaseException { }
+
+			@Override
+			public void removeCircle(Circle circle) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	
 	private final class WindowBookImpl extends WindowEx
 	{
-		private Record record;
+		private PanelBook panel;
 		
 		WindowBookImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_BOOK;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-			if(this.record == null)
+			this.type = Type.WINDOW_BOOK;
+			if(rcd == null)
+			{
+				rcd = new NullBook();
 				super.setTitle("Add Book");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelBook panel = new PanelBook((Book)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelBook((Book)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Book getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -669,20 +771,20 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			/**
 			 * BookImpl.toString() includes references to Artists/Circles
 			 * we call Window.setTitle() for every type of update
 			 */
-			super.setTitle(this.record.toString());
+			super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -690,7 +792,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -698,38 +800,233 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullBook implements Book
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@Override
+			public String getJapaneseName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getTranslatedName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getRomajiName() throws DataBaseException { return ""; }
+
+			@Override
+			public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+			@Override
+			public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+			@Override
+			public void setRomajiName(String romajiName) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Circle> getCircles() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public Date getDate() throws DataBaseException { return new Date(); }
+
+			@Override
+			public Type getType() throws DataBaseException { return Type.不詳; }
+
+			@Override
+			public int getPages() throws DataBaseException { return 0; }
+
+			@Override
+			public void setPages(int pages) throws DataBaseException { }
+
+			@Override
+			public void setDate(Date date) throws DataBaseException { }
+
+			@Override
+			public void setType(Type type) throws DataBaseException { }
+
+			@Override
+			public boolean isAdult() throws DataBaseException { return false; }
+
+			@Override
+			public boolean isDecensored() throws DataBaseException { return false; }
+
+			@Override
+			public boolean isTranslated() throws DataBaseException { return false; }
+
+			@Override
+			public boolean isColored() throws DataBaseException { return false; }
+
+			@Override
+			public void setAdult(boolean adult) throws DataBaseException { }
+
+			@Override
+			public void setDecensored(boolean decensored) throws DataBaseException { }
+
+			@Override
+			public void setTranslated(boolean translated) throws DataBaseException { }
+
+			@Override
+			public void setColored(boolean colored) throws DataBaseException { }
+
+			@Override
+			public Rating getRating() throws DataBaseException { return Rating.UNRATED; }
+
+			@Override
+			public String getInfo() throws DataBaseException { return ""; }
+
+			@Override
+			public void setRating(Rating rating) throws DataBaseException { }
+
+			@Override
+			public void setInfo(String info) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Artist> getArtists() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Content> getContents() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public Convention getConvention() throws DataBaseException { return null; }
+
+			@Override
+			public void setConvention(Convention convention) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Parody> getParodies() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addArtist(Artist artist) throws DataBaseException { }
+
+			@Override
+			public void addContent(Content content) throws DataBaseException { }
+
+			@Override
+			public void addParody(Parody parody) throws DataBaseException { }
+
+			@Override
+			public void removeArtist(Artist artist) throws DataBaseException { }
+
+			@Override
+			public void removeContent(Content content) throws DataBaseException { }
+
+			@Override
+			public void removeParody(Parody parody) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	
 	private final class WindowCircleImpl extends WindowEx
 	{
-		private Record record;
+		private PanelCircle panel;
 		
 		WindowCircleImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_CIRCLE;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-			if(this.record == null)
+			this.type = Type.WINDOW_CIRCLE;
+			if(rcd == null)
+			{
+				rcd = new NullCircle();
 				super.setTitle("Add Circle");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelCircle panel = new PanelCircle((Circle)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelCircle((Circle)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Circle getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -739,17 +1036,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+				super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 		
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -757,7 +1054,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -765,38 +1062,129 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullCircle implements Circle
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Book> getBooks() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public String getJapaneseName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getTranslatedName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getRomajiName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getWeblink() throws DataBaseException { return ""; }
+
+			@Override
+			public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+			@Override
+			public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+			@Override
+			public void setRomajiName(String romajiName) throws DataBaseException { }
+
+			@Override
+			public void setWeblink(String weblink) throws DataBaseException { }
+			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Artist> getArtists() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addArtist(Artist artist) throws DataBaseException { }
+
+			@Override
+			public void removeArtist(Artist artist) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	
 	private final class WindowContentImpl extends WindowEx
 	{
-		private Record record;
+		private PanelContent panel;
 		
 		WindowContentImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_CONTENT;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-			if(this.record == null)
+			this.type = Type.WINDOW_CONTENT;
+			if(rcd == null)
+			{
+				rcd = new NullContent();
 				super.setTitle("Add Content");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelContent panel = new PanelContent((Content)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelContent((Content)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Content getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -806,17 +1194,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+				super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 		
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -824,7 +1212,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -832,38 +1220,107 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullContent implements Content
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@Override
+			public String getTagName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getInfo() throws DataBaseException { return ""; }
+
+			@Override
+			public void setTagName(String tagName) throws DataBaseException { }
+
+			@Override
+			public void setInfo(String info) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Book> getBooks() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addBook(Book book) throws DataBaseException { }
+
+			@Override
+			public void removeBook(Book book) throws DataBaseException { }
+
+			@Override
+			public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+			@Override
+			public void addAlias(String alias) throws DataBaseException { }
+
+			@Override
+			public void removeAlias(String alias) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	
 	private final class WindowConventionImpl extends WindowEx
 	{
-		private Record record;
+		private PanelConvention panel;
 		
 		WindowConventionImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_CONVENTION;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-			if(this.record == null)
+			this.type = Type.WINDOW_CONVENTION;
+			if(rcd == null)
+			{
+				rcd = new NullConvention();
 				super.setTitle("Add Convention");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelConvention panel = new PanelConvention((Convention)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelConvention((Convention)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Convention getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -873,17 +1330,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+				super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 		
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -891,7 +1348,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -899,38 +1356,113 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullConvention implements Convention
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@Override
+			public String getTagName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getInfo() throws DataBaseException { return ""; }
+
+			@Override
+			public void setTagName(String tagName) throws DataBaseException { }
+
+			@Override
+			public void setInfo(String info) throws DataBaseException { }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Book> getBooks() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addBook(Book book) throws DataBaseException { }
+
+			@Override
+			public void removeBook(Book book) throws DataBaseException { }
+
+			@Override
+			public String getWeblink() throws DataBaseException { return ""; }
+
+			@Override
+			public void setWeblink(String weblink) throws DataBaseException { }
+
+			@Override
+			public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+			@Override
+			public void addAlias(String alias) throws DataBaseException { }
+
+			@Override
+			public void removeAlias(String alias) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	
 	private final class WindowParodyImpl extends WindowEx
 	{
-		private Record record;
+		private PanelParody panel;
 		
 		WindowParodyImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			{
-				this.type = Type.WINDOW_PARODY;
-				this.record = rcd;
-			}
 			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-			if(this.record == null)
+			this.type = Type.WINDOW_PARODY;
+			if(rcd == null)
+			{
+				rcd = new NullParody();
 				super.setTitle("Add Parody");
+			}
 			else
-				super.setTitle(this.record.toString());
-			PanelParody panel = new PanelParody((Parody)this.record);
+				super.setTitle(rcd.toString());
+			panel = new PanelParody((Parody)rcd);
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);
 		}
 		
+		public Parody getRecord()
+		{
+			return panel.getRecord();
+		}
+		
 		@Override
 		public void recordRecycled(Record rcd)
 		{
-			if(record.equals(rcd))
+			if(getRecord().equals(rcd))
 			{
 				super.dispose();
 				Core.UI.Desktop.remove(this);
@@ -940,17 +1472,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordUpdated(Record rcd, UpdateData data)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			if(data.getType() == UpdateData.Type.PROPERTY)
-				super.setTitle(this.record.toString());
+				super.setTitle(getRecord().toString());
 			super.recordUpdated(rcd, data);
 		}
 		
 		@Override
 		public void recordAdded(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordAdded(rcd);
 		}
@@ -958,7 +1490,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordDeleted(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordDeleted(rcd);
 		}
@@ -966,9 +1498,76 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		@Override
 		public void recordRestored(Record rcd)
 		{
-			if(!record.equals(rcd))
+			if(!getRecord().equals(rcd))
 				return;
 			super.recordRestored(rcd);
+		}
+		
+		private final class NullParody implements Parody
+		{
+			@Override
+			public String getID() throws DataBaseException { return null; }
+
+			@Override
+			public void doRecycle() throws DataBaseException { }
+
+			@Override
+			public void doRestore() throws DataBaseException { }
+
+			@Override
+			public boolean isRecycled() throws DataBaseException { return false; }
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public RecordSet<Book> getBooks() throws DataBaseException
+			{
+				return new RecordSet()
+				{
+
+					@Override
+					public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+					@Override
+					public boolean contains(Object o) throws DataBaseException { return false; }
+
+					@Override
+					public int size() throws DataBaseException { return 0; }
+					
+				};
+			}
+
+			@Override
+			public void addBook(Book book) throws DataBaseException { }
+
+			@Override
+			public void removeBook(Book book) throws DataBaseException { }
+
+			@Override
+			public String getJapaneseName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getTranslatedName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getRomajiName() throws DataBaseException { return ""; }
+
+			@Override
+			public String getWeblink() throws DataBaseException { return ""; }
+
+			@Override
+			public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+			@Override
+			public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+			@Override
+			public void setRomajiName(String romajiName) throws DataBaseException { }
+
+			@Override
+			public void setWeblink(String weblink) throws DataBaseException { }
+
+			@Override
+			public void removeAll() throws DataBaseException { }
 		}
 	}
 	

@@ -2,16 +2,21 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalToolTipUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -852,7 +857,73 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			checkColored.setFocusable(false);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			tableResults = new JTable();
+			tableResults = new JTable()
+			{
+				@Override
+			    public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+			    {
+			        Component c = super.prepareRenderer(renderer, row, column);
+			        if (c instanceof JComponent) {
+			            JComponent jc = (JComponent) c;
+			            /**
+			             * First things first: tool tip text = Record ID
+			             */
+			            jc.setToolTipText(((Record)getValueAt(row, 0)).getID());
+			        }
+			        return c;
+			    }
+			    
+			    @Override
+			    public JToolTip createToolTip() { return new BookImageToolTip(); }
+			    
+			    @Override
+			    public Point getToolTipLocation(MouseEvent me)
+			    {
+			    	Point p = me.getPoint();
+			    	return new Point((int) p.getX() + 32, (int) p.getY() - 128);
+			    }
+			    
+			    
+			    /**
+			     * I know i am a bad, vary bad programmer.
+			     * Just bear with me ok?
+			     */
+			    class BookImageToolTip extends JToolTip
+			    {
+			    	public BookImageToolTip()
+			    	{
+			    		setUI(new BookImageToolTipUI());
+			    	}
+			    	
+			    	class BookImageToolTipUI extends MetalToolTipUI
+			    	{
+			    		public void paint(Graphics g, JComponent c)
+			    		{
+			    			g.setColor(c.getForeground());
+			    			try {
+			    				/**
+			    				 * Second thing: use the tool tip text to get the Image from the Repository
+			    				 */
+								BufferedImage image = javax.imageio.ImageIO.read(Core.Repository.getPreview(((JToolTip) c).getTipText()).getInputStream());
+								g.drawImage(image, 0, 0, c);
+							} catch (RepositoryException re) { } catch (IOException ioe) { }
+			    		}
+			    		
+			    		public Dimension getPreferredSize(JComponent c)
+			    		{
+			    			try {
+			    				/**
+			    				 * Second thing: use the tool tip text to get the Image from the Repository
+			    				 */
+								BufferedImage image = javax.imageio.ImageIO.read(Core.Repository.getPreview(((JToolTip) c).getTipText()).getInputStream());
+								return new Dimension(image.getWidth(), image.getHeight());
+							} catch (RepositoryException re) { } catch (IOException ioe) { }
+			    			
+			    			return new Dimension(1, 1);
+			    		}
+			    	}
+			    }
+			};			
 			tableModel = new RecordTableModel(Book.class);
 			tableResults.setModel(tableModel);
 			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);

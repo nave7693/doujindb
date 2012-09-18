@@ -136,17 +136,6 @@ public UI(String title)
 	
 	uiPanelGlass = new JComponent()
     {
-		float ninth = 1.0f / 9.0f;
-		float[] blurKernel = {
-			ninth, ninth, ninth,
-			ninth, ninth, ninth,
-			ninth, ninth, ninth
-		};
-		private BufferedImage mOffscreenImage;
-		private BufferedImageOp mOperation = new ConvolveOp(
-				new Kernel(3, 3, blurKernel),
-				ConvolveOp.EDGE_NO_OP, null);
-
 		@Override
 		public void setVisible(boolean visible)
 		{
@@ -159,29 +148,8 @@ public UI(String title)
 		@Override
     	protected void paintComponent(Graphics g)
     	{
-    		
     		g.setColor(getBackground());
     		g.fillRect(0, 0, getSize().width, getSize().height);
-    		/*
-			int w = UI.this.getRootPane().getWidth();
-		    int h = UI.this.getRootPane().getHeight();
-
-		    if (w == 0 || h == 0)
-		      return;
-		    if (mOffscreenImage == null ||
-		            mOffscreenImage.getWidth() != w ||
-		            mOffscreenImage.getHeight() != h) {
-		      mOffscreenImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		    }
-		    
-			Graphics2D ig2 = mOffscreenImage.createGraphics();
-		    ig2.setClip(g.getClip());
-		    UI.this.getRootPane().paint(ig2);
-		    ig2.dispose();
-
-    		Graphics2D g2 = (Graphics2D)g;
-    	    g2.drawImage(mOffscreenImage, mOperation, 0, 0);
-    	    */
     	}
 		@Override
     	public void setBackground(Color background)
@@ -995,91 +963,11 @@ public void layoutContainer(Container parent)
 			TableModel.addRow(new Object[]{"{Warning}",
 					event.getSource(),
 					event.getMessage()});
-			{
-				JPanel panel = new JPanel();
-				panel.setSize(240, 450);
-				panel.setLayout(new GridLayout(1,1));
-				JLabel l = new JLabel("<html><body style='margin:5px'>" +
-						"<br/><b style='font-size:10px'>Source</b> : " + event.getSource() +
-						"<br/><b style='font-size:10px'>Message</b> : " + event.getMessage() +
-						"<br/></body></html>");
-				JPanel bottom = new JPanel();
-				bottom.setLayout(new BorderLayout(10, 10));
-				bottom.add(l, BorderLayout.CENTER);
-				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				JPanel centered = new JPanel();
-				centered.setLayout(new GridLayout(1,3));
-				centered.add(new JLabel());
-				centered.add(ok);
-				centered.add(new JLabel());
-				bottom.add(centered, BorderLayout.SOUTH);
-				bottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-				panel.add(bottom);
-				panel.setPreferredSize(new Dimension(350,145));
-				try {
-					Core.UI.Desktop.showDialog(
-							panel,
-							TableRender.renderIcon.get("Warning"),
-							"Warning");
-				} catch (PropertyVetoException pve) { }
-			}
 			break;
 		case ERROR:
 			TableModel.addRow(new Object[]{"{Error}",
 					event.getSource(),
 					event.getMessage()});
-			{
-				JPanel panel = new JPanel();
-				panel.setSize(240, 450);
-				panel.setLayout(new GridLayout(1,1));
-				JLabel l = new JLabel("<html><body style='margin:5px'>" +
-						"<br/><b style='font-size:10px'>Source</b> : " + event.getSource() +
-						"<br/><b style='font-size:10px'>Message</b> : " + event.getMessage() +
-						"<br/></body></html>");
-				JPanel bottom = new JPanel();
-				bottom.setLayout(new BorderLayout(10, 10));
-				bottom.add(l, BorderLayout.CENTER);
-				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				JPanel centered = new JPanel();
-				centered.setLayout(new GridLayout(1,3));
-				centered.add(new JLabel());
-				centered.add(ok);
-				centered.add(new JLabel());
-				bottom.add(centered, BorderLayout.SOUTH);
-				bottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-				panel.add(bottom);
-				panel.setPreferredSize(new Dimension(350,145));
-				try {
-					Core.UI.Desktop.showDialog(
-							panel,
-							TableRender.renderIcon.get("Error"),
-							"Error");
-				} catch (PropertyVetoException pve) { }
-			}
 			break;
 		}
 	}

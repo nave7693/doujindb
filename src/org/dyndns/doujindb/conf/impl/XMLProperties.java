@@ -25,127 +25,121 @@ final class XMLProperties implements Properties
 			Property prop = new PropertyImpl();
 			prop.setValue(new Font("Lucida Console", Font.PLAIN, 11));
 			prop.setDescription("<html><body>Default JCK font.<br/>Used to render Japanese/Chinese/Korean strings.</body></html>");
-			values.put("org.dyndns.doujindb.ui.font", prop);			
+			values.put("org.dyndns.doujindb.ui.font", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(11);
 			prop.setDescription("<html><body>Default font size.</body></html>");
-			values.put("org.dyndns.doujindb.ui.font_size", prop);			
-		}
-		{
-			Property prop = new PropertyImpl();
-			prop.setValue(20);
-			prop.setDescription("<html><body>Delay used in multi-threader operation.<br/>Value is in milliseconds.</body></html>");
-			values.put("org.dyndns.doujindb.ui.delay_threads", prop);			
+			values.put("org.dyndns.doujindb.ui.font_size", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(false);
 			prop.setDescription("<html><body>Whether the user interface should be always painted on top of other windows.</html>");
-			values.put("org.dyndns.doujindb.ui.always_on_top", prop);			
+			values.put("org.dyndns.doujindb.ui.always_on_top", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(false);
 			prop.setDescription("<html><body>Whether the user interface should be minimized on tray when is closed.</body></html>");
-			values.put("org.dyndns.doujindb.ui.tray_on_exit", prop);			
+			values.put("org.dyndns.doujindb.ui.tray_on_exit", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(new Color(0xAA, 0xAA, 0xAA));
 			prop.setDescription("<html><body>Foreground windows color.</body></html>");
-			values.put("org.dyndns.doujindb.ui.theme.color", prop);			
+			values.put("org.dyndns.doujindb.ui.theme.color", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(new Color(0x22, 0x22, 0x22));
 			prop.setDescription("<html><body>Background windows color.</body></html>");
-			values.put("org.dyndns.doujindb.ui.theme.background", prop);			
+			values.put("org.dyndns.doujindb.ui.theme.background", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(System.getProperty("java.io.tmpdir"));
 			prop.setDescription("<html><body>The folder in which are stored all the media files.</body></html>");
-			values.put("org.dyndns.doujindb.dat.datastore", prop);			
+			values.put("org.dyndns.doujindb.dat.datastore", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(".douz");
 			prop.setDescription("<html><body>Default file extension given to files when exporting media archives.</body></html>");
-			values.put("org.dyndns.doujindb.dat.file_extension", prop);			
+			values.put("org.dyndns.doujindb.dat.file_extension", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(System.getProperty("java.io.tmpdir"));
 			prop.setDescription("<html><body>Temporary folder used to store session media files.</body></html>");
-			values.put("org.dyndns.doujindb.dat.temp", prop);			
+			values.put("org.dyndns.doujindb.dat.temp", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(1099);
 			prop.setDescription("<html><body>Network port used to accept incoming connections.</body></html>");
-			values.put("org.dyndns.doujindb.net.listen_port", prop);			
+			values.put("org.dyndns.doujindb.net.listen_port", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(false);
 			prop.setDescription("<html><body>Whether to check if program updates are available.</body></html>");
-			values.put("org.dyndns.doujindb.net.autocheck_updates", prop);			
+			values.put("org.dyndns.doujindb.net.autocheck_updates", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(true);
 			prop.setDescription("<html><body>Logs messages.</body></html>");
-			values.put("org.dyndns.doujindb.log.info", prop);			
+			values.put("org.dyndns.doujindb.log.info", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(true);
 			prop.setDescription("<html><body>Logs warnings.</body></html>");
-			values.put("org.dyndns.doujindb.log.warning", prop);			
+			values.put("org.dyndns.doujindb.log.warning", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(true);
 			prop.setDescription("<html><body>Logs errors.</body></html>");
-			values.put("org.dyndns.doujindb.log.error", prop);			
+			values.put("org.dyndns.doujindb.log.error", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(false);
 			prop.setDescription("<html><body>Cayenne logging.</body></html>");
-			values.put("org.dyndns.doujindb.log.cayenne", prop);			
+			values.put("org.dyndns.doujindb.log.cayenne", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue("sql.jdbc.Driver");
 			prop.setDescription("<html><body>SQL Driver full qualified class name.</body></html>");
-			values.put("org.dyndns.doujindb.db.driver", prop);			
+			values.put("org.dyndns.doujindb.db.driver", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue("jdbc:sql://localhost/db");
 			prop.setDescription("<html><body>SQL Connection URL</body></html>");
-			values.put("org.dyndns.doujindb.db.url", prop);			
+			values.put("org.dyndns.doujindb.db.url", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue("admin");
 			prop.setDescription("<html><body>Database username.</body></html>");
-			values.put("org.dyndns.doujindb.db.username", prop);			
+			values.put("org.dyndns.doujindb.db.username", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue("");
 			prop.setDescription("<html><body>Database password.</body></html>");
-			values.put("org.dyndns.doujindb.db.password", prop);			
+			values.put("org.dyndns.doujindb.db.password", prop);
 		}
 		{
 			Property prop = new PropertyImpl();
 			prop.setValue(5);
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
-			values.put("org.dyndns.doujindb.db.connection_timeout", prop);			
+			values.put("org.dyndns.doujindb.db.connection_timeout", prop);
 		}
 	}
 	

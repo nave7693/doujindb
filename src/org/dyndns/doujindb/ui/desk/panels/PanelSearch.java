@@ -481,7 +481,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(a);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}
@@ -755,7 +755,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(c);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}
@@ -1088,7 +1088,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(b);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}
@@ -1326,7 +1326,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(t);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}
@@ -1564,7 +1564,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(e);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}
@@ -1838,7 +1838,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 								{
 									tableModel.addRecord(p);
 									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep((Core.Properties.get("org.dyndns.doujindb.ui.delay_threads").asNumber()));
+									sleep(1);
 								}
 								catch (InterruptedException ie) { ; }
 							}

@@ -198,6 +198,8 @@ public UI(String title)
     	UIManager.put("FileChooser.hardDriveIcon",Core.Resources.Icons.get("FileChooser/hardDriveIcon"));
     	UIManager.put("Tree.expandedIcon",Core.Resources.Icons.get("JTree/Node-"));
     	UIManager.put("Tree.collapsedIcon",Core.Resources.Icons.get("JTree/Node+"));
+    	UIManager.put("ToolTip.foreground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
+    	UIManager.put("ToolTip.background", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
     	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
     	uiFileChooser.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
     	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()

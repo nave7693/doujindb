@@ -91,7 +91,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openRecycleBin();
+					Core.UI.Desktop.showRecycleBinWindow();
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -111,7 +111,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.openTools();
+					Core.UI.Desktop.showToolsWindow();
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
@@ -177,7 +177,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				public void actionPerformed(ActionEvent ae)
 				{
 					try {
-						openPlugin(plugin);
+						showPluginWindow(plugin);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -200,7 +200,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			return super.add(comp);//throw new InvalidWindowStateException("Don't use Component.add(), use open() instead.");
 	}
 	
-	public WindowEx openWindow(WindowEx.Type type, Record rcd) throws DataBaseException
+	public WindowEx showRecordWindow(WindowEx.Type type, Record rcd) throws DataBaseException
 	{
 		if(checkWindow(type, rcd))
 			return null;
@@ -267,7 +267,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openRecycleBin() throws DataBaseException
+	public WindowEx showRecycleBinWindow() throws DataBaseException
 	{
 		if(checkWindow(WindowEx.Type.WINDOW_RECYCLEBIN))
 			return null;
@@ -287,7 +287,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openSearch() throws DataBaseException
+	public WindowEx showSearchWindow() throws DataBaseException
 	{
 		if(checkWindow(WindowEx.Type.WINDOW_SEARCH))
 			return null;
@@ -307,7 +307,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openTools() throws DataBaseException
+	public WindowEx showToolsWindow() throws DataBaseException
 	{
 		if(checkWindow(WindowEx.Type.WINDOW_TOOLS))
 			return null;
@@ -327,7 +327,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx openPlugin(Plugin plug) throws DataBaseException
+	public WindowEx showPluginWindow(Plugin plug) throws DataBaseException
 	{
 		if(plug == null)
 			throw new IllegalArgumentException("Argument 'Plugin' cannot be null.");

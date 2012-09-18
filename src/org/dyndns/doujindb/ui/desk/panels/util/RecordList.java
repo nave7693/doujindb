@@ -175,22 +175,22 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						switch(type)
 		                {
 		                case ARTIST:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 		                	break;
 		                case BOOK:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 		                	break;
 		                case CIRCLE:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 		                	break;
 		                case CONTENT:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 		                	break;
 		                case CONVENTION:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 		                	break;
 		                case PARODY:
-		                	Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, item);
+		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 		                	break;
 		                default:
 		                	return;

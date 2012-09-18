@@ -1432,7 +1432,7 @@ public final class DoujinshiDBScanner implements Plugin
 						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
-								Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, b);
+								Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1455,7 +1455,7 @@ public final class DoujinshiDBScanner implements Plugin
 						RecordSet<Book> books = Core.Database.getBooks(query);
 						for(Book b : books)
 							if(b.getID().equals(importedBook.getID()))
-									Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, b);
+									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, b);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

@@ -319,7 +319,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 							.getValueAt(
 									tableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -594,7 +594,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -888,7 +888,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -964,7 +964,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 									clone.addParody(p);
 								if(Core.Database.isAutocommit())
 									Core.Database.doCommit();
-								WindowEx window = Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, clone);
+								WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, clone);
 								window.setTitle("(Clone) " + window.getTitle());
 							}
 						}
@@ -1183,7 +1183,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1421,7 +1421,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
@@ -1677,7 +1677,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						.getValueAt(
 								tableSorter.convertRowIndexToModel(
 									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, item);
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

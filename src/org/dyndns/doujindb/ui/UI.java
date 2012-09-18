@@ -646,7 +646,7 @@ public void layoutContainer(Container parent)
 		if(event.getSource() == uiPanelDesktopSearch)
 		{
 			try {
-				Desktop.openSearch();
+				Desktop.showSearchWindow();
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -670,7 +670,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Artist}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_ARTIST, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -680,7 +680,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Book}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_BOOK, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -690,7 +690,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Circle}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_CIRCLE, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -700,7 +700,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Convention}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_CONVENTION, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -710,7 +710,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Content}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_CONTENT, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();
@@ -720,7 +720,7 @@ public void layoutContainer(Container parent)
 		if(event.getActionCommand().equals("Add:{Parody}"))
 		{
 			try {
-				Desktop.openWindow(WindowEx.Type.WINDOW_PARODY, null);
+				Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
 				Core.Logger.log(dbe.getMessage(), Level.ERROR);
 				dbe.printStackTrace();

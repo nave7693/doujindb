@@ -367,6 +367,9 @@ public class PanelBookMedia extends JPanel
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
+				} catch (RepositoryException re) {
+					Core.Logger.log(re.getMessage(), Level.ERROR);
+					re.printStackTrace();
 				}
 			}
 		});

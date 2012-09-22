@@ -145,11 +145,11 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 										in.close();
 									}
 								} catch (NullPointerException npe) {
-								} catch (IOException e) {
-									e.printStackTrace();
+								} catch (RepositoryException re) {
+									re.printStackTrace();
 									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-								} catch (RepositoryException dse) {
-									dse.printStackTrace();
+								} catch (IOException ioe) {
+									ioe.printStackTrace();
 								} catch (DataBaseException dbe) {
 									dbe.printStackTrace();
 								}

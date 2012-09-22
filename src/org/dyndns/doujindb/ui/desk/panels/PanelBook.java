@@ -189,11 +189,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 										in.close();
 									}
 								} catch (NullPointerException npe) {
-								} catch (IOException e) {
-									e.printStackTrace();
+								} catch (RepositoryException re) {
+									re.printStackTrace();
 									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-								} catch (RepositoryException dbe) {
-									dbe.printStackTrace();
+								} catch (IOException ioe) {
+									ioe.printStackTrace();
 								} catch (DataBaseException dbe) {
 									dbe.printStackTrace();
 								}
@@ -515,7 +515,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				@Override
 				public Void doInBackground() {
 					if(tokenBook.getID() != null)
-						RepositoryIndexer.index(tokenBook);
+						try {
+							RepositoryIndexer.index(tokenBook);
+						} catch (RepositoryException re) {
+							re.printStackTrace();
+						}
 					if(Core.Database.isAutocommit())
 						Core.Database.doCommit();
 					return null;

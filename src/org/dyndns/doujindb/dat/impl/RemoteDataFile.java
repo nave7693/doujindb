@@ -199,7 +199,7 @@ public class RemoteDataFile implements DataFile, Serializable, Comparable<DataFi
 		try {
 			return remoteDataSource.compareTo(ds);
 		} catch (RemoteException re) {
-			throw new RepositoryException("RemoteException " + re);
+			return -1;
 		}
 	}
 }

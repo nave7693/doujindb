@@ -243,9 +243,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized void setConvention(Convention convention) throws DataBaseException
 	{
-		if(getConvention() == null && convention == null)
-			return;
-		if(getConvention().equals(convention))
+		if((getConvention() == null ? "NULL" : getConvention())
+				.equals(
+			(convention == null ? "NULL" : convention)))
 			return;
 		if(convention == null)
 		{

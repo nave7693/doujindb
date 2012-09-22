@@ -6,6 +6,7 @@ import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
@@ -13,23 +14,24 @@ import org.dyndns.doujindb.log.*;
 
 public final class RepositoryIndexer
 {
-	public static void index()
+	public static void index() throws RepositoryException
 	{
 		RepositoryIndexer.index(Core.Database.getBooks(null));
 	}
 	
-	public static void index(Iterable<Book> books)
+	public static void index(Iterable<Book> books) throws RepositoryException
 	{
 		for(Book book : books)
 			RepositoryIndexer.index(book);
 	}
 	
-	public static void index(Book book)
+	public static void index(Book book) throws RepositoryException
 	{
+		Core.Repository.getMetadata(book.getID()).getParent().mkdirs();
 		RepositoryIndexer.metadata(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
 	}
 	
-	private static void metadata(Book book, OutputStream dest) throws DataBaseException
+	private static void metadata(Book book, OutputStream out) throws DataBaseException
 	{
 		XMLBook doujin = new XMLBook();
 		doujin.japaneseName = book.getJapaneseName();
@@ -58,7 +60,8 @@ public final class RepositoryIndexer
 			JAXBContext context = JAXBContext.newInstance(XMLBook.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(doujin, dest);
+			m.marshal(doujin, out);
+			out.close();
 		} catch (Exception e) {
 			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
 		}

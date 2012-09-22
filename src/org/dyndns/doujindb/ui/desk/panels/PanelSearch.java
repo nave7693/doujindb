@@ -3,7 +3,6 @@ package org.dyndns.doujindb.ui.desk.panels;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.*;
 
 import javax.swing.*;
@@ -16,7 +15,6 @@ import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.PropertyException;
-import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -859,6 +857,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelResults.setFont(font);
 			tableResults = new JTable()
 			{
+				private BookImageToolTip tooltip = new BookImageToolTip();
+				
 				@Override
 			    public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 			    {
@@ -874,15 +874,14 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			    }
 			    
 			    @Override
-			    public JToolTip createToolTip() { return new BookImageToolTip(); }
+			    public JToolTip createToolTip() { return tooltip; }
 			    
 			    @Override
 			    public Point getToolTipLocation(MouseEvent me)
 			    {
 			    	Point p = me.getPoint();
-			    	return new Point((int) p.getX() + 32, (int) p.getY() - 128);
+			    	return new Point((int) p.getX() + 16, (int) (p.getY() - tooltip.getPreferredSize().getHeight() / 2));
 			    }
-			    
 			    
 			    /**
 			     * I know i am a bad, vary bad programmer.
@@ -897,29 +896,61 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			    	
 			    	class BookImageToolTipUI extends MetalToolTipUI
 			    	{
-			    		public void paint(Graphics g, JComponent c)
+			    		private BufferedImage Image;
+			    		private Thread ImageLoader;
+			    		private JComponent Component;
+			    		
+			    		public BookImageToolTipUI()
 			    		{
-			    			g.setColor(c.getForeground());
-			    			try {
-			    				/**
-			    				 * Second thing: use the tool tip text to get the Image from the Repository
-			    				 */
-								BufferedImage image = javax.imageio.ImageIO.read(Core.Repository.getPreview(((JToolTip) c).getTipText()).getInputStream());
-								g.drawImage(image, 0, 0, c);
-							} catch (RepositoryException re) { } catch (IOException ioe) { }
+			    			super();
+			    			Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
+			    			ImageLoader = new Thread(getClass().getName()+"/ImageLoader")
+			    			{
+			    				private String ID;
+			    				private String PrevID;
+			    				
+			    				@Override
+			    				public void run()
+			    				{
+			    					while(true)
+			    					{
+			    						if(super.isInterrupted())
+			    							break;
+			    						if(Component != null)
+			    							ID = ((JToolTip) Component).getTipText();
+			    						ID = ID == null ? "" : ID;
+			    						if(!ID.equals(PrevID == null ? "" : PrevID))
+			    						{
+			    							PrevID = ID;
+			    							/**
+						    				 * Second thing: use the tool tip text to get the Image from the Repository
+						    				 */
+			    							try {
+												Image = javax.imageio.ImageIO.read(Core.Repository.getPreview(ID).getInputStream());
+											} catch (Exception e) {
+												Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
+											}
+			    						}
+			    						try { sleep(100); } catch (InterruptedException ie) { }
+			    					}
+			    				}
+			    			};
+			    			ImageLoader.start();
 			    		}
 			    		
+			    		@Override
+			    		public void paint(Graphics g, JComponent c)
+			    		{
+			    			super.paint(g, c);
+			    			Component = c;
+			    			g.setColor(c.getForeground());
+			    			g.drawImage(Image, 0, 0, c);
+			    		}
+			    		
+			    		@Override
 			    		public Dimension getPreferredSize(JComponent c)
 			    		{
-			    			try {
-			    				/**
-			    				 * Second thing: use the tool tip text to get the Image from the Repository
-			    				 */
-								BufferedImage image = javax.imageio.ImageIO.read(Core.Repository.getPreview(((JToolTip) c).getTipText()).getInputStream());
-								return new Dimension(image.getWidth(), image.getHeight());
-							} catch (RepositoryException re) { } catch (IOException ioe) { }
-			    			
-			    			return new Dimension(1, 1);
+			    			return new Dimension(Image.getWidth(), Image.getHeight());
 			    		}
 			    	}
 			    }

@@ -104,8 +104,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		scrollInfo = new JScrollPane(textInfo);
 		labelPreview = new JLabel(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
 		labelPreview.setName("no-preview");
-		if(tokenBook.getID() == null)
-			labelPreview.setEnabled(false);
 		labelPreview.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -319,6 +317,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		panelInfo.add(textPages);
 		panelInfo.add(labelType);
 		panelInfo.add(comboType);
+		panelInfo.add(labelPreview);
 		tabLists.addTab("General", Core.Resources.Icons.get("JDesktop/Explorer/Book/Info"), panelInfo);
 		editorArtists = new RecordArtistEditor(tokenBook);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
@@ -329,13 +328,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);
 		editorParodies = new RecordParodyEditor(tokenBook);
 		tabLists.addTab("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), editorParodies);
-		if(tokenBook.getID() != null)
+		mediaManager = new PanelBookMedia(tokenBook);
+		tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), mediaManager);
+		if(tokenBook.getID() == null)
 		{
-			mediaManager = new PanelBookMedia(tokenBook);
-			panelInfo.add(labelPreview);
-			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), mediaManager);
-		} else {
-			tabLists.addTab("Media", Core.Resources.Icons.get("JDesktop/Explorer/Book/Media"), new JPanel());
+			labelPreview.setVisible(false);
 			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
 		}
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
@@ -479,6 +476,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		{
 			if(tokenBook.getID() == null)
 				tokenBook = Core.Database.doInsert(Book.class);
+			else
+				{
+					labelPreview.setVisible(true);
+					tabLists.setEnabledAt(tabLists.getTabCount()-1, true);
+				}
 			tokenBook.setJapaneseName(textJapaneseName.getText());
 			tokenBook.setTranslatedName(textTranslatedName.getText());
 			tokenBook.setRomajiName(textRomajiName.getText());
@@ -522,6 +524,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 						}
 					if(Core.Database.isAutocommit())
 						Core.Database.doCommit();
+					if(tokenBook.getID() != null)
+					{
+						labelPreview.setVisible(true);
+						tabLists.setEnabledAt(tabLists.getTabCount()-1, true);
+					}
 					return null;
 				}
 				@Override

@@ -225,24 +225,4 @@ public final class Theme extends DefaultMetalTheme
 	{
 		return captionFont;
 	}
-
-//	@Override
-//	public ColorUIResource getWindowTitleBackground() {
-//		return sec2;
-//	}
-//
-//	@Override
-//	public ColorUIResource getWindowTitleForeground() {
-//		return sec3;
-//	}
-//
-//	@Override
-//	public ColorUIResource getWindowTitleInactiveBackground() {
-//		return sec1;
-//	}
-//
-//	@Override
-//	public ColorUIResource getWindowTitleInactiveForeground() {
-//		return prim1;
-//	}
 }

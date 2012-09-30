@@ -63,6 +63,36 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    ui.getNorthPane().setPreferredSize(new Dimension(ui.getNorthPane().getPreferredSize().width, 22));
 	    super.setVisible(true);
 	    
+	    JComponent glassPane = new JComponent()
+	    {
+			@Override
+			public void setVisible(boolean visible)
+			{
+				if(!isEnabled())
+					return;
+				super.setVisible(visible);
+				if(!visible)
+					super.removeAll();
+			}
+			@Override
+	    	protected void paintComponent(Graphics g)
+	    	{
+	    		g.setColor(getBackground());
+	    		g.fillRect(0, 0, getSize().width, getSize().height);
+	    	}
+			@Override
+	    	public void setBackground(Color background)
+	    	{
+	    		super.setBackground( background );
+	    	}
+	    };
+	    glassPane.addMouseListener(new MouseAdapter(){});
+	    glassPane.setOpaque(false);
+	    glassPane.setVisible(false);
+	    glassPane.setEnabled(false);
+	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
+		setGlassPane(glassPane);
+	    
 	    Core.Database.addDataBaseListener(this);
 	}
 	

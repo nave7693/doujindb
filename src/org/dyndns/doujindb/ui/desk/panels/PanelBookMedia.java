@@ -233,6 +233,7 @@ public class PanelBookMedia extends JPanel
 				panel.add(bottom);
 				try {
 					Core.UI.Desktop.showDialog(
+							(RootPaneContainer) getRootPane().getParent(),
 							panel,
 							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Delete"),
 							"Delete");
@@ -610,6 +611,7 @@ public class PanelBookMedia extends JPanel
 			try
 			{
 				Core.UI.Desktop.showDialog(
+						(RootPaneContainer) getRootPane().getParent(),
 						comp,
 						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
 						"Downloading ...");
@@ -705,6 +707,7 @@ public class PanelBookMedia extends JPanel
 				try
 				{
 					Core.UI.Desktop.showDialog(
+							(RootPaneContainer) getRootPane().getParent(),
 							panel,
 							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
 							"Downloading - Error");
@@ -829,6 +832,7 @@ public class PanelBookMedia extends JPanel
 			try
 			{
 				Core.UI.Desktop.showDialog(
+						(RootPaneContainer) getRootPane().getParent(),
 						comp,
 						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"),
 						"Uploading ...");
@@ -891,6 +895,7 @@ public class PanelBookMedia extends JPanel
 				try
 				{
 					Core.UI.Desktop.showDialog(
+							(RootPaneContainer) getRootPane().getParent(),
 							panel,
 							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"),
 							"Uploading - Error");
@@ -980,7 +985,9 @@ public class PanelBookMedia extends JPanel
 			clock.start();
 			try
 			{
+				//FIXME
 				Core.UI.Desktop.showDialog(
+						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
 						comp,
 						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"),
 						"Exporting ...");

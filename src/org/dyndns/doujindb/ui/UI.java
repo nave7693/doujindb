@@ -51,9 +51,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private TrayIcon uiTrayIcon;
 	private JPopupMenu uiTrayPopup;
 	private JMenuItem uiTrayPopupExit;
-	
-	private JComponent uiPanelGlass;
-	
+
 	private JFileChooser uiFileChooser = new JFileChooser();
 	
 	private PanelLogs uiPanelLogs;
@@ -87,449 +85,429 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		return uiFileChooser;
 	}
 	
-	@Override
-	public JComponent getGlassPane()
-	{
-		return uiPanelGlass;
-	}
-	
 	public void showConfigurationWizard()
 	{
 		ConfigurationWizard firstRun = new ConfigurationWizard();
 		firstRun.setSize(300,300);
 		try {
 			Core.UI.Desktop.showDialog(
+					UI.this,
 					firstRun,
 					Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Icon"),
 					"Configuration Wizard");
 		} catch (PropertyVetoException pve) { } 
 	}
 
-@SuppressWarnings("serial")
-public UI(String title)
-{
-	super(title);
-	UILoader loading = new UILoader(title);	
-	super.setBounds(0,0,550,550);
-	super.setMinimumSize(new Dimension(400,350));
-	super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
-	if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
-		super.setAlwaysOnTop(true);
-	super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-	Core.Logger.log("Basic user interface loaded.", Level.INFO);
-
-	try
+	@SuppressWarnings("serial")
+	public UI(String title)
 	{
-		Theme theme = new Theme(
-				Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
-				Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
-				Core.Resources.Font);
-		UIManager.setLookAndFeel(new MetalLookAndFeel());
-		MetalLookAndFeel.setCurrentTheme(theme);
-		SwingUtilities.updateComponentTreeUI(this);
-	}catch(Exception e)
-	{
-		Core.Logger.log(e.getMessage(), Level.ERROR);
-		return;
-	}
-	Core.Logger.log("Theme loaded.", Level.INFO);
+		super(title);
+		UILoader loading = new UILoader(title);	
+		super.setBounds(0,0,550,550);
+		super.setMinimumSize(new Dimension(400,350));
+		super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
+		if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
+			super.setAlwaysOnTop(true);
+		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+		Core.Logger.log("Basic user interface loaded.", Level.INFO);
 	
-	uiPanelGlass = new JComponent()
-    {
-		@Override
-		public void setVisible(boolean visible)
+		try
 		{
-			if(!isEnabled())
-				return;
-			super.setVisible(visible);
-			if(!visible)
-				super.removeAll();
-		}
-		@Override
-    	protected void paintComponent(Graphics g)
-    	{
-    		g.setColor(getBackground());
-    		g.fillRect(0, 0, getSize().width, getSize().height);
-    	}
-		@Override
-    	public void setBackground(Color background)
-    	{
-    		super.setBackground( background );
-    	}
-    };
-    uiPanelGlass.addMouseListener(new MouseAdapter(){});
-    uiPanelGlass.setOpaque(false);
-    uiPanelGlass.setVisible(false);
-    uiPanelGlass.setEnabled(false);
-    uiPanelGlass.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
-	setGlassPane(uiPanelGlass);
-	Core.Logger.log("Glass panel added.", Level.INFO);
-	
-	uiPanelTabbed = new JTabbedPane();
-	super.addWindowListener(this);
-	super.addComponentListener(this);
-	
-	{
-    	//UIManager.put("InternalFrame.icon",Core.Resources.get("Icon:IFrame.Icon"));
-		UIManager.put("ComboBox.selectionBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-		UIManager.put("InternalFrame.inactiveTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor().darker());
-		UIManager.put("InternalFrame.activeTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
-		UIManager.put("InternalFrame.inactiveTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor().darker());
-		UIManager.put("InternalFrame.activeTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-		UIManager.put("InternalFrame.font",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
-		UIManager.put("InternalFrame.titleFont",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
-    	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));
-    	UIManager.put("InternalFrame.minimizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Minimize"));
-    	UIManager.put("InternalFrame.maximizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Maximize"));
-    	UIManager.put("InternalFrame.closeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Close"));
-    	UIManager.put("InternalFrame.border",javax.swing.BorderFactory.createEtchedBorder(0));
-    	UIManager.put("Slider.horizontalThumbIcon",Core.Resources.Icons.get("JSlider/ThumbIcon"));
-    	UIManager.put("Desktop.background",new ColorUIResource(Color.BLACK));
-    	UIManager.put("FileChooser.listFont",Core.Resources.Font);
-    	UIManager.put("FileChooser.detailsViewIcon",Core.Resources.Icons.get("FileChooser/detailsViewIcon"));
-        UIManager.put("FileChooser.homeFolderIcon",Core.Resources.Icons.get("FileChooser/homeFolderIcon"));
-        UIManager.put("FileChooser.listViewIcon",Core.Resources.Icons.get("FileChooser/listViewIcon"));
-        UIManager.put("FileChooser.newFolderIcon",Core.Resources.Icons.get("FileChooser/newFolderIcon"));
-    	UIManager.put("FileChooser.upFolderIcon",Core.Resources.Icons.get("FileChooser/upFolderIcon"));
-    	UIManager.put("FileChooser.computerIcon",Core.Resources.Icons.get("FileChooser/computerIcon"));
-    	UIManager.put("FileChooser.directoryIcon",Core.Resources.Icons.get("FileChooser/directoryIcon"));
-    	UIManager.put("FileChooser.fileIcon",Core.Resources.Icons.get("FileChooser/fileIcon"));
-    	UIManager.put("FileChooser.floppyDriveIcon",Core.Resources.Icons.get("FileChooser/floppyDriveIcon"));
-    	UIManager.put("FileChooser.hardDriveIcon",Core.Resources.Icons.get("FileChooser/hardDriveIcon"));
-    	UIManager.put("Tree.expandedIcon",Core.Resources.Icons.get("JTree/Node-"));
-    	UIManager.put("Tree.collapsedIcon",Core.Resources.Icons.get("JTree/Node+"));
-    	UIManager.put("ToolTip.foreground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
-    	UIManager.put("ToolTip.background", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-    	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
-    	uiFileChooser.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
-    	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
-    	{
-    		private Hashtable<String,ImageIcon> bundleIcon;
-    		
-    		{
-    			bundleIcon = new Hashtable<String,ImageIcon>();
-    			/*
-    			bundleIcon.put("db",Core.Resources.get("Icon:FileView.Database"));
-    			bundleIcon.put("zip",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("z",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("rar",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("tar",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("bz2",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("gz",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("lha",Core.Resources.get("Icon:FileView.Archive"));
-    			bundleIcon.put("lzh",Core.Resources.get("Icon:FileView.Archive"));
-    			
-    			bundleIcon.put("zip",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("z",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("rar",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("tar",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("bz2",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("gz",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("lha",Core.Resources.Icons.get("FileView/Archive"));
-    			bundleIcon.put("lzh",Core.Resources.Icons.get("FileView/Archive"));
-    			*/
-    			bundleIcon.put("douz",Core.Resources.Icons.get("FileView/Archive"));
-    		}
-    		
-    		@Override
-    		public String getName(File file)
-    		{
-    			return super.getName(file);
-    		}
-
-    		@Override
-    		public Icon getIcon(File file)
-    		{
-    			String filename = file.getName();
-    			String ext = (filename.lastIndexOf(".")==-1)?"":filename.substring(filename.lastIndexOf(".")+1,filename.length()).toLowerCase();
-    			if(bundleIcon.containsKey(ext))
-    	            return (Icon)bundleIcon.get(ext);
-    	        else
-    	        	return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
-    		}
-
-    	});
-    	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-    	uiFileChooser.setMultiSelectionEnabled(true);
-    }
-	Core.Logger.log("JFileChooser loaded.", Level.INFO);
-	
-	menuBar = new JMenuBar();
-	menuBar.setFont(Core.Resources.Font);
-	menuLogs = new JMenu("Logs");
-	menuLogs.setMnemonic(KeyEvent.VK_L);
-	menuLogs.setIcon(Core.Resources.Icons.get("JMenuBar/Logs"));
-	menuLogs.setFont(Core.Resources.Font);
-	menuLogsMessage = new JCheckBoxMenuItem("Messages",Core.Resources.Icons.get("JMenuBar/Logs/Message"),true);
-	menuLogsMessage.setMnemonic(KeyEvent.VK_M);
-	menuLogsMessage.setFont(Core.Resources.Font);
-	menuLogsMessage.addActionListener(this);
-	menuLogsMessage.setSelected(Core.Properties.get("org.dyndns.doujindb.log.info").asBoolean());
-	menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("JMenuBar/Logs/Warning"),true);
-	menuLogsWarning.setMnemonic(KeyEvent.VK_W);
-	menuLogsWarning.setFont(Core.Resources.Font);
-	menuLogsWarning.addActionListener(this);
-	menuLogsWarning.setSelected(Core.Properties.get("org.dyndns.doujindb.log.warning").asBoolean());
-	menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("JMenuBar/Logs/Error"),true);
-	menuLogsError.setMnemonic(KeyEvent.VK_E);
-	menuLogsError.setFont(Core.Resources.Font);
-	menuLogsError.addActionListener(this);
-	menuLogsError.setSelected(Core.Properties.get("org.dyndns.doujindb.log.error").asBoolean());
-	menuLogs.add(menuLogsMessage);
-	menuLogs.add(menuLogsWarning);
-	menuLogs.add(menuLogsError);
-	menuBar.add(menuLogs);
-	
-	menuHelp = new JMenu("Help");
-	menuHelp.setIcon(Core.Resources.Icons.get("JMenuBar/Help"));
-	menuHelp.setMnemonic(KeyEvent.VK_H);
-	menuHelp.setFont(Core.Resources.Font);
-	menuHelpAbout = new JMenuItem("About",Core.Resources.Icons.get("JMenuBar/Help/About"));
-	menuHelpAbout.setMnemonic(KeyEvent.VK_A);
-	menuHelpAbout.setFont(Core.Resources.Font);
-	menuHelpAbout.addActionListener(this);
-	menuHelp.add(menuHelpAbout);
-	menuHelpBugtrack = new JMenuItem("Report Bug",Core.Resources.Icons.get("JMenuBar/Help/Bugtrack"));
-	menuHelpBugtrack.setMnemonic(KeyEvent.VK_R);
-	menuHelpBugtrack.setFont(Core.Resources.Font);
-	menuHelpBugtrack.addActionListener(this);
-	menuHelp.add(menuHelpBugtrack);
-	menuBar.add(menuHelp);
-	super.setJMenuBar(menuBar);
-	Core.Logger.log("JMenuBar added.", Level.INFO);
-	
-	try
-	{
-		Core.Plugins = new Vector<Plugin>();
-		Core.Plugins.add(new DoujinshiDBScanner());
-		//FIXME Core.Plugins.add(new ImageScanner());
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-	
-	JPanel bogus;
-	
-	bogus = new JPanel();
-	bogus.setLayout(null);
-	uiPanelDesktopShow = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Desktop"));
-	uiPanelDesktopShow.addActionListener(this);
-	uiPanelDesktopShow.setBorder(null);
-	uiPanelDesktopShow.setFocusable(false);
-	uiPanelDesktopShow.setToolTipText("Show Desktop");
-	bogus.add(uiPanelDesktopShow);
-	uiPanelDesktopSearch = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Search"));
-	uiPanelDesktopSearch.addActionListener(this);
-	uiPanelDesktopSearch.setBorder(null);
-	uiPanelDesktopSearch.setFocusable(false);
-	uiPanelDesktopSearch.setToolTipText("Search");
-	bogus.add(uiPanelDesktopSearch);
-	uiPanelDesktopAdd = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"))
-	{
-		@Override
-		public void processMouseEvent(MouseEvent e) {
-			if (e.getClickCount() > 0) { 
-				uiPanelDesktopAddPopup.show(e.getComponent(), e.getX(), e.getY());
-			}
-			super.processMouseEvent(e);
-		}
-	};
-	uiPanelDesktopAdd.setBorder(null);
-	uiPanelDesktopAdd.setFocusable(false);
-	uiPanelDesktopAdd.setToolTipText("Add Item");
-	uiPanelDesktopAddPopup = new JPopupMenu();
-	JMenuItem itm0 = new JMenuItem("Artist",Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-	itm0.setActionCommand("Add:{Artist}");
-	itm0.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm0);
-	JMenuItem itm1 = new JMenuItem("Book",Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-	itm1.setActionCommand("Add:{Book}");
-	itm1.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm1);
-	JMenuItem itm2 = new JMenuItem("Circle",Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-	itm2.setActionCommand("Add:{Circle}");
-	itm2.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm2);
-	JMenuItem itm3 = new JMenuItem("Parody",Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-	itm3.setActionCommand("Add:{Parody}");
-	itm3.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm3);
-	JMenuItem itm4 = new JMenuItem("Convention",Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-	itm4.setActionCommand("Add:{Convention}");
-	itm4.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm4);
-	JMenuItem itm5 = new JMenuItem("Content",Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-	itm5.setActionCommand("Add:{Content}");
-	itm5.addActionListener(UI.this);
-	uiPanelDesktopAddPopup.add(itm5);
-	bogus.add(uiPanelDesktopAdd);
-	uiStatusBar = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
-	uiStatusBar.setText("Disconnected.");
-	uiStatusBar.setHorizontalAlignment(JLabel.LEFT);
-	uiStatusBar.setBorder(null);
-	uiStatusBar.setFocusable(false);
-	uiStatusBarConnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
-	uiStatusBarConnect.addActionListener(this);
-	uiStatusBarConnect.setBorder(null);
-	uiStatusBarConnect.setFocusable(false);
-	uiStatusBarConnect.setToolTipText("Connect");
-	uiStatusBarConnect.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
-	bogus.add(uiStatusBarConnect);
-	uiStatusBarDisconnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
-	uiStatusBarDisconnect.addActionListener(this);
-	uiStatusBarDisconnect.setBorder(null);
-	uiStatusBarDisconnect.setFocusable(false);
-	uiStatusBarDisconnect.setToolTipText("Disconnect");
-	bogus.add(uiStatusBarDisconnect);	
-	bogus.add(uiStatusBar);
-	Desktop = new DesktopEx();
-	bogus.add(Desktop);
-	uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
-	bogus = new JPanel();
-	bogus.setLayout(null);
-	Hashtable<String,ImageIcon> data = new Hashtable<String,ImageIcon>();
-	data.put("Icon:Console.Message",Core.Resources.Icons.get("JFrame/Tab/Logs/Message"));
-	data.put("Icon:Console.Warning",Core.Resources.Icons.get("JFrame/Tab/Logs/Warning"));
-	data.put("Icon:Console.Error",Core.Resources.Icons.get("JFrame/Tab/Logs/Error"));
-	uiPanelLogs = new PanelLogs(data);
-	uiPanelLogsScroll = new JScrollPane(uiPanelLogs);
-	bogus.add(uiPanelLogsScroll);
-	uiPanelLogsClear = new JButton(Core.Resources.Icons.get("JFrame/Tab/Logs/Clear"));
-	uiPanelLogsClear.addActionListener(this);
-	uiPanelLogsClear.setBorder(null);
-	uiPanelLogsClear.setFocusable(false);
-	uiPanelLogsClear.setToolTipText("Clear");
-	bogus.add(uiPanelLogsClear);
-	uiPanelTabbed.addTab("Logs", Core.Resources.Icons.get("JFrame/Tab/Logs"), bogus);
-	
-	bogus = new JPanel();
-	bogus.setLayout(null);
-	uiPanelSettings = new PanelSettings();
-	bogus.add(uiPanelSettings);
-	
-	uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Save"));
-	uiPanelSettingsSave.addActionListener(this);
-	uiPanelSettingsSave.setBorder(null);
-	uiPanelSettingsSave.setFocusable(false);
-	uiPanelSettingsSave.setToolTipText("Save");
-	bogus.add(uiPanelSettingsSave);
-	
-	uiPanelSettingsLoad = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Load"));
-	uiPanelSettingsLoad.addActionListener(this);
-	uiPanelSettingsLoad.setBorder(null);
-	uiPanelSettingsLoad.setFocusable(false);
-	uiPanelSettingsLoad.setToolTipText("Load");
-	bogus.add(uiPanelSettingsLoad);
-	
-	uiPanelTabbed.addTab("Settings", Core.Resources.Icons.get("JFrame/Tab/Settings"), bogus);
-	
-	bogus = new JPanel();
-	bogus.setLayout(null);
-	uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("JFrame/Tab/Plugins"), bogus);
-	uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
-	
-	bogus = new JPanel();
-	bogus.setLayout(null);
-	uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("JFrame/Tab/Network"), bogus);
-	uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
-
-	Core.Logger.log("JTabbedPane added.", Level.INFO);
-	
-	if(SystemTray.isSupported())
-	{
-		uiTrayPopup = new JPopupMenu();
-		uiTrayPopup.setFont(Core.Resources.Font);
-		uiTrayPopupExit = new JMenuItem("Exit",Core.Resources.Icons.get("JFrame/Tray/Exit"));
-		uiTrayPopupExit.setActionCommand("Exit");
-		uiTrayPopupExit.addActionListener(this);
-		uiTrayPopup.add(uiTrayPopupExit);
-		uiTrayIcon = new TrayIcon(Core.Resources.Icons.get("JFrame/Tray").getImage(),this.getTitle(),null);
-		uiTrayIcon.addMouseListener(new MouseAdapter()
+			Theme theme = new Theme(
+					Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
+					Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
+					Core.Resources.Font);
+			UIManager.setLookAndFeel(new MetalLookAndFeel());
+			MetalLookAndFeel.setCurrentTheme(theme);
+			SwingUtilities.updateComponentTreeUI(this);
+		}catch(Exception e)
 		{
-			public void mouseReleased(MouseEvent e)
+			Core.Logger.log(e.getMessage(), Level.ERROR);
+			return;
+		}
+		Core.Logger.log("Theme loaded.", Level.INFO);
+		
+	    JComponent glassPane = new JComponent()
+	    {
+			@Override
+			public void setVisible(boolean visible)
 			{
-				if (e.isPopupTrigger())
-				{
-					uiTrayPopup.setVisible(true);
-					uiTrayPopup.setLocation(e.getX(), e.getY() - uiTrayPopup.getHeight());
-					uiTrayPopup.setInvoker(uiTrayPopup);
-				}
+				if(!isEnabled())
+					return;
+				super.setVisible(visible);
+				if(!visible)
+					super.removeAll();
 			}
-		});
-		uiTrayIcon.addActionListener(this);
-		Core.Logger.log("SystemTray loaded.", Level.INFO);
-	}else
-	Core.Logger.log("SystemTray not supported.", Level.WARNING);
-
-	uiPanelTabbed.setFont(Core.Resources.Font);
-	uiPanelTabbed.setFocusable(false);
-
-	super.add(uiPanelTabbed);
-	super.setLayout(this);
-	/*
-	 * 16/4/2011 - Bug introduced migrating from JDK6 to JDK7
-	 * java.lang.IllegalStateException: This function should be called while holding treeLock
-	 * super.validateTree();
-	 */
-	super.setVisible(true);
+			@Override
+	    	protected void paintComponent(Graphics g)
+	    	{
+	    		g.setColor(getBackground());
+	    		g.fillRect(0, 0, getSize().width, getSize().height);
+	    	}
+			@Override
+	    	public void setBackground(Color background)
+	    	{
+	    		super.setBackground( background );
+	    	}
+	    };
+	    glassPane.addMouseListener(new MouseAdapter(){});
+	    glassPane.setOpaque(false);
+	    glassPane.setVisible(false);
+	    glassPane.setEnabled(false);
+	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
+		setGlassPane(glassPane);
+		Core.Logger.log("Glass panel added.", Level.INFO);
+		
+		uiPanelTabbed = new JTabbedPane();
+		super.addWindowListener(this);
+		super.addComponentListener(this);
+		
+		{
+	    	//UIManager.put("InternalFrame.icon",Core.Resources.get("Icon:IFrame.Icon"));
+			UIManager.put("ComboBox.selectionBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+			UIManager.put("InternalFrame.inactiveTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor().darker());
+			UIManager.put("InternalFrame.activeTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
+			UIManager.put("InternalFrame.inactiveTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor().darker());
+			UIManager.put("InternalFrame.activeTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+			UIManager.put("InternalFrame.font",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+			UIManager.put("InternalFrame.titleFont",Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+	    	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));
+	    	UIManager.put("InternalFrame.minimizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Minimize"));
+	    	UIManager.put("InternalFrame.maximizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Maximize"));
+	    	UIManager.put("InternalFrame.closeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Close"));
+	    	UIManager.put("InternalFrame.border",javax.swing.BorderFactory.createEtchedBorder(0));
+	    	UIManager.put("Slider.horizontalThumbIcon",Core.Resources.Icons.get("JSlider/ThumbIcon"));
+	    	UIManager.put("Desktop.background",new ColorUIResource(Color.BLACK));
+	    	UIManager.put("FileChooser.listFont",Core.Resources.Font);
+	    	UIManager.put("FileChooser.detailsViewIcon",Core.Resources.Icons.get("FileChooser/detailsViewIcon"));
+	        UIManager.put("FileChooser.homeFolderIcon",Core.Resources.Icons.get("FileChooser/homeFolderIcon"));
+	        UIManager.put("FileChooser.listViewIcon",Core.Resources.Icons.get("FileChooser/listViewIcon"));
+	        UIManager.put("FileChooser.newFolderIcon",Core.Resources.Icons.get("FileChooser/newFolderIcon"));
+	    	UIManager.put("FileChooser.upFolderIcon",Core.Resources.Icons.get("FileChooser/upFolderIcon"));
+	    	UIManager.put("FileChooser.computerIcon",Core.Resources.Icons.get("FileChooser/computerIcon"));
+	    	UIManager.put("FileChooser.directoryIcon",Core.Resources.Icons.get("FileChooser/directoryIcon"));
+	    	UIManager.put("FileChooser.fileIcon",Core.Resources.Icons.get("FileChooser/fileIcon"));
+	    	UIManager.put("FileChooser.floppyDriveIcon",Core.Resources.Icons.get("FileChooser/floppyDriveIcon"));
+	    	UIManager.put("FileChooser.hardDriveIcon",Core.Resources.Icons.get("FileChooser/hardDriveIcon"));
+	    	UIManager.put("Tree.expandedIcon",Core.Resources.Icons.get("JTree/Node-"));
+	    	UIManager.put("Tree.collapsedIcon",Core.Resources.Icons.get("JTree/Node+"));
+	    	UIManager.put("ToolTip.foreground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
+	    	UIManager.put("ToolTip.background", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+	    	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
+	    	uiFileChooser.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+	    	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
+	    	{
+	    		private Hashtable<String,ImageIcon> bundleIcon;
+	    		
+	    		{
+	    			bundleIcon = new Hashtable<String,ImageIcon>();
+	    			bundleIcon.put("douz",Core.Resources.Icons.get("FileView/Archive"));
+	    		}
+	    		
+	    		@Override
+	    		public String getName(File file)
+	    		{
+	    			return super.getName(file);
+	    		}
 	
-	loading.dispose();
-
-	Core.Logger.loggerAttach(uiPanelLogs);
-}
-
-@Override
-public void layoutContainer(Container parent)
-{
-	int width = parent.getWidth(),
-		height = parent.getHeight();
-	uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
-	if(Core.Database.isConnected())
-	{
-		uiPanelDesktopShow.setBounds(1,1,20,20);
-		uiPanelDesktopSearch.setBounds(21,1,20,20);
-		uiPanelDesktopAdd.setBounds(41,1,20,20);
-		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
-		uiStatusBarConnect.setBounds(-1,-1,0,0);
-		uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-		try {
-			uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
-		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
+	    		@Override
+	    		public Icon getIcon(File file)
+	    		{
+	    			String filename = file.getName();
+	    			String ext = (filename.lastIndexOf(".")==-1)?"":filename.substring(filename.lastIndexOf(".")+1,filename.length()).toLowerCase();
+	    			if(bundleIcon.containsKey(ext))
+	    	            return (Icon)bundleIcon.get(ext);
+	    	        else
+	    	        	return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
+	    		}
+	
+	    	});
+	    	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+	    	uiFileChooser.setMultiSelectionEnabled(true);
+	    }
+		Core.Logger.log("JFileChooser loaded.", Level.INFO);
+		
+		menuBar = new JMenuBar();
+		menuBar.setFont(Core.Resources.Font);
+		menuLogs = new JMenu("Logs");
+		menuLogs.setMnemonic(KeyEvent.VK_L);
+		menuLogs.setIcon(Core.Resources.Icons.get("JMenuBar/Logs"));
+		menuLogs.setFont(Core.Resources.Font);
+		menuLogsMessage = new JCheckBoxMenuItem("Messages",Core.Resources.Icons.get("JMenuBar/Logs/Message"),true);
+		menuLogsMessage.setMnemonic(KeyEvent.VK_M);
+		menuLogsMessage.setFont(Core.Resources.Font);
+		menuLogsMessage.addActionListener(this);
+		menuLogsMessage.setSelected(Core.Properties.get("org.dyndns.doujindb.log.info").asBoolean());
+		menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("JMenuBar/Logs/Warning"),true);
+		menuLogsWarning.setMnemonic(KeyEvent.VK_W);
+		menuLogsWarning.setFont(Core.Resources.Font);
+		menuLogsWarning.addActionListener(this);
+		menuLogsWarning.setSelected(Core.Properties.get("org.dyndns.doujindb.log.warning").asBoolean());
+		menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("JMenuBar/Logs/Error"),true);
+		menuLogsError.setMnemonic(KeyEvent.VK_E);
+		menuLogsError.setFont(Core.Resources.Font);
+		menuLogsError.addActionListener(this);
+		menuLogsError.setSelected(Core.Properties.get("org.dyndns.doujindb.log.error").asBoolean());
+		menuLogs.add(menuLogsMessage);
+		menuLogs.add(menuLogsWarning);
+		menuLogs.add(menuLogsError);
+		menuBar.add(menuLogs);
+		
+		menuHelp = new JMenu("Help");
+		menuHelp.setIcon(Core.Resources.Icons.get("JMenuBar/Help"));
+		menuHelp.setMnemonic(KeyEvent.VK_H);
+		menuHelp.setFont(Core.Resources.Font);
+		menuHelpAbout = new JMenuItem("About",Core.Resources.Icons.get("JMenuBar/Help/About"));
+		menuHelpAbout.setMnemonic(KeyEvent.VK_A);
+		menuHelpAbout.setFont(Core.Resources.Font);
+		menuHelpAbout.addActionListener(this);
+		menuHelp.add(menuHelpAbout);
+		menuHelpBugtrack = new JMenuItem("Report Bug",Core.Resources.Icons.get("JMenuBar/Help/Bugtrack"));
+		menuHelpBugtrack.setMnemonic(KeyEvent.VK_R);
+		menuHelpBugtrack.setFont(Core.Resources.Font);
+		menuHelpBugtrack.addActionListener(this);
+		menuHelp.add(menuHelpBugtrack);
+		menuBar.add(menuHelp);
+		super.setJMenuBar(menuBar);
+		Core.Logger.log("JMenuBar added.", Level.INFO);
+		
+		try
+		{
+			Core.Plugins = new Vector<Plugin>();
+			Core.Plugins.add(new DoujinshiDBScanner());
+			//FIXME Core.Plugins.add(new ImageScanner());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-	}
-	else
-	{
-		uiPanelDesktopShow.setBounds(-1,-1,0,0);
-		uiPanelDesktopSearch.setBounds(-1,-1,0,0);
-		uiPanelDesktopAdd.setBounds(-1,-1,0,0);
-		uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
-		uiStatusBarConnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-		uiStatusBarDisconnect.setBounds(-1,-1,0,0);
+		
+		JPanel bogus;
+		
+		bogus = new JPanel();
+		bogus.setLayout(null);
+		uiPanelDesktopShow = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Desktop"));
+		uiPanelDesktopShow.addActionListener(this);
+		uiPanelDesktopShow.setBorder(null);
+		uiPanelDesktopShow.setFocusable(false);
+		uiPanelDesktopShow.setToolTipText("Show Desktop");
+		bogus.add(uiPanelDesktopShow);
+		uiPanelDesktopSearch = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Search"));
+		uiPanelDesktopSearch.addActionListener(this);
+		uiPanelDesktopSearch.setBorder(null);
+		uiPanelDesktopSearch.setFocusable(false);
+		uiPanelDesktopSearch.setToolTipText("Search");
+		bogus.add(uiPanelDesktopSearch);
+		uiPanelDesktopAdd = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"))
+		{
+			@Override
+			public void processMouseEvent(MouseEvent e) {
+				if (e.getClickCount() > 0) { 
+					uiPanelDesktopAddPopup.show(e.getComponent(), e.getX(), e.getY());
+				}
+				super.processMouseEvent(e);
+			}
+		};
+		uiPanelDesktopAdd.setBorder(null);
+		uiPanelDesktopAdd.setFocusable(false);
+		uiPanelDesktopAdd.setToolTipText("Add Item");
+		uiPanelDesktopAddPopup = new JPopupMenu();
+		JMenuItem itm0 = new JMenuItem("Artist",Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
+		itm0.setActionCommand("Add:{Artist}");
+		itm0.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm0);
+		JMenuItem itm1 = new JMenuItem("Book",Core.Resources.Icons.get("JDesktop/Explorer/Book"));
+		itm1.setActionCommand("Add:{Book}");
+		itm1.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm1);
+		JMenuItem itm2 = new JMenuItem("Circle",Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
+		itm2.setActionCommand("Add:{Circle}");
+		itm2.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm2);
+		JMenuItem itm3 = new JMenuItem("Parody",Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
+		itm3.setActionCommand("Add:{Parody}");
+		itm3.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm3);
+		JMenuItem itm4 = new JMenuItem("Convention",Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+		itm4.setActionCommand("Add:{Convention}");
+		itm4.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm4);
+		JMenuItem itm5 = new JMenuItem("Content",Core.Resources.Icons.get("JDesktop/Explorer/Content"));
+		itm5.setActionCommand("Add:{Content}");
+		itm5.addActionListener(UI.this);
+		uiPanelDesktopAddPopup.add(itm5);
+		bogus.add(uiPanelDesktopAdd);
+		uiStatusBar = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
 		uiStatusBar.setText("Disconnected.");
+		uiStatusBar.setHorizontalAlignment(JLabel.LEFT);
+		uiStatusBar.setBorder(null);
+		uiStatusBar.setFocusable(false);
+		uiStatusBarConnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
+		uiStatusBarConnect.addActionListener(this);
+		uiStatusBarConnect.setBorder(null);
+		uiStatusBarConnect.setFocusable(false);
+		uiStatusBarConnect.setToolTipText("Connect");
+		uiStatusBarConnect.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
+		bogus.add(uiStatusBarConnect);
+		uiStatusBarDisconnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
+		uiStatusBarDisconnect.addActionListener(this);
+		uiStatusBarDisconnect.setBorder(null);
+		uiStatusBarDisconnect.setFocusable(false);
+		uiStatusBarDisconnect.setToolTipText("Disconnect");
+		bogus.add(uiStatusBarDisconnect);	
+		bogus.add(uiStatusBar);
+		Desktop = new DesktopEx();
+		bogus.add(Desktop);
+		uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
+		bogus = new JPanel();
+		bogus.setLayout(null);
+		Hashtable<String,ImageIcon> data = new Hashtable<String,ImageIcon>();
+		data.put("Icon:Console.Message",Core.Resources.Icons.get("JFrame/Tab/Logs/Message"));
+		data.put("Icon:Console.Warning",Core.Resources.Icons.get("JFrame/Tab/Logs/Warning"));
+		data.put("Icon:Console.Error",Core.Resources.Icons.get("JFrame/Tab/Logs/Error"));
+		uiPanelLogs = new PanelLogs(data);
+		uiPanelLogsScroll = new JScrollPane(uiPanelLogs);
+		bogus.add(uiPanelLogsScroll);
+		uiPanelLogsClear = new JButton(Core.Resources.Icons.get("JFrame/Tab/Logs/Clear"));
+		uiPanelLogsClear.addActionListener(this);
+		uiPanelLogsClear.setBorder(null);
+		uiPanelLogsClear.setFocusable(false);
+		uiPanelLogsClear.setToolTipText("Clear");
+		bogus.add(uiPanelLogsClear);
+		uiPanelTabbed.addTab("Logs", Core.Resources.Icons.get("JFrame/Tab/Logs"), bogus);
+		
+		bogus = new JPanel();
+		bogus.setLayout(null);
+		uiPanelSettings = new PanelSettings();
+		bogus.add(uiPanelSettings);
+		
+		uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Save"));
+		uiPanelSettingsSave.addActionListener(this);
+		uiPanelSettingsSave.setBorder(null);
+		uiPanelSettingsSave.setFocusable(false);
+		uiPanelSettingsSave.setToolTipText("Save");
+		bogus.add(uiPanelSettingsSave);
+		
+		uiPanelSettingsLoad = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Load"));
+		uiPanelSettingsLoad.addActionListener(this);
+		uiPanelSettingsLoad.setBorder(null);
+		uiPanelSettingsLoad.setFocusable(false);
+		uiPanelSettingsLoad.setToolTipText("Load");
+		bogus.add(uiPanelSettingsLoad);
+		
+		uiPanelTabbed.addTab("Settings", Core.Resources.Icons.get("JFrame/Tab/Settings"), bogus);
+		
+		bogus = new JPanel();
+		bogus.setLayout(null);
+		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("JFrame/Tab/Plugins"), bogus);
+		uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
+		
+		bogus = new JPanel();
+		bogus.setLayout(null);
+		uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("JFrame/Tab/Network"), bogus);
+		uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
+	
+		uiPanelTabbed.setFont(Core.Resources.Font);
+		uiPanelTabbed.setFocusable(false);
+		super.add(uiPanelTabbed);
+		
+		Core.Logger.log("JTabbedPane added.", Level.INFO);
+		
+		if(SystemTray.isSupported())
+		{
+			uiTrayPopup = new JPopupMenu();
+			uiTrayPopup.setFont(Core.Resources.Font);
+			uiTrayPopupExit = new JMenuItem("Exit",Core.Resources.Icons.get("JFrame/Tray/Exit"));
+			uiTrayPopupExit.setActionCommand("Exit");
+			uiTrayPopupExit.addActionListener(this);
+			uiTrayPopup.add(uiTrayPopupExit);
+			uiTrayIcon = new TrayIcon(Core.Resources.Icons.get("JFrame/Tray").getImage(),this.getTitle(),null);
+			uiTrayIcon.addMouseListener(new MouseAdapter()
+			{
+				public void mouseReleased(MouseEvent e)
+				{
+					if (e.isPopupTrigger())
+					{
+						uiTrayPopup.setVisible(true);
+						uiTrayPopup.setLocation(e.getX(), e.getY() - uiTrayPopup.getHeight());
+						uiTrayPopup.setInvoker(uiTrayPopup);
+					}
+				}
+			});
+			uiTrayIcon.addActionListener(this);
+			Core.Logger.log("SystemTray loaded.", Level.INFO);
+		}else
+		Core.Logger.log("SystemTray not supported.", Level.WARNING);
+
+		super.setLayout(this);
+		/*
+		 * 16/4/2011 - Bug introduced migrating from JDK6 to JDK7
+		 * java.lang.IllegalStateException: This function should be called while holding treeLock
+		 * super.validateTree();
+		 */
+		super.setVisible(true);
+		
+		loading.dispose();
+	
+		Core.Logger.loggerAttach(uiPanelLogs);
 	}
-	Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
-	uiPanelLogsClear.setBounds(1,1,20,20);
-	uiPanelLogsScroll.setBounds(0,22,width-5,height-48);
-	uiPanelSettingsLoad.setBounds(1,1,20,20);
-	uiPanelSettingsSave.setBounds(21,1,20,20);
-	uiPanelSettings.setBounds(0,22,width-5,height-48);
-	uiPanelTabbed.setBounds(0,0,width,height);
-}
+
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void layoutContainer(Container parent)
+	{
+		int width = parent.getWidth(),
+			height = parent.getHeight();
+		uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
+		if(Core.Database.isConnected())
+		{
+			uiPanelDesktopShow.setBounds(1,1,20,20);
+			uiPanelDesktopSearch.setBounds(21,1,20,20);
+			uiPanelDesktopAdd.setBounds(41,1,20,20);
+			uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
+			uiStatusBarConnect.setBounds(-1,-1,0,0);
+			uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
+			try {
+				uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
+			} catch (DataBaseException dbe) {
+				Core.Logger.log(dbe.getMessage(), Level.ERROR);
+				dbe.printStackTrace();
+			}
+		}
+		else
+		{
+			uiPanelDesktopShow.setBounds(-1,-1,0,0);
+			uiPanelDesktopSearch.setBounds(-1,-1,0,0);
+			uiPanelDesktopAdd.setBounds(-1,-1,0,0);
+			uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
+			uiStatusBarConnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
+			uiStatusBarDisconnect.setBounds(-1,-1,0,0);
+			uiStatusBar.setText("Disconnected.");
+		}
+		Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
+		uiPanelLogsClear.setBounds(1,1,20,20);
+		uiPanelLogsScroll.setBounds(0,22,width-5,height-48);
+		uiPanelSettingsLoad.setBounds(1,1,20,20);
+		uiPanelSettingsSave.setBounds(21,1,20,20);
+		uiPanelSettings.setBounds(0,22,width-5,height-48);
+		uiPanelTabbed.setBounds(0,0,width,height);
+	}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void addLayoutComponent(String key, Component c) {}
+	
+	@Override
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 		return new Dimension(400,350);
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 		return new Dimension(400,350);
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
@@ -619,6 +597,7 @@ public void layoutContainer(Container parent)
 				panel.add(bottom);
 				try {
 					Core.UI.Desktop.showDialog(
+							UI.this,
 							panel,
 							Core.Resources.Icons.get("JMenuBar/Help/About"),
 							"About");
@@ -773,11 +752,17 @@ public void layoutContainer(Container parent)
 			Desktop.revalidate();
 		}
 	}
-	public void windowDeactivated(WindowEvent event){}
-	public void windowActivated(WindowEvent event){}
-	public void windowDeiconified(WindowEvent event){}
-	public void windowIconified(WindowEvent event){}
-	public void windowClosed(WindowEvent event){}
+	
+	public void windowDeactivated(WindowEvent event) {}
+	
+	public void windowActivated(WindowEvent event) {}
+	
+	public void windowDeiconified(WindowEvent event) {}
+	
+	public void windowIconified(WindowEvent event) {}
+	
+	public void windowClosed(WindowEvent event) {}
+	
 	public void windowClosing(WindowEvent event)
 	{
 		if((Core.Properties.get("org.dyndns.doujindb.ui.tray_on_exit").asBoolean()) == false)
@@ -793,10 +778,15 @@ public void layoutContainer(Container parent)
 			Core.Logger.log(awte.getMessage(), Level.ERROR);
 		}
 	}
-	public void windowOpened(WindowEvent event){}
-	public void componentHidden(ComponentEvent event){}
-	public void componentShown(ComponentEvent event){}
-	public void componentMoved(ComponentEvent event){}
+	
+	public void windowOpened(WindowEvent event) {}
+	
+	public void componentHidden(ComponentEvent event) {}
+	
+	public void componentShown(ComponentEvent event) {}
+	
+	public void componentMoved(ComponentEvent event) {}
+	
     public void componentResized(ComponentEvent event)
     {
          layoutContainer(getContentPane());

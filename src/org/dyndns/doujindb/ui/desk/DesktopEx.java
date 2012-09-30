@@ -459,46 +459,44 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			catch (ClassCastException cce) { ; }
 	}
 	
-	public void showDialog(JComponent comp, Icon icon, String title) throws PropertyVetoException
+	public void showDialog(RootPaneContainer parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
 	{
-		JComponent glass = Core.UI.getGlassPane();
-		if(glass.isVisible())
+		final JComponent glassPane = (JComponent) parent.getGlassPane();
+		if(glassPane.isVisible())
 			throw new PropertyVetoException("Dialog already open.", null);
-		final DialogEx window = new DialogEx(comp, icon, title);
+		final DialogEx window = new DialogEx(dialog, icon, title);
 		window.pack();
 		window.setMaximizable(false);
 		window.setIconifiable(false);
 		window.setResizable(false);
 		window.setClosable(false);
-		Rectangle bounds = Core.UI.getBounds();
+		Rectangle bounds = glassPane.getBounds();
 		Rectangle rect = window.getBounds();
 		int x = (bounds.width - rect.width) / 2;
 		int y = (bounds.height - rect.height) / 2;
 		window.setLocation(x, y);
-		glass.add(window);
-		glass.setEnabled(true);
-		glass.setVisible(true);
-		glass.setEnabled(false);
+		glassPane.add(window);
+		glassPane.setEnabled(true);
+		glassPane.setVisible(true);
+		glassPane.setEnabled(false);
 		window.addInternalFrameListener(new InternalFrameAdapter()
 		{
 			@Override
 			public void internalFrameClosed(InternalFrameEvent ife)
 			{
-				JComponent glass = Core.UI.getGlassPane();
-				glass.add(ife.getInternalFrame());
-				glass.setEnabled(true);
-				glass.setVisible(false);
-				glass.setEnabled(false);
+				glassPane.add(ife.getInternalFrame());
+				glassPane.setEnabled(true);
+				glassPane.setVisible(false);
+				glassPane.setEnabled(false);
 			}
 
 			@Override
 			public void internalFrameClosing(InternalFrameEvent ife)
 			{
-				JComponent glass = Core.UI.getGlassPane();
-				glass.add(ife.getInternalFrame());
-				glass.setEnabled(true);
-				glass.setVisible(false);
-				glass.setEnabled(false);
+				glassPane.add(ife.getInternalFrame());
+				glassPane.setEnabled(true);
+				glassPane.setVisible(false);
+				glassPane.setEnabled(false);
 			}
 		});
 		SwingUtilities.invokeLater(new Runnable() {

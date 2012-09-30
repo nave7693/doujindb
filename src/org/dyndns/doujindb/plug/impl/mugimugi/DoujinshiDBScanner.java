@@ -1445,7 +1445,13 @@ public final class DoujinshiDBScanner implements Plugin
 				case TASK_ERROR:
 					try
 					{ 
-						try { Core.UI.Desktop.showDialog(epanel, IconError, "Error - " + description.replaceAll(" \\(.*","")); } catch (PropertyVetoException e) { }
+						try {
+							Core.UI.Desktop.showDialog(
+									(RootPaneContainer) getRootPane().getParent(),
+									epanel, 
+									IconError, 
+									"Error - " + description.replaceAll(" \\(.*",""));
+							} catch (PropertyVetoException pve) { }
 					} catch (NullPointerException npe) { }
 					break;
 				case TASK_WARNING:

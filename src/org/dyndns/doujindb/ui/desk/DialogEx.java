@@ -36,6 +36,7 @@ public final class DialogEx extends JInternalFrame implements LayoutManager
 		add(root);
 		super.setVisible(true);
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -43,18 +44,22 @@ public final class DialogEx extends JInternalFrame implements LayoutManager
 			height = parent.getHeight();
 		root.setBounds(0, 0, width, height);
 	}
+	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) {}
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) {}
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 		return getMinimumSize();
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 		return getPreferredSize();
-	}	
+	}
 }

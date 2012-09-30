@@ -313,6 +313,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 							panel.add(bottom);
 							try {
 								Core.UI.Desktop.showDialog(
+										(RootPaneContainer) getRootPane().getParent(),
 										panel,
 										Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"),
 										"Recycle Bin");
@@ -474,6 +475,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 							panel.add(bottom);
 							try {
 								Core.UI.Desktop.showDialog(
+										(RootPaneContainer) getRootPane().getParent(),
 										panel,
 										Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"),
 										"Recycle Bin");

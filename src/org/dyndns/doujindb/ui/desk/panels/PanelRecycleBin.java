@@ -664,6 +664,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 											panelFramed[3].getHeight() +
 											panelFramed[4].getHeight() +
 											panelFramed[5].getHeight()));
+				scrollPanelBase.doLayout();
 			}
 			@Override
 			public void addLayoutComponent(String key,Component c){}
@@ -890,11 +891,13 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 				STATUS = STATUS_MINIMIZED;
 				buttonToggle.setIcon(ICON_CHECKED);
 				setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
+				parentComponent.doLayout();
 				parentComponent.validate();
 			} else {
 				STATUS = STATUS_MAXIMIZED;
 				buttonToggle.setIcon(ICON_UNCHECKED);
 				setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
+				parentComponent.doLayout();
 				parentComponent.validate();
 			}
 		}

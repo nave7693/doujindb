@@ -1,14 +1,12 @@
 package org.dyndns.doujindb;
 
 import java.io.*;
-import java.util.Vector;
 
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.dat.Repository;
 import org.dyndns.doujindb.dat.impl.RepositoryImpl;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.rc.*;
 
@@ -23,7 +21,6 @@ public final class Core implements Runnable
 	public static Properties Properties;
 	public static Resources Resources;
 	public static UI UI;
-	public static Vector<Plugin>  Plugins;
 	public static DataBase Database;
 	public static Repository Repository;
 

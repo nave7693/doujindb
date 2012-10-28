@@ -8,19 +8,35 @@ import javax.swing.JComponent;
 * @author  nozomu
 * @version 1.0
 */
-public interface Plugin
+public abstract class Plugin
 {
-	public Icon getIcon();
+	public abstract String getUUID();
 	
-	public String getName();
+	public abstract Icon getIcon();
 	
-	public String getDescription();
+	public abstract String getName();
 	
-	public String getVersion();
+	public abstract String getDescription();
 	
-	public String getAuthor();
+	public abstract String getVersion();
 	
-	public String getWeblink();
+	public abstract String getAuthor();
 	
-	public JComponent getUI();
+	public abstract String getWeblink();
+	
+	public abstract JComponent getUI();
+	
+	protected abstract void install() throws PluginException;
+	
+	protected abstract void update() throws PluginException;
+	
+	protected abstract void uninstall() throws PluginException;
+
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Plugin))
+			return false;
+		else
+			return ((Plugin)obj).getUUID().equals(getUUID());
+	}
 }

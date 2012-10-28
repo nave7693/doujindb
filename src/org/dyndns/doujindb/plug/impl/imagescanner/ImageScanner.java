@@ -21,16 +21,17 @@ import org.dyndns.doujindb.db.DataBaseContext;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.PluginException;
 
 /**  
 * ImageScanner.java - Plugin to search for matching images in your Datastore.
 * @author  nozomu
 * @version 1.0
 */
-public final class ImageScanner implements Plugin
+public final class ImageScanner extends Plugin
 {
 
-	private static String UUID = "{D18B8C85-BE10-4937-9C5A-885CEAD64D35}";
+	private static String uuid = "{D18B8C85-BE10-4937-9C5A-885CEAD64D35}";
 	private static DataBaseContext Context;
 	
 	private JComponent UI;
@@ -44,35 +45,46 @@ public final class ImageScanner implements Plugin
 	
 	public ImageScanner()
 	{
-		Context = Core.Database.getContext(UUID);
+		Context = Core.Database.getContext(uuid);
 		
 		UI = new PluginUI();
+	}
+	
+	@Override
+	public String getUUID() {
+		return uuid;
 	}
 	
 	@Override
 	public Icon getIcon() {
 		return PluginIcon;
 	}
+	
 	@Override
 	public String getName() {
 		return "Image Scanner";
 	}
+	
 	@Override
 	public String getDescription() {
 		return "The Image Scanner plugin lets you search for matching images in your Datastore.";
 	}
+	
 	@Override
 	public String getVersion() {
 		return "0.1";
 	}
+	
 	@Override
 	public String getAuthor() {
 		return "Nozomu";
 	}
+	
 	@Override
 	public String getWeblink() {
 		return "http://code.google.com/p/doujindb/";
 	}
+	
 	@Override
 	public JComponent getUI() {
 		return UI;
@@ -253,5 +265,23 @@ public final class ImageScanner implements Plugin
 				
 			}
 		}
+	}
+
+	@Override
+	protected void install() throws PluginException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void update() throws PluginException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void uninstall() throws PluginException {
+		// TODO Auto-generated method stub
+		
 	}
 }

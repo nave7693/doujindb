@@ -667,9 +667,9 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 				scrollPanelBase.doLayout();
 			}
 			@Override
-			public void addLayoutComponent(String key,Component c){}
+			public void addLayoutComponent(String key,Component c) {}
 			@Override
-			public void removeLayoutComponent(Component c){}
+			public void removeLayoutComponent(Component c) {}
 			@Override
 			public Dimension minimumLayoutSize(Container parent)
 			{

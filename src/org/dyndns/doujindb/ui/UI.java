@@ -30,9 +30,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.plug.Plugin;
-import org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner;
-import org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DesktopEx.*;
 import org.dyndns.doujindb.ui.rc.*;
@@ -270,15 +267,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		menuBar.add(menuHelp);
 		super.setJMenuBar(menuBar);
 		Core.Logger.log("JMenuBar added.", Level.INFO);
-		
-		try
-		{
-			Core.Plugins = new Vector<Plugin>();
-			Core.Plugins.add(new DoujinshiDBScanner());
-			//FIXME Core.Plugins.add(new ImageScanner());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 		JPanel bogus;
 		

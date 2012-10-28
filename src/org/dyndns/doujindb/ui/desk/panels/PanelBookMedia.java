@@ -986,11 +986,11 @@ public class PanelBookMedia extends JPanel
 			try
 			{
 				//FIXME
-				Core.UI.Desktop.showDialog(
-						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
-						comp,
-						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"),
-						"Exporting ...");
+//				Core.UI.Desktop.showDialog(
+//						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
+//						comp,
+//						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"),
+//						"Exporting ...");
 				progress_overall_max = 1;
 				{
 					File zip = new File(destdir, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());

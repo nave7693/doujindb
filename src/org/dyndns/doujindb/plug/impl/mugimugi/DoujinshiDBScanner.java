@@ -37,19 +37,19 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	private static Resources Resources = new Resources();
 	
-	private static final String Author = "Nozomu";
-	private static final String Version = "0.9";
-	private static final String Weblink = "http://code.google.com/p/doujindb/";
-	private static final String Name = "DoujinshiDB Scanner";
-	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
-	private static final ImageIcon Icon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/icons/plugin.png"));
+	static final String Author = "Nozomu";
+	static final String Version = "1.0";
+	static final String Weblink = "http://code.google.com/p/doujindb/";
+	static final String Name = "DoujinshiDB Scanner";
+	static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
+	static final ImageIcon Icon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/icons/plugin.png"));
 	
 	static final String UUID = "{CB123239-06D1-4FB6-A4CC-05C4B436DF73}";
 	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
 	static final DataBaseContext Context = Core.Database.getContext(UUID);
 	
 	private static final JComponent UI = new PluginUI();
-	private static XMLParser.XML_User User = new XMLParser.XML_User();
+	static XMLParser.XML_User User = new XMLParser.XML_User();
 	
 	static
 	{
@@ -154,10 +154,15 @@ public final class DoujinshiDBScanner extends Plugin
 		private JButton buttonAddTask;
 		private JButton buttonDeleteSelected;
 		private JButton buttonCleanCompleted;
+		private JButton buttonWorkerResume;
+		private JButton buttonWorkerPause;
 		private JCheckBox bottonSelection;
 		private PanelTaskUI panelTasks;
 		private JScrollPane scrollTasks;
-		private Task runningTask;
+		
+		private Thread workerThread = new Thread(getClass().getName()+"/Task[null]");
+		private boolean fetcherRunning = false;
+		private Thread fetcherThread;
 		
 		public PluginUI()
 		{
@@ -287,6 +292,18 @@ public final class DoujinshiDBScanner extends Plugin
 			buttonDeleteSelected.setToolTipText("Delete Selected");
 			buttonDeleteSelected.setFocusable(false);
 			bogus.add(buttonDeleteSelected);
+			buttonWorkerResume = new JButton(Resources.Icons.get("Plugin/Task/Resume"));
+			buttonWorkerResume.addActionListener(this);
+			buttonWorkerResume.setBorder(null);
+			buttonWorkerResume.setToolTipText("Resume Worker");
+			buttonWorkerResume.setFocusable(false);
+			bogus.add(buttonWorkerResume);
+			buttonWorkerPause = new JButton(Resources.Icons.get("Plugin/Task/Pause"));
+			buttonWorkerPause.addActionListener(this);
+			buttonWorkerPause.setBorder(null);
+			buttonWorkerPause.setToolTipText("Pause Worker");
+			buttonWorkerPause.setFocusable(false);
+			bogus.add(buttonWorkerPause);
 			bottonSelection = new JCheckBox();
 			bottonSelection.setSelected(false);
 			bottonSelection.addActionListener(this);
@@ -313,43 +330,41 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 			});
 			
-			new Thread(getClass().getName()+"/TaskFetcher")
+			fetcherThread = new Thread(getClass().getName()+"/TaskFetcher")
 			{
 				@Override
 				public void run()
 				{
 					while(true)
 					{
+						/**
+						 * Put the sleep() here and not at the end so
+						 * it doesn't get skipped by calling those 'continue'
+						 */
 						try { sleep(1000); } catch (InterruptedException e) { }
+						
+						if(!fetcherRunning)
+							continue;
 						if(panelTasks.countTasks() < 1)
 							continue;
-						if(runningTask == null)
+						if(workerThread.isAlive())
+							continue;
+						else
 						{
 							for(Task task : panelTasks)
 							{
-								if(task.status != Task.State.IDLE)
+								if(!task.step().equals(Step.INIT) ||
+									!task.steps().get(Step.INIT).equals(Task.State.IDLE))
 									continue;
-								runningTask = task;
-								new Thread(runningTask, getClass().getName()+"/Task[id:" + task.id + "]").start();
+								workerThread = new Thread(task, getClass().getName()+"/Task[id:" + task.id() + "]");
+								workerThread.start();
 								break;
 							}
-						}else
-							if(runningTask.active)
-								continue;
-							else
-							{
-								for(Task task : panelTasks)
-								{
-									if(task.status != Task.State.IDLE)
-										continue;
-									runningTask = task;
-									new Thread(runningTask, getClass().getName()+"/Task").start();
-									break;
-								}
-							}
+						}
 					}
 				}
-			}.start();
+			};
+			fetcherThread.start();
 		}
 		
 		@Override
@@ -373,8 +388,16 @@ public final class DoujinshiDBScanner extends Plugin
 			textImageQueries.setBounds(125,25+100,width - 130,15);
 			boxResizeImage.setBounds(5,25+120,width,45);
 			buttonAddTask.setBounds(1,1,20,20);
-			buttonCleanCompleted.setBounds(21,1,20,20);
-			buttonDeleteSelected.setBounds(41,1,20,20);
+			buttonCleanCompleted.setBounds(width - 65,1,20,20);
+			buttonDeleteSelected.setBounds(width - 85,1,20,20);
+			if(fetcherRunning)
+			{
+				buttonWorkerResume.setBounds(21,1,0,0);
+				buttonWorkerPause.setBounds(21,1,20,20);
+			} else {
+				buttonWorkerResume.setBounds(21,1,20,20);
+				buttonWorkerPause.setBounds(21,1,0,0);
+			}
 			bottonSelection.setBounds(width - 45,1,20,20);
 			scrollTasks.setBounds(1,21,width - 5,height - 45);
 			if(User != null)
@@ -491,14 +514,12 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 			if(ae.getSource() == buttonCleanCompleted)
 			{
-				Vector<Task> completed = new Vector<Task>();
-				for(Task task : panelTasks)
+				for(Task task : panelTasks.getCompletedTasks())
 				{
-					if(task.status == Task.State.COMPLETED)
-						completed.add(task);
-				}
-				for(Task task : completed)
 					panelTasks.removeTask(task);
+				}
+				if(panelTasks.countTasks() < 1)
+					bottonSelection.setSelected(false);
 				return;
 			}
 			if(ae.getSource() == buttonDeleteSelected)
@@ -509,6 +530,18 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 				if(panelTasks.countTasks() < 1)
 					bottonSelection.setSelected(false);
+				return;
+			}
+			if(ae.getSource() == buttonWorkerResume)
+			{
+				fetcherRunning = true;
+				doLayout();
+				return;
+			}
+			if(ae.getSource() == buttonWorkerPause)
+			{
+				fetcherRunning = false;
+				doLayout();
 				return;
 			}
 			if(ae.getSource() == bottonSelection)
@@ -529,7 +562,7 @@ public final class DoujinshiDBScanner extends Plugin
 				super();
 				super.setLayout(this);
 			}
-			
+
 			public void addTask(Task task) {
 				TaskUI taskui = new TaskUI(task);
 				map.put(task, taskui);
@@ -564,6 +597,24 @@ public final class DoujinshiDBScanner extends Plugin
 						selected.add(task);
 				}
 				return selected;
+			}
+			
+			public List<Task> getCompletedTasks() {
+				Vector<Task> completed = new Vector<Task>();
+				for(Task task : map.keySet())
+				{
+					boolean iscompleted = true;
+					for(State status : task.steps().values())
+						if(!status.equals(Task.State.COMPLETED) &&
+							!status.equals(Task.State.WARNING))
+						{
+							iscompleted = false;
+							break;
+						}
+					if(iscompleted)
+						completed.add(task);
+				}
+				return completed;
 			}
 			
 			@Override
@@ -642,8 +693,8 @@ public final class DoujinshiDBScanner extends Plugin
 				setForeground(UIManager.getColor("List.textForeground"));
 				setPreferredSize(new Dimension(280, 20));
 				titleBar = new JLabel();
-				titleBar.setText(task.description);
-				titleBar.setIcon(icons.get(task.status));
+				titleBar.setText(task.message());
+				titleBar.setIcon(icons.get(task.steps().get(task.step())));
 				add(titleBar);
 				imagePreview = new JLabel();
 				imagePreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
@@ -656,13 +707,27 @@ public final class DoujinshiDBScanner extends Plugin
 				bottonSelection.setSelected(false);
 				add(bottonSelection);
 				steps = new TreeMap<Task.Step, JLabel>();
-				for(Task.Step step : Task.Step.values())
+				for(Task.Step step : task.steps().keySet())
 				{
 					JLabel labelStep = new JLabel();
 					labelStep.setText("" + step);
-					labelStep.setIcon(Resources.Icons.get("Plugin/Task/Step/Idle"));
+					labelStep.setIcon(icons.get(task.steps().get(step)));
 					steps.put(step, labelStep);
 					add(labelStep);
+				}
+				/**
+				 * Check if cover image is ready to be shown
+				 */
+				if(task.steps().get(Step.SCAN).equals(State.COMPLETED))
+				{
+					try {
+						imagePreview.setIcon(
+							new ImageIcon(
+								javax.imageio.ImageIO.read(
+									new File(DoujinshiDBScanner.PLUGIN_HOME, task.id() + ".png"))));
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					}
 				}
 				this.task = task;
 				task.addTaskListener(this);
@@ -721,14 +786,30 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 
 			@Override
-			public void statusChanged(State status) {
-				titleBar.setIcon(icons.get(task.status));
+			public void statusChanged(Step step, State status) {
+				titleBar.setIcon(icons.get(status));
+				titleBar.setText(task.message());
+				steps.get(step).setIcon(icons.get(status));
+				/**
+				 * Check if cover image is ready to be shown
+				 */
+				if(step.equals(Step.SCAN) &&
+					status.equals(State.COMPLETED))
+				{
+					try {
+						imagePreview.setIcon(
+							new ImageIcon(
+								javax.imageio.ImageIO.read(
+									new File(DoujinshiDBScanner.PLUGIN_HOME, task.id() + ".png"))));
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					}
+				}
 			}
 
 			@Override
 			public void stepChanged(Step step) {
-				// TODO Auto-generated method stub
-				
+				titleBar.setText(task.message());
 			}
 		}
 	}

@@ -838,9 +838,10 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			comboType = new JComboBox<Book.Type>();
 			comboType.setFont(font);
 			comboType.setFocusable(false);
+			comboType.addItem(null);
 			for(Book.Type tokenType : Book.Type.values())
 				comboType.addItem(tokenType);
-			comboType.setSelectedItem(Book.Type.同人誌);
+			comboType.setSelectedItem(null);
 			checkAdult = new JCheckBox("Adult", true);
 			checkAdult.setFont(font);
 			checkAdult.setFocusable(false);
@@ -1174,10 +1175,14 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 							if(!textRomajiName.getText().equals(""))
 								query.RomajiName = textRomajiName.getText();
 							query.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
-							query.Adult = checkAdult.isSelected();
-							query.Colored = checkColored.isSelected();
-							query.Translated = checkTranslated.isSelected();
-							query.Decensored = checkDecensored.isSelected();
+							if(checkAdult.isSelected())
+								query.Adult = true;
+							if(checkColored.isSelected())
+								query.Colored = true;
+							if(checkTranslated.isSelected())
+								query.Translated = true;
+							if(checkDecensored.isSelected())
+								query.Decensored = true;
 							RecordSet<Book> result = Core.Database.getBooks(query);
 							for(Book b : result)
 							{

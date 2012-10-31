@@ -13,9 +13,9 @@ public final class QueryBook
 	public String JapaneseName = null;
 	public String RomajiName = null;
 	public String TranslatedName = null;
-	public Book.Type Type = Book.Type.不詳;
-	public boolean Adult = false;
-	public boolean Decensored = false;
-	public boolean Translated = false;
-	public boolean Colored = false;
+	public Book.Type Type = null;
+	public Boolean Adult = null;
+	public Boolean Decensored = null;
+	public Boolean Translated = null;
+	public Boolean Colored = null;
 }

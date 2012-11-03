@@ -26,6 +26,7 @@ public final class Resources
 		iconKeys.put("Plugin/DeleteSelected", "deleteselected.png");
 		iconKeys.put("Plugin/Task/Pause", "task/pause.png");
 		iconKeys.put("Plugin/Task/Resume", "task/resume.png");
+		iconKeys.put("Plugin/Task/Book", "task/book.png");
 		iconKeys.put("Plugin/Task/SearchQuery/Star", "task/searchquery/star.png");
 		iconKeys.put("Plugin/Task/Preview/Missing", "task/preview/missing.png");
 		iconKeys.put("Plugin/Task/Step/Idle", "task/step/idle.png");

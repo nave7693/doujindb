@@ -13,10 +13,13 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.query.QueryBook;
+import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.plug.impl.mugimugi.Task.State;
 import org.dyndns.doujindb.plug.impl.mugimugi.Task.Step;
 import org.dyndns.doujindb.plug.impl.mugimugi.rc.Resources;
+import org.dyndns.doujindb.ui.desk.WindowEx;
 
 import javax.xml.bind.*;
 
@@ -38,7 +41,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static Resources Resources = new Resources();
 	
 	static final String Author = "Nozomu";
-	static final String Version = "1.0";
+	static final String Version = "1.1";
 	static final String Weblink = "http://code.google.com/p/doujindb/";
 	static final String Name = "DoujinshiDB Scanner";
 	static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
@@ -87,6 +90,7 @@ public final class DoujinshiDBScanner extends Plugin
 		}
 		
 		File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
+		file = new File(file, ".cache");
 		file.mkdirs();
 	}
 	
@@ -163,6 +167,46 @@ public final class DoujinshiDBScanner extends Plugin
 		private Thread workerThread = new Thread(getClass().getName()+"/Task[null]");
 		private boolean fetcherRunning = false;
 		private Thread fetcherThread;
+		
+		static
+		{
+			Property prop;
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.apikey"))
+				APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").asString();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.apikey");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey");
+				prop.setValue(APIKEY);
+				prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
+			}	
+
+
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.threshold"))
+				THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").asNumber();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.threshold");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold");
+				prop.setValue(THRESHOLD);
+				prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
+			}	
+
+
+			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.resize_cover"))
+				RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").asBoolean();
+			else
+				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.resize_cover");
+			{
+				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover");
+				prop.setValue(RESIZE_COVER);
+				prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
+			}
+			
+			File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
+			file = new File(file, ".cache");
+			file.mkdirs();
+		}
 		
 		public PluginUI()
 		{
@@ -663,7 +707,9 @@ public final class DoujinshiDBScanner extends Plugin
 			private JLabel titleBar;
 			private JLabel imagePreview;
 			private JButton buttonToggle;
+			private JButton buttonLink;
 			private JCheckBox bottonSelection;
+			private List<JButton> buttonResults;
 			private Map<Task.Step, JLabel> steps;
 			private final Map<Task.State, ImageIcon> icons = new HashMap<Task.State, ImageIcon>();
 			
@@ -703,6 +749,24 @@ public final class DoujinshiDBScanner extends Plugin
 				buttonToggle.setSelected(true);
 				buttonToggle.addActionListener(this);
 				add(buttonToggle);
+				buttonLink = new JButton(Resources.Icons.get("Plugin/Task/Book"));
+				buttonLink.setFocusable(false);
+				buttonLink.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						String bookid = TaskUI.this.task.bookid();
+						if(bookid != null)
+						{
+							QueryBook qid = new QueryBook();
+							qid.ID = bookid;
+							RecordSet<Book> set = Core.Database.getBooks(qid);
+							if(set.size() == 1)
+								Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+						}
+					}
+				});
+				add(buttonLink);
 				bottonSelection = new JCheckBox();
 				bottonSelection.setSelected(false);
 				add(bottonSelection);
@@ -710,6 +774,7 @@ public final class DoujinshiDBScanner extends Plugin
 				for(Task.Step step : task.steps().keySet())
 				{
 					JLabel labelStep = new JLabel();
+					labelStep.setFont(Core.Resources.Font);
 					labelStep.setText("" + step);
 					labelStep.setIcon(icons.get(task.steps().get(step)));
 					steps.put(step, labelStep);
@@ -729,8 +794,32 @@ public final class DoujinshiDBScanner extends Plugin
 						ioe.printStackTrace();
 					}
 				}
+				if(task.steps().get(Step.PARSE).equals(State.WARNING))
+				{
+					Map<Double, XMLParser.XML_Book> results = task.results();
+					buttonResults = new Vector<JButton>();
+					for(double result : results.keySet())
+					{
+						XMLParser.XML_Book book = results.get(result);
+						JButton buttonResult = new JButton();
+						try {
+							buttonResult.setIcon(new ImageIcon(new File(new File(DoujinshiDBScanner.PLUGIN_HOME, ".cache"), book.ID + ".png").toURI().toURL()));
+						} catch (MalformedURLException murle) {
+							buttonResult.setIcon(new ImageIcon());
+						}
+						buttonResult.setText("");
+						buttonResult.addActionListener(this);
+						buttonResult.setActionCommand("setResult:" + book.ID);
+						buttonResult.setFocusable(false);
+						buttonResult.setPreferredSize(new Dimension(25, 155));
+						buttonResults.add(buttonResult);
+						add(buttonResult);
+					}
+					// First result is already expanded
+					buttonResults.get(0).setPreferredSize(new Dimension(110, 155));
+				}
 				this.task = task;
-				task.addTaskListener(this);
+				this.task.addTaskListener(this);
 			}
 
 			@SuppressWarnings("unused")
@@ -741,11 +830,30 @@ public final class DoujinshiDBScanner extends Plugin
 					height = parent.getHeight();
 				bottonSelection.setBounds(width - 40, 0, 20, 20);
 				buttonToggle.setBounds(width - 20, 0, 20, 20);
-				titleBar.setBounds(0, 0, width - 20, 20);
+				if(task.bookid() != null)
+					buttonLink.setBounds(width - 60, 0, 20, 20);
+				else
+					buttonLink.setBounds(width - 60, 0, 0, 0);
+				titleBar.setBounds(0, 0, width - 60, 20);
 				imagePreview.setBounds(0, 20, 200, 256);
 				int index = 0;
-				for(JLabel step : steps.values())
-					step.setBounds(200, index = index + 20, width - 210, 20);
+				for(JLabel labelStep : steps.values())
+					labelStep.setBounds(200, index = index + 18, width - 210, 20);
+				/**
+				 * Race conditions : State = WARNING, but we don't still have buttonResults initialized and layoutContainer kicks in
+				 * if(task.steps().get(Step.PARSE).equals(State.WARNING))
+				 */
+				if(buttonResults != null)
+				{
+					index += 30;
+					int prevsize = 0;
+					for(JButton button : buttonResults)
+					{
+						Dimension prefsize = button.getPreferredSize();
+						button.setBounds(200 + prevsize, index, (int)prefsize.getWidth(), (int)prefsize.getHeight());
+						prevsize += (int)prefsize.getWidth();
+					}
+				}
 			}
 			
 			@Override
@@ -769,19 +877,35 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				if(STATUS == STATUS_MAXIMIZED)
+				if(ae.getSource() == buttonToggle)
 				{
-					STATUS = STATUS_MINIMIZED;
-					buttonToggle.setIcon(ICON_CHECKED);
-					setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
-					panelTasks.doLayout();
-					panelTasks.validate();
-				} else {
-					STATUS = STATUS_MAXIMIZED;
-					buttonToggle.setIcon(ICON_UNCHECKED);
-					setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
-					panelTasks.doLayout();
-					panelTasks.validate();
+					if(STATUS == STATUS_MAXIMIZED)
+					{
+						STATUS = STATUS_MINIMIZED;
+						buttonToggle.setIcon(ICON_CHECKED);
+						setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
+						panelTasks.doLayout();
+						panelTasks.validate();
+					} else {
+						STATUS = STATUS_MAXIMIZED;
+						buttonToggle.setIcon(ICON_UNCHECKED);
+						setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
+						panelTasks.doLayout();
+						panelTasks.validate();
+					}
+					return;
+				}
+				if(ae.getActionCommand().startsWith("setResult:"))
+				{
+					JButton source = (JButton) ae.getSource();
+					for(JButton button : buttonResults)
+					{
+						button.setPreferredSize(new Dimension(25, 155));
+					}
+					source.setPreferredSize(new Dimension(110, 155));
+					doLayout();
+					validate();
+					return;
 				}
 			}
 
@@ -793,8 +917,7 @@ public final class DoujinshiDBScanner extends Plugin
 				/**
 				 * Check if cover image is ready to be shown
 				 */
-				if(step.equals(Step.SCAN) &&
-					status.equals(State.COMPLETED))
+				if(step.equals(Step.SCAN) && status.equals(State.COMPLETED))
 				{
 					try {
 						imagePreview.setIcon(
@@ -804,6 +927,32 @@ public final class DoujinshiDBScanner extends Plugin
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
+				}
+				if(step.equals(Step.PARSE) && status.equals(State.WARNING))
+				{
+					Map<Double, XMLParser.XML_Book> results = task.results();
+					buttonResults = new Vector<JButton>();
+					for(double result : results.keySet())
+					{
+						XMLParser.XML_Book book = results.get(result);
+						JButton buttonResult = new JButton();
+						try {
+							buttonResult.setIcon(new ImageIcon(new File(new File(DoujinshiDBScanner.PLUGIN_HOME, ".cache"), book.ID + ".png").toURI().toURL()));
+						} catch (MalformedURLException murle) {
+							buttonResult.setIcon(new ImageIcon());
+						}
+						buttonResult.setText("");
+						buttonResult.addActionListener(this);
+						buttonResult.setActionCommand("setResult:" + book.ID);
+						buttonResult.setFocusable(false);
+						buttonResult.setPreferredSize(new Dimension(25, 155));
+						buttonResults.add(buttonResult);
+						add(buttonResult);
+					}
+					// First result is already expanded
+					buttonResults.get(0).setPreferredSize(new Dimension(110, 155));
+					doLayout();
+					validate();
 				}
 			}
 
@@ -844,11 +993,11 @@ public final class DoujinshiDBScanner extends Plugin
 				tasks.add(task);
 			return tasks;
 		} catch (NullPointerException npe) {
-			;
+			npe.printStackTrace();
 		} catch (JAXBException jaxbe) {
-			;
+			jaxbe.printStackTrace();
 		} catch (FileNotFoundException fnfe) {
-			;
+			fnfe.printStackTrace();
 		} finally {
 			try { in.close(); } catch (Exception e) { }
 		}

@@ -5,6 +5,8 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import javax.swing.ImageIcon;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.parsers.*;
@@ -60,15 +62,15 @@ final class Task implements Runnable
 	
 	private transient Set<TaskListener> listeners = new HashSet<TaskListener>();
 	
-//	private Book importedBook;
-//	private String warningMessage = "";
-//	private String errorMessage = "";
-//	private JComponent epanel;
-
 	@XmlElement(name="Step")
 	private Step step = Step.INIT;
 	@XmlElement(name="Steps")
 	private final Map<Step, State> steps = new HashMap<Step, State>();
+	
+	private transient Map<Double, XMLParser.XML_Book> results = new TreeMap<Double, XMLParser.XML_Book>(Collections.reverseOrder());
+	
+	@XmlElement(name="Book")
+	private String bookid;
 	
 	{
 		for(Step step : Step.values())
@@ -116,6 +118,11 @@ final class Task implements Runnable
 		return id;
 	}
 	
+	public String bookid()
+	{
+		return bookid;
+	}
+	
 	public String message()
 	{
 		return message;
@@ -136,14 +143,34 @@ final class Task implements Runnable
 		return workpath;
 	}
 	
+	public Map<Step, State> steps()
+	{
+		return steps;
+	}
+	
 	public Step step()
 	{
 		return step;
 	}
 	
-	public Map<Step, State> steps()
+	public Map<Double, XMLParser.XML_Book> results()
 	{
-		return steps;
+		if(id != null && results.isEmpty())
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
+			Unmarshaller um = context.createUnmarshaller();
+			XMLParser.XML_List list = (XMLParser.XML_List) um.unmarshal(
+				new FileInputStream(
+					new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml")));
+			results = new TreeMap<Double, XMLParser.XML_Book>(Collections.reverseOrder());
+			for(XMLParser.XML_Book xml_book : list.Books)
+			{
+				double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
+				results.put(result, xml_book);
+			}
+		} catch (Exception e) { e.printStackTrace(); }
+		return results;
 	}
 	
 	private void status(State status)
@@ -167,40 +194,44 @@ final class Task implements Runnable
 		message("Checking API key ...");
 		status(State.RUNNING);
 		
-		try
-		{
-			if(DoujinshiDBScanner.APIKEY == null ||
+		if(DoujinshiDBScanner.APIKEY == null ||
 				!(DoujinshiDBScanner.APIKEY + "").matches("[0-9a-f]{20}"))
 			{
 				message("Invalid API key provided.");
 				status(State.ERROR);
-				throw new Exception("Invalid API key provided.");
+				return;
 			} else {
 				message("DoujinshiDB API is valid.");
 				status(State.COMPLETED);
 			}
-			
+
 			step(Step.SCAN);
 			message("Searching for cover image ...");
 			status(State.RUNNING);
-			
+
 			File cover_file = findFile(workpath);
 			if(cover_file == null)
 			{
 				message("Cover image not found.");
 				status(State.ERROR);
-				throw new Exception("Cover image not found.");
+				return;
 			}
-			BufferedImage image = javax.imageio.ImageIO.read(cover_file);
+			BufferedImage image;
+			try {
+				image = javax.imageio.ImageIO.read(cover_file);
+			} catch (IOException ioe) {
+				message(ioe.getMessage());
+				status(State.ERROR);
+				return;
+			}
 			if(image == null)
 			{
 				message("Cover image not found.");
 				status(State.ERROR);
-				throw new Exception("Cover image not found.");
+				return;
 			}
 			message("Cover image found.");
 			File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
-			//FIXME? req_file.deleteOnExit();
 			BufferedImage resized;
 			{
 				BufferedImage dest;
@@ -232,35 +263,55 @@ final class Task implements Runnable
 				} catch (Exception e) {
 					message(e.getMessage());
 					status(State.ERROR);
-					throw new Exception(e.getMessage());
+					return;
 				}else
 				{
 					resized = dest;
 				}
-				javax.imageio.ImageIO.write(resized, "PNG", req_file);
+				try {
+					javax.imageio.ImageIO.write(resized, "PNG", req_file);
+				} catch (IOException ioe) {
+					message(ioe.getMessage());
+					status(State.ERROR);
+					return;
+				}
 				status(State.COMPLETED);
 			}
-			
+
 			step(Step.UPLOAD);
 			message("Sending cover image to doujinshi.mugimugi.org ...");
 			status(State.RUNNING);
-			
+
 			URLConnection urlc;
-			urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
-			urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
-			InputStream rsp_in = new ClientHttpRequest(urlc).post(
-		              new Object[] {
-		            	  "img", req_file
-		            	  });
-			File rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
-			FileOutputStream rsp_out = new FileOutputStream(rsp_file);
-			copyStream(rsp_in, rsp_out);
-			status(State.COMPLETED);
+			File rsp_file;
 			
+			try {
+				urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
+				urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
+				InputStream rsp_in = new ClientHttpRequest(urlc).post(
+				          new Object[] {
+				        	  "img", req_file
+				        	  });
+				rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+				FileOutputStream rsp_out = new FileOutputStream(rsp_file);
+				copyStream(rsp_in, rsp_out);
+				rsp_in.close();
+				rsp_out.close();
+			} catch (MalformedURLException murle) {
+				message(murle.getMessage());
+				status(State.ERROR);
+				return;
+			} catch (IOException ioe) {
+				message(ioe.getMessage());
+				status(State.ERROR);
+				return;
+			}
+			status(State.COMPLETED);
+
 			step(Step.PARSE);
 			message("Parsing XML response ...");
 			status(State.RUNNING);
-			
+
 			Book book;
 			{
 				XMLParser.XML_List list;
@@ -276,150 +327,41 @@ final class Task implements Runnable
 						throw new Exception("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 					}
 					DoujinshiDBScanner.User = list.USER;
-					HashMap<Double, XMLParser.XML_Book> books = new HashMap<Double, XMLParser.XML_Book>();
+					
 					double better_result = 0;
-					String result_string = "";
 					for(XMLParser.XML_Book xml_book : list.Books)
 					{
 						double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
-						books.put(result, xml_book);
+						results.put(result, xml_book);
 						if(result > better_result)
-						{
 							better_result = result;
-							result_string = xml_book.search;
-						}
 					}
-//					final String result_star = result_string;
 					if(threshold > better_result)
 					{
+						for(XMLParser.XML_Book result : results.values())
+						{
+							final int bid = Integer.parseInt(result.ID.substring(1));
+							// final URI uri = new URI("http://doujinshi.mugimugi.org/book/" + bid + "/");
+							try
+							{
+								URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
+								Image img = new ImageIcon(thumbURL).getImage();
+								BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+								bi.getGraphics().drawImage(img, 0, 0, null);
+								javax.imageio.ImageIO.write(bi,
+										"PNG",
+										new File(
+											new File(DoujinshiDBScanner.PLUGIN_HOME,
+													".cache"), result.ID + ".png"));
+							}catch(Exception e){ e.printStackTrace(); }
+						}
 						message("No query matched the threshold.");
-						status(State.ERROR);
-						throw new Exception("No query matched the threshold.");
-//						description = "No query matched the threshold (Double-click for more info).";
-//						status = TaskState.TASK_ERROR;
-//						epanel = new JPanel();
-//						epanel.setLayout(new BorderLayout(5, 5));
-//						if(!RESIZE_COVER)
-//							try
-//							{
-//								BufferedImage resized2 = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-//								int wi = resized.getWidth(null),
-//								hi = resized.getHeight(null),
-//								wl = 256, 
-//								hl = 256; 
-//								if ((double)wl/wi > (double)hl/hi)
-//								{
-//									wi = (int) (wi * (double)hl/hi);
-//									hi = (int) (hi * (double)hl/hi);
-//								}else{
-//									hi = (int) (hi * (double)wl/wi);
-//									wi = (int) (wi * (double)wl/wi);
-//								}
-//								resized2 = org.dyndns.doujindb.util.Image.getScaledInstance(resized, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
-//								resized = resized2;
-//							} catch (Exception e) {
-//								description = e.getMessage();
-//								status = TaskState.TASK_ERROR;
-//								throw new Exception(e.getMessage());
-//							}
-//						epanel.add(new JLabel(new ImageIcon(resized)), BorderLayout.WEST);
-//						JTabbedPane tabs = new JTabbedPane();
-//						for(XMLParser.XML_Book book : books.values())
-//						{
-//							final int bid = Integer.parseInt(book.ID.substring(1));
-//							final URI uri = new URI("http://doujinshi.mugimugi.org/book/" + bid + "/");
-//							final JLabel cover = new JLabel(new ImageIcon());
-//							new Thread(getClass().getName()+"/ImageURL/Download")
-//							{
-//								@Override
-//								public void run()
-//								{
-//									try
-//									{
-//										URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
-//										ImageIcon img = new ImageIcon(thumbURL);
-//										cover.setIcon(img);
-//									}catch(Exception e){ e.printStackTrace(); }
-//								}
-//							}.start();
-//							final JButton link = new JButton("http://doujinshidb/" + bid);
-//							link.setFont(Core.Resources.Font);
-//							link.setFocusable(false);
-//							link.addActionListener(new ActionListener()
-//							{
-//								@Override
-//								public void actionPerformed(ActionEvent ae) 
-//								{
-//									try
-//									{
-//										Desktop desktop = Desktop.getDesktop();
-//										desktop.browse(uri);
-//									} catch (IOException ioe) { }
-//									DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-//									window.dispose();
-//								}					
-//							});
-//							JPanel panel = new JPanel();
-//							panel.setLayout(new LayoutManager()
-//							{
-//
-//								@Override
-//								public void addLayoutComponent(String name, Component comp) { }
-//
-//								@Override
-//								public void layoutContainer(Container comp)
-//								{
-//									int width = comp.getWidth(), height = comp.getHeight();
-//									link.setBounds(1,1,width-2,15);
-//									cover.setBounds(1,16,width-2,height-18);
-//								}
-//
-//								@Override
-//								public Dimension minimumLayoutSize(Container comp) { return new Dimension(250,250); }
-//
-//								@Override
-//								public Dimension preferredLayoutSize(Container comp) { return new Dimension(250,250); }
-//
-//								@Override
-//								public void removeLayoutComponent(Component comp){}
-//								
-//							});
-//							panel.add(link);
-//							panel.add(cover);
-//							if(book.search.equals(result_star))
-//								tabs.addTab("" + book.search, Resources.Icons.get("Plugin/Task/SearchQuery/Star"), panel);
-//							else
-//								tabs.addTab("" + book.search, panel);
-//						}
-//						epanel.add(tabs, BorderLayout.EAST);
-//						JPanel bottom = new JPanel();
-//						bottom.setLayout(new BorderLayout(5, 5));
-//						final JCheckBox check = new JCheckBox("Set Threshold value = " + result_star);
-//						check.setFont(Core.Resources.Font);
-//						check.setFocusable(false);
-//						bottom.add(check, BorderLayout.NORTH);
-//						JButton ok = new JButton("Ok");
-//						ok.setFont(Core.Resources.Font);
-//						ok.setMnemonic('O');
-//						ok.setFocusable(false);
-//						ok.addActionListener(new ActionListener()
-//						{
-//							@Override
-//							public void actionPerformed(ActionEvent ae) 
-//							{
-//								if(check.isSelected())
-//									threshold = Double.parseDouble(result_star.replaceAll("%", "").replaceAll(",", "."));
-//								DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-//								window.dispose();
-//							}					
-//						});
-//						bottom.add(ok, BorderLayout.SOUTH);
-//						epanel.add(bottom, BorderLayout.SOUTH);
-//						throw new Exception("No query matched the threshold.");
+						status(State.WARNING);
+						return;
 					}
 					try
 					{
-						XMLParser.XML_Book xmlbook  = books.get(better_result);
+						XMLParser.XML_Book xmlbook  = results.get(better_result);
 						book = DoujinshiDBScanner.Context.doInsert(Book.class);
 						book.setJapaneseName(xmlbook.NAME_JP);
 						book.setTranslatedName(xmlbook.NAME_EN);
@@ -567,7 +509,6 @@ final class Task implements Runnable
 						}
 						status(State.COMPLETED);
 						
-						
 						step(Step.INSERT);
 						message("Committing ...");
 						status(State.RUNNING);
@@ -606,6 +547,8 @@ final class Task implements Runnable
 						
 						DoujinshiDBScanner.Context.doCommit();
 						
+						this.bookid = book.getID();
+						
 						/**
 						 * //FIXME When detecting multiple dupes???
 						for(Book book_ : Context.getBooks(null))
@@ -625,12 +568,18 @@ final class Task implements Runnable
 					message(e.getMessage());
 					status(State.ERROR);
 					e.printStackTrace();
-					throw new Exception(e.getMessage());
+					return;
 				}
 			}
 			message("Copying files into the Datastore ...");
 			for(File file : workpath.listFiles())
-				copyFile(file, Core.Repository.child(book.getID()));
+				try {
+					copyFile(file, Core.Repository.child(book.getID()));
+				} catch (DataBaseException | IOException e) {
+					message(e.getMessage());
+					status(State.ERROR);
+					e.printStackTrace();
+				}
 			try
 			{
 				message("Creating preview into the Datastore  ...");
@@ -661,11 +610,6 @@ final class Task implements Runnable
 				status(State.ERROR);
 				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			message(e.getMessage());
-			status(State.ERROR);
-			e.printStackTrace();
-		}
 	}
 
 	private File findFile(File directory)
@@ -728,57 +672,5 @@ final class Task implements Runnable
 		{
 			out.write(buff, 0, read);
 		}
-		in.close();
-		out.close();
 	}
-	
-	//FIXME
-//	private void openDialog()
-//	{	
-//		switch(status)
-//		{
-//		case TASK_COMPLETED:
-//			try {
-//				QueryBook query = new QueryBook();
-//				query.ID = importedBook.getID();
-//				RecordSet<Book> books = Core.Database.getBooks(query);
-//				for(Book b : books)
-//					if(b.getID().equals(importedBook.getID()))
-//						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, b);
-//			} catch (DataBaseException dbe) {
-//				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-//				dbe.printStackTrace();
-//			}
-//			break;
-//		case TASK_RUNNING:
-//			break;
-//		case TASK_QUEUED:
-//			break;
-//		case TASK_ERROR:
-//			try
-//			{ 
-//				try {
-//					Core.UI.Desktop.showDialog(
-//							(RootPaneContainer) getRootPane().getParent(),
-//							epanel, 
-//							IconError, 
-//							"Error - " + description.replaceAll(" \\(.*",""));
-//					} catch (PropertyVetoException pve) { }
-//			} catch (NullPointerException npe) { }
-//			break;
-//		case TASK_WARNING:
-//			try {
-//				QueryBook query = new QueryBook();
-//				query.ID = importedBook.getID();
-//				RecordSet<Book> books = Core.Database.getBooks(query);
-//				for(Book b : books)
-//					if(b.getID().equals(importedBook.getID()))
-//							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, b);
-//			} catch (DataBaseException dbe) {
-//				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-//				dbe.printStackTrace();
-//			}
-//			break;
-//		}				
-//	}
 }

@@ -47,7 +47,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"/ActionPerformed/SetWallpaper")
+				new Thread(getClass().getName()+"$ActionPerformed$SetWallpaper")
 				{
 					@Override
 					public void run()

@@ -209,7 +209,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()

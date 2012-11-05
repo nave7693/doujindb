@@ -69,7 +69,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"/ActionPerformed/Upload")
+				new Thread(getClass().getName()+"$ActionPerformed$Upload")
 				{
 					@Override
 					public void run()
@@ -113,7 +113,7 @@ public class PanelBookMedia extends JPanel
 			{
 				if(treeMedia.CheckBoxRenderer.getCheckedPaths().length < 1)
 					return;
-				new Thread(getClass().getName()+"/ActionPerformed/Download")
+				new Thread(getClass().getName()+"$ActionPerformed$Download")
 				{
 					@Override
 					public void run()
@@ -252,7 +252,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"/ActionPerformed/Package")
+				new Thread(getClass().getName()+"$ActionPerformed$Package")
 				{
 					@Override
 					public void run()

@@ -67,7 +67,7 @@ final class Task implements Runnable
 	@XmlElement(name="Steps")
 	private final Map<Step, State> steps = new HashMap<Step, State>();
 	
-	private transient Map<Double, XMLParser.XML_Book> results = new TreeMap<Double, XMLParser.XML_Book>(Collections.reverseOrder());
+	private transient Map<String, XMLParser.XML_Book> results = new TreeMap<String, XMLParser.XML_Book>(Collections.reverseOrder());
 	
 	@XmlElement(name="Book")
 	private String bookid;
@@ -118,9 +118,14 @@ final class Task implements Runnable
 		return id;
 	}
 	
-	public String bookid()
+	public String book()
 	{
 		return bookid;
+	}
+	
+	public void book(String book)
+	{
+		this.bookid = book;
 	}
 	
 	public String message()
@@ -153,7 +158,7 @@ final class Task implements Runnable
 		return step;
 	}
 	
-	public Map<Double, XMLParser.XML_Book> results()
+	public Map<String, XMLParser.XML_Book> results()
 	{
 		if(id != null && results.isEmpty())
 		try
@@ -163,11 +168,10 @@ final class Task implements Runnable
 			XMLParser.XML_List list = (XMLParser.XML_List) um.unmarshal(
 				new FileInputStream(
 					new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml")));
-			results = new TreeMap<Double, XMLParser.XML_Book>(Collections.reverseOrder());
+			results = new HashMap<String, XMLParser.XML_Book>();
 			for(XMLParser.XML_Book xml_book : list.Books)
 			{
-				double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
-				results.put(result, xml_book);
+				results.put(xml_book.ID, xml_book);
 			}
 		} catch (Exception e) { e.printStackTrace(); }
 		return results;
@@ -332,7 +336,7 @@ final class Task implements Runnable
 					for(XMLParser.XML_Book xml_book : list.Books)
 					{
 						double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
-						results.put(result, xml_book);
+						results.put(xml_book.ID, xml_book);
 						if(result > better_result)
 							better_result = result;
 					}
@@ -341,7 +345,6 @@ final class Task implements Runnable
 						for(XMLParser.XML_Book result : results.values())
 						{
 							final int bid = Integer.parseInt(result.ID.substring(1));
-							// final URI uri = new URI("http://doujinshi.mugimugi.org/book/" + bid + "/");
 							try
 							{
 								URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");

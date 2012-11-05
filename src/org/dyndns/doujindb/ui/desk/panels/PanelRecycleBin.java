@@ -78,7 +78,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Thread th = new Thread(getClass().getName()+"/ActionPerformed/Restore")
+				Thread th = new Thread(getClass().getName()+"$ActionPerformed$Restore")
 				{
 					@Override
 					public void run()
@@ -168,7 +168,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Thread th = new Thread(getClass().getName()+"/ActionPerformed/Delete")
+				Thread th = new Thread(getClass().getName()+"$ActionPerformed$Delete")
 				{
 					@Override
 					public void run()
@@ -337,7 +337,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				Thread th = new Thread(getClass().getName()+"/ActionPerformed/Empty")
+				Thread th = new Thread(getClass().getName()+"$ActionPerformed$Empty")
 				{
 					@Override
 					public void run()
@@ -717,7 +717,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 					tbl.put("Deselect All", Core.Resources.Icons.get("JFrame/RecycleBin/DeselectAll"));
 					final PopupMenuEx pop = new PopupMenuEx("Recycle Bin", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()

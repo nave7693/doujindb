@@ -170,7 +170,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()

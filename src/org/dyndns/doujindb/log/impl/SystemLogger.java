@@ -26,7 +26,7 @@ final class SystemLogger implements Logger
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSS");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-		new Thread(getClass().getName()+"/EventPoller")
+		new Thread(getClass().getName()+"$EventPoller")
 		{
 			@Override
 			public void run()

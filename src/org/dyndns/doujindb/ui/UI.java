@@ -703,7 +703,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if(event.getSource() == uiStatusBarConnect)
 		{
 			uiStatusBarConnect.setEnabled(false);
-			new Thread(getClass().getName()+"/ActionPerformed/Connect")
+			new Thread(getClass().getName()+"$ActionPerformed$Connect")
 			{
 				@Override
 				public void run()

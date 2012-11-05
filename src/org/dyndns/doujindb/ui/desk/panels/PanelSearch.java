@@ -337,7 +337,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -453,7 +453,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()
@@ -612,7 +612,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -728,7 +728,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()
@@ -905,7 +905,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			    		{
 			    			super();
 			    			Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
-			    			ImageLoader = new Thread(getClass().getName()+"/ImageLoader")
+			    			ImageLoader = new Thread(getClass().getName()+"$ImageLoader")
 			    			{
 			    				private String ID;
 			    				private String PrevID;
@@ -1008,7 +1008,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -1158,7 +1158,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()
@@ -1305,7 +1305,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -1409,7 +1409,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()
@@ -1543,7 +1543,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -1647,7 +1647,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()
@@ -1799,7 +1799,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"/MouseClicked")
+					new Thread(getClass().getName()+"$MouseClicked")
 					{
 						@Override
 						public void run()
@@ -1915,7 +1915,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 				buttonSearch.setText("Cancel");
 				buttonSearch.setMnemonic('C');
 				stopped = false;
-				process = new Thread(getClass().getName()+"/ActionPerformed")
+				process = new Thread(getClass().getName()+"$ActionPerformed")
 				{
 					@Override
 					public void run()

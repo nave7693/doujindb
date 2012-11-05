@@ -124,7 +124,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 						tbl.put("Remove Preview", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
 					final PopupMenuEx pop = new PopupMenuEx("", tbl);
 					pop.show(lab, me.getX(), me.getY());
-					new Thread(getClass().getName()+"/PopupMenu")
+					new Thread(getClass().getName()+"$PopupMenu")
 					{
 						@Override
 						public void run()

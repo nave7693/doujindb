@@ -163,7 +163,7 @@ public class DataBaseImpl extends DataBase
 
 		contexts = new Hashtable<String, DataBaseContext>();
 		
-		new Thread(getClass().getName()+"/EventPoller")
+		new Thread(getClass().getName()+"$EventPoller")
 		{
 			@Override
 			public void run()

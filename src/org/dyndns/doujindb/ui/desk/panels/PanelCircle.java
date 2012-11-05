@@ -91,7 +91,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 						tbl.put("Remove Banner", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
 					final PopupMenuEx pop = new PopupMenuEx("", tbl);
 					pop.show(lab, me.getX(), me.getY());
-					new Thread(getClass().getName()+"/PopupMenu")
+					new Thread(getClass().getName()+"$PopupMenu")
 					{
 						@Override
 						public void run()

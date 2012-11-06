@@ -23,7 +23,7 @@ final class SystemLogger implements Logger
 	
 	SystemLogger()
 	{
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSS");
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 		new Thread(getClass().getName()+"$EventPoller")

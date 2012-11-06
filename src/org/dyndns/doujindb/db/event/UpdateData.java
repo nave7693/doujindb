@@ -36,7 +36,7 @@ public class UpdateData
 	public static UpdateData property(String property)
 	{
 		UpdateData data = new UpdateData();
-		data.type = Type.LINK;
+		data.type = Type.PROPERTY;
 		data.property = property;
 		return data; 
 	}

@@ -397,11 +397,9 @@ public final class DoujinshiDBScanner extends Plugin
 						{
 							for(Task task : panelTasks)
 							{
-								if(!task.step().equals(Step.INIT) ||
-									!task.steps().get(Step.INIT).equals(Task.State.IDLE))
-								//FIXME if(task.isDone())
+								if(task.isDone())
 									continue;
-								workerThread = new Thread(task, getClass().getName()+"$Task[id:" + task.id() + "]");
+								workerThread = new Thread(task, getClass().getName()+"$Task[id:" + task.getId() + "]");
 								workerThread.start();
 								break;
 							}
@@ -635,13 +633,15 @@ public final class DoujinshiDBScanner extends Plugin
 				for(Task task : map.keySet())
 				{
 					boolean iscompleted = true;
-					for(State status : task.steps().values())
-						if(!status.equals(Task.State.COMPLETED) &&
-							!status.equals(Task.State.WARNING))
+					for(Step step : Step.values())
+					{
+						State status = task.getStatus(step);
+						if(!status.equals(Task.State.COMPLETED))
 						{
 							iscompleted = false;
 							break;
 						}
+					}
 					if(iscompleted)
 						completed.add(task);
 				}
@@ -696,9 +696,10 @@ public final class DoujinshiDBScanner extends Plugin
 			private JButton buttonToggle;
 			private JButton buttonLink;
 			private JButton buttonFolder;
+			private JButton buttonRerun;
 			private JCheckBox bottonSelection;
 			private Map<Double, JButton> buttonResults;
-			private String resultId = "";
+			private String resultId;
 			private Map<Task.Step, JLabel> steps;
 			private final Map<Task.State, ImageIcon> icons = new HashMap<Task.State, ImageIcon>();
 			
@@ -728,8 +729,8 @@ public final class DoujinshiDBScanner extends Plugin
 				setForeground(UIManager.getColor("List.textForeground"));
 				setPreferredSize(new Dimension(280, 20));
 				titleBar = new JLabel();
-				titleBar.setText(task.message());
-				titleBar.setIcon(icons.get(task.steps().get(task.step())));
+				titleBar.setText(task.getMessage());
+				titleBar.setIcon(icons.get(task.getStatus(task.getStep())));
 				add(titleBar);
 				imagePreview = new JLabel();
 				imagePreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
@@ -744,7 +745,7 @@ public final class DoujinshiDBScanner extends Plugin
 				{
 					@Override
 					public void actionPerformed(ActionEvent ae) {
-						String bookid = TaskUI.this.task.book();
+						String bookid = TaskUI.this.task.getBook();
 						if(bookid != null)
 						{
 							QueryBook qid = new QueryBook();
@@ -756,13 +757,26 @@ public final class DoujinshiDBScanner extends Plugin
 					}
 				});
 				add(buttonLink);
+				buttonRerun = new JButton(Resources.Icons.get("Plugin/Task/Rerun"));
+				buttonRerun.setFocusable(false);
+				buttonRerun.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+							TaskUI.this.task.setBook(resultId);
+							TaskUI.this.task.setDone(false);
+							doLayout();
+							validate();
+					}
+				});
+				add(buttonRerun);
 				buttonFolder = new JButton(Resources.Icons.get("Plugin/Task/Folder"));
 				buttonFolder.setFocusable(false);
 				buttonFolder.addActionListener(new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent ae) {
-						File workpath = TaskUI.this.task.workpath();
+						File workpath = TaskUI.this.task.getWorkpath();
 						try {
 							URI uri = workpath.toURI();
 							Desktop.getDesktop().browse(uri);
@@ -776,32 +790,32 @@ public final class DoujinshiDBScanner extends Plugin
 				bottonSelection.setSelected(false);
 				add(bottonSelection);
 				steps = new TreeMap<Task.Step, JLabel>();
-				for(Task.Step step : task.steps().keySet())
+				for(Task.Step step : task.getSteps())
 				{
 					JLabel labelStep = new JLabel();
 					labelStep.setFont(Core.Resources.Font);
 					labelStep.setText("" + step);
-					labelStep.setIcon(icons.get(task.steps().get(step)));
+					labelStep.setIcon(icons.get(task.getStatus(step)));
 					steps.put(step, labelStep);
 					add(labelStep);
 				}
 				/**
 				 * Check if cover image is ready to be shown
 				 */
-				if(task.steps().get(Step.SCAN).equals(State.COMPLETED))
+				if(task.getStatus(Step.SCAN).equals(State.COMPLETED))
 				{
 					try {
 						imagePreview.setIcon(
 							new ImageIcon(
 								javax.imageio.ImageIO.read(
-									new File(DoujinshiDBScanner.PLUGIN_HOME, task.id() + ".png"))));
+									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
 				}
-				if(task.steps().get(Step.PARSE).equals(State.WARNING))
+				if(task.getStatus(Step.PARSE).equals(State.WARNING))
 				{
-					Map<String, XMLParser.XML_Book> results = task.results();
+					Map<String, XMLParser.XML_Book> results = task.getResults();
 					buttonResults = new TreeMap<Double, JButton>(Collections.reverseOrder());
 					for(String id : results.keySet())
 					{
@@ -823,7 +837,9 @@ public final class DoujinshiDBScanner extends Plugin
 						add(buttonResult);
 					}
 					// First result is already expanded
-					buttonResults.values().iterator().next().setPreferredSize(new Dimension(110, 155));
+					JButton firstResult = buttonResults.values().iterator().next();
+					firstResult.setPreferredSize(new Dimension(110, 155));
+					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
 				}
 				this.task = task;
 				this.task.addTaskListener(this);
@@ -838,10 +854,15 @@ public final class DoujinshiDBScanner extends Plugin
 				bottonSelection.setBounds(width - 40, 0, 20, 20);
 				buttonToggle.setBounds(width - 20, 0, 20, 20);
 				buttonFolder.setBounds(width - 60, 0, 20, 20);
-				if(task.book() != null)
+				if(task.getBook() != null)
 					buttonLink.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonLink.setBounds(width - 80, 0, 0, 0);
+				if(task.getStatus(Step.PARSE).equals(State.WARNING)
+						&& task.isDone())
+					buttonRerun.setBounds(width - 80, 0, 20, 20);
+				else
+					buttonRerun.setBounds(width - 80, 0, 0, 0);
 				titleBar.setBounds(0, 0, width - 80, 20);
 				imagePreview.setBounds(0, 20, 200, 256);
 				int index = 0;
@@ -849,7 +870,7 @@ public final class DoujinshiDBScanner extends Plugin
 					labelStep.setBounds(200, index = index + 18, width - 210, 20);
 				/**
 				 * Race conditions : State = WARNING, but we don't still have buttonResults initialized and layoutContainer kicks in
-				 * if(task.steps().get(Step.PARSE).equals(State.WARNING))
+				 * if(task.getSteps().get(Step.PARSE).equals(State.WARNING))
 				 */
 				if(buttonResults != null)
 				{
@@ -905,6 +926,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 				if(ae.getActionCommand().startsWith("setResult:"))
 				{
+					resultId = ae.getActionCommand().substring(ae.getActionCommand().indexOf(':') + 1);
 					JButton source = (JButton) ae.getSource();
 					for(JButton button : buttonResults.values())
 					{
@@ -920,7 +942,7 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			public void statusChanged(Step step, State status) {
 				titleBar.setIcon(icons.get(status));
-				titleBar.setText(task.message());
+				titleBar.setText(task.getMessage());
 				steps.get(step).setIcon(icons.get(status));
 				/**
 				 * Check if cover image is ready to be shown
@@ -931,14 +953,14 @@ public final class DoujinshiDBScanner extends Plugin
 						imagePreview.setIcon(
 							new ImageIcon(
 								javax.imageio.ImageIO.read(
-									new File(DoujinshiDBScanner.PLUGIN_HOME, task.id() + ".png"))));
+									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
 				}
 				if(step.equals(Step.PARSE) && status.equals(State.WARNING))
 				{
-					Map<String, XMLParser.XML_Book> results = task.results();
+					Map<String, XMLParser.XML_Book> results = task.getResults();
 					buttonResults = new TreeMap<Double, JButton>(Collections.reverseOrder());
 					for(String id : results.keySet())
 					{
@@ -963,7 +985,9 @@ public final class DoujinshiDBScanner extends Plugin
 						add(buttonResult);
 					}
 					// First result is already expanded
-					buttonResults.values().iterator().next().setPreferredSize(new Dimension(110, 155));
+					JButton firstResult = buttonResults.values().iterator().next();
+					firstResult.setPreferredSize(new Dimension(110, 155));
+					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
 					doLayout();
 					validate();
 				}
@@ -971,7 +995,7 @@ public final class DoujinshiDBScanner extends Plugin
 
 			@Override
 			public void stepChanged(Step step) {
-				titleBar.setText(task.message());
+				titleBar.setText(task.getMessage());
 			}
 
 			@Override

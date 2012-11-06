@@ -19,6 +19,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="Task")
 final class Task implements Runnable
 {
@@ -70,7 +71,12 @@ final class Task implements Runnable
 	private transient Map<String, XMLParser.XML_Book> results = new TreeMap<String, XMLParser.XML_Book>(Collections.reverseOrder());
 	
 	@XmlElement(name="Book")
-	private String bookid;
+	private String book;
+	
+	private transient String bookid;
+	
+	@XmlElement(name="Done")
+	private boolean done;
 	
 	{
 		for(Step step : Step.values())
@@ -113,52 +119,57 @@ final class Task implements Runnable
 			return ((Task)obj).id.equals(id);
 	}
 	
-	public String id()
+	public String getId()
 	{
 		return id;
 	}
 	
-	public String book()
+	public String getBook()
 	{
-		return bookid;
+		return book;
 	}
 	
-	public void book(String book)
+	public void setBook(String book)
 	{
 		this.bookid = book;
 	}
 	
-	public String message()
+	public String getMessage()
 	{
 		return message;
 	}
 	
-	private void message(String message)
+	private void setMessage(String message)
 	{
 		this.message = message;
 	}
 	
-	public double threshold()
+	public double getThreshold()
 	{
 		return threshold;
 	}
 	
-	public File workpath()
+	public File getWorkpath()
 	{
 		return workpath;
 	}
 	
-	public Map<Step, State> steps()
+	public Iterable<Step> getSteps()
 	{
-		return steps;
+		return steps.keySet();
 	}
 	
-	public Step step()
+	public State getStatus(Step step)
+	{
+		return steps.get(step);
+	}
+	
+	public Step getStep()
 	{
 		return step;
 	}
 	
-	public Map<String, XMLParser.XML_Book> results()
+	public Map<String, XMLParser.XML_Book> getResults()
 	{
 		if(id != null && results.isEmpty())
 		try
@@ -177,14 +188,14 @@ final class Task implements Runnable
 		return results;
 	}
 	
-	private void status(State status)
+	private void setStatus(State status)
 	{
 		this.steps.put(step, status);
 		for(TaskListener tl : listeners)
 			tl.statusChanged(step, status);
 	}
 	
-	private void step(Step step)
+	private void setStep(Step step)
 	{
 		this.step = step;
 		for(TaskListener tl : listeners)
@@ -194,425 +205,57 @@ final class Task implements Runnable
 	@Override
 	public void run()
 	{
-		step(Step.INIT);
-		message("Checking API key ...");
-		status(State.RUNNING);
+		if(!getStatus(Step.INIT).equals(State.COMPLETED))
+		{
+			setStatus(doInit());
+			if(!getStatus(Step.INIT).equals(State.COMPLETED))
+			{
+				setDone(true);
+				return;
+			}
+		}
+
+		if(!getStatus(Step.SCAN).equals(State.COMPLETED))
+		{
+			setStatus(doScan());
+			if(!getStatus(Step.SCAN).equals(State.COMPLETED))
+			{
+				setDone(true);
+				return;
+			}
+		}
 		
-		if(DoujinshiDBScanner.APIKEY == null ||
-				!(DoujinshiDBScanner.APIKEY + "").matches("[0-9a-f]{20}"))
+		if(!getStatus(Step.UPLOAD).equals(State.COMPLETED))
+		{
+			setStatus(doUpload());
+			if(!getStatus(Step.UPLOAD).equals(State.COMPLETED))
 			{
-				message("Invalid API key provided.");
-				status(State.ERROR);
-				return;
-			} else {
-				message("DoujinshiDB API is valid.");
-				status(State.COMPLETED);
-			}
-
-			step(Step.SCAN);
-			message("Searching for cover image ...");
-			status(State.RUNNING);
-
-			File cover_file = findFile(workpath);
-			if(cover_file == null)
-			{
-				message("Cover image not found.");
-				status(State.ERROR);
+				setDone(true);
 				return;
 			}
-			BufferedImage image;
-			try {
-				image = javax.imageio.ImageIO.read(cover_file);
-			} catch (IOException ioe) {
-				message(ioe.getMessage());
-				status(State.ERROR);
+		}
+		
+		if(!getStatus(Step.PARSE).equals(State.COMPLETED))
+		{
+			setStatus(doParse());
+			if(!getStatus(Step.PARSE).equals(State.COMPLETED))
+			{
+				setDone(true);
 				return;
 			}
-			if(image == null)
+		}
+		
+		if(!getStatus(Step.INSERT).equals(State.COMPLETED))
+		{
+			setStatus(doInsert());
+			if(!getStatus(Step.INSERT).equals(State.COMPLETED))
 			{
-				message("Cover image not found.");
-				status(State.ERROR);
+				setDone(true);
 				return;
 			}
-			message("Cover image found.");
-			File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
-			BufferedImage resized;
-			{
-				BufferedImage dest;
-				if(image.getWidth() > image.getHeight())
-					dest = new BufferedImage(image.getWidth() / 2, image.getHeight(), BufferedImage.TYPE_INT_RGB);
-				else
-					dest = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-				Graphics g = dest.getGraphics();
-				g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
-				g.dispose();
-				if(DoujinshiDBScanner.RESIZE_COVER)
-				try
-				{
-					message("Resizing image before upload  ...");
-					resized = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-					int wi = dest.getWidth(null),
-					hi = dest.getHeight(null),
-					wl = 256, 
-					hl = 256; 
-					if ((double)wl/wi > (double)hl/hi)
-					{
-						wi = (int) (wi * (double)hl/hi);
-						hi = (int) (hi * (double)hl/hi);
-					}else{
-						hi = (int) (hi * (double)wl/wi);
-						wi = (int) (wi * (double)wl/wi);
-					}
-					resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
-				} catch (Exception e) {
-					message(e.getMessage());
-					status(State.ERROR);
-					return;
-				}else
-				{
-					resized = dest;
-				}
-				try {
-					javax.imageio.ImageIO.write(resized, "PNG", req_file);
-				} catch (IOException ioe) {
-					message(ioe.getMessage());
-					status(State.ERROR);
-					return;
-				}
-				status(State.COMPLETED);
-			}
+		}
 
-			step(Step.UPLOAD);
-			message("Sending cover image to doujinshi.mugimugi.org ...");
-			status(State.RUNNING);
-
-			URLConnection urlc;
-			File rsp_file;
-			
-			try {
-				urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
-				urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
-				InputStream rsp_in = new ClientHttpRequest(urlc).post(
-				          new Object[] {
-				        	  "img", req_file
-				        	  });
-				rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
-				FileOutputStream rsp_out = new FileOutputStream(rsp_file);
-				copyStream(rsp_in, rsp_out);
-				rsp_in.close();
-				rsp_out.close();
-			} catch (MalformedURLException murle) {
-				message(murle.getMessage());
-				status(State.ERROR);
-				return;
-			} catch (IOException ioe) {
-				message(ioe.getMessage());
-				status(State.ERROR);
-				return;
-			}
-			status(State.COMPLETED);
-
-			step(Step.PARSE);
-			message("Parsing XML response ...");
-			status(State.RUNNING);
-
-			Book book;
-			{
-				XMLParser.XML_List list;
-				try
-				{
-					JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
-					Unmarshaller um = context.createUnmarshaller();
-					list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rsp_file));
-					if(list.ERROR != null)
-					{
-						message("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
-						status(State.ERROR);
-						throw new Exception("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
-					}
-					DoujinshiDBScanner.User = list.USER;
-					
-					double better_result = 0;
-					for(XMLParser.XML_Book xml_book : list.Books)
-					{
-						double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
-						results.put(xml_book.ID, xml_book);
-						if(result > better_result)
-							better_result = result;
-					}
-					if(threshold > better_result)
-					{
-						for(XMLParser.XML_Book result : results.values())
-						{
-							final int bid = Integer.parseInt(result.ID.substring(1));
-							try
-							{
-								URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
-								Image img = new ImageIcon(thumbURL).getImage();
-								BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
-								bi.getGraphics().drawImage(img, 0, 0, null);
-								javax.imageio.ImageIO.write(bi,
-										"PNG",
-										new File(
-											new File(DoujinshiDBScanner.PLUGIN_HOME,
-													".cache"), result.ID + ".png"));
-							}catch(Exception e){ e.printStackTrace(); }
-						}
-						message("No query matched the threshold.");
-						status(State.WARNING);
-						return;
-					}
-					try
-					{
-						XMLParser.XML_Book xmlbook  = results.get(better_result);
-						book = DoujinshiDBScanner.Context.doInsert(Book.class);
-						book.setJapaneseName(xmlbook.NAME_JP);
-						book.setTranslatedName(xmlbook.NAME_EN);
-						book.setRomajiName(xmlbook.NAME_R);
-						book.setDate(xmlbook.DATE_RELEASED);
-						book.setPages(xmlbook.DATA_PAGES);
-						book.setAdult(xmlbook.DATA_AGE == 1);
-						book.setDecensored(false);
-						book.setTranslated(false);
-						book.setColored(false);
-						book.setRating(Rating.UNRATED);
-						book.setInfo(xmlbook.DATA_INFO);
-						
-						RecordSet<Artist> artists = DoujinshiDBScanner.Context.getArtists(null);
-						RecordSet<Circle> circles = DoujinshiDBScanner.Context.getCircles(null);
-						RecordSet<Parody> parodies = DoujinshiDBScanner.Context.getParodies(null);
-						RecordSet<Content> contents = DoujinshiDBScanner.Context.getContents(null);
-						RecordSet<Convention> conventions = DoujinshiDBScanner.Context.getConventions(null);
-						
-						Map<String, Artist> alink = new HashMap<String, Artist>();
-						Map<String, Circle> clink = new HashMap<String, Circle>();
-						
-						for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items)
-						{
-							try
-							{
-								switch(xmlitem.TYPE)
-								{
-								case type:
-									for(Book.Type type : Book.Type.values())
-										if(type.toString().equals(xmlitem.NAME_JP))
-											book.setType(type);
-									break;
-								case author:
-									_case:{
-										for(Artist artist : artists)
-											if((artist.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-												(artist.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-												(artist.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-											{
-												book.addArtist(artist);
-												alink.put(xmlitem.ID, artist);
-												break _case;
-											}
-										Artist a = DoujinshiDBScanner.Context.doInsert(Artist.class);
-										a.setJapaneseName(xmlitem.NAME_JP);
-										a.setTranslatedName(xmlitem.NAME_EN);
-										a.setRomajiName(xmlitem.NAME_R);
-										book.addArtist(a);
-										alink.put(xmlitem.ID, a);
-									}
-									break;
-								case character:
-									break;
-								case circle:
-									/**
-									 * Ok, we cannot link book <--> circle directly.
-									 * We have to link book <--> artist <--> circle instead.
-									 */
-									_case:{
-										for(Circle circle : circles)
-											if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-													(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-													(circle.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-											{
-												// book.addCircle(circle);
-												clink.put(xmlitem.ID, circle);
-												break _case;
-											}
-										Circle c = DoujinshiDBScanner.Context.doInsert(Circle.class);
-										c.setJapaneseName(xmlitem.NAME_JP);
-										c.setTranslatedName(xmlitem.NAME_EN);
-										c.setRomajiName(xmlitem.NAME_R);
-										// book.addCircle(c);
-										clink.put(xmlitem.ID, c);
-									}
-									break;
-								case collections:
-									break;
-								case contents:
-									_case:{
-										for(Content content : contents)
-											if((content.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-													content.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-													content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
-													content.getAliases().contains(xmlitem.NAME_JP) ||
-													content.getAliases().contains(xmlitem.NAME_EN) ||
-													content.getAliases().contains(xmlitem.NAME_R))
-											{
-												book.addContent(content);
-												break _case;
-											}
-										Content cn = DoujinshiDBScanner.Context.doInsert(Content.class);
-										// Tag Name priority NAME_JP > NAME_EN > NAME_R
-										cn.setTagName(xmlitem.NAME_JP.equals("")?xmlitem.NAME_EN.equals("")?xmlitem.NAME_R:xmlitem.NAME_EN:xmlitem.NAME_JP);
-										book.addContent(cn);
-									}
-									break;
-								case convention:
-									if(book.getConvention() != null)
-										break;
-									_case:{
-										for(Convention convention : conventions)
-											if((convention.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-													convention.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-													convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
-													convention.getAliases().contains(xmlitem.NAME_JP) ||
-													convention.getAliases().contains(xmlitem.NAME_EN) ||
-													convention.getAliases().contains(xmlitem.NAME_R))
-											{
-												book.setConvention(convention);
-												break _case;
-											}
-										Convention cv = DoujinshiDBScanner.Context.doInsert(Convention.class);
-										// Tag Name priority NAME_EN > NAME_JP > NAME_R
-										cv.setTagName(xmlitem.NAME_EN.equals("")?xmlitem.NAME_JP.equals("")?xmlitem.NAME_R:xmlitem.NAME_JP:xmlitem.NAME_EN);
-										book.setConvention(cv);
-									}
-									break;
-								case genre:
-									break;
-								case imprint:
-									break;
-								case parody:
-									_case:{
-									for(Parody parody : parodies)
-										if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-												(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-												(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-										{
-											book.addParody(parody);
-											break _case;
-										}
-									Parody p = DoujinshiDBScanner.Context.doInsert(Parody.class);
-									p.setJapaneseName(xmlitem.NAME_JP);
-									p.setTranslatedName(xmlitem.NAME_EN);
-									p.setRomajiName(xmlitem.NAME_R);
-									book.addParody(p);
-									}
-									break;
-								case publisher:
-									break;
-								}
-							} catch(Exception e) { e.printStackTrace(); }
-						}
-						status(State.COMPLETED);
-						
-						step(Step.INSERT);
-						message("Committing ...");
-						status(State.RUNNING);
-						
-						DoujinshiDBScanner.Context.doCommit();
-						
-						if(alink.size() > 0 && clink.size() > 0)
-						{
-							String[] ckeys = (String[]) clink.keySet().toArray(new String[0]);
-							String[] akeys = (String[]) alink.keySet().toArray(new String[0]);
-							String ids = ckeys[0];
-							for(int i=1;i<ckeys.length;i++)
-								ids += ckeys[i] + ",";
-							urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
-							urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
-							InputStream in0 = urlc.getInputStream();
-							DocumentBuilderFactory docfactory = DocumentBuilderFactory.newInstance();
-							docfactory.setNamespaceAware(true);
-							DocumentBuilder builder = docfactory.newDocumentBuilder();
-							Document doc = builder.parse(in0);
-							XPathFactory xmlfactory = XPathFactory.newInstance();
-							XPath xpath = xmlfactory.newXPath();
-							for(String cid : ckeys)
-							{
-								for(String aid : akeys)
-								{
-									XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
-									Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
-									if(node == null)
-										continue;
-									else
-										clink.get(cid).addArtist(alink.get(aid));
-								}
-							}
-						}
-						
-						DoujinshiDBScanner.Context.doCommit();
-						
-						this.bookid = book.getID();
-						
-						/**
-						 * //FIXME When detecting multiple dupes???
-						for(Book book_ : Context.getBooks(null))
-							if(book.getJapaneseName().equals(book_.getJapaneseName()) && !book.getID().equals(book_.getID()))
-							{
-								status(State.WARNING);
-								message("Possible duplicate item detected [ID='"+book_.getID()+"'].");
-							}
-						*/
-					} catch (Exception e) {
-						message(e.getMessage());
-						status(State.ERROR);
-						e.printStackTrace();
-						throw new Exception(e.getMessage());
-					}
-				} catch (Exception e) {
-					message(e.getMessage());
-					status(State.ERROR);
-					e.printStackTrace();
-					return;
-				}
-			}
-			message("Copying files into the Datastore ...");
-			for(File file : workpath.listFiles())
-				try {
-					copyFile(file, Core.Repository.child(book.getID()));
-				} catch (DataBaseException | IOException e) {
-					message(e.getMessage());
-					status(State.ERROR);
-					e.printStackTrace();
-				}
-			try
-			{
-				message("Creating preview into the Datastore  ...");
-				DataFile ds = Core.Repository.child(book.getID());
-				ds.mkdir();
-				ds = Core.Repository.getPreview(book.getID());
-				ds.touch();
-				OutputStream out = ds.getOutputStream();
-				int wi = image.getWidth(null),
-				hi = image.getHeight(null),
-				wl = 256, 
-				hl = 256; 
-				if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than 256x256, or getScaledInstance is going to loop
-					if ((double)wl/wi > (double)hl/hi)
-					{
-						wi = (int) (wi * (double)hl/hi);
-						hi = (int) (hi * (double)hl/hi);
-					}else{
-						hi = (int) (hi * (double)wl/wi);
-						wi = (int) (wi * (double)wl/wi);
-					}
-				javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
-				out.close();
-				message("Doujin successfully imported.");
-				status(State.COMPLETED);
-			} catch (Exception e) {
-				message(e.getMessage());
-				status(State.ERROR);
-				e.printStackTrace();
-			}
+		setDone(true);
 	}
 
 	private File findFile(File directory)
@@ -675,5 +318,455 @@ final class Task implements Runnable
 		{
 			out.write(buff, 0, read);
 		}
+	}
+	
+	private State doInit()
+	{
+		setStep(Step.INIT);
+		setStatus(State.RUNNING);
+		setMessage("Checking API key ...");
+		
+		if(DoujinshiDBScanner.APIKEY == null ||
+				!(DoujinshiDBScanner.APIKEY + "").matches("[0-9a-f]{20}"))
+		{
+			setMessage("Invalid API key provided.");
+			return State.ERROR;
+		} else {
+			setMessage("DoujinshiDB API is valid.");
+			return State.COMPLETED;
+		}
+	}
+	
+	private State doScan()
+	{
+		setStep(Step.SCAN);
+		setStatus(State.RUNNING);
+		setMessage("Searching for cover image ...");
+
+		File cover_file = findFile(workpath);
+		if(cover_file == null)
+		{
+			setMessage("Cover image not found.");
+			return State.ERROR;
+		}
+		BufferedImage image;
+		try {
+			image = javax.imageio.ImageIO.read(cover_file);
+		} catch (IOException ioe) {
+			setMessage(ioe.getMessage());
+			return State.ERROR;
+		}
+		if(image == null)
+		{
+			setMessage("Cover image not found.");
+			return State.ERROR;
+		}
+		setMessage("Cover image found.");
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		BufferedImage resized;
+		{
+			BufferedImage dest;
+			if(image.getWidth() > image.getHeight())
+				dest = new BufferedImage(image.getWidth() / 2, image.getHeight(), BufferedImage.TYPE_INT_RGB);
+			else
+				dest = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+			Graphics g = dest.getGraphics();
+			g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+			g.dispose();
+			if(DoujinshiDBScanner.RESIZE_COVER)
+			try
+			{
+				setMessage("Resizing image before upload  ...");
+				resized = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+				int wi = dest.getWidth(null),
+				hi = dest.getHeight(null),
+				wl = 256, 
+				hl = 256; 
+				if ((double)wl/wi > (double)hl/hi)
+				{
+					wi = (int) (wi * (double)hl/hi);
+					hi = (int) (hi * (double)hl/hi);
+				}else{
+					hi = (int) (hi * (double)wl/wi);
+					wi = (int) (wi * (double)wl/wi);
+				}
+				resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+			} catch (Exception e) {
+				setMessage(e.getMessage());
+				return State.ERROR;
+			}else
+			{
+				resized = dest;
+			}
+			try {
+				javax.imageio.ImageIO.write(resized, "PNG", req_file);
+			} catch (IOException ioe) {
+				setMessage(ioe.getMessage());
+				return State.ERROR;
+			}
+			return State.COMPLETED;
+		}
+	}
+	
+	private State doUpload()
+	{
+		setStep(Step.UPLOAD);
+		setStatus(State.RUNNING);
+		setMessage("Sending cover image to doujinshi.mugimugi.org ...");
+
+		URLConnection urlc;
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		File rsp_file;
+		
+		try {
+			urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
+			urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
+			InputStream rsp_in = new ClientHttpRequest(urlc).post(
+			          new Object[] {
+			        	  "img", req_file
+			        	  });
+			rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+			FileOutputStream rsp_out = new FileOutputStream(rsp_file);
+			copyStream(rsp_in, rsp_out);
+			rsp_in.close();
+			rsp_out.close();
+		} catch (MalformedURLException murle) {
+			setMessage(murle.getMessage());
+			return State.ERROR;
+		} catch (IOException ioe) {
+			setMessage(ioe.getMessage());
+			return State.ERROR;
+		}
+		return State.COMPLETED;
+	}
+	
+	private State doParse()
+	{
+		setStep(Step.PARSE);
+		setStatus(State.RUNNING);
+		setMessage("Parsing XML response ...");
+		
+		if(this.bookid != null)
+		{
+			return State.COMPLETED;
+		}
+		
+		File rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+		XMLParser.XML_List list;
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
+			Unmarshaller um = context.createUnmarshaller();
+			list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rsp_file));
+			if(list.ERROR != null)
+			{
+				setMessage("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+				throw new Exception("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+			}
+			DoujinshiDBScanner.User = list.USER;
+			
+			double better_result = 0;
+			for(XMLParser.XML_Book xml_book : list.Books)
+			{
+				double result = Double.parseDouble(xml_book.search.replaceAll("%", "").replaceAll(",", "."));
+				results.put(xml_book.ID, xml_book);
+				if(result > better_result)
+				{
+					better_result = result;
+					this.bookid = xml_book.ID;
+				}
+			}
+			if(threshold > better_result)
+			{
+				/**
+				 * Reset found bookid
+				 */
+				this.bookid = null;
+				/**
+				 * Get more data from the DoujinshiDB (images)
+				 */
+				for(XMLParser.XML_Book result : results.values())
+				{
+					final int bid = Integer.parseInt(result.ID.substring(1));
+					try
+					{
+						URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
+						Image img = new ImageIcon(thumbURL).getImage();
+						BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+						bi.getGraphics().drawImage(img, 0, 0, null);
+						javax.imageio.ImageIO.write(bi,
+								"PNG",
+								new File(
+									new File(DoujinshiDBScanner.PLUGIN_HOME,
+											".cache"), result.ID + ".png"));
+					}catch(Exception e){ e.printStackTrace(); }
+				}
+				setMessage("No query matched the threshold.");
+				return State.WARNING;
+			} else {
+				return State.COMPLETED;
+			}
+		} catch (Exception e) {
+			setMessage(e.getMessage());
+			return State.ERROR;
+		}
+	}
+	
+	private State doInsert()
+	{
+		setStep(Step.INSERT);
+		setStatus(State.RUNNING);
+		setMessage("Importing data ...");
+		
+		Book book;
+		try
+		{
+			XMLParser.XML_Book xmlbook  = results.get(this.bookid);
+			book = DoujinshiDBScanner.Context.doInsert(Book.class);
+			book.setJapaneseName(xmlbook.NAME_JP);
+			book.setTranslatedName(xmlbook.NAME_EN);
+			book.setRomajiName(xmlbook.NAME_R);
+			book.setDate(xmlbook.DATE_RELEASED);
+			book.setPages(xmlbook.DATA_PAGES);
+			book.setAdult(xmlbook.DATA_AGE == 1);
+			book.setDecensored(false);
+			book.setTranslated(false);
+			book.setColored(false);
+			book.setRating(Rating.UNRATED);
+			book.setInfo(xmlbook.DATA_INFO);
+			
+			RecordSet<Artist> artists = DoujinshiDBScanner.Context.getArtists(null);
+			RecordSet<Circle> circles = DoujinshiDBScanner.Context.getCircles(null);
+			RecordSet<Parody> parodies = DoujinshiDBScanner.Context.getParodies(null);
+			RecordSet<Content> contents = DoujinshiDBScanner.Context.getContents(null);
+			RecordSet<Convention> conventions = DoujinshiDBScanner.Context.getConventions(null);
+			
+			Map<String, Artist> alink = new HashMap<String, Artist>();
+			Map<String, Circle> clink = new HashMap<String, Circle>();
+			
+			for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items)
+			{
+				try
+				{
+					switch(xmlitem.TYPE)
+					{
+					case type:
+						for(Book.Type type : Book.Type.values())
+							if(type.toString().equals(xmlitem.NAME_JP))
+								book.setType(type);
+						break;
+					case author:
+						_case:{
+							for(Artist artist : artists)
+								if((artist.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+									(artist.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+									(artist.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+								{
+									book.addArtist(artist);
+									alink.put(xmlitem.ID, artist);
+									break _case;
+								}
+							Artist a = DoujinshiDBScanner.Context.doInsert(Artist.class);
+							a.setJapaneseName(xmlitem.NAME_JP);
+							a.setTranslatedName(xmlitem.NAME_EN);
+							a.setRomajiName(xmlitem.NAME_R);
+							book.addArtist(a);
+							alink.put(xmlitem.ID, a);
+						}
+						break;
+					case character:
+						break;
+					case circle:
+						/**
+						 * Ok, we cannot link book <--> circle directly.
+						 * We have to link book <--> artist <--> circle instead.
+						 */
+						_case:{
+							for(Circle circle : circles)
+								if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+										(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+										(circle.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+								{
+									// book.addCircle(circle);
+									clink.put(xmlitem.ID, circle);
+									break _case;
+								}
+							Circle c = DoujinshiDBScanner.Context.doInsert(Circle.class);
+							c.setJapaneseName(xmlitem.NAME_JP);
+							c.setTranslatedName(xmlitem.NAME_EN);
+							c.setRomajiName(xmlitem.NAME_R);
+							// book.addCircle(c);
+							clink.put(xmlitem.ID, c);
+						}
+						break;
+					case collections:
+						break;
+					case contents:
+						_case:{
+							for(Content content : contents)
+								if((content.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+										content.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
+										content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
+										content.getAliases().contains(xmlitem.NAME_JP) ||
+										content.getAliases().contains(xmlitem.NAME_EN) ||
+										content.getAliases().contains(xmlitem.NAME_R))
+								{
+									book.addContent(content);
+									break _case;
+								}
+							Content cn = DoujinshiDBScanner.Context.doInsert(Content.class);
+							// Tag Name priority NAME_JP > NAME_EN > NAME_R
+							cn.setTagName(xmlitem.NAME_JP.equals("")?xmlitem.NAME_EN.equals("")?xmlitem.NAME_R:xmlitem.NAME_EN:xmlitem.NAME_JP);
+							book.addContent(cn);
+						}
+						break;
+					case convention:
+						if(book.getConvention() != null)
+							break;
+						_case:{
+							for(Convention convention : conventions)
+								if((convention.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+										convention.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
+										convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
+										convention.getAliases().contains(xmlitem.NAME_JP) ||
+										convention.getAliases().contains(xmlitem.NAME_EN) ||
+										convention.getAliases().contains(xmlitem.NAME_R))
+								{
+									book.setConvention(convention);
+									break _case;
+								}
+							Convention cv = DoujinshiDBScanner.Context.doInsert(Convention.class);
+							// Tag Name priority NAME_EN > NAME_JP > NAME_R
+							cv.setTagName(xmlitem.NAME_EN.equals("")?xmlitem.NAME_JP.equals("")?xmlitem.NAME_R:xmlitem.NAME_JP:xmlitem.NAME_EN);
+							book.setConvention(cv);
+						}
+						break;
+					case genre:
+						break;
+					case imprint:
+						break;
+					case parody:
+						_case:{
+						for(Parody parody : parodies)
+							if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+									(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+									(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+							{
+								book.addParody(parody);
+								break _case;
+							}
+						Parody p = DoujinshiDBScanner.Context.doInsert(Parody.class);
+						p.setJapaneseName(xmlitem.NAME_JP);
+						p.setTranslatedName(xmlitem.NAME_EN);
+						p.setRomajiName(xmlitem.NAME_R);
+						book.addParody(p);
+						}
+						break;
+					case publisher:
+						break;
+					}
+				} catch(Exception e) { e.printStackTrace(); }
+			}
+			
+			DoujinshiDBScanner.Context.doCommit();
+			
+			if(alink.size() > 0 && clink.size() > 0)
+			{
+				String[] ckeys = (String[]) clink.keySet().toArray(new String[0]);
+				String[] akeys = (String[]) alink.keySet().toArray(new String[0]);
+				String ids = ckeys[0];
+				for(int i=1;i<ckeys.length;i++)
+					ids += ckeys[i] + ",";
+				URLConnection urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
+				urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
+				InputStream in0 = urlc.getInputStream();
+				DocumentBuilderFactory docfactory = DocumentBuilderFactory.newInstance();
+				docfactory.setNamespaceAware(true);
+				DocumentBuilder builder = docfactory.newDocumentBuilder();
+				Document doc = builder.parse(in0);
+				XPathFactory xmlfactory = XPathFactory.newInstance();
+				XPath xpath = xmlfactory.newXPath();
+				for(String cid : ckeys)
+				{
+					for(String aid : akeys)
+					{
+						XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
+						Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
+						if(node == null)
+							continue;
+						else
+							clink.get(cid).addArtist(alink.get(aid));
+					}
+				}
+			}
+			
+			DoujinshiDBScanner.Context.doCommit();
+			
+			this.book = book.getID();
+			
+			/**
+			 * //FIXME When detecting multiple dupes???
+			 * 
+			for(Book book_ : Context.getBooks(null))
+				if(book.getJapaneseName().equals(book_.getJapaneseName()) && !book.getID().equals(book_.getID()))
+				{
+					setStatus(State.WARNING);
+					setMessage("Possible duplicate item detected [ID='"+book_.getID()+"'].");
+				}
+			*/
+		} catch (Exception e) {
+			setMessage(e.getMessage());
+			return State.ERROR;
+		}
+		
+		setMessage("Copying files into the Datastore ...");
+		for(File file : workpath.listFiles())
+			try {
+				copyFile(file, Core.Repository.child(book.getID()));
+			} catch (DataBaseException | IOException e) {
+				setMessage(e.getMessage());
+				return State.ERROR;
+			}
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		try
+		{
+			setMessage("Creating preview into the Datastore  ...");
+			DataFile ds = Core.Repository.child(book.getID());
+			ds.mkdir();
+			ds = Core.Repository.getPreview(book.getID());
+			ds.touch();
+			OutputStream out = ds.getOutputStream();
+			BufferedImage image = javax.imageio.ImageIO.read(req_file);
+			int wi = image.getWidth(null),
+			hi = image.getHeight(null),
+			wl = 256, 
+			hl = 256; 
+			if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than 256x256, or getScaledInstance is going to loop
+				if ((double)wl/wi > (double)hl/hi)
+				{
+					wi = (int) (wi * (double)hl/hi);
+					hi = (int) (hi * (double)hl/hi);
+				}else{
+					hi = (int) (hi * (double)wl/wi);
+					wi = (int) (wi * (double)wl/wi);
+				}
+			javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+			out.close();
+			setMessage("Doujin successfully imported.");
+			return State.COMPLETED;
+		} catch (Exception e) {
+			setMessage(e.getMessage());
+			return State.ERROR;
+		}
+	}
+
+	public boolean isDone()
+	{
+		return done;
+	}
+	
+	public void setDone(boolean done)
+	{
+		this.done = done;
 	}
 }

@@ -186,6 +186,7 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		{
 			for(Book book : artist.getBooks())
 			{
+				book.removeArtist(artist);
 				((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
 				((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 			}

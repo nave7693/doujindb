@@ -242,6 +242,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Artist artist : artists)
 										{
 											artist.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(artist);
 											Core.Database.doDelete(artist);
 											Core.Database.doCommit();
@@ -250,6 +256,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Book book : books)
 										{
 											book.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(book);
 											Core.Database.doDelete(book);
 											Core.Database.doCommit();
@@ -259,6 +271,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Circle circle : circles)
 										{
 											circle.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(circle);
 											Core.Database.doDelete(circle);
 											Core.Database.doCommit();
@@ -268,6 +286,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Content content : contents)
 										{
 											content.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(content);
 											Core.Database.doDelete(content);
 											Core.Database.doCommit();
@@ -276,6 +300,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Convention convention : conventions)
 										{
 											convention.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(convention);
 											Core.Database.doDelete(convention);
 											Core.Database.doCommit();
@@ -284,6 +314,12 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 										for(Parody parody : parodies)
 										{
 											parody.removeAll();
+											/**
+											 * Commit right after removeAll()
+											 * or suffer DeleteDenyException
+											 * Can't delete object with OID <ObjectId:Class, ID=*>. Reason: relationship '*' has 'deny' delete rule. Details: * related object
+											 */
+											Core.Database.doCommit();
 											model.removeElement(parody);
 											Core.Database.doDelete(parody);
 											Core.Database.doCommit();

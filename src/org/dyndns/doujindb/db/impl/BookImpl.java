@@ -404,6 +404,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		{
 			for(Circle circle : artist.getCircles())
 			{
+				artist.removeCircle(circle);
 				((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(circle));
 				((DataBaseImpl)Core.Database)._recordUpdated(circle, UpdateData.unlink(this));
 			}

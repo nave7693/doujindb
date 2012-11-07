@@ -858,8 +858,8 @@ public final class DoujinshiDBScanner extends Plugin
 					buttonLink.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonLink.setBounds(width - 80, 0, 0, 0);
-				if(task.getStatus(Step.PARSE).equals(State.WARNING)
-						&& task.isDone())
+				if(task.isDone() &&
+					!task.getStatus(Step.INSERT).equals(State.COMPLETED))
 					buttonRerun.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonRerun.setBounds(width - 80, 0, 0, 0);

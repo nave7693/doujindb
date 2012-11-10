@@ -696,9 +696,11 @@ public final class DoujinshiDBScanner extends Plugin
 			private JButton buttonToggle;
 			private JButton buttonLink;
 			private JButton buttonFolder;
+			private JButton buttonSkip;
+			private Map<String, JButton> buttonDupes;
 			private JButton buttonRerun;
-			private JCheckBox bottonSelection;
 			private Map<Double, JButton> buttonResults;
+			private JCheckBox bottonSelection;
 			private String resultId;
 			private Map<Task.Step, JLabel> steps;
 			private final Map<Task.State, ImageIcon> icons = new HashMap<Task.State, ImageIcon>();
@@ -757,16 +759,31 @@ public final class DoujinshiDBScanner extends Plugin
 					}
 				});
 				add(buttonLink);
+				buttonSkip = new JButton(Resources.Icons.get("Plugin/Task/Skip"));
+				buttonSkip.setFocusable(false);
+				buttonSkip.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						for(JButton button : buttonDupes.values())
+							remove(button);
+						TaskUI.this.task.skipDuplicates();
+						TaskUI.this.task.setDone(false);
+						doLayout();
+						validate();
+					}
+				});
+				add(buttonSkip);
 				buttonRerun = new JButton(Resources.Icons.get("Plugin/Task/Rerun"));
 				buttonRerun.setFocusable(false);
 				buttonRerun.addActionListener(new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent ae) {
-							TaskUI.this.task.setBook(resultId);
-							TaskUI.this.task.setDone(false);
-							doLayout();
-							validate();
+						TaskUI.this.task.setBook(resultId);
+						TaskUI.this.task.setDone(false);
+						doLayout();
+						validate();
 					}
 				});
 				add(buttonRerun);
@@ -841,6 +858,23 @@ public final class DoujinshiDBScanner extends Plugin
 					firstResult.setPreferredSize(new Dimension(110, 155));
 					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
 				}
+				if(task.getStatus(Step.CHECK).equals(State.WARNING))
+				{
+					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
+					for(String dupe : task.getDuplicates())
+					{
+						JButton buttonDupe = new JButton();
+						buttonDupe.setText(dupe);
+						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+						buttonDupe.addActionListener(this);
+						buttonDupe.setActionCommand("openDupe:" + dupe);
+						buttonDupe.setHorizontalAlignment(SwingConstants.LEFT);
+						buttonDupe.setFocusable(false);
+						buttonDupes.put(dupe,
+								buttonDupe);
+						add(buttonDupe);
+					}
+				}
 				this.task = task;
 				this.task.addTaskListener(this);
 			}
@@ -858,8 +892,13 @@ public final class DoujinshiDBScanner extends Plugin
 					buttonLink.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonLink.setBounds(width - 80, 0, 0, 0);
-				if(task.isDone() &&
-					!task.getStatus(Step.INSERT).equals(State.COMPLETED))
+				if(task.isDone()
+					&& task.getStatus(Step.CHECK).equals(State.WARNING))
+					buttonSkip.setBounds(width - 80, 0, 20, 20);
+				else
+					buttonSkip.setBounds(width - 80, 0, 0, 0);
+				if(task.isDone()
+					&& task.getStatus(Step.INSERT).equals(State.WARNING))
 					buttonRerun.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonRerun.setBounds(width - 80, 0, 0, 0);
@@ -879,8 +918,19 @@ public final class DoujinshiDBScanner extends Plugin
 					for(JButton button : buttonResults.values())
 					{
 						Dimension prefsize = button.getPreferredSize();
-						button.setBounds(200 + prevsize, index, (int)prefsize.getWidth(), (int)prefsize.getHeight());
-						prevsize += (int)prefsize.getWidth();
+						button.setBounds(200, index + prevsize, (int)prefsize.getWidth(), (int)prefsize.getHeight());
+						prevsize += (int)prefsize.getHeight();
+					}
+				}
+				if(buttonDupes != null)
+				{
+					index += 30;
+					int margin = index;
+					index = 0;
+					for(JButton button : buttonDupes.values())
+					{
+						Dimension prefsize = button.getPreferredSize();
+						button.setBounds(200, margin + index++ * 18, width - 210, 18);
 					}
 				}
 			}
@@ -937,6 +987,16 @@ public final class DoujinshiDBScanner extends Plugin
 					validate();
 					return;
 				}
+				if(ae.getActionCommand().startsWith("openDupe:"))
+				{
+					String dupeId = ae.getActionCommand().substring(ae.getActionCommand().indexOf(':') + 1);
+					QueryBook qid = new QueryBook();
+					qid.ID = dupeId;
+					RecordSet<Book> set = Core.Database.getBooks(qid);
+					if(set.size() == 1)
+						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+					return;
+				}
 			}
 
 			@Override
@@ -988,6 +1048,26 @@ public final class DoujinshiDBScanner extends Plugin
 					JButton firstResult = buttonResults.values().iterator().next();
 					firstResult.setPreferredSize(new Dimension(110, 155));
 					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
+					doLayout();
+					validate();
+				}
+				if(task.getStatus(Step.CHECK).equals(State.WARNING))
+				{
+					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
+					for(String dupe : task.getDuplicates())
+					{
+						JButton buttonDupe = new JButton();
+						buttonDupe.setText(dupe);
+						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+						buttonDupe.addActionListener(this);
+						buttonDupe.addMouseListener(this);
+						buttonDupe.setActionCommand("openDupe:" + dupe);
+						buttonDupe.setFocusable(false);
+						buttonDupe.setPreferredSize(new Dimension(16, 16));
+						buttonDupes.put(dupe,
+								buttonDupe);
+						add(buttonDupe);
+					}
 					doLayout();
 					validate();
 				}
@@ -1058,14 +1138,17 @@ public final class DoujinshiDBScanner extends Plugin
 			Unmarshaller um = context.createUnmarshaller();
 			TaskSet set = (TaskSet) um.unmarshal(in);
 			for(Task task : set.tasks)
+			{
+				task.loadResults();
 				tasks.add(task);
+			}
 			return tasks;
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
 		} catch (JAXBException jaxbe) {
 			jaxbe.printStackTrace();
 		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
+			;
 		} finally {
 			try { in.close(); } catch (Exception e) { }
 		}

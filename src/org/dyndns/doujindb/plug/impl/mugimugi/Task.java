@@ -16,6 +16,7 @@ import org.w3c.dom.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 
@@ -36,8 +37,8 @@ final class Task implements Runnable
 		SCAN("Scan cover image"),
 		UPLOAD("Upload cover image"),
 		PARSE("Parse XML response"),
-		INSERT("Commit Book record"),
-		//FIXME? CHECK("Scan for duplicates")
+		CHECK("Scan for duplicates"),
+		INSERT("Commit Book record")
 		;
 		
 		private String value;
@@ -68,12 +69,28 @@ final class Task implements Runnable
 	@XmlElement(name="Steps")
 	private final Map<Step, State> steps = new HashMap<Step, State>();
 	
-	private transient Map<String, XMLParser.XML_Book> results = new TreeMap<String, XMLParser.XML_Book>(Collections.reverseOrder());
-	
+	/**
+	 * Imported book
+	 */
 	@XmlElement(name="Book")
 	private String book;
 	
-	private transient String bookid;
+	/**
+	 * Matching result
+	 */
+	@XmlElement(name="Result")
+	private String result;
+	
+	/**
+	 * All results from the image query
+	 * @see loadResults()
+	 */
+	private transient Map<String, XMLParser.XML_Book> results = new TreeMap<String, XMLParser.XML_Book>(Collections.reverseOrder());
+	
+	/**
+	 * All dupes found
+	 */
+	private Set<String> dupes = new HashSet<String>();
 	
 	@XmlElement(name="Done")
 	private boolean done;
@@ -131,7 +148,18 @@ final class Task implements Runnable
 	
 	public void setBook(String book)
 	{
-		this.bookid = book;
+		this.result = book;
+	}
+	
+	public Set<String> getDuplicates()
+	{
+		return dupes;
+	}
+	
+	public void skipDuplicates()
+	{
+		this.dupes = new HashSet<String>();
+		this.steps.put(Step.CHECK, State.COMPLETED);
 	}
 	
 	public String getMessage()
@@ -171,7 +199,11 @@ final class Task implements Runnable
 	
 	public Map<String, XMLParser.XML_Book> getResults()
 	{
-		if(id != null && results.isEmpty())
+		return results;
+	}
+	
+	void loadResults()
+	{
 		try
 		{
 			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
@@ -185,7 +217,6 @@ final class Task implements Runnable
 				results.put(xml_book.ID, xml_book);
 			}
 		} catch (Exception e) { e.printStackTrace(); }
-		return results;
 	}
 	
 	private void setStatus(State status)
@@ -239,6 +270,16 @@ final class Task implements Runnable
 		{
 			setStatus(doParse());
 			if(!getStatus(Step.PARSE).equals(State.COMPLETED))
+			{
+				setDone(true);
+				return;
+			}
+		}
+		
+		if(!getStatus(Step.CHECK).equals(State.COMPLETED))
+		{
+			setStatus(doCheck());
+			if(!getStatus(Step.CHECK).equals(State.COMPLETED))
 			{
 				setDone(true);
 				return;
@@ -446,7 +487,7 @@ final class Task implements Runnable
 		setStatus(State.RUNNING);
 		setMessage("Parsing XML response ...");
 		
-		if(this.bookid != null)
+		if(this.result != null)
 		{
 			return State.COMPLETED;
 		}
@@ -473,15 +514,15 @@ final class Task implements Runnable
 				if(result > better_result)
 				{
 					better_result = result;
-					this.bookid = xml_book.ID;
+					this.result = xml_book.ID;
 				}
 			}
 			if(threshold > better_result)
 			{
 				/**
-				 * Reset found bookid
+				 * Reset found result
 				 */
-				this.bookid = null;
+				this.result = null;
 				/**
 				 * Get more data from the DoujinshiDB (images)
 				 */
@@ -512,6 +553,51 @@ final class Task implements Runnable
 		}
 	}
 	
+	private State doCheck()
+	{
+		setStep(Step.CHECK);
+		setStatus(State.RUNNING);
+		setMessage("Scanning for duplicate Books ...");
+		
+		Set<Book> books = new TreeSet<Book>();
+		QueryBook query;
+		XMLParser.XML_Book xmlbook;
+		
+		xmlbook = results.get(this.result);		
+		if(!xmlbook.NAME_JP.equals(""))
+		{
+			query = new QueryBook();
+			query.JapaneseName = xmlbook.NAME_JP;
+			for(Book b : Core.Database.getBooks(query))
+				books.add(b);
+		}
+		if(!xmlbook.NAME_EN.equals(""))
+		{
+			query = new QueryBook();
+			query.TranslatedName = xmlbook.NAME_EN;
+			for(Book b : Core.Database.getBooks(query))
+				books.add(b);
+		}
+		if(!xmlbook.NAME_R.equals(""))
+		{
+			query = new QueryBook();
+			query.RomajiName = xmlbook.NAME_R;
+			for(Book b : Core.Database.getBooks(query))
+				books.add(b);
+		}
+		
+		if(!books.isEmpty())
+		{
+			dupes.clear();
+			for(Book b : books)
+				dupes.add(b.getID());
+			setMessage("Duplicate Book" + (books.size() > 1 ? "s" : "") + " detected!");
+			return State.WARNING;
+		}
+		
+		return State.COMPLETED;
+	}
+	
 	private State doInsert()
 	{
 		setStep(Step.INSERT);
@@ -521,7 +607,7 @@ final class Task implements Runnable
 		Book book;
 		try
 		{
-			XMLParser.XML_Book xmlbook  = results.get(this.bookid);
+			XMLParser.XML_Book xmlbook  = results.get(this.result);
 			book = DoujinshiDBScanner.Context.doInsert(Book.class);
 			book.setJapaneseName(xmlbook.NAME_JP);
 			book.setTranslatedName(xmlbook.NAME_EN);
@@ -704,16 +790,6 @@ final class Task implements Runnable
 			
 			this.book = book.getID();
 			
-			/**
-			 * //FIXME When detecting multiple dupes???
-			 * 
-			for(Book book_ : Context.getBooks(null))
-				if(book.getJapaneseName().equals(book_.getJapaneseName()) && !book.getID().equals(book_.getID()))
-				{
-					setStatus(State.WARNING);
-					setMessage("Possible duplicate item detected [ID='"+book_.getID()+"'].");
-				}
-			*/
 		} catch (Exception e) {
 			setMessage(e.getMessage());
 			return State.ERROR;

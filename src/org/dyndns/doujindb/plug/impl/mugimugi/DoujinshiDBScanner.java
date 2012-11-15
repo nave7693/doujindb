@@ -898,7 +898,7 @@ public final class DoujinshiDBScanner extends Plugin
 				else
 					buttonSkip.setBounds(width - 80, 0, 0, 0);
 				if(task.isDone()
-					&& task.getStatus(Step.INSERT).equals(State.WARNING))
+					&& task.getStatus(Step.PARSE).equals(State.WARNING))
 					buttonRerun.setBounds(width - 80, 0, 20, 20);
 				else
 					buttonRerun.setBounds(width - 80, 0, 0, 0);
@@ -918,8 +918,8 @@ public final class DoujinshiDBScanner extends Plugin
 					for(JButton button : buttonResults.values())
 					{
 						Dimension prefsize = button.getPreferredSize();
-						button.setBounds(200, index + prevsize, (int)prefsize.getWidth(), (int)prefsize.getHeight());
-						prevsize += (int)prefsize.getHeight();
+						button.setBounds(200 + prevsize, index, (int)prefsize.getWidth(), (int)prefsize.getHeight());
+						prevsize += (int)prefsize.getWidth();
 					}
 				}
 				if(buttonDupes != null)

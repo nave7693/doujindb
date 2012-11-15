@@ -601,8 +601,8 @@ final class Task implements Runnable
 	private State doInsert()
 	{
 		setStep(Step.INSERT);
-		setStatus(State.RUNNING);
 		setMessage("Importing data ...");
+		setStatus(State.RUNNING);
 		
 		Book book;
 		try
@@ -796,6 +796,8 @@ final class Task implements Runnable
 		}
 		
 		setMessage("Copying files into the Datastore ...");
+		setStatus(State.RUNNING);
+		
 		for(File file : workpath.listFiles())
 			try {
 				copyFile(file, Core.Repository.child(book.getID()));
@@ -807,6 +809,8 @@ final class Task implements Runnable
 		try
 		{
 			setMessage("Creating preview into the Datastore  ...");
+			setStatus(State.RUNNING);
+			
 			DataFile ds = Core.Repository.child(book.getID());
 			ds.mkdir();
 			ds = Core.Repository.getPreview(book.getID());

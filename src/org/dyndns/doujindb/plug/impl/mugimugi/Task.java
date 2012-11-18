@@ -619,7 +619,7 @@ final class Task implements Runnable
 			book.setTranslated(false);
 			book.setColored(false);
 			book.setRating(Rating.UNRATED);
-			book.setInfo(xmlbook.DATA_INFO);
+			book.setInfo(xmlbook.DATA_INFO.length() > 255 ? xmlbook.DATA_INFO.substring(0, 255) : xmlbook.DATA_INFO);
 			
 			RecordSet<Artist> artists = DoujinshiDBScanner.Context.getArtists(null);
 			RecordSet<Circle> circles = DoujinshiDBScanner.Context.getCircles(null);

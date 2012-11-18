@@ -364,8 +364,8 @@ final class Task implements Runnable
 	private State doInit()
 	{
 		setStep(Step.INIT);
-		setStatus(State.RUNNING);
 		setMessage("Checking API key ...");
+		setStatus(State.RUNNING);
 		
 		if(DoujinshiDBScanner.APIKEY == null ||
 				!(DoujinshiDBScanner.APIKEY + "").matches("[0-9a-f]{20}"))
@@ -381,8 +381,8 @@ final class Task implements Runnable
 	private State doScan()
 	{
 		setStep(Step.SCAN);
-		setStatus(State.RUNNING);
 		setMessage("Searching for cover image ...");
+		setStatus(State.RUNNING);
 
 		File cover_file = findFile(workpath);
 		if(cover_file == null)
@@ -403,6 +403,7 @@ final class Task implements Runnable
 			return State.ERROR;
 		}
 		setMessage("Cover image found.");
+		setStatus(State.RUNNING);
 		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
 		BufferedImage resized;
 		{
@@ -418,6 +419,7 @@ final class Task implements Runnable
 			try
 			{
 				setMessage("Resizing image before upload  ...");
+				setStatus(State.RUNNING);
 				resized = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
 				int wi = dest.getWidth(null),
 				hi = dest.getHeight(null),
@@ -452,8 +454,8 @@ final class Task implements Runnable
 	private State doUpload()
 	{
 		setStep(Step.UPLOAD);
-		setStatus(State.RUNNING);
 		setMessage("Sending cover image to doujinshi.mugimugi.org ...");
+		setStatus(State.RUNNING);
 
 		URLConnection urlc;
 		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
@@ -484,8 +486,8 @@ final class Task implements Runnable
 	private State doParse()
 	{
 		setStep(Step.PARSE);
-		setStatus(State.RUNNING);
 		setMessage("Parsing XML response ...");
+		setStatus(State.RUNNING);
 		
 		if(this.result != null)
 		{
@@ -556,8 +558,8 @@ final class Task implements Runnable
 	private State doCheck()
 	{
 		setStep(Step.CHECK);
-		setStatus(State.RUNNING);
 		setMessage("Scanning for duplicate Books ...");
+		setStatus(State.RUNNING);
 		
 		Set<Book> books = new TreeSet<Book>();
 		QueryBook query;

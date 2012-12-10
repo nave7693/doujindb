@@ -118,7 +118,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								{
 									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID());
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -137,7 +137,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								{
 									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID());
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -161,7 +161,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								{
 									DataFile ds = Core.Repository.child(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID()); //ds.child(".banner");
+									ds = Core.Repository.getPreview(tokenCircle.getID());
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

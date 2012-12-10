@@ -151,7 +151,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								{
 									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID());
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -179,7 +179,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								{
 									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID());
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -203,7 +203,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								{
 									DataFile ds = Core.Repository.child(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenBook.getID()); //ds.child(".preview");
+									ds = Core.Repository.getPreview(tokenBook.getID());
 									ds.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)

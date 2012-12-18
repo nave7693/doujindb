@@ -16,7 +16,7 @@ public final class PopupMenuEx implements ActionListener
 	public static final int SELECTION_NONE = -1;
 	public static final int SELECTION_CANCELED = -2;
 	private int selection = SELECTION_NONE;
-	private String choice = null;
+	private String choice = "";
 	
 	public PopupMenuEx(String title, Hashtable<String,ImageIcon> items)
 	{

@@ -207,6 +207,9 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						return;
 					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
 					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+					if(tableData.getSelectedRowCount() == 1 &&
+							tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableData.getSelectedRow()), 0) instanceof Book)
+						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
 					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
 					pop.show((Component)e.getSource(), e.getX(), e.getY());
 					new Thread(getClass().getName()+"$MouseClicked")
@@ -216,10 +219,9 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						{
 							while(pop.isValid())
 								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
+							String choice = pop.getChoice();
+							if(choice.equals("Delete"))
 							{
-							case 0:{
 								try {
 									Vector<Record> deleted = new Vector<Record>();
 									for(int index : tableData.getSelectedRows())
@@ -239,8 +241,35 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 									dbe.printStackTrace();
 								}
 								tableData.validate();
-								break;
 							}
+							if(choice.equals("Clone"))
+							{
+								Book book = ((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableData.getSelectedRow()), 0));
+
+								Book clone = Core.Database.doInsert(Book.class);
+								clone.setJapaneseName(book.getJapaneseName());
+								clone.setTranslatedName(book.getTranslatedName());
+								clone.setRomajiName(book.getRomajiName());
+								clone.setInfo(book.getInfo());
+								clone.setDate(book.getDate());
+								clone.setRating(book.getRating());
+								clone.setConvention(book.getConvention());
+								clone.setType(book.getType());
+								clone.setPages(book.getPages());
+								clone.setAdult(book.isAdult());
+								clone.setDecensored(book.isDecensored());
+								clone.setTranslated(book.isTranslated());
+								clone.setColored(book.isColored());
+								for(Artist a : book.getArtists())
+									clone.addArtist(a);
+								for(Content c : book.getContents())
+									clone.addContent(c);
+								for(Parody p : book.getParodies())
+									clone.addParody(p);
+								if(Core.Database.isAutocommit())
+									Core.Database.doCommit();
+								WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, clone);
+								window.setTitle("(Clone) " + window.getTitle());
 							}
 						}
 					}.start();

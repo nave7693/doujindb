@@ -36,7 +36,7 @@ public final class Image
 	 *		the {@code BILINEAR} hint is specified)
 	 *	@return a scaled version of the original {@code BufferedImage}
 	 */
-	public static BufferedImage getScaledInstance(BufferedImage img,
+	private static BufferedImage scaledInstance(BufferedImage img,
 	   int targetWidth,
 	   int targetHeight,
 	   Object hint,
@@ -82,5 +82,27 @@ public final class Image
 			ret = tmp;
 		} while (w != targetWidth || h != targetHeight);
 		return ret;
+	}
+	
+	public static BufferedImage getScaledInstance(BufferedImage image,
+		int width,
+		int height,
+		Object hint,
+		boolean higherQuality)
+	{
+		int wi = image.getWidth(null),
+		hi = image.getHeight(null),
+		wl = width, 
+		hl = height; 
+		if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than [Width x Height], or getScaledInstance is going to loop
+			if ((double)wl/wi > (double)hl/hi)
+			{
+				wi = (int) (wi * (double)hl/hi);
+				hi = (int) (hi * (double)hl/hi);
+			}else{
+				hi = (int) (hi * (double)wl/wi);
+				wi = (int) (wi * (double)wl/wi);
+			}
+		return scaledInstance(image, wi, hi, hint, higherQuality);	
 	}
 }

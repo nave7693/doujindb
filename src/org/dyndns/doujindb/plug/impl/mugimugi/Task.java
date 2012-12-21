@@ -421,19 +421,7 @@ final class Task implements Runnable
 				setMessage("Resizing image before upload  ...");
 				setStatus(State.RUNNING);
 				resized = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-				int wi = dest.getWidth(null),
-				hi = dest.getHeight(null),
-				wl = 256, 
-				hl = 256; 
-				if ((double)wl/wi > (double)hl/hi)
-				{
-					wi = (int) (wi * (double)hl/hi);
-					hi = (int) (hi * (double)hl/hi);
-				}else{
-					hi = (int) (hi * (double)wl/wi);
-					wi = (int) (wi * (double)wl/wi);
-				}
-				resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+				resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 			} catch (Exception e) {
 				setMessage(e.getMessage());
 				return State.ERROR;
@@ -819,20 +807,7 @@ final class Task implements Runnable
 			ds.touch();
 			OutputStream out = ds.getOutputStream();
 			BufferedImage image = javax.imageio.ImageIO.read(req_file);
-			int wi = image.getWidth(null),
-			hi = image.getHeight(null),
-			wl = 256, 
-			hl = 256; 
-			if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than 256x256, or getScaledInstance is going to loop
-				if ((double)wl/wi > (double)hl/hi)
-				{
-					wi = (int) (wi * (double)hl/hi);
-					hi = (int) (hi * (double)hl/hi);
-				}else{
-					hi = (int) (hi * (double)wl/wi);
-					wi = (int) (wi * (double)wl/wi);
-				}
-			javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+			javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
 			out.close();
 			setMessage("Doujin successfully imported.");
 			return State.COMPLETED;

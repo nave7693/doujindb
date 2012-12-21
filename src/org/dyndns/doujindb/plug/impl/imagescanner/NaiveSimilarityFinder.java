@@ -14,18 +14,31 @@ import java.util.*;
 public class NaiveSimilarityFinder
 {
 	private Color[][] sig;
-	private int pps = 9; // Pixel per Square
+	private int pps; // Pixel per Square
 	
 	private NaiveSimilarityFinder() { }
 	
+	private NaiveSimilarityFinder(BufferedImage bi, int pps)
+	{
+		if(pps < 1 || pps > 15)
+			throw new IllegalArgumentException("Pixel-Per-Square parameter must be 1 <= pps <= 15.");
+		this.pps = pps;
+		sig = signature(bi);
+	}
+	
 	private NaiveSimilarityFinder(BufferedImage bi)
 	{
-		sig = getSignature(bi);
+		this(bi, 9);
 	}
 	
 	public static NaiveSimilarityFinder getInstance(BufferedImage bi)
 	{
 		return new NaiveSimilarityFinder(bi);
+	}
+	
+	public static NaiveSimilarityFinder getInstance(BufferedImage bi, int pps)
+	{
+		return new NaiveSimilarityFinder(bi, pps);
 	}
 	
 	public Image getSignature()
@@ -37,27 +50,55 @@ public class NaiveSimilarityFinder
 			{
 				g.setColor(sig[i][k]);
 				g.fillRect(i * pps, k * pps, pps, pps);
-				g.setColor(Color.black);
-				g.drawLine(i * pps, 0, i * pps, sig[0].length * pps);
-				g.drawLine(0, k * pps, sig.length * pps, k * pps);
+				//g.setColor(Color.black);
+				//g.drawLine(i * pps, 0, i * pps, sig[0].length * pps);
+				//g.drawLine(0, k * pps, sig.length * pps, k * pps);
 			}
 		return image;
 	}
 
-	public Map<Integer,BufferedImage> getSimilarity(Vector<BufferedImage> bis)
+	public Image getSimilarity(Iterable<BufferedImage> bis)
 	{
-		Map<Integer,BufferedImage> result = new TreeMap<Integer,BufferedImage>();
+		BufferedImage result = null;
+		long similarity = 0;
+		long similarity_ = 0;
 		for(BufferedImage bi : bis)
-			result.put(new Integer((int)getDistance(bi)), bi);
+			if(similarity > (similarity_ = distance(bi)))
+			{
+				similarity = similarity_;
+				result = bi;
+			} else
+				if(result == null)
+				{
+					similarity = similarity_;
+					result = bi;
+				}
 		return result;
+	}
+	
+	public Iterable<BufferedImage> getSimilarity(Iterable<BufferedImage> bis, int limit)
+	{
+		TreeMap<Long,BufferedImage> result = new TreeMap<Long,BufferedImage>();
+		for(BufferedImage bi : bis)
+		{
+			long similarity = distance(bi);
+			if(result.size() >= 10)
+			{
+				result.put(similarity, bi);
+				result.remove(result.lastKey());
+			} else {
+				result.put(similarity, bi);
+			}
+		}
+		return result.values();
 	}
 	
 	public long getSimilarity(BufferedImage bi)
 	{
-		return getDistance(bi);
+		return distance(bi);
 	}
 	
-	private Color[][] getSignature(BufferedImage bi)
+	private Color[][] signature(BufferedImage bi)
 	{
 		Color[][] sig = new Color[bi.getWidth()/pps][bi.getHeight()/pps];
 		for (int x = 0; x < sig.length; x++)
@@ -114,9 +155,9 @@ public class NaiveSimilarityFinder
 		return new Color(red, green, blue);
 	}
 	
-	private long getDistance(BufferedImage bi)
+	private long distance(BufferedImage bi)
 	{
-		Color[][] sigO = getSignature(bi);
+		Color[][] sigO = signature(bi);
 		long dist = 0;
 		for (int x = 0; x < Math.min(sig.length, sigO.length); x++)
 			for (int y = 0; y < Math.min(sig[0].length, sigO[0].length); y++)

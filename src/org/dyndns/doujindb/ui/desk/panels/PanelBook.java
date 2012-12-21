@@ -156,20 +156,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
 									BufferedImage image = javax.imageio.ImageIO.read(in);
-									int wi = image.getWidth(null),
-									hi = image.getHeight(null),
-									wl = 256, 
-									hl = 256; 
-									if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than 256x256, or getScaledInstance is going to loop
-										if ((double)wl/wi > (double)hl/hi)
-										{
-											wi = (int) (wi * (double)hl/hi);
-											hi = (int) (hi * (double)hl/hi);
-										}else{
-											hi = (int) (hi * (double)wl/wi);
-											wi = (int) (wi * (double)wl/wi);
-										}
-									javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, wi, hi, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+									javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
 									out.close();
 								} catch (Exception e) {
 									e.printStackTrace();

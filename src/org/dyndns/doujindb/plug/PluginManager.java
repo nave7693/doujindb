@@ -20,6 +20,7 @@ public final class PluginManager
 	{
 		plugins = new HashSet<Plugin>();
 		plugins.add(new org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner());
+		plugins.add(new org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner());
 		File file = new File(System.getProperty("doujindb.home"),"doujindb.plugins");
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));

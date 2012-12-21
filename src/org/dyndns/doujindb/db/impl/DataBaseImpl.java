@@ -609,10 +609,12 @@ public class DataBaseImpl extends DataBase
 			        1,
 			        username,
 			        password);
-			node.setDataSource(pool);
-			//Doesn't work, handle timeout manually
-			//pool.setLoginTimeout(3);
+			// Doesn't work, handle timeout manually
+			// pool.setLoginTimeout(3);
 			checkContext(pool, Core.Properties.get("org.dyndns.doujindb.db.connection_timeout").asNumber());
+			
+			// Pool is valid
+			node.setDataSource(pool);
 			
 			DbAdapter adpt = new org.apache.cayenne.dba.AutoAdapter(pool);
 			

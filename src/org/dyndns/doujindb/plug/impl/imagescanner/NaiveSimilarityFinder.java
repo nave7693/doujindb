@@ -13,7 +13,7 @@ import java.util.*;
 
 public class NaiveSimilarityFinder
 {
-	private Color[][] sig;
+	private int[][] signature;
 	private int pps; // Pixel per Square
 	
 	private NaiveSimilarityFinder() { }
@@ -23,7 +23,7 @@ public class NaiveSimilarityFinder
 		if(pps < 1 || pps > 15)
 			throw new IllegalArgumentException("Pixel-Per-Square parameter must be 1 <= pps <= 15.");
 		this.pps = pps;
-		sig = signature(bi);
+		signature = signature(bi);
 	}
 	
 	private NaiveSimilarityFinder(BufferedImage bi)
@@ -41,18 +41,58 @@ public class NaiveSimilarityFinder
 		return new NaiveSimilarityFinder(bi, pps);
 	}
 	
-	public Image getSignature()
+	int[][] getSignature()
+	{
+		return signature;
+	}
+	
+	public static int[][] getSignature(BufferedImage bi, int pps)
+	{
+		if(pps < 1 || pps > 15)
+			throw new IllegalArgumentException("Pixel-Per-Square parameter must be 1 <= pps <= 15.");
+		return signature(bi, pps);
+	}
+	
+	public static Image getImage(int[][] sig, int pps)
 	{
 		Image image = new BufferedImage(sig.length * pps, sig[0].length * pps, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.getGraphics();
 		for(int i=0;i<sig.length;i++)
 			for(int k=0;k<sig[0].length;k++)
 			{
-				g.setColor(sig[i][k]);
+				Color color = new Color(
+					(sig[i][k] & 0x00ff0000) >> 16,	// RED
+					(sig[i][k] & 0x0000ff00) >> 8,	// GREEN
+					 sig[i][k] & 0x000000ff,		// BLUE
+					 255);							// ALPHA
+				g.setColor(color);
 				g.fillRect(i * pps, k * pps, pps, pps);
-				//g.setColor(Color.black);
-				//g.drawLine(i * pps, 0, i * pps, sig[0].length * pps);
-				//g.drawLine(0, k * pps, sig.length * pps, k * pps);
+				// Border lines
+//				g.setColor(Color.black);
+//				g.drawLine(i * pps, 0, i * pps, sig[0].length * pps);
+//				g.drawLine(0, k * pps, sig.length * pps, k * pps);
+			}
+		return image;
+	}
+	
+	public Image getImage()
+	{
+		Image image = new BufferedImage(signature.length * pps, signature[0].length * pps, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = image.getGraphics();
+		for(int i=0;i<signature.length;i++)
+			for(int k=0;k<signature[0].length;k++)
+			{
+				Color color = new Color(
+					(signature[i][k] & 0x00ff0000) >> 16,	// RED
+					(signature[i][k] & 0x0000ff00) >> 8,	// GREEN
+					signature[i][k] & 0x000000ff,			// BLUE
+					 255);									// ALPHA
+				g.setColor(color);
+				g.fillRect(i * pps, k * pps, pps, pps);
+				// Border lines
+//				g.setColor(Color.black);
+//				g.drawLine(i * pps, 0, i * pps, signature[0].length * pps);
+//				g.drawLine(0, k * pps, signature.length * pps, k * pps);
 			}
 		return image;
 	}
@@ -98,80 +138,74 @@ public class NaiveSimilarityFinder
 		return distance(bi);
 	}
 	
-	private Color[][] signature(BufferedImage bi)
+	public long getSimilarity(int[][] sig)
 	{
-		Color[][] sig = new Color[bi.getWidth()/pps][bi.getHeight()/pps];
-		for (int x = 0; x < sig.length; x++)
-			for (int y = 0; y < sig[0].length; y++)
-				sig[x][y] = getAverageColor(bi, x * pps, y * pps, pps, pps);
-		return sig;
-    }
-	
-	@SuppressWarnings("unused")
-	private static Color getAverageColor(BufferedImage bi)
-	{
-		long r=0, g=0, b=0;
-		long length = 0;
-		for(int k=1;k<bi.getWidth()-2;k++)
-			for(int i=1;i<bi.getHeight()-2;i++)
-			{
-				Color color = getPixelColor(bi, i, k);
-				r += color.getRed();
-				g += color.getGreen();
-				b += color.getBlue();
-				length++;
-			}
-		r = ((int)r/length);
-		g = ((int)g/length);
-		b = ((int)b/length);
-		return new Color((int)r, (int)g, (int)b);
+		return distance(sig);
 	}
 	
-	private static Color getAverageColor(BufferedImage bi, int x, int y, int width, int height)
+	private int[][] signature(BufferedImage bi)
+	{
+		int[][] signature_ = new int[bi.getWidth()/pps][bi.getHeight()/pps];
+		for (int x = 0; x < signature_.length; x++)
+			for (int y = 0; y < signature_[0].length; y++)
+				signature_[x][y] = color(bi, x * pps, y * pps, pps, pps);
+		return signature_;
+    }
+	
+	private static int[][] signature(BufferedImage bi, int pps)
+	{
+		int[][] signature_ = new int[bi.getWidth()/pps][bi.getHeight()/pps];
+		for (int x = 0; x < signature_.length; x++)
+			for (int y = 0; y < signature_[0].length; y++)
+				signature_[x][y] = color(bi, x * pps, y * pps, pps, pps);
+		return signature_;
+    }
+	
+	private static int color(BufferedImage bi, int x, int y, int width, int height)
 	{
 		long r=0, g=0, b=0;
 		long length = 0;
 		for(int k=0;k<width;k++)
 			for(int i=0;i<height;i++)
 			{
-				Color color = getPixelColor(bi, x+i, y+k);
-				r += color.getRed();
-				g += color.getGreen();
-				b += color.getBlue();
+				int color = pixel(bi, x+i, y+k);
+				r += (color & 0x00ff0000) >> 16;
+				g += (color & 0x0000ff00) >> 8;
+				b +=  color & 0x000000ff;
 				length++;
 			}
-		r = ((int)r/length);
-		g = ((int)g/length);
-		b = ((int)b/length);
-		return new Color((int)r, (int)g, (int)b);
+		r = (r/length);
+		g = (g/length);
+		b = (b/length);
+		return new Color((int)r, (int)g, (int)b).getRGB();
 	}
 	
-	private static Color getPixelColor(BufferedImage bi, int x, int y)
+	private static int pixel(BufferedImage bi, int x, int y)
 	{
-		int c = bi.getRGB(x, y);
-		int red = (c & 0x00ff0000) >> 16;
-		int green = (c & 0x0000ff00) >> 8;
-		int blue = c & 0x000000ff;
-		return new Color(red, green, blue);
+		return bi.getRGB(x, y);
 	}
 	
-	private long distance(BufferedImage bi)
+	private long distance(int[][] sigO)
 	{
-		Color[][] sigO = signature(bi);
 		long dist = 0;
-		for (int x = 0; x < Math.min(sig.length, sigO.length); x++)
-			for (int y = 0; y < Math.min(sig[0].length, sigO[0].length); y++)
+		for (int x = 0; x < Math.min(signature.length, sigO.length); x++)
+			for (int y = 0; y < Math.min(signature[0].length, sigO[0].length); y++)
 			{
-				int r1 = sig[x][y].getRed();
-				int g1 = sig[x][y].getGreen();
-				int b1 = sig[x][y].getBlue();
-				int r2 = sigO[x][y].getRed();
-				int g2 = sigO[x][y].getGreen();
-				int b2 = sigO[x][y].getBlue();
+				int r1 = (signature[x][y] & 0x00ff0000) >> 16;
+				int g1 = (signature[x][y] & 0x0000ff00) >> 8;
+				int b1 =  signature[x][y] & 0x000000ff;
+				int r2 = (sigO[x][y] & 0x00ff0000) >> 16;
+				int g2 = (sigO[x][y] & 0x0000ff00) >> 8;
+				int b2 =  sigO[x][y] & 0x000000ff;
 				double tempDist = Math.sqrt((r1 - r2) * (r1 - r2) + (g1 - g2)
 						* (g1 - g2) + (b1 - b2) * (b1 - b2));
 				dist += tempDist;
 			}
 		return dist;
+    }
+	
+	private long distance(BufferedImage bi)
+	{
+		return distance(signature(bi));
     }
 }

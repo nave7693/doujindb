@@ -20,9 +20,11 @@ public final class Resources
 		iconKeys.put("Plugin/Settings", "settings.png");
 		iconKeys.put("Plugin/Settings/Build", "settings/build.png");
 		iconKeys.put("Plugin/Settings/Cancel", "settings/cancel.png");
+		iconKeys.put("Plugin/Settings/Confirm", "settings/confirm.png");
 		iconKeys.put("Plugin/Settings/Preview", "settings/preview.png");
 		iconKeys.put("Plugin/Search", "search.png");
 		iconKeys.put("Plugin/Search/Open", "search/open.png");
+		iconKeys.put("Plugin/Search/Star", "search/star.png");
 		
 		Icons = new Hashtable<String,ImageIcon>();
 		for(String key : iconKeys.keySet())

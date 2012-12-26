@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
 import java.awt.dnd.*;
@@ -128,11 +129,15 @@ public final class ImageScanner extends Plugin
 		private JButton buttonScanPreview;
 		private JTabbedPane tabsScanResult;
 		private JProgressBar barScan;
+		private JButton buttonScanCancel;
 
-		private boolean builderRunning = false;
-		private boolean builderCompleted = false;
-		private Runnable builderRunnable;
+		private TaskCacheBuilder builderTask;
 		private Thread builderWorker;
+		
+		private boolean scannerRunning = false;
+		private boolean scannerCompleted = false;
+		private TaskScanner scannerTask;
+		private Thread scannerWorker;
 		
 		public PluginUI()
 		{
@@ -154,7 +159,7 @@ public final class ImageScanner extends Plugin
 					labelDensity.setBounds(0,0,0,0);
 					sliderDensity.setBounds(0,0,0,0);
 					boxOverwrite.setBounds(0,0,0,0);
-					if(builderRunning)
+					if(builderTask.running)
 					{
 						buttonBuild.setBounds(0,0,0,0);
 						buttonBuildCancel.setBounds(width / 2 - 50, height - 25, 100,  20);
@@ -163,7 +168,7 @@ public final class ImageScanner extends Plugin
 						barBuild.setBounds(5,5,width-10,20);
 						scrollLogBuild.setBounds(190,30,width-195,height-75);
 					} else {
-						if(builderCompleted)
+						if(builderTask.completed)
 						{
 							buttonBuild.setBounds(0,0,0,0);
 							buttonBuildConfirm.setBounds(width / 2 - 50, height - 25, 100,  20);
@@ -275,6 +280,10 @@ public final class ImageScanner extends Plugin
 						height = parent.getHeight();
 					buttonScanPreview.setBounds(5,5,180,256);
 					barScan.setBounds(5,265,180,20);
+					if(scannerRunning)
+						buttonScanCancel.setBounds(5,290,180,20);
+					else
+						buttonScanCancel.setBounds(0,0,0,0);
 					tabsScanResult.setBounds(190,5,width-190,height-10);
 				}
 
@@ -323,7 +332,8 @@ public final class ImageScanner extends Plugin
 	                        	{
 	                                @Override
 	                                public void run() {
-	                                	scan(transferData.iterator().next());
+	                                	File file = transferData.iterator().next();
+	                                	//FIXME doScan(file);
 	                                }
 	                        	}.start();
 	                            dtde.dropComplete(true);
@@ -351,86 +361,20 @@ public final class ImageScanner extends Plugin
 			barScan.setStringPainted(true);
 			barScan.setString("");
 			bogus.add(barScan);
+			buttonScanCancel = new JButton();
+			buttonScanCancel.setText("Cancel");
+			buttonScanCancel.setIcon(Resources.Icons.get("Plugin/Settings/Cancel"));
+			buttonScanCancel.addActionListener(this);
+			buttonScanCancel.setToolTipText("Cancel");
+			buttonScanCancel.setFocusable(false);
+			bogus.add(buttonScanCancel);
 			tabs.addTab("Search", Resources.Icons.get("Plugin/Search"), bogus);
 			tabSearch = bogus;
 			
 			super.add(tabs);
 			
-			builderRunnable = new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					// Reset UI
-					labelBuildPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
-					textLogBuild.setText("");
-					barBuild.setValue(barBuild.getMinimum());
-					barBuild.setString("Initializing ...");
-					
-					// Init data
-					int density = sliderDensity.getValue();
-					boolean overwrite = boxOverwrite.isSelected();
-					RecordSet<Book> books = Core.Database.getBooks(null);
-					
-					barBuild.setMaximum(books.size());
-					barBuild.setMinimum(1);
-					barBuild.setValue(barBuild.getMinimum());
-					
-					for(Book book : books)
-					{
-						/**
-						 * Put the sleep() here and not at the end so
-						 * it doesn't get skipped by calling those 'continue'
-						 */
-						try { Thread.sleep(1); } catch (InterruptedException ie) { }
-						
-						if(!builderRunning)
-							return;
-						
-						int progress = barBuild.getValue() * 100 / barBuild.getMaximum();
-						barBuild.setString("[" + barBuild.getValue() + " / " + barBuild.getMaximum() + "] @ " + progress + "%");
-						barBuild.setValue(barBuild.getValue() + 1);
-						if(barBuild.getValue() == barBuild.getMaximum())
-							barBuild.setValue(barBuild.getMinimum());
-						
-						textLogBuild.append("Building [" + book.getID() + "] ...");
-						
-						BufferedImage bi;
-						try {
-							File serialized_file = new File(PLUGIN_HOME, book.getID() + ".ser");
-							if(serialized_file.exists() && !overwrite)
-							{
-								textLogBuild.append(" skipped\n");
-								textLogBuild.setCaretPosition(textLogBuild.getText().length());
-								continue;
-							}
-							bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
-							bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
-							
-							NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
-							int[][] signature = nsf.getSignature();
-							serialize(signature, serialized_file);
-							
-							labelBuildPreview.setIcon(new ImageIcon(nsf.getImage()));
-							
-							textLogBuild.append(" done\n");
-						} catch (Exception e) {
-							textLogBuild.append(" " + e.getMessage() + ".\n");
-						}
-						
-						textLogBuild.setCaretPosition(textLogBuild.getText().length());
-					}
-					/**
-					 * Cache build completed
-					 */
-					barBuild.setValue(barBuild.getMaximum());
-					barBuild.setString("Completed");
-					builderCompleted = true;
-					builderRunning = false;
-					tabSettings.doLayout();
-				}
-			};
-			builderWorker = new Thread(builderRunnable);
+			builderTask = new TaskCacheBuilder();
+			builderWorker = new Thread(builderTask);
 		}
 		
 		@Override
@@ -459,11 +403,11 @@ public final class ImageScanner extends Plugin
 		{
 			if(ae.getSource() == buttonBuild)
 			{
-				if(builderRunning || builderWorker.isAlive())
+				if(builderTask.running || builderWorker.isAlive())
 					return;
-				builderRunning = true;
-				builderCompleted = false;
-				builderWorker = new Thread(builderRunnable);
+				builderTask.running = true;
+				builderTask.completed = false;
+				builderWorker = new Thread(builderTask);
 				builderWorker.setName(getClass().getName()+"$CacheBuilder");
 				builderWorker.setDaemon(true);
 				builderWorker.start();
@@ -472,100 +416,211 @@ public final class ImageScanner extends Plugin
 			}
 			if(ae.getSource() == buttonBuildCancel)
 			{
-				if(!builderRunning)
+				if(!builderTask.running)
 					return;
-				builderRunning = false;
-				builderCompleted = false;
+				builderTask.running = false;
+				builderTask.completed = false;
 				tabSettings.doLayout();
 				return;
 			}
 			if(ae.getSource() == buttonBuildConfirm)
 			{
-				builderRunning = false;
-				builderCompleted = false;
+				builderTask.running = false;
+				builderTask.completed = false;
 				tabSettings.doLayout();
 				return;
 			}
 		}
 		
-		private void scan(File file)
+		final class TaskScanner implements Runnable
 		{
-			// Reset UI
-			while (tabsScanResult.getTabCount() > 0)
-				tabsScanResult.remove(0);
-			buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
-			barScan.setValue(barBuild.getMinimum());
-			barScan.setString("Initializing ...");
+			private boolean running = false;
+			private boolean completed = false;
 			
-			BufferedImage bi;
-			try {
-				bi = javax.imageio.ImageIO.read(file);
-				bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+			final private File file;
+			
+			private TaskScanner(final File file)
+			{
+				this.file = file;
+			}
+			
+			@Override
+			public void run()
+			{
+				// Reset UI
+				while (tabsScanResult.getTabCount() > 0)
+					tabsScanResult.remove(0);
+				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				barScan.setValue(barBuild.getMinimum());
+				barScan.setString("Initializing ...");
 				
-				buttonScanPreview.setIcon(new ImageIcon(bi));
+				BufferedImage bi;
+				try {
+					bi = javax.imageio.ImageIO.read(file);
+					BufferedImage resized_bi;
+					if(bi.getWidth() > bi.getHeight())
+						resized_bi = new BufferedImage(bi.getWidth() / 2, bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+					else
+						resized_bi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+					Graphics g = resized_bi.getGraphics();
+					g.drawImage(bi, 0, 0, bi.getWidth(), bi.getHeight(), null);
+					g.dispose();
+					bi = org.dyndns.doujindb.util.Image.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+					
+					buttonScanPreview.setIcon(new ImageIcon(bi));
+					
+					TreeMap<Long, BufferedImage> result = new TreeMap<Long, BufferedImage>();
+					TreeMap<Long, Book> result_books = new TreeMap<Long, Book>();
+					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
+					
+					RecordSet<Book> books = Core.Database.getBooks(null);
+					
+					barScan.setMaximum(books.size());
+					barScan.setMinimum(1);
+					barScan.setValue(barBuild.getMinimum());
+					
+					for(Book book : books)
+					{
+						try { Thread.sleep(1); } catch (InterruptedException ie) { }
+						
+						if(!scannerRunning)
+							return;
+						
+						bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
+						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+
+						long similarity = nsf.getSimilarity(bi);
+						if(result.size() >= 10)
+						{
+							long remove_me = result.lastKey();
+							result.put(similarity, bi);
+							result_books.put(similarity, book);
+							result.remove(remove_me);
+							result_books.remove(remove_me);
+						} else {
+							result.put(similarity, bi);
+							result_books.put(similarity, book);
+						}
+						
+						int progress = barScan.getValue() * 100 / barScan.getMaximum();
+						barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
+						barScan.setValue(barScan.getValue() + 1);
+						if(barScan.getValue() == barScan.getMaximum())
+							barScan.setValue(barScan.getMinimum());
+					}
+					
+					boolean first_result = false;
+					for(long index : result.keySet())
+					{
+						final String book_id = result_books.get(index).getID();
+						final Book book = result_books.get(index);
+						if(!first_result)
+						{
+							JButton button = new JButton(new ImageIcon(result.get(index)));
+							button.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae) {
+									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+								}
+							});
+							first_result = true;
+							tabsScanResult.addTab(book_id, Resources.Icons.get("Plugin/Search/Star"), button);
+						} else
+						{
+							JButton button = new JButton(new ImageIcon(result.get(index)));
+							button.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae) {
+									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+								}
+							});
+							tabsScanResult.addTab(book_id, button);
+						}
+					}
+					
+					barScan.setValue(barScan.getMaximum());
+					barScan.setString("Completed");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		final class TaskCacheBuilder implements Runnable
+		{
+			private boolean running = false;
+			private boolean completed = false;
+			
+			private TaskCacheBuilder() { }
+			
+			@Override
+			public void run()
+			{
+				// Reset UI
+				labelBuildPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				textLogBuild.setText("");
+				barBuild.setValue(barBuild.getMinimum());
+				barBuild.setString("Initializing ...");
 				
-				TreeMap<Long, BufferedImage> result = new TreeMap<Long, BufferedImage>();
-				TreeMap<Long, Book> result_books = new TreeMap<Long, Book>();
-				NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
-				
+				// Init data
+				int density = sliderDensity.getValue();
+				boolean overwrite = boxOverwrite.isSelected();
 				RecordSet<Book> books = Core.Database.getBooks(null);
 				
-				barScan.setMaximum(books.size());
-				barScan.setMinimum(1);
-				barScan.setValue(barBuild.getMinimum());
+				barBuild.setMaximum(books.size());
+				barBuild.setMinimum(1);
+				barBuild.setValue(barBuild.getMinimum());
 				
 				for(Book book : books)
 				{
-					bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
-					bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
-
-					long similarity = nsf.getSimilarity(bi);
-					if(result.size() >= 10)
-					{
-						long remove_me = result.lastKey();
-						result.put(similarity, bi);
-						result_books.put(similarity, book);
-						result.remove(remove_me);
-						result_books.remove(remove_me);
-					} else {
-						result.put(similarity, bi);
-						result_books.put(similarity, book);
+					try { Thread.sleep(1); } catch (InterruptedException ie) { }
+					
+					if(!running)
+						return;
+					
+					int progress = barBuild.getValue() * 100 / barBuild.getMaximum();
+					barBuild.setString("[" + barBuild.getValue() + " / " + barBuild.getMaximum() + "] @ " + progress + "%");
+					barBuild.setValue(barBuild.getValue() + 1);
+					if(barBuild.getValue() == barBuild.getMaximum())
+						barBuild.setValue(barBuild.getMinimum());
+					
+					textLogBuild.append("Building [" + book.getID() + "] ...");
+					
+					BufferedImage bi;
+					try {
+						File serialized_file = new File(PLUGIN_HOME, book.getID() + ".ser");
+						if(serialized_file.exists() && !overwrite)
+						{
+							textLogBuild.append(" skipped\n");
+							textLogBuild.setCaretPosition(textLogBuild.getText().length());
+							continue;
+						}
+						bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
+						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+						
+						NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
+						int[][] signature = nsf.getSignature();
+						serialize(signature, serialized_file);
+						
+						labelBuildPreview.setIcon(new ImageIcon(nsf.getImage()));
+						
+						textLogBuild.append(" done\n");
+					} catch (Exception e) {
+						textLogBuild.append(" " + e.getMessage() + ".\n");
 					}
 					
-					int progress = barScan.getValue() * 100 / barScan.getMaximum();
-					barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
-					barScan.setValue(barScan.getValue() + 1);
-					if(barScan.getValue() == barScan.getMaximum())
-						barScan.setValue(barScan.getMinimum());
-					
-					try { Thread.sleep(1); } catch (InterruptedException ie) { }
+					textLogBuild.setCaretPosition(textLogBuild.getText().length());
 				}
-				
-				boolean first_result = false;
-				for(long index : result.keySet())
-				{
-					final String book_id = result_books.get(index).getID();
-					final Book book = result_books.get(index);
-					if(!first_result)
-					{
-						JButton button = new JButton(new ImageIcon(result.get(index)));
-						button.addActionListener(new ActionListener()
-						{
-							@Override
-							public void actionPerformed(ActionEvent ae) {
-								Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
-							}
-						});
-						first_result = true;
-						tabsScanResult.addTab("~"+index, Resources.Icons.get("Plugin/Search/Star"), button);//FIXME
-					} else
-						tabsScanResult.addTab("~"+index, new JLabel(new ImageIcon(result.get(index))));//FIXME
-				}
-				
-				barScan.setValue(barScan.getMaximum());
-				barScan.setString("Completed");
-			} catch (Exception e) {
-				e.printStackTrace();
+				/**
+				 * Cache build completed
+				 */
+				barBuild.setValue(barBuild.getMaximum());
+				barBuild.setString("Completed");
+				completed = true;
+				running = false;
+				tabSettings.doLayout();
 			}
 		}
 	}
@@ -579,7 +634,6 @@ public final class ImageScanner extends Plugin
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	@Override

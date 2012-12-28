@@ -14,6 +14,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.Thread.State;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
@@ -113,9 +114,9 @@ public final class ImageScanner extends Plugin
 	{
 		private JTabbedPane tabs;
 		private JPanel tabSettings;
-		private JPanel tabSearch;
+		private JPanel tabScanner;
 		
-		private JButton buttonBuild;
+		private JButton buttonBuildStart;
 		private JButton buttonBuildCancel;
 		private JButton buttonBuildConfirm;
 		private JLabel labelBuildPreview;
@@ -131,13 +132,10 @@ public final class ImageScanner extends Plugin
 		private JProgressBar barScan;
 		private JButton buttonScanCancel;
 
-		private TaskCacheBuilder builderTask;
-		private Thread builderWorker;
+		private Thread builderTask;
+		private boolean builderCompleted = false;
 		
-		private boolean scannerRunning = false;
-		private boolean scannerCompleted = false;
-		private TaskScanner scannerTask;
-		private Thread scannerWorker;
+		private Thread scannerTask;
 		
 		public PluginUI()
 		{
@@ -159,24 +157,24 @@ public final class ImageScanner extends Plugin
 					labelDensity.setBounds(0,0,0,0);
 					sliderDensity.setBounds(0,0,0,0);
 					boxOverwrite.setBounds(0,0,0,0);
-					if(builderTask.running)
+					if(builderTask.isAlive())
 					{
-						buttonBuild.setBounds(0,0,0,0);
+						buttonBuildStart.setBounds(0,0,0,0);
 						buttonBuildCancel.setBounds(width / 2 - 50, height - 25, 100,  20);
 						buttonBuildConfirm.setBounds(0,0,0,0);
 						labelBuildPreview.setBounds(5,30,180,256);
 						barBuild.setBounds(5,5,width-10,20);
 						scrollLogBuild.setBounds(190,30,width-195,height-75);
 					} else {
-						if(builderTask.completed)
+						if(builderCompleted)
 						{
-							buttonBuild.setBounds(0,0,0,0);
+							buttonBuildStart.setBounds(0,0,0,0);
 							buttonBuildConfirm.setBounds(width / 2 - 50, height - 25, 100,  20);
 							labelBuildPreview.setBounds(5,30,180,256);
 							barBuild.setBounds(5,5,width-10,20);
 							scrollLogBuild.setBounds(190,30,width-195,height-75);
 						} else {
-							buttonBuild.setBounds(width / 2 - 50, height - 25, 100,  20);
+							buttonBuildStart.setBounds(width / 2 - 50, height - 25, 100,  20);
 							buttonBuildConfirm.setBounds(0,0,0,0);
 							labelBuildPreview.setBounds(0,0,0,0);
 							barBuild.setBounds(0,0,0,0);
@@ -201,13 +199,13 @@ public final class ImageScanner extends Plugin
 				@Override
 				public void removeLayoutComponent(Component comp) { }
 			});
-			buttonBuild = new JButton();
-			buttonBuild.setText("Build");
-			buttonBuild.setIcon(Resources.Icons.get("Plugin/Settings/Build"));
-			buttonBuild.addActionListener(this);
-			buttonBuild.setToolTipText("Build Cache");
-			buttonBuild.setFocusable(false);
-			bogus.add(buttonBuild);
+			buttonBuildStart = new JButton();
+			buttonBuildStart.setText("Build");
+			buttonBuildStart.setIcon(Resources.Icons.get("Plugin/Settings/Build"));
+			buttonBuildStart.addActionListener(this);
+			buttonBuildStart.setToolTipText("Build Cache");
+			buttonBuildStart.setFocusable(false);
+			bogus.add(buttonBuildStart);
 			buttonBuildCancel = new JButton();
 			buttonBuildCancel.setText("Cancel");
 			buttonBuildCancel.setIcon(Resources.Icons.get("Plugin/Settings/Cancel"));
@@ -279,11 +277,16 @@ public final class ImageScanner extends Plugin
 					int width = parent.getWidth(),
 						height = parent.getHeight();
 					buttonScanPreview.setBounds(5,5,180,256);
-					barScan.setBounds(5,265,180,20);
-					if(scannerRunning)
+					if(scannerTask.isAlive())
+					{
+						barScan.setBounds(5,265,180,20);
 						buttonScanCancel.setBounds(5,290,180,20);
+					}
 					else
+					{
+						barScan.setBounds(0,0,0,0);
 						buttonScanCancel.setBounds(0,0,0,0);
+					}
 					tabsScanResult.setBounds(190,5,width-190,height-10);
 				}
 
@@ -333,7 +336,13 @@ public final class ImageScanner extends Plugin
 	                                @Override
 	                                public void run() {
 	                                	File file = transferData.iterator().next();
-	                                	//FIXME doScan(file);
+	                                	if(scannerTask.isAlive())
+	                    					return;
+	                                	scannerTask = new TaskScanner(file);
+	                                	scannerTask.setName(getClass().getName()+"$CacheBuilder");
+	                                	scannerTask.setDaemon(true);
+	                                	scannerTask.start();
+	                    				tabScanner.doLayout();
 	                                }
 	                        	}.start();
 	                            dtde.dropComplete(true);
@@ -369,12 +378,12 @@ public final class ImageScanner extends Plugin
 			buttonScanCancel.setFocusable(false);
 			bogus.add(buttonScanCancel);
 			tabs.addTab("Search", Resources.Icons.get("Plugin/Search"), bogus);
-			tabSearch = bogus;
+			tabScanner = bogus;
 			
 			super.add(tabs);
 			
-			builderTask = new TaskCacheBuilder();
-			builderWorker = new Thread(builderTask);
+			builderTask = new TaskBuilder();
+			scannerTask = new TaskScanner(null);
 		}
 		
 		@Override
@@ -385,9 +394,9 @@ public final class ImageScanner extends Plugin
 			tabs.setBounds(0,0,width,height);
 		}
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) { }
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) { }
 		@Override
 		public Dimension minimumLayoutSize(Container parent)
 		{
@@ -401,47 +410,94 @@ public final class ImageScanner extends Plugin
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(ae.getSource() == buttonBuild)
+			if(ae.getSource() == buttonBuildStart)
 			{
-				if(builderTask.running || builderWorker.isAlive())
+				if(builderTask.isAlive())
 					return;
-				builderTask.running = true;
-				builderTask.completed = false;
-				builderWorker = new Thread(builderTask);
-				builderWorker.setName(getClass().getName()+"$CacheBuilder");
-				builderWorker.setDaemon(true);
-				builderWorker.start();
-				tabSettings.doLayout();
+				builderTask = new TaskBuilder();
+				builderTask.setName(getClass().getName()+"$CacheBuilder");
+				builderTask.setDaemon(true);
+				builderTask.start();
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						tabSettings.doLayout();
+					}
+				});
 				return;
 			}
 			if(ae.getSource() == buttonBuildCancel)
 			{
-				if(!builderTask.running)
+				if(!builderTask.isAlive())
 					return;
-				builderTask.running = false;
-				builderTask.completed = false;
-				tabSettings.doLayout();
+				builderTask.interrupt();
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						tabSettings.doLayout();
+					}
+				});
 				return;
 			}
 			if(ae.getSource() == buttonBuildConfirm)
 			{
-				builderTask.running = false;
-				builderTask.completed = false;
-				tabSettings.doLayout();
+				if(builderTask.isAlive() && !builderCompleted)
+					return;
+				builderCompleted = false;
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						tabSettings.doLayout();
+					}
+				});
+				return;
+			}
+			if(ae.getSource() == buttonScanCancel)
+			{
+				if(!scannerTask.isAlive())
+					return;
+				scannerTask.interrupt();
+				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						tabScanner.doLayout();
+					}
+				});
 				return;
 			}
 		}
 		
-		final class TaskScanner implements Runnable
+		final class TaskScanner extends Thread
 		{
 			private boolean running = false;
-			private boolean completed = false;
 			
 			final private File file;
 			
 			private TaskScanner(final File file)
 			{
 				this.file = file;
+			}
+			
+			@Override
+			public void interrupt() {
+				running = false;
+				super.interrupt();
+			}
+
+			@Override
+			public boolean isInterrupted() {
+				return !running;
+			}
+
+			@Override
+			public synchronized void start() {
+				this.running = true;
+				super.start();
 			}
 			
 			@Override
@@ -452,7 +508,7 @@ public final class ImageScanner extends Plugin
 					tabsScanResult.remove(0);
 				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
 				barScan.setValue(barBuild.getMinimum());
-				barScan.setString("Initializing ...");
+				barScan.setString("Loading ...");
 				
 				BufferedImage bi;
 				try {
@@ -483,13 +539,14 @@ public final class ImageScanner extends Plugin
 					{
 						try { Thread.sleep(1); } catch (InterruptedException ie) { }
 						
-						if(!scannerRunning)
+						if(!running)
 							return;
 						
 						bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
 						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 
 						long similarity = nsf.getSimilarity(bi);
+						// long similarity = nsf.getPercentSimilarity(bi);
 						if(result.size() >= 10)
 						{
 							long remove_me = result.lastKey();
@@ -548,13 +605,29 @@ public final class ImageScanner extends Plugin
 			}
 		}
 		
-		final class TaskCacheBuilder implements Runnable
+		final class TaskBuilder extends Thread
 		{
 			private boolean running = false;
-			private boolean completed = false;
 			
-			private TaskCacheBuilder() { }
-			
+			private TaskBuilder() { }
+						
+			@Override
+			public void interrupt() {
+				running = false;
+				super.interrupt();
+			}
+
+			@Override
+			public boolean isInterrupted() {
+				return !running;
+			}
+
+			@Override
+			public synchronized void start() {
+				this.running = true;
+				super.start();
+			}
+
 			@Override
 			public void run()
 			{
@@ -562,11 +635,12 @@ public final class ImageScanner extends Plugin
 				labelBuildPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
 				textLogBuild.setText("");
 				barBuild.setValue(barBuild.getMinimum());
-				barBuild.setString("Initializing ...");
+				barBuild.setString("Loading ...");
 				
 				// Init data
 				int density = sliderDensity.getValue();
 				boolean overwrite = boxOverwrite.isSelected();
+				builderCompleted = false;
 				RecordSet<Book> books = Core.Database.getBooks(null);
 				
 				barBuild.setMaximum(books.size());
@@ -618,9 +692,14 @@ public final class ImageScanner extends Plugin
 				 */
 				barBuild.setValue(barBuild.getMaximum());
 				barBuild.setString("Completed");
-				completed = true;
-				running = false;
-				tabSettings.doLayout();
+				builderCompleted = true;
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						tabSettings.doLayout();
+					}
+				});
 			}
 		}
 	}

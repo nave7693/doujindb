@@ -143,6 +143,16 @@ public class NaiveSimilarityFinder
 		return distance(sig);
 	}
 	
+	public double getPercentSimilarity(BufferedImage bi)
+	{
+		return distance_percent(bi);
+	}
+	
+	public double getPercentSimilarity(int[][] sig)
+	{
+		return distance_percent(sig);
+	}
+	
 	private int[][] signature(BufferedImage bi)
 	{
 		int[][] signature_ = new int[bi.getWidth()/pps][bi.getHeight()/pps];
@@ -207,5 +217,31 @@ public class NaiveSimilarityFinder
 	private long distance(BufferedImage bi)
 	{
 		return distance(signature(bi));
+    }
+	
+	private double distance_percent(int[][] sigO)
+	{
+		long dist = 0;
+		long width = Math.min(signature.length, sigO.length);
+		long height = Math.min(signature[0].length, sigO[0].length);
+		for (int x = 0; x < width; x++)
+			for (int y = 0; y < height; y++)
+			{
+				int r1 = (signature[x][y] & 0x00ff0000) >> 16;
+				int g1 = (signature[x][y] & 0x0000ff00) >> 8;
+				int b1 =  signature[x][y] & 0x000000ff;
+				int r2 = (sigO[x][y] & 0x00ff0000) >> 16;
+				int g2 = (sigO[x][y] & 0x0000ff00) >> 8;
+				int b2 =  sigO[x][y] & 0x000000ff;
+				double tempDist = Math.sqrt((r1 - r2) * (r1 - r2) + (g1 - g2)
+						* (g1 - g2) + (b1 - b2) * (b1 - b2));
+				dist += tempDist;
+			}
+		return dist * 100 / (width * height * 255 * 255 * 255);
+    }
+	
+	private double distance_percent(BufferedImage bi)
+	{
+		return distance_percent(signature(bi));
     }
 }

@@ -47,18 +47,17 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"$ActionPerformed$SetWallpaper")
+				new SwingWorker<Void, Object>()
 				{
 					@Override
-					public void run()
+					protected Void doInBackground() throws Exception
 					{
-						super.setPriority(Thread.MIN_PRIORITY);
 						try
 						{
 							JFileChooser fc = Core.UI.getFileChooser();
 							fc.setMultiSelectionEnabled(false);
 							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
-								return;
+								return null;
 							File file = fc.getSelectedFile();
 							wallpaperImage = new ImageIcon(file.getAbsolutePath());
 							Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
@@ -74,8 +73,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							e.printStackTrace();
 							Core.Logger.log(e.getMessage(), Level.WARNING);
 						}
+						return null;
 					}
-				}.start();
+				}.execute();
 			}			
 		});
 		super.add(buttonWallpaper);
@@ -454,9 +454,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			{	
 				WindowEx window = (WindowEx)jif;
 				window.setIcon(true);
-			}
-			catch (PropertyVetoException pve) { ; }
-			catch (ClassCastException cce) { ; }
+			} catch (PropertyVetoException pve) { }
+				catch (ClassCastException cce) { }
 	}
 	
 	public void showDialog(RootPaneContainer parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
@@ -541,10 +540,21 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseDisconnected()
 	{
-		for(JInternalFrame jif : getAllFrames())
+		new SwingWorker<Void, Object>()
 		{
-			try{ ((WindowEx)jif).dispose(); } catch(Exception e) { e.printStackTrace(); }
-		}
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				for(JInternalFrame jif : getAllFrames())
+				{
+					try
+					{
+						((WindowEx)jif).dispose();
+					} catch(Exception e) { }
+				}
+				return null;
+			}
+		}.execute();
 	}
 
 	@Override

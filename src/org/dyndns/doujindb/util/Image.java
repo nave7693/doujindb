@@ -43,7 +43,7 @@ public final class Image
 	   boolean higherQuality)
 	{
 		int type = (img.getTransparency() == Transparency.OPAQUE) ?
-				BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+			BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
 			BufferedImage ret = (BufferedImage)img;
 		int w, h;
 		if (higherQuality)
@@ -91,18 +91,41 @@ public final class Image
 		boolean higherQuality)
 	{
 		int wi = image.getWidth(null),
-		hi = image.getHeight(null),
-		wl = width, 
-		hl = height; 
-		if(!(wi < wl) && !(hi < hl)) // Cannot scale an image smaller than [Width x Height], or getScaledInstance is going to loop
-			if ((double)wl/wi > (double)hl/hi)
+			hi = image.getHeight(null),
+			wl = width, 
+			hl = height; 
+		if((wi == wl) || (hi == hl)) // There's no need to scale
+			return image;
+		double wscale = (double)wl/wi,
+				hscale = (double)hl/hi;
+		if(!(wi < wl) && !(hi < hl))
+		{
+			if (wscale > hscale)
 			{
-				wi = (int) (wi * (double)hl/hi);
-				hi = (int) (hi * (double)hl/hi);
-			}else{
-				hi = (int) (hi * (double)wl/wi);
-				wi = (int) (wi * (double)wl/wi);
+				wi = (int) (wi * hscale);
+				hi = (int) (hi * hscale);
+			} else {
+				hi = (int) (hi * wscale);
+				wi = (int) (wi * wscale);
 			}
-		return scaledInstance(image, wi, hi, hint, higherQuality);	
+			return scaledInstance(image, wi, hi, hint, higherQuality);
+		} else {
+			if (wscale > hscale)
+			{
+				wi = (int) (wi * hscale);
+				hi = (int) (hi * hscale);
+			} else {
+				hi = (int) (hi * wscale);
+				wi = (int) (wi * wscale);
+			}
+			java.awt.Image img = image.getScaledInstance(wi, hi, BufferedImage.SCALE_SMOOTH);
+			image = new BufferedImage(wi,
+				hi,
+				(image.getTransparency() == Transparency.OPAQUE) ?
+					BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB);
+			Graphics g2d = image.createGraphics();
+			g2d.drawImage(img, 0, 0, wi, hi, null);
+			return image;
+		}
 	}
 }

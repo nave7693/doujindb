@@ -1,11 +1,8 @@
 package org.dyndns.doujindb.plug.impl.imagescanner;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
@@ -14,8 +11,6 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.Thread.State;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -24,9 +19,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseContext;
-import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.Plugin;
@@ -214,14 +207,14 @@ public final class ImageScanner extends Plugin
 			buttonBuildCancel.setFocusable(false);
 			bogus.add(buttonBuildCancel);
 			buttonBuildConfirm = new JButton();
-			buttonBuildConfirm.setText("Confirm");
+			buttonBuildConfirm.setText("Ok");
 			buttonBuildConfirm.setIcon(Resources.Icons.get("Plugin/Settings/Confirm"));
 			buttonBuildConfirm.addActionListener(this);
 			buttonBuildConfirm.setToolTipText("Confirm");
 			buttonBuildConfirm.setFocusable(false);
 			bogus.add(buttonBuildConfirm);
 			
-			labelDensity = new JLabel("Density : " + 15);
+			labelDensity = new JLabel("Density : " + 1);
 			labelDensity.setFont(Core.Resources.Font);
 			bogus.add(labelDensity);
 			sliderDensity = new JSlider(1, 15);
@@ -232,7 +225,7 @@ public final class ImageScanner extends Plugin
 				@Override
 				public void stateChanged(ChangeEvent ce)
 				{
-					labelDensity.setText("Density : " + sliderDensity.getValue());
+					labelDensity.setText("Density : " + (16 - sliderDensity.getValue()));
 				}				
 			});
 			bogus.add(sliderDensity);
@@ -304,6 +297,7 @@ public final class ImageScanner extends Plugin
 			});
 			buttonScanPreview = new JButton();
 			buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+			buttonScanPreview.addActionListener(this);
 			buttonScanPreview.setBorder(null);
 			buttonScanPreview.setOpaque(false);
 			buttonScanPreview.setDropTarget(new DropTarget()
@@ -312,6 +306,11 @@ public final class ImageScanner extends Plugin
 				public synchronized void dragOver(DropTargetDragEvent dtde)
 				{
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+						if(scannerTask.isAlive())
+						{
+							dtde.rejectDrag();
+							return;
+						}
 				        dtde.acceptDrag(DnDConstants.ACTION_COPY);
 				    } else {
 				        dtde.rejectDrag();
@@ -455,6 +454,28 @@ public final class ImageScanner extends Plugin
 				});
 				return;
 			}
+			if(ae.getSource() == buttonScanPreview)
+			{
+				if(scannerTask.isAlive())
+					return;
+				JFileChooser fc = Core.UI.getFileChooser();
+				int prev_option = fc.getFileSelectionMode();
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setMultiSelectionEnabled(false);
+				if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+				{
+					fc.setFileSelectionMode(prev_option);
+					return;
+				}
+				final File file = fc.getSelectedFile();
+				fc.setFileSelectionMode(prev_option);
+            	scannerTask = new TaskScanner(file);
+            	scannerTask.setName(getClass().getName()+"$CacheBuilder");
+            	scannerTask.setDaemon(true);
+            	scannerTask.start();
+				tabScanner.doLayout();
+				return;
+			}
 			if(ae.getSource() == buttonScanCancel)
 			{
 				if(!scannerTask.isAlive())
@@ -529,7 +550,7 @@ public final class ImageScanner extends Plugin
 					TreeMap<Long, Book> result_books = new TreeMap<Long, Book>();
 					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
 					
-					RecordSet<Book> books = Core.Database.getBooks(null);
+					RecordSet<Book> books = Context.getBooks(null);
 					
 					barScan.setMaximum(books.size());
 					barScan.setMinimum(1);
@@ -546,7 +567,6 @@ public final class ImageScanner extends Plugin
 						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 
 						long similarity = nsf.getSimilarity(bi);
-						// long similarity = nsf.getPercentSimilarity(bi);
 						if(result.size() >= 10)
 						{
 							long remove_me = result.lastKey();
@@ -641,7 +661,7 @@ public final class ImageScanner extends Plugin
 				int density = sliderDensity.getValue();
 				boolean overwrite = boxOverwrite.isSelected();
 				builderCompleted = false;
-				RecordSet<Book> books = Core.Database.getBooks(null);
+				RecordSet<Book> books = Context.getBooks(null);
 				
 				barBuild.setMaximum(books.size());
 				barBuild.setMinimum(1);
@@ -653,6 +673,7 @@ public final class ImageScanner extends Plugin
 					
 					if(!running)
 						return;
+						
 					
 					int progress = barBuild.getValue() * 100 / barBuild.getMaximum();
 					barBuild.setString("[" + barBuild.getValue() + " / " + barBuild.getMaximum() + "] @ " + progress + "%");

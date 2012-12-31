@@ -237,7 +237,7 @@ public class NaiveSimilarityFinder
 						* (g1 - g2) + (b1 - b2) * (b1 - b2));
 				dist += tempDist;
 			}
-		return dist * 100 / (width * height * 255 * 255 * 255);
+		return 100 - (dist * 100 / (width * height * 0xff));
     }
 	
 	private double distance_percent(BufferedImage bi)

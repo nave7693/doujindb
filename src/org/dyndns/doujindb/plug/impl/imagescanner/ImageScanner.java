@@ -11,6 +11,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -118,6 +119,10 @@ public final class ImageScanner extends Plugin
 		private JScrollPane scrollLogBuild;
 		private JLabel labelDensity;
 		private JSlider sliderDensity;
+		private JLabel labelThreshold;
+		private JSlider sliderThreshold;
+		private JLabel labelMaxResults;
+		private JSlider sliderMaxResults;
 		private JCheckBox boxOverwrite;
 		
 		private JButton buttonScanPreview;
@@ -149,6 +154,10 @@ public final class ImageScanner extends Plugin
 						height = parent.getHeight();
 					labelDensity.setBounds(0,0,0,0);
 					sliderDensity.setBounds(0,0,0,0);
+					labelThreshold.setBounds(0,0,0,0);
+					sliderThreshold.setBounds(0,0,0,0);
+					labelMaxResults.setBounds(0,0,0,0);
+					sliderMaxResults.setBounds(0,0,0,0);
 					boxOverwrite.setBounds(0,0,0,0);
 					if(builderTask.isAlive())
 					{
@@ -174,7 +183,11 @@ public final class ImageScanner extends Plugin
 							scrollLogBuild.setBounds(0,0,0,0);
 							labelDensity.setBounds(5,5,width / 2 - 5, 20);
 							sliderDensity.setBounds(width / 2 + 5,5,width / 2 - 5, 20);
-							boxOverwrite.setBounds(5,25,width-10,20);
+							labelThreshold.setBounds(5,25,width / 2 - 5, 20);
+							sliderThreshold.setBounds(width / 2 + 5,25,width / 2 - 5, 20);
+							labelMaxResults.setBounds(5,45,width / 2 - 5, 20);
+							sliderMaxResults.setBounds(width / 2 + 5,45,width / 2 - 5, 20);
+							boxOverwrite.setBounds(5,65,width-10,20);
 						}
 						buttonBuildCancel.setBounds(0,0,0,0);
 					}
@@ -229,6 +242,38 @@ public final class ImageScanner extends Plugin
 				}				
 			});
 			bogus.add(sliderDensity);
+			labelThreshold = new JLabel("Threshold : " + 75);
+			labelThreshold.setFont(Core.Resources.Font);
+			bogus.add(labelThreshold);
+			sliderThreshold = new JSlider(1, 100);
+			sliderThreshold.setValue(75);
+			sliderThreshold.setFont(Core.Resources.Font);
+			sliderThreshold.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent ce)
+				{
+					labelThreshold.setText("Threshold : " + sliderThreshold.getValue());
+				}				
+			});
+			bogus.add(sliderThreshold);
+			
+			labelMaxResults = new JLabel("Max Results : " + 10);
+			labelMaxResults.setFont(Core.Resources.Font);
+			bogus.add(labelMaxResults);
+			sliderMaxResults = new JSlider(1, 25);
+			sliderMaxResults.setValue(10);
+			sliderMaxResults.setFont(Core.Resources.Font);
+			sliderMaxResults.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent ce)
+				{
+					labelMaxResults.setText("Max Results : " + sliderMaxResults.getValue());
+				}				
+			});
+			bogus.add(sliderMaxResults);
+			
 			boxOverwrite = new JCheckBox();
 			boxOverwrite.setSelected(false);
 			boxOverwrite.setFocusable(false);
@@ -531,6 +576,10 @@ public final class ImageScanner extends Plugin
 				barScan.setValue(barBuild.getMinimum());
 				barScan.setString("Loading ...");
 				
+				// Init data
+				int threshold = sliderThreshold.getValue();
+				int max_results = sliderMaxResults.getValue();
+				
 				BufferedImage bi;
 				try {
 					bi = javax.imageio.ImageIO.read(file);
@@ -546,8 +595,14 @@ public final class ImageScanner extends Plugin
 					
 					buttonScanPreview.setIcon(new ImageIcon(bi));
 					
-					TreeMap<Long, BufferedImage> result = new TreeMap<Long, BufferedImage>();
-					TreeMap<Long, Book> result_books = new TreeMap<Long, Book>();
+					TreeMap<Double, Book> result = new TreeMap<Double, Book>(new Comparator<Double>()
+					{
+						@Override
+						public int compare(Double a, Double b)
+						{
+							return b.compareTo(a);
+						}
+					});
 					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
 					
 					RecordSet<Book> books = Context.getBooks(null);
@@ -562,22 +617,19 @@ public final class ImageScanner extends Plugin
 						
 						if(!running)
 							return;
-						
-						bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
-						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 
-						long similarity = nsf.getSimilarity(bi);
-						if(result.size() >= 10)
-						{
-							long remove_me = result.lastKey();
-							result.put(similarity, bi);
-							result_books.put(similarity, book);
-							result.remove(remove_me);
-							result_books.remove(remove_me);
-						} else {
-							result.put(similarity, bi);
-							result_books.put(similarity, book);
-						}
+						File serialized_signature = new File(PLUGIN_HOME, book.getID() + ".ser");
+						double similarity = nsf.getPercentSimilarity((int[][])unserialize(serialized_signature));
+						
+						if(similarity >= threshold)
+							if(result.size() >= max_results)
+							{
+								double remove_me = result.lastKey();
+								result.put(similarity, book);
+								result.remove(remove_me);
+							} else {
+								result.put(similarity, book);
+							}
 						
 						int progress = barScan.getValue() * 100 / barScan.getMaximum();
 						barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
@@ -587,33 +639,53 @@ public final class ImageScanner extends Plugin
 					}
 					
 					boolean first_result = false;
-					for(long index : result.keySet())
+					for(double index : result.keySet())
 					{
-						final String book_id = result_books.get(index).getID();
-						final Book book = result_books.get(index);
+						final Book book = result.get(index);
 						if(!first_result)
 						{
-							JButton button = new JButton(new ImageIcon(result.get(index)));
+							JButton button = new JButton(
+								new ImageIcon(
+									javax.imageio.ImageIO.read(
+										Core.Repository.getPreview(book.getID()).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
 								public void actionPerformed(ActionEvent ae) {
-									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+									new SwingWorker<Void, Void>()
+									{
+										@Override
+										protected Void doInBackground() throws Exception
+										{
+											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											return null;
+										}
+									}.execute();
 								}
 							});
 							first_result = true;
-							tabsScanResult.addTab(book_id, Resources.Icons.get("Plugin/Search/Star"), button);
+							tabsScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
 						} else
 						{
-							JButton button = new JButton(new ImageIcon(result.get(index)));
+							JButton button = new JButton(
+									new ImageIcon(
+										javax.imageio.ImageIO.read(
+											Core.Repository.getPreview(book.getID()).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
 								public void actionPerformed(ActionEvent ae) {
-									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
-								}
+									new SwingWorker<Void, Void>()
+									{
+										@Override
+										protected Void doInBackground() throws Exception
+										{
+											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											return null;
+										}
+									}.execute();								}
 							});
-							tabsScanResult.addTab(book_id, button);
+							tabsScanResult.addTab(String.format("%3.2f", index) + "%", button);
 						}
 					}
 					
@@ -734,6 +806,19 @@ public final class ImageScanner extends Plugin
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static Object unserialize(File file)
+	{
+		Object unserialized = null;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			unserialized = ois.readObject();
+			ois.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return unserialized;
 	}
 
 	@Override

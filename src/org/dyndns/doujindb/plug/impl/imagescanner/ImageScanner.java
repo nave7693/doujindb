@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.zip.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -46,21 +47,20 @@ public final class ImageScanner extends Plugin
 	
 	static final String UUID = "{D18B8C85-BE10-4937-9C5A-885CEAD64D35}";
 	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
-	private static DataBaseContext Context;
+	private static DataBaseContext Context = Core.Database.getContext(UUID);
 	
-	private JComponent UI;
+	private static final JComponent UI = new PluginUI();
+	private static File CacheFile = new File(PLUGIN_HOME, "cache.binz");
+	private static TreeMap<String, int[][]> Cache;
 	
 	static
 	{
 		File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
 		file.mkdirs();
-	}
-	
-	public ImageScanner()
-	{
-		Context = Core.Database.getContext(UUID);
 		
-		UI = new PluginUI();
+		unserialize();
+		if(Cache == null)
+			Cache = new TreeMap<String, int[][]>();
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public final class ImageScanner extends Plugin
 	}
 
 	@SuppressWarnings("serial")
-	private final class PluginUI extends JPanel implements LayoutManager, ActionListener
+	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tabs;
 		private JPanel tabSettings;
@@ -123,7 +123,8 @@ public final class ImageScanner extends Plugin
 		private JSlider sliderThreshold;
 		private JLabel labelMaxResults;
 		private JSlider sliderMaxResults;
-		private JCheckBox boxOverwrite;
+		private JCheckBox boxCacheOverwrite;
+		private JCheckBox boxCachePreload;
 		
 		private JButton buttonScanPreview;
 		private JTabbedPane tabsScanResult;
@@ -158,7 +159,8 @@ public final class ImageScanner extends Plugin
 					sliderThreshold.setBounds(0,0,0,0);
 					labelMaxResults.setBounds(0,0,0,0);
 					sliderMaxResults.setBounds(0,0,0,0);
-					boxOverwrite.setBounds(0,0,0,0);
+					boxCacheOverwrite.setBounds(0,0,0,0);
+					boxCachePreload.setBounds(0,0,0,0);
 					if(builderTask.isAlive())
 					{
 						buttonBuildStart.setBounds(0,0,0,0);
@@ -187,7 +189,8 @@ public final class ImageScanner extends Plugin
 							sliderThreshold.setBounds(width / 2 + 5,25,width / 2 - 5, 20);
 							labelMaxResults.setBounds(5,45,width / 2 - 5, 20);
 							sliderMaxResults.setBounds(width / 2 + 5,45,width / 2 - 5, 20);
-							boxOverwrite.setBounds(5,65,width-10,20);
+							boxCacheOverwrite.setBounds(5,65,width-10,20);
+							boxCachePreload.setBounds(5,85,width-10,20);
 						}
 						buttonBuildCancel.setBounds(0,0,0,0);
 					}
@@ -274,11 +277,16 @@ public final class ImageScanner extends Plugin
 			});
 			bogus.add(sliderMaxResults);
 			
-			boxOverwrite = new JCheckBox();
-			boxOverwrite.setSelected(false);
-			boxOverwrite.setFocusable(false);
-			boxOverwrite.setText("Overwrite existing entries");
-			bogus.add(boxOverwrite);
+			boxCacheOverwrite = new JCheckBox();
+			boxCacheOverwrite.setSelected(false);
+			boxCacheOverwrite.setFocusable(false);
+			boxCacheOverwrite.setText("Overwrite existing entries");
+			bogus.add(boxCacheOverwrite);
+			boxCachePreload = new JCheckBox();
+			boxCachePreload.setSelected(true);
+			boxCachePreload.setFocusable(false);
+			boxCachePreload.setText("Preload Cache in memory");
+			bogus.add(boxCachePreload);
 			
 			labelBuildPreview = new JLabel();
 			labelBuildPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
@@ -604,7 +612,6 @@ public final class ImageScanner extends Plugin
 						}
 					});
 					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
-					
 					RecordSet<Book> books = Context.getBooks(null);
 					
 					barScan.setMaximum(books.size());
@@ -617,19 +624,21 @@ public final class ImageScanner extends Plugin
 						
 						if(!running)
 							return;
-
-						File serialized_signature = new File(PLUGIN_HOME, book.getID() + ".ser");
-						double similarity = nsf.getPercentSimilarity((int[][])unserialize(serialized_signature));
 						
-						if(similarity >= threshold)
-							if(result.size() >= max_results)
-							{
-								double remove_me = result.lastKey();
-								result.put(similarity, book);
-								result.remove(remove_me);
-							} else {
-								result.put(similarity, book);
-							}
+						String book_id = book.getID();
+						if(Cache.containsKey(book_id))
+						{
+							double similarity = nsf.getPercentSimilarity(Cache.get(book_id));
+							if(similarity >= threshold)
+								if(result.size() >= max_results)
+								{
+									double remove_me = result.lastKey();
+									result.put(similarity, book);
+									result.remove(remove_me);
+								} else {
+									result.put(similarity, book);
+								}
+						}
 						
 						int progress = barScan.getValue() * 100 / barScan.getMaximum();
 						barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
@@ -720,6 +729,7 @@ public final class ImageScanner extends Plugin
 				super.start();
 			}
 
+			@SuppressWarnings("unused")
 			@Override
 			public void run()
 			{
@@ -731,7 +741,8 @@ public final class ImageScanner extends Plugin
 				
 				// Init data
 				int density = sliderDensity.getValue();
-				boolean overwrite = boxOverwrite.isSelected();
+				boolean cache_overwrite = boxCacheOverwrite.isSelected();
+				boolean cache_preload = boxCachePreload.isSelected();
 				builderCompleted = false;
 				RecordSet<Book> books = Context.getBooks(null);
 				
@@ -746,7 +757,6 @@ public final class ImageScanner extends Plugin
 					if(!running)
 						return;
 						
-					
 					int progress = barBuild.getValue() * 100 / barBuild.getMaximum();
 					barBuild.setString("[" + barBuild.getValue() + " / " + barBuild.getMaximum() + "] @ " + progress + "%");
 					barBuild.setValue(barBuild.getValue() + 1);
@@ -757,8 +767,7 @@ public final class ImageScanner extends Plugin
 					
 					BufferedImage bi;
 					try {
-						File serialized_file = new File(PLUGIN_HOME, book.getID() + ".ser");
-						if(serialized_file.exists() && !overwrite)
+						if(Cache.containsKey(book.getID()) && !cache_overwrite)
 						{
 							textLogBuild.append(" skipped\n");
 							textLogBuild.setCaretPosition(textLogBuild.getText().length());
@@ -769,20 +778,21 @@ public final class ImageScanner extends Plugin
 						
 						NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
 						int[][] signature = nsf.getSignature();
-						serialize(signature, serialized_file);
+						Cache.put(book.getID(), signature);
 						
 						labelBuildPreview.setIcon(new ImageIcon(nsf.getImage()));
 						
 						textLogBuild.append(" done\n");
 					} catch (Exception e) {
-						textLogBuild.append(" " + e.getMessage() + ".\n");
+						textLogBuild.append(" " + e.getClass() + " , " +  e.getMessage() + ".\n");
 					}
 					
 					textLogBuild.setCaretPosition(textLogBuild.getText().length());
 				}
-				/**
-				 * Cache build completed
-				 */
+				// Write Cache
+				serialize();
+				
+				// Cache build completed
 				barBuild.setValue(barBuild.getMaximum());
 				barBuild.setString("Completed");
 				builderCompleted = true;
@@ -797,28 +807,28 @@ public final class ImageScanner extends Plugin
 		}
 	}
 	
-	private static void serialize(Serializable object, File file)
+	private static void serialize()
 	{
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(object);
+			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(CacheFile)));
+			oos.writeObject(Cache);
+			oos.flush();
 			oos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private static Object unserialize(File file)
+	@SuppressWarnings("unchecked")
+	private static void unserialize()
 	{
-		Object unserialized = null;
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			unserialized = ois.readObject();
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(CacheFile)));
+			Cache = (TreeMap<String, int[][]>) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return unserialized;
 	}
 
 	@Override

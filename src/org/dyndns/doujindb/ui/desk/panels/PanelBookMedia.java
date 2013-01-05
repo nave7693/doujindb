@@ -57,7 +57,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				syncData();
+				loadData();
 			}			
 		});
 		add(buttonReload);
@@ -93,7 +93,7 @@ public class PanelBookMedia extends JPanel
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							syncData();	
+							loadData();	
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 							e.printStackTrace();
@@ -152,7 +152,7 @@ public class PanelBookMedia extends JPanel
 							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) {}
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
-							syncData();
+							loadData();
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 							e.printStackTrace();
@@ -222,7 +222,7 @@ public class PanelBookMedia extends JPanel
 						} catch (Exception e) {
 							Core.Logger.log(e.getMessage(), Level.ERROR);
 						}
-						syncData();
+						loadData();
 						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 						window.dispose();
 					}					
@@ -328,13 +328,13 @@ public class PanelBookMedia extends JPanel
 		new SwingWorker<Void, Object>() {
 			@Override
 			public Void doInBackground() {
-				syncData();
+				loadData();
 				return null;
 			}
 		}.execute();
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		try {
 			if(!Core.Database.getBooks(null).contains(tokenBook))

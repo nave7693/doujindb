@@ -105,7 +105,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		super.add(tabLists);
 		super.add(buttonConfirm);
 
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -191,7 +191,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		}
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		new SwingWorker<Void, Object>()
 		{
@@ -227,7 +227,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 			editorCircles.recordDeleted(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -262,7 +262,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 			editorCircles.recordRecycled(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordRecycled(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -272,7 +272,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 			editorCircles.recordRestored(rcd);
 		if(rcd instanceof Book)
 			editorWorks.recordRestored(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override

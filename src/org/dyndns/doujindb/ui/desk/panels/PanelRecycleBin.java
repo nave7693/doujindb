@@ -144,7 +144,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 							
-							syncData();
+							loadData();
 						}catch(ArrayIndexOutOfBoundsException aioobe)
 						{
 							aioobe.printStackTrace();
@@ -337,7 +337,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
 									
-									syncData();
+									loadData();
 
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -499,7 +499,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 									if(Core.Database.isAutocommit())
 										Core.Database.doCommit();
 									
-									syncData();
+									loadData();
 
 									DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
 									window.dispose();
@@ -770,7 +770,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 								listContent.setSelectionInterval(0, listContent.getModel().getSize() - 1);
 								listConvention.setSelectionInterval(0, listConvention.getModel().getSize() - 1);
 								listParody.setSelectionInterval(0, listParody.getModel().getSize() - 1);
-								syncData();
+								loadData();
 								break;
 							}
 							case 1:{
@@ -780,7 +780,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 								listContent.clearSelection();
 								listConvention.clearSelection();
 								listParody.clearSelection();
-								syncData();
+								loadData();
 								break;
 							}
 							}
@@ -802,7 +802,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 			public void run()
 			{
 				split.revalidate();
-				syncData();
+				loadData();
 			}
 		});
 	}
@@ -839,7 +839,7 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 	     return parent.getPreferredSize();
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		long count;
 		try {
@@ -956,42 +956,42 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 		{
 			DefaultListModel model = (DefaultListModel)listArtist.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 		if(rcd instanceof Book)
 		{
 			DefaultListModel model = (DefaultListModel)listBook.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 		if(rcd instanceof Circle)
 		{
 			DefaultListModel model = (DefaultListModel)listCircle.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 		if(rcd instanceof Content)
 		{
 			DefaultListModel model = (DefaultListModel)listContent.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 		if(rcd instanceof Convention)
 		{
 			DefaultListModel model = (DefaultListModel)listConvention.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 		if(rcd instanceof Parody)
 		{
 			DefaultListModel model = (DefaultListModel)listParody.getModel();
 			model.add(0, rcd);
-			syncData();
+			loadData();
 			return;
 		}
 	}
@@ -1014,6 +1014,6 @@ public final class PanelRecycleBin extends JPanel implements DataBaseListener, L
 	@Override
 	public void valueChanged(ListSelectionEvent lse)
 	{
-		syncData();
+		loadData();
 	}
 }

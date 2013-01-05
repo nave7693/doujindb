@@ -359,7 +359,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		buttonConfirm.addActionListener(this);
 		super.add(buttonConfirm);
 		
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -530,7 +530,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		}
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		new SwingWorker<Void, Object>()
 		{
@@ -603,7 +603,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			editorContents.recordDeleted(rcd);
 		if(rcd instanceof Parody)
 			editorParodies.recordDeleted(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -660,7 +660,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			editorContents.recordRecycled(rcd);
 		if(rcd instanceof Parody)
 			editorParodies.recordRecycled(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -674,7 +674,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			editorContents.recordRestored(rcd);
 		if(rcd instanceof Parody)
 			editorParodies.recordRestored(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override

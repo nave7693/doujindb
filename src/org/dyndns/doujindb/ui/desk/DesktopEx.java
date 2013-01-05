@@ -509,7 +509,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
         });
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		try {
 			if(Core.Database.getRecycled().size() > 0)
@@ -534,7 +534,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseConnected()
 	{
-		syncData();
+		loadData();
 	}
 
 	@Override
@@ -560,13 +560,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseCommit()
 	{
-		syncData();
+		loadData();
 	}
 
 	@Override
 	public void databaseRollback()
 	{
-		syncData();
+		loadData();
 	}
 	
 	@Override

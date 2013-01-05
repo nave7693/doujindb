@@ -279,7 +279,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		super.add(tabLists);
 		super.add(buttonConfirm);
 
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -363,7 +363,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		}
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		new SwingWorker<Void, Object>()
 		{
@@ -395,7 +395,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -424,7 +424,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordRecycled(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -432,7 +432,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordRestored(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override

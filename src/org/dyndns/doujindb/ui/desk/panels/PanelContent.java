@@ -271,7 +271,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		super.add(tabLists);
 		super.add(buttonConfirm);
 		
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -352,7 +352,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		}
 	}
 	
-	private void syncData()
+	private void loadData()
 	{
 		new SwingWorker<Void, Object>()
 		{
@@ -383,7 +383,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordDeleted(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -410,7 +410,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordRecycled(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override
@@ -418,7 +418,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	{
 		if(rcd instanceof Book)
 			editorWorks.recordRestored(rcd);
-		syncData();
+		loadData();
 	}
 	
 	@Override

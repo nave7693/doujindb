@@ -18,15 +18,31 @@ public final class PluginManager
 	
 	static
 	{
-		plugins = new HashSet<Plugin>();
-		plugins.add(new org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner());
-		plugins.add(new org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner());
+		plugins = new TreeSet<Plugin>();
+		
+		for(String plugin : new String[]{
+			"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
+			"org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
+		})
+		try {
+			plugins.add((Plugin) Class.forName(plugin).newInstance());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		File file = new File(System.getProperty("doujindb.home"),"doujindb.plugins");
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			plugins = (Set<Plugin>) ois.readObject();
+			Set<String> plugins_names = (Set<String>) ois.readObject();
+			
+			for(String plugin : plugins_names)
+			try {
+				plugins.add((Plugin) Class.forName(plugin).newInstance());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			ois.close();
 		} catch (FileNotFoundException fnfe) {
-			try { file.createNewFile(); } catch (IOException ioe) { }
 			Core.Logger.log("Failed to load plugins : " + fnfe.getMessage() + ".", Level.WARNING);
 		} catch (IOException ioe) {
 			Core.Logger.log("Failed to load plugins : " + ioe.getMessage() + ".", Level.ERROR);

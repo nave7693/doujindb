@@ -86,7 +86,12 @@ public final class PluginManager
 		File file = new File(System.getProperty("doujindb.home"),"doujindb.plugins");
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(plugins);
+			
+			Set<String> plugins_names = new HashSet<String>();
+			for(Plugin plugin : plugins)
+				plugins_names.add(plugin.getClass().getCanonicalName());
+			
+			oos.writeObject(plugins_names);
 		} catch (FileNotFoundException fnfe) {
 			try { file.createNewFile(); } catch (IOException ioe) { }
 			Core.Logger.log("Failed to save plugins : " + fnfe.getMessage() + ".", Level.WARNING);

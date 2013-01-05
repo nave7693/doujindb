@@ -18,7 +18,7 @@ public final class PluginManager
 	
 	static
 	{
-		plugins = new TreeSet<Plugin>();
+		plugins = new HashSet<Plugin>();
 		
 		for(String plugin : new String[]{
 			"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",

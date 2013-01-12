@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.plug.impl.mugimugi;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
@@ -362,6 +363,20 @@ public final class DoujinshiDBScanner extends Plugin
 			for(Task task : tasks)
 				panelTasks.addTask(task);
 			
+			// Save Tasks every 5 seconds
+			new java.util.Timer(true).scheduleAtFixedRate(new TimerTask()
+			{
+				@Override
+				public void run()
+				{
+					Set<Task> tasks = new HashSet<Task>();
+					for(Task task : panelTasks)
+						tasks.add(task);
+					serialize(tasks);
+				}
+			}, 1, 5 * 1000);
+			
+			// Save Tasks on exit
 			Runtime.getRuntime().addShutdownHook(new Thread(getClass().getName()+"$TaskSerializer")
 			{
 				@Override
@@ -700,6 +715,7 @@ public final class DoujinshiDBScanner extends Plugin
 			private Map<String, JButton> buttonDupes;
 			private JButton buttonRerun;
 			private Map<Double, JButton> buttonResults;
+			private JButton buttonDirectURL;
 			private JCheckBox bottonSelection;
 			private String resultId;
 			private Map<Task.Step, JLabel> steps;
@@ -803,6 +819,42 @@ public final class DoujinshiDBScanner extends Plugin
 					}
 				});
 				add(buttonFolder);
+				buttonDirectURL = new JButton(Resources.Icons.get("Plugin/Task/Download"));
+				buttonDirectURL.setFocusable(false);
+				buttonDirectURL.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						new SwingWorker<Void, Void>()
+						{
+							@Override
+							protected Void doInBackground() throws Exception
+							{
+								Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+								Transferable contents = clipboard.getContents(null);
+							    boolean hasTransferableText = (contents != null) &&
+							    	contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+							    if(hasTransferableText) {
+							    	try {
+							    		String book_id = (String)contents.getTransferData(DataFlavor.stringFlavor);
+							    		TaskUI.this.task.fromBID(book_id);
+										TaskUI.this.task.setDone(false);
+										doLayout();
+										validate();
+							    	} catch (UnsupportedFlavorException ufe){
+							    		ufe.printStackTrace();
+							    	} catch (MalformedURLException murle) {
+										murle.printStackTrace();
+									} catch (IOException ioe) {
+										ioe.printStackTrace();
+									}
+							    }
+							    return null;
+							}
+						}.execute();
+					}
+				});
+				add(buttonDirectURL);
 				bottonSelection = new JCheckBox();
 				bottonSelection.setSelected(false);
 				add(bottonSelection);
@@ -899,9 +951,15 @@ public final class DoujinshiDBScanner extends Plugin
 					buttonSkip.setBounds(width - 80, 0, 0, 0);
 				if(task.isDone()
 					&& task.getStatus(Step.PARSE).equals(State.WARNING))
+				{
 					buttonRerun.setBounds(width - 80, 0, 20, 20);
+					buttonDirectURL.setBounds(width - 100, 0, 20, 20);
+				}
 				else
+				{
 					buttonRerun.setBounds(width - 80, 0, 0, 0);
+					buttonDirectURL.setBounds(width - 100, 0, 0, 0);
+				}
 				titleBar.setBounds(0, 0, width - 80, 20);
 				imagePreview.setBounds(0, 20, 200, 256);
 				int index = 0;
@@ -1112,19 +1170,13 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 
 	@Override
-	protected void install() throws PluginException {
-		// TODO Auto-generated method stub
-	}
+	protected void install() throws PluginException { }
 
 	@Override
-	protected void update() throws PluginException {
-		// TODO Auto-generated method stub
-	}
+	protected void update() throws PluginException { }
 
 	@Override
-	protected void uninstall() throws PluginException {
-		// TODO Auto-generated method stub
-	}
+	protected void uninstall() throws PluginException { }
 	
 	private static Set<Task> unserialize()
 	{

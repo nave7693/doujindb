@@ -162,6 +162,55 @@ final class Task implements Runnable
 		this.steps.put(Step.CHECK, State.COMPLETED);
 	}
 	
+	public void fromBID(String book_id)
+	{
+		URLConnection urlc;
+		File rsp_file;
+		XMLParser.XML_List list;
+		
+		try {
+			urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=B" + book_id).openConnection();
+			urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
+			InputStream rsp_in = urlc.getInputStream();
+			rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+			FileOutputStream rsp_out = new FileOutputStream(rsp_file);
+			copyStream(rsp_in, rsp_out);
+			rsp_in.close();
+			rsp_out.close();
+		} catch (MalformedURLException murle) {
+			setMessage(murle.getMessage());
+			murle.printStackTrace();
+			return;
+		} catch (IOException ioe) {
+			setMessage(ioe.getMessage());
+			ioe.printStackTrace();
+			return;
+		}
+		
+		JAXBContext context;
+		try {
+			context = JAXBContext.newInstance(XMLParser.XML_List.class);
+			Unmarshaller um = context.createUnmarshaller();
+			list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rsp_file));
+			if(list.ERROR != null)
+			{
+				setMessage("Server returned Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+				return;
+			}
+			DoujinshiDBScanner.User = list.USER;
+			for(XMLParser.XML_Book xml_book : list.Books)
+			{
+				results.put(xml_book.ID, xml_book);
+				this.result = xml_book.ID;
+			}
+		} catch (JAXBException jaxbe) {
+			jaxbe.printStackTrace();
+			return;
+		} catch (FileNotFoundException fnfe) {
+			fnfe.printStackTrace();
+		}
+	}
+	
 	public String getMessage()
 	{
 		return message;

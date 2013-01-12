@@ -28,6 +28,7 @@ import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.plug.PluginException;
 import org.dyndns.doujindb.plug.impl.imagescanner.rc.Resources;
 import org.dyndns.doujindb.ui.desk.WindowEx;
+import org.dyndns.doujindb.util.ImageTool;
 
 /**  
 * ImageScanner.java - Plugin to search for matching images in your Datastore.
@@ -590,7 +591,7 @@ public final class ImageScanner extends Plugin
 				
 				BufferedImage bi;
 				try {
-					bi = javax.imageio.ImageIO.read(file);
+					bi = ImageTool.read(file);
 					BufferedImage resized_bi;
 					if(bi.getWidth() > bi.getHeight())
 						resized_bi = new BufferedImage(bi.getWidth() / 2, bi.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -599,7 +600,7 @@ public final class ImageScanner extends Plugin
 					Graphics g = resized_bi.getGraphics();
 					g.drawImage(bi, 0, 0, bi.getWidth(), bi.getHeight(), null);
 					g.dispose();
-					bi = org.dyndns.doujindb.util.Image.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 					
 					buttonScanPreview.setIcon(new ImageIcon(bi));
 					
@@ -655,7 +656,7 @@ public final class ImageScanner extends Plugin
 						{
 							JButton button = new JButton(
 								new ImageIcon(
-									javax.imageio.ImageIO.read(
+									ImageTool.read(
 										Core.Repository.getPreview(book.getID()).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
@@ -678,7 +679,7 @@ public final class ImageScanner extends Plugin
 						{
 							JButton button = new JButton(
 									new ImageIcon(
-										javax.imageio.ImageIO.read(
+										ImageTool.read(
 											Core.Repository.getPreview(book.getID()).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
@@ -773,8 +774,8 @@ public final class ImageScanner extends Plugin
 							textLogBuild.setCaretPosition(textLogBuild.getText().length());
 							continue;
 						}
-						bi = javax.imageio.ImageIO.read(Core.Repository.getPreview(book.getID()).getInputStream());
-						bi = org.dyndns.doujindb.util.Image.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
+						bi = ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 						
 						NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
 						int[][] signature = nsf.getSignature();

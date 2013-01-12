@@ -18,6 +18,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
+import org.dyndns.doujindb.util.ImageTool;
 
 @SuppressWarnings("serial")
 public final class DesktopEx extends JDesktopPane implements DataBaseListener
@@ -66,7 +67,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 							graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 							graphics2D.drawImage(wallpaperImage.getImage(), 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight(), null);
-							javax.imageio.ImageIO.write(im, "PNG", new File(System.getProperty("doujindb.home"), "doujindb.wallpaper"));
+							ImageTool.write(im, new File(System.getProperty("doujindb.home"), "doujindb.wallpaper"));
 							wallpaperImage = new ImageIcon(im);
 							wallpaper.setIcon(wallpaperImage);
 						} catch (Exception e) {

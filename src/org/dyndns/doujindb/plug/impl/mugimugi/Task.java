@@ -19,6 +19,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
+import org.dyndns.doujindb.util.ImageTool;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="Task")
@@ -441,7 +442,7 @@ final class Task implements Runnable
 		}
 		BufferedImage image;
 		try {
-			image = javax.imageio.ImageIO.read(cover_file);
+			image = ImageTool.read(cover_file);
 		} catch (IOException ioe) {
 			setMessage(ioe.getMessage());
 			return State.ERROR;
@@ -470,7 +471,7 @@ final class Task implements Runnable
 				setMessage("Resizing image before upload  ...");
 				setStatus(State.RUNNING);
 				resized = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-				resized = org.dyndns.doujindb.util.Image.getScaledInstance(dest, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+				resized = ImageTool.getScaledInstance(dest, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 			} catch (Exception e) {
 				setMessage(e.getMessage());
 				return State.ERROR;
@@ -479,7 +480,7 @@ final class Task implements Runnable
 				resized = dest;
 			}
 			try {
-				javax.imageio.ImageIO.write(resized, "PNG", req_file);
+				ImageTool.write(resized, req_file);
 			} catch (IOException ioe) {
 				setMessage(ioe.getMessage());
 				return State.ERROR;
@@ -574,8 +575,7 @@ final class Task implements Runnable
 						Image img = new ImageIcon(thumbURL).getImage();
 						BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 						bi.getGraphics().drawImage(img, 0, 0, null);
-						javax.imageio.ImageIO.write(bi,
-								"PNG",
+						ImageTool.write(bi,
 								new File(
 									new File(DoujinshiDBScanner.PLUGIN_HOME,
 											".cache"), result.ID + ".png"));
@@ -855,8 +855,8 @@ final class Task implements Runnable
 			ds = Core.Repository.getPreview(book.getID());
 			ds.touch();
 			OutputStream out = ds.getOutputStream();
-			BufferedImage image = javax.imageio.ImageIO.read(req_file);
-			javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+			BufferedImage image = ImageTool.read(req_file);
+			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
 			out.close();
 			setMessage("Doujin successfully imported.");
 			return State.COMPLETED;

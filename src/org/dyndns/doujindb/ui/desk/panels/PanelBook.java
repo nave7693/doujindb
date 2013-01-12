@@ -39,6 +39,7 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
+import org.dyndns.doujindb.util.ImageTool;
 import org.dyndns.doujindb.util.RepositoryIndexer;
 
 @SuppressWarnings("serial")
@@ -141,7 +142,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								if(result != JFileChooser.APPROVE_OPTION)
 									return;
 								Image img = null;
-								try { img = javax.imageio.ImageIO.read(fc.getSelectedFile()); } catch (IOException ioe)
+								try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
 									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
@@ -155,8 +156,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
-									BufferedImage image = javax.imageio.ImageIO.read(in);
-									javax.imageio.ImageIO.write(org.dyndns.doujindb.util.Image.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), "PNG", out);
+									BufferedImage image = ImageTool.read(in);
+									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
 									out.close();
 								} catch (Exception e) {
 									e.printStackTrace();
@@ -170,7 +171,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
-										labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+										labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
 										in.close();
 									}
 								} catch (NullPointerException npe) {
@@ -575,7 +576,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 					if(ds.exists())
 					{
 						InputStream in = ds.getInputStream();
-						labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+						labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
 						labelPreview.setName("preview");
 						in.close();
 					}

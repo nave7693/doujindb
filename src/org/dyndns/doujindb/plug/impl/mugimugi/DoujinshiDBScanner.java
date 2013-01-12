@@ -21,6 +21,7 @@ import org.dyndns.doujindb.plug.impl.mugimugi.Task.State;
 import org.dyndns.doujindb.plug.impl.mugimugi.Task.Step;
 import org.dyndns.doujindb.plug.impl.mugimugi.rc.Resources;
 import org.dyndns.doujindb.ui.desk.WindowEx;
+import org.dyndns.doujindb.util.ImageTool;
 
 import javax.xml.bind.*;
 
@@ -876,7 +877,7 @@ public final class DoujinshiDBScanner extends Plugin
 					try {
 						imagePreview.setIcon(
 							new ImageIcon(
-								javax.imageio.ImageIO.read(
+								ImageTool.read(
 									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
@@ -1070,7 +1071,7 @@ public final class DoujinshiDBScanner extends Plugin
 					try {
 						imagePreview.setIcon(
 							new ImageIcon(
-								javax.imageio.ImageIO.read(
+								ImageTool.read(
 									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();

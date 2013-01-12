@@ -22,6 +22,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
+import org.dyndns.doujindb.util.ImageTool;
 
 @SuppressWarnings("serial")
 public final class PanelSearch extends JPanel implements DataBaseListener
@@ -927,7 +928,7 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 						    				 * Second thing: use the tool tip text to get the Image from the Repository
 						    				 */
 			    							try {
-												Image = javax.imageio.ImageIO.read(Core.Repository.getPreview(ID).getInputStream());
+												Image = ImageTool.read(Core.Repository.getPreview(ID).getInputStream());
 											} catch (Exception e) {
 												Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
 											}

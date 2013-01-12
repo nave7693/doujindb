@@ -26,6 +26,7 @@ import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
+import org.dyndns.doujindb.util.ImageTool;
 
 @SuppressWarnings("serial")
 public final class PanelCircle extends JPanel implements DataBaseListener, LayoutManager, ActionListener
@@ -108,7 +109,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								if(result != JFileChooser.APPROVE_OPTION)
 									return;
 								Image img = null;
-								try { img = javax.imageio.ImageIO.read(fc.getSelectedFile()); } catch (IOException ioe)
+								try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
 									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
@@ -127,7 +128,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 									graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 									graphics2D.drawImage(new ImageIcon(in.getAbsolutePath()).getImage(), 0, 0, null);
-									javax.imageio.ImageIO.write(im, "PNG", out);
+									ImageTool.write(im, out);
 									out.close();
 								} catch (Exception e) {
 									e.printStackTrace();
@@ -141,7 +142,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
-										labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+										labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
 										in.close();
 									}
 								} catch (NullPointerException npe) {
@@ -328,7 +329,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 					if(ds.exists())
 					{
 						InputStream in = ds.getInputStream();
-						labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
+						labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
 						labelBanner.setName("banner");
 						in.close();
 					}

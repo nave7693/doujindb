@@ -2,13 +2,16 @@ package org.dyndns.doujindb.util;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.*;
+
+import javax.swing.ImageIcon;
 
 /**	 
-*	Image.java - Graphic/2D utility methods.
+*	Image.java - java.awt.Image utility methods.
 *	@author  nozomu
 *	@version 1.0
 */
-public final class Image
+public final class ImageTool
 {
 	/**
 	 *	Many thanks to Chris Campbell for this wonderful method
@@ -127,5 +130,42 @@ public final class Image
 			g2d.drawImage(img, 0, 0, wi, hi, null);
 			return image;
 		}
+	}
+	
+	public static BufferedImage read(InputStream is) throws IOException
+	{
+		BufferedImage bi;
+		ByteArrayOutputStream imagedata;
+		
+		imagedata = new ByteArrayOutputStream();
+		byte[] buff = new byte[0x800];
+		int read;
+		while((read = is.read(buff)) != -1)
+			imagedata.write(buff, 0, read);
+		Image image = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imagedata.toByteArray())).getImage();
+        bi = new java.awt.image.BufferedImage( image.getWidth( null ), image.getHeight( null ), java.awt.image.BufferedImage.TYPE_INT_RGB );
+        {
+        	 java.awt.Graphics g = bi.createGraphics();
+             g.setColor( java.awt.Color.white );
+             g.fillRect( 0, 0, image.getWidth( null ), image.getHeight( null ) );
+             g.drawImage( image, 0, 0, null );
+             g.dispose();
+        }
+        return bi;
+	}
+	
+	public static BufferedImage read(File in) throws IOException
+	{
+		return read(new FileInputStream(in));
+	}
+	
+	public static void write(BufferedImage bi, OutputStream os) throws IOException
+	{
+		javax.imageio.ImageIO.write(bi, "PNG", os);
+	}
+	
+	public static void write(BufferedImage bi, File out) throws IOException
+	{
+		write(bi, new FileOutputStream(out));
 	}
 }

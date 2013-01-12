@@ -177,7 +177,15 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				public void actionPerformed(ActionEvent ae)
 				{
 					try {
-						showPluginWindow(plugin);
+						new SwingWorker<Void, Object>()
+						{
+							@Override
+							protected Void doInBackground() throws Exception
+							{
+								showPluginWindow(plugin);
+								return null;
+							}
+						}.execute();
 					} catch (DataBaseException dbe) {
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();

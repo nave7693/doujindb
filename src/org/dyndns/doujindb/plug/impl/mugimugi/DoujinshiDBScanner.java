@@ -2,11 +2,18 @@ package org.dyndns.doujindb.plug.impl.mugimugi;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -55,6 +62,8 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	private static final JComponent UI = new PluginUI();
 	static XMLParser.XML_User User = new XMLParser.XML_User();
+	private static File CacheFile = new File(PLUGIN_HOME, "fingerprint.ser");
+	private static TreeMap<String, int[][]> Cache;
 	
 	static
 	{
@@ -94,6 +103,8 @@ public final class DoujinshiDBScanner extends Plugin
 		File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
 		file = new File(file, ".cache");
 		file.mkdirs();
+		
+		cacheRead();
 	}
 	
 	@Override
@@ -140,6 +151,9 @@ public final class DoujinshiDBScanner extends Plugin
 	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener
 	{
 		private JTabbedPane tabs;
+		private JPanel tabSettings;
+		private JPanel tabTasks;
+		private JPanel tabScanner;
 		
 		private JButton buttonRefresh;
 		private JLabel labelApikey;
@@ -166,9 +180,18 @@ public final class DoujinshiDBScanner extends Plugin
 		private PanelTaskUI panelTasks;
 		private JScrollPane scrollTasks;
 		
+		private JLabel labelMaxResults;
+		private JSlider sliderMaxResults;
+		private JButton buttonScanPreview;
+		private JTabbedPane tabsScanResult;
+		private JProgressBar barScan;
+		private JButton buttonScanCancel;
+		
 		private Thread workerThread = new Thread(getClass().getName()+"$Task[null]");
 		private boolean fetcherRunning = false;
 		private Thread fetcherThread;
+		
+		private Thread scannerTask = new TaskScanner(null);
 		
 		static
 		{
@@ -204,10 +227,6 @@ public final class DoujinshiDBScanner extends Plugin
 				prop.setValue(RESIZE_COVER);
 				prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
 			}
-			
-			File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
-			file = new File(file, ".cache");
-			file.mkdirs();
 		}
 		
 		public PluginUI()
@@ -217,6 +236,7 @@ public final class DoujinshiDBScanner extends Plugin
 			tabs = new JTabbedPane();
 			tabs.setFont(Core.Resources.Font);
 			tabs.setFocusable(false);
+			
 			JPanel bogus;
 			bogus = new JPanel();
 			bogus.setLayout(null);
@@ -255,7 +275,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}				
 			});
 			bogus.add(textApikey);
-			labelThreshold = new JLabel("Threshold : " + THRESHOLD);
+			labelThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
 			labelThreshold.setFont(Core.Resources.Font);
 			bogus.add(labelThreshold);
 			sliderThreshold = new JSlider(0, 100, THRESHOLD);
@@ -266,7 +286,7 @@ public final class DoujinshiDBScanner extends Plugin
 				public void stateChanged(ChangeEvent ce)
 				{
 					THRESHOLD = sliderThreshold.getValue();
-					labelThreshold.setText("Threshold : " + THRESHOLD);
+					labelThreshold.setText("Threshold : " + THRESHOLD + "%");
 					if(sliderThreshold.getValueIsAdjusting())
 						return;
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").setValue(THRESHOLD);
@@ -317,7 +337,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}				
 			});
 			bogus.add(boxResizeImage);
-			tabs.addTab("Settings", Resources.Icons.get("Plugin/Settings"), bogus);
+			tabs.addTab("Settings", Resources.Icons.get("Plugin/Settings"), tabSettings = bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
@@ -357,10 +377,111 @@ public final class DoujinshiDBScanner extends Plugin
 			panelTasks = new PanelTaskUI();
 			scrollTasks = new JScrollPane(panelTasks);
 			bogus.add(scrollTasks);
-			tabs.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), bogus);
+			tabs.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), tabTasks = bogus);
+			
+			bogus = new JPanel();
+			bogus.setLayout(null);
+			labelMaxResults = new JLabel("Max Results : " + 10);
+			labelMaxResults.setFont(Core.Resources.Font);
+			bogus.add(labelMaxResults);
+			sliderMaxResults = new JSlider(1, 25);
+			sliderMaxResults.setValue(10);
+			sliderMaxResults.setFont(Core.Resources.Font);
+			sliderMaxResults.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent ce)
+				{
+					labelMaxResults.setText("Max Results : " + sliderMaxResults.getValue());
+				}				
+			});
+			bogus.add(sliderMaxResults);
+			buttonScanPreview = new JButton();
+			buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Search/Preview"));
+			buttonScanPreview.addActionListener(this);
+			buttonScanPreview.setBorder(null);
+			buttonScanPreview.setOpaque(false);
+			buttonScanPreview.setDropTarget(new DropTarget()
+			{
+				@Override
+				public synchronized void dragOver(DropTargetDragEvent dtde)
+				{
+					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+						if(scannerTask.isAlive())
+						{
+							dtde.rejectDrag();
+							return;
+						}
+				        dtde.acceptDrag(DnDConstants.ACTION_COPY);
+				    } else {
+				        dtde.rejectDrag();
+				    }
+				}
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public synchronized void drop(DropTargetDropEvent dtde)
+				{
+					Transferable transferable = dtde.getTransferable();
+	                if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+	                {
+	                    dtde.acceptDrop(dtde.getDropAction());
+	                    try
+	                    {
+	                    	final List<File> transferData = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+	                        if (transferData != null && transferData.size() == 1)
+	                        {
+	                        	new Thread()
+	                        	{
+	                                @Override
+	                                public void run() {
+	                                	File file = transferData.iterator().next();
+	                                	if(scannerTask.isAlive())
+	                    					return;
+	                                	scannerTask = new TaskScanner(file);
+	                                	scannerTask.setName(getClass().getName()+"$CacheBuilder");
+	                                	scannerTask.setDaemon(true);
+	                                	scannerTask.start();
+	                    				tabScanner.doLayout();
+	                                }
+	                        	}.start();
+	                            dtde.dropComplete(true);
+	                        }
+
+	                    } catch (Exception e) {
+	                        e.printStackTrace();
+	                    }
+	                } else {
+	                    dtde.rejectDrop();
+	                }
+				}
+			});
+			bogus.add(buttonScanPreview);
+			tabsScanResult = new JTabbedPane();
+			tabsScanResult.setFont(Core.Resources.Font);
+			tabsScanResult.setFocusable(false);
+			tabsScanResult.setTabPlacement(JTabbedPane.RIGHT);
+			bogus.add(tabsScanResult);
+			barScan = new JProgressBar();
+			barScan.setFont(Core.Resources.Font);
+			barScan.setMaximum(100);
+			barScan.setMinimum(1);
+			barScan.setValue(barScan.getMinimum());
+			barScan.setStringPainted(true);
+			barScan.setString("");
+			bogus.add(barScan);
+			buttonScanCancel = new JButton();
+			buttonScanCancel.setText("Cancel");
+			buttonScanCancel.setIcon(Resources.Icons.get("Plugin/Cancel"));
+			buttonScanCancel.addActionListener(this);
+			buttonScanCancel.setToolTipText("Cancel");
+			buttonScanCancel.setFocusable(false);
+			bogus.add(buttonScanCancel);
+			tabs.addTab("Search", Resources.Icons.get("Plugin/Search"), tabScanner = bogus);
+			
 			super.add(tabs);
 			
-			Set<Task> tasks = unserialize();
+			Set<Task> tasks = taskRead();
 			for(Task task : tasks)
 				panelTasks.addTask(task);
 			
@@ -373,7 +494,7 @@ public final class DoujinshiDBScanner extends Plugin
 					Set<Task> tasks = new HashSet<Task>();
 					for(Task task : panelTasks)
 						tasks.add(task);
-					serialize(tasks);
+					taskWrite(tasks);
 				}
 			}, 1, 5 * 1000);
 			
@@ -386,7 +507,7 @@ public final class DoujinshiDBScanner extends Plugin
 					Set<Task> tasks = new HashSet<Task>();
 					for(Task task : panelTasks)
 						tasks.add(task);
-					serialize(tasks);
+					taskWrite(tasks);
 				}
 			});
 			
@@ -472,6 +593,18 @@ public final class DoujinshiDBScanner extends Plugin
 				textQueries.setText("");
 				textImageQueries.setText("");
 			}
+			buttonScanPreview.setBounds(5,5,180,256);
+			if(scannerTask.isAlive())
+			{
+				barScan.setBounds(5,265,180,20);
+				buttonScanCancel.setBounds(5,290,180,20);
+			}
+			else
+			{
+				barScan.setBounds(0,0,0,0);
+				buttonScanCancel.setBounds(0,0,0,0);
+			}
+			tabsScanResult.setBounds(190,5,width-190,height-10);
 		}
 		@Override
 		public void addLayoutComponent(String key,Component c){}
@@ -1168,6 +1301,167 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			public void mouseReleased(MouseEvent me) { }
 		}
+
+		private final class TaskScanner extends Thread
+		{
+			private boolean running = false;
+			
+			final private File file;
+			
+			private TaskScanner(final File file)
+			{
+				this.file = file;
+			}
+			
+			@Override
+			public void interrupt() {
+				running = false;
+				super.interrupt();
+			}
+
+			@Override
+			public boolean isInterrupted() {
+				return !running;
+			}
+
+			@Override
+			public synchronized void start() {
+				this.running = true;
+				super.start();
+			}
+			
+			@Override
+			public void run()
+			{
+				// Reset UI
+				while (tabsScanResult.getTabCount() > 0)
+					tabsScanResult.remove(0);
+				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				barScan.setValue(barScan.getMinimum());
+				barScan.setString("Loading ...");
+				
+				// Init data
+				int threshold = sliderThreshold.getValue();
+				int max_results = sliderMaxResults.getValue();
+				
+				BufferedImage bi;
+				try {
+					bi = ImageTool.read(file);
+					BufferedImage resized_bi;
+					if(bi.getWidth() > bi.getHeight())
+						resized_bi = new BufferedImage(bi.getWidth() / 2, bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+					else
+						resized_bi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+					Graphics g = resized_bi.getGraphics();
+					g.drawImage(bi, 0, 0, bi.getWidth(), bi.getHeight(), null);
+					g.dispose();
+					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+					
+					buttonScanPreview.setIcon(new ImageIcon(bi));
+					
+					TreeMap<Double, Book> result = new TreeMap<Double, Book>(new Comparator<Double>()
+					{
+						@Override
+						public int compare(Double a, Double b)
+						{
+							return b.compareTo(a);
+						}
+					});
+//					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
+					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, 15); //FIXME
+					RecordSet<Book> books = Context.getBooks(null);
+					
+					barScan.setMaximum(books.size());
+					barScan.setMinimum(1);
+					barScan.setValue(barScan.getMinimum());
+					
+					for(Book book : books)
+					{
+						try { Thread.sleep(1); } catch (InterruptedException ie) { }
+						
+						if(!running)
+							return;
+						
+						String book_id = book.getID();
+						if(Cache.containsKey(book_id))
+						{
+							double similarity = nsf.getPercentSimilarity(Cache.get(book_id));
+							if(similarity >= threshold)
+								if(result.size() >= max_results)
+								{
+									double remove_me = result.lastKey();
+									result.put(similarity, book);
+									result.remove(remove_me);
+								} else {
+									result.put(similarity, book);
+								}
+						}
+						
+						int progress = barScan.getValue() * 100 / barScan.getMaximum();
+						barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
+						barScan.setValue(barScan.getValue() + 1);
+						if(barScan.getValue() == barScan.getMaximum())
+							barScan.setValue(barScan.getMinimum());
+					}
+					
+					boolean first_result = false;
+					for(double index : result.keySet())
+					{
+						final Book book = result.get(index);
+						if(!first_result)
+						{
+							JButton button = new JButton(
+								new ImageIcon(
+									ImageTool.read(
+										Core.Repository.getPreview(book.getID()).getInputStream())));
+							button.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae) {
+									new SwingWorker<Void, Void>()
+									{
+										@Override
+										protected Void doInBackground() throws Exception
+										{
+											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											return null;
+										}
+									}.execute();
+								}
+							});
+							first_result = true;
+							tabsScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
+						} else
+						{
+							JButton button = new JButton(
+									new ImageIcon(
+										ImageTool.read(
+											Core.Repository.getPreview(book.getID()).getInputStream())));
+							button.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae) {
+									new SwingWorker<Void, Void>()
+									{
+										@Override
+										protected Void doInBackground() throws Exception
+										{
+											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											return null;
+										}
+									}.execute();								}
+							});
+							tabsScanResult.addTab(String.format("%3.2f", index) + "%", button);
+						}
+					}
+					
+					barScan.setValue(barScan.getMaximum());
+					barScan.setString("Completed");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -1179,7 +1473,7 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void uninstall() throws PluginException { }
 	
-	private static Set<Task> unserialize()
+	private static Set<Task> taskRead()
 	{
 		Set<Task> tasks = new HashSet<Task>();
 		File file = new File(PLUGIN_HOME, "tasks.xml");
@@ -1208,7 +1502,7 @@ public final class DoujinshiDBScanner extends Plugin
 		return tasks;
 	}
 	
-	private static void serialize(Set<Task> tasks)
+	private static void taskWrite(Set<Task> tasks)
 	{
 		File file = new File(PLUGIN_HOME, "tasks.xml");
 		FileOutputStream out = null;
@@ -1231,5 +1525,31 @@ public final class DoujinshiDBScanner extends Plugin
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
+	}
+	
+	private static void cacheWrite()
+	{
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(CacheFile)));
+			oos.writeObject(Cache);
+			oos.flush();
+			oos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void cacheRead()
+	{
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(CacheFile)));
+			Cache = (TreeMap<String, int[][]>) ois.readObject();
+			ois.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(Cache == null)
+			Cache = new TreeMap<String, int[][]>();
 	}
 }

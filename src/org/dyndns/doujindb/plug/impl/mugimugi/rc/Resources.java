@@ -22,6 +22,10 @@ public final class Resources
 		iconKeys.put("Plugin/Refresh", "refresh.png");
 		iconKeys.put("Plugin/Settings", "settings.png");
 		iconKeys.put("Plugin/Tasks", "tasks.png");
+		iconKeys.put("Plugin/Search", "search.png");
+		iconKeys.put("Plugin/Confirm", "confirm.png");
+		iconKeys.put("Plugin/Cancel", "cancel.png");
+		iconKeys.put("Plugin/Cache", "cache.png");
 		iconKeys.put("Plugin/CleanCompleted", "cleancompleted.png");
 		iconKeys.put("Plugin/DeleteSelected", "deleteselected.png");
 		iconKeys.put("Plugin/Task/Pause", "task/pause.png");
@@ -38,6 +42,9 @@ public final class Resources
 		iconKeys.put("Plugin/Task/Step/Completed", "task/step/completed.png");
 		iconKeys.put("Plugin/Task/Step/Warning", "task/step/warning.png");
 		iconKeys.put("Plugin/Task/Step/Error", "task/step/error.png");
+		iconKeys.put("Plugin/Search/Open", "search/open.png");
+		iconKeys.put("Plugin/Search/Preview", "search/preview.png");
+		iconKeys.put("Plugin/Search/Star", "search/star.png");
 		
 		Icons = new Hashtable<String,ImageIcon>();
 		for(String key : iconKeys.keySet())

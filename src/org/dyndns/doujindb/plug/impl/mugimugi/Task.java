@@ -484,7 +484,34 @@ final class Task implements Runnable
 			} catch (IOException ioe) {
 				setMessage(ioe.getMessage());
 				return State.ERROR;
+			} catch (Exception e) {
+				setMessage(e.getMessage());
+				return State.ERROR;
 			}
+			
+			NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(resized, 15);
+			RecordSet<Book> books = DoujinshiDBScanner.Context.getBooks(null);
+			
+			for(Book book : books)
+			{
+				try { Thread.sleep(1); } catch (InterruptedException ie) { }
+				//FIXME
+//				String book_id = book.getID();
+//				if(Cache.containsKey(book_id))
+//				{
+//					double similarity = nsf.getPercentSimilarity(Cache.get(book_id));
+//					if(similarity >= threshold)
+//						if(result.size() >= max_results)
+//						{
+//							double remove_me = result.lastKey();
+//							result.put(similarity, book);
+//							result.remove(remove_me);
+//						} else {
+//							result.put(similarity, book);
+//						}
+//				}
+			}
+			
 			return State.COMPLETED;
 		}
 	}
@@ -630,7 +657,7 @@ final class Task implements Runnable
 			dupes.clear();
 			for(Book b : books)
 				dupes.add(b.getID());
-			setMessage("Duplicate Book" + (books.size() > 1 ? "s" : "") + " detected!");
+			setMessage("Possible duplicate Book" + (books.size() > 1 ? "s" : "") + " detected!");
 			return State.WARNING;
 		}
 		

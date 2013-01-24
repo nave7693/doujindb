@@ -89,7 +89,7 @@ final class Task implements Runnable
 	private transient Map<String, XMLParser.XML_Book> results = new TreeMap<String, XMLParser.XML_Book>(Collections.reverseOrder());
 	
 	/**
-	 * All dupes found
+	 * All duplicate items found
 	 */
 	private Set<String> dupes = new HashSet<String>();
 	
@@ -173,7 +173,7 @@ final class Task implements Runnable
 			urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=B" + book_id).openConnection();
 			urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version + "; +" + DoujinshiDBScanner.Weblink + ")");
 			InputStream rsp_in = urlc.getInputStream();
-			rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+			rsp_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".xml");
 			FileOutputStream rsp_out = new FileOutputStream(rsp_file);
 			copyStream(rsp_in, rsp_out);
 			rsp_in.close();
@@ -260,7 +260,7 @@ final class Task implements Runnable
 			Unmarshaller um = context.createUnmarshaller();
 			XMLParser.XML_List list = (XMLParser.XML_List) um.unmarshal(
 				new FileInputStream(
-					new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml")));
+					new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".xml")));
 			results = new HashMap<String, XMLParser.XML_Book>();
 			for(XMLParser.XML_Book xml_book : list.Books)
 			{
@@ -454,7 +454,7 @@ final class Task implements Runnable
 		}
 		setMessage("Cover image found.");
 		setStatus(State.RUNNING);
-		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".png");
 		BufferedImage resized;
 		{
 			BufferedImage dest;
@@ -489,28 +489,33 @@ final class Task implements Runnable
 				return State.ERROR;
 			}
 			
-			NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(resized, 15);
-			RecordSet<Book> books = DoujinshiDBScanner.Context.getBooks(null);
-			
-			for(Book book : books)
-			{
-				try { Thread.sleep(1); } catch (InterruptedException ie) { }
-				//FIXME
-//				String book_id = book.getID();
-//				if(Cache.containsKey(book_id))
+//			NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(resized, 15);
+//
+//			synchronized(DoujinshiDBScanner.Cache)
+//			{
+//				double similarity_max = 0;
+//				
+//				for(String book_id : DoujinshiDBScanner.Cache.keySet())
 //				{
-//					double similarity = nsf.getPercentSimilarity(Cache.get(book_id));
-//					if(similarity >= threshold)
-//						if(result.size() >= max_results)
+//					try { Thread.sleep(1); } catch (InterruptedException ie) { }
+//					
+//					int[][] signature = DoujinshiDBScanner.Cache.get(book_id);
+//					double similarity = nsf.getPercentSimilarity(signature);
+//
+//					if(similarity >= threshold &&
+//						similarity > similarity_max)
 //						{
-//							double remove_me = result.lastKey();
-//							result.put(similarity, book);
-//							result.remove(remove_me);
-//						} else {
-//							result.put(similarity, book);
+//							dupes.clear();
+//							dupes.add(book_id);
 //						}
 //				}
-			}
+//				
+//				if(!dupes.isEmpty())
+//				{
+//					setMessage("Duplicate Book detected!");
+//					return State.WARNING;
+//				}
+//			}
 			
 			return State.COMPLETED;
 		}
@@ -523,7 +528,7 @@ final class Task implements Runnable
 		setStatus(State.RUNNING);
 
 		URLConnection urlc;
-		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".png");
 		File rsp_file;
 		
 		try {
@@ -533,7 +538,7 @@ final class Task implements Runnable
 			          new Object[] {
 			        	  "img", req_file
 			        	  });
-			rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+			rsp_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".xml");
 			FileOutputStream rsp_out = new FileOutputStream(rsp_file);
 			copyStream(rsp_in, rsp_out);
 			rsp_in.close();
@@ -559,7 +564,7 @@ final class Task implements Runnable
 			return State.COMPLETED;
 		}
 		
-		File rsp_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".xml");
+		File rsp_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".xml");
 		XMLParser.XML_List list;
 		try
 		{
@@ -603,9 +608,7 @@ final class Task implements Runnable
 						BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 						bi.getGraphics().drawImage(img, 0, 0, null);
 						ImageTool.write(bi,
-								new File(
-									new File(DoujinshiDBScanner.PLUGIN_HOME,
-											".cache"), result.ID + ".png"));
+								new File(DoujinshiDBScanner.PLUGIN_DATA, result.ID + ".png"));
 					}catch(Exception e){ e.printStackTrace(); }
 				}
 				setMessage("No query matched the threshold.");
@@ -871,7 +874,7 @@ final class Task implements Runnable
 				setMessage(e.getMessage());
 				return State.ERROR;
 			}
-		File req_file = new File(DoujinshiDBScanner.PLUGIN_HOME, id + ".png");
+		File req_file = new File(DoujinshiDBScanner.PLUGIN_QUERY, id + ".png");
 		try
 		{
 			setMessage("Creating preview into the Datastore  ...");

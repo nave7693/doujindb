@@ -10,12 +10,14 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.*;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
@@ -60,10 +62,15 @@ public final class DoujinshiDBScanner extends Plugin
 	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
 	static final DataBaseContext Context = Core.Database.getContext(UUID);
 	
-	private static final JComponent UI = new PluginUI();
+	private static JComponent UI;
 	static XMLParser.XML_User User = new XMLParser.XML_User();
-	private static File CacheFile = new File(PLUGIN_HOME, "fingerprint.ser");
-	private static TreeMap<String, int[][]> Cache;
+	static TreeMap<String, int[][]> Cache;
+	
+	static File PLUGIN_CACHE = new File(PLUGIN_HOME, "fingerprint.ser");
+	static File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
+	static File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
+	
+	private static SimpleDateFormat sdf;
 	
 	static
 	{
@@ -100,11 +107,16 @@ public final class DoujinshiDBScanner extends Plugin
 			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
 		}
 		
-		File file = new File(System.getProperty("doujindb.home"), "plugins/" + UUID);
-		file = new File(file, ".cache");
-		file.mkdirs();
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		PLUGIN_HOME.mkdirs();
+		PLUGIN_DATA.mkdirs();
+		PLUGIN_QUERY.mkdirs();
 		
 		cacheRead();
+		
+		UI = new PluginUI();
 	}
 	
 	@Override
@@ -180,18 +192,27 @@ public final class DoujinshiDBScanner extends Plugin
 		private PanelTaskUI panelTasks;
 		private JScrollPane scrollTasks;
 		
+		private JCheckBox boxCacheOverwrite;
+		private JProgressBar progressBarCache;
+		private JButton buttonCacheBuild;
+		private JButton buttonCacheCancel;
+		private JLabel labelCacheInfo;
+		
 		private JLabel labelMaxResults;
 		private JSlider sliderMaxResults;
 		private JButton buttonScanPreview;
 		private JTabbedPane tabsScanResult;
-		private JProgressBar barScan;
+		private JProgressBar progressBarScan;
 		private JButton buttonScanCancel;
 		
-		private Thread workerThread = new Thread(getClass().getName()+"$Task[null]");
+		private Thread workerTaskFetcher = new Thread(getClass().getName()+"$Task[null]");
 		private boolean fetcherRunning = false;
 		private Thread fetcherThread;
 		
 		private Thread scannerTask = new TaskScanner(null);
+		private SwingWorker<String, Integer> workerCacheScanner;
+		private SwingWorker<Void, Integer> workerTaskBuilder = new TaskBuilder();
+		private boolean cacheBuilderRunning = false;
 		
 		static
 		{
@@ -337,6 +358,35 @@ public final class DoujinshiDBScanner extends Plugin
 				}				
 			});
 			bogus.add(boxResizeImage);
+			boxCacheOverwrite = new JCheckBox();
+			boxCacheOverwrite.setSelected(false);
+			boxCacheOverwrite.setFocusable(false);
+			boxCacheOverwrite.setText("Overwrite existing entries");
+			bogus.add(boxCacheOverwrite);
+			buttonCacheBuild = new JButton(Resources.Icons.get("Plugin/Cache"));
+			buttonCacheBuild.addActionListener(this);
+			buttonCacheBuild.setBorder(null);
+			buttonCacheBuild.setFocusable(false);
+			bogus.add(buttonCacheBuild);
+			buttonCacheCancel = new JButton(Resources.Icons.get("Plugin/Cancel"));
+			buttonCacheCancel.addActionListener(this);
+			buttonCacheCancel.setBorder(null);
+			buttonCacheCancel.setFocusable(false);
+			bogus.add(buttonCacheCancel);
+			progressBarCache = new JProgressBar();
+			progressBarCache.setFont(Core.Resources.Font);
+			progressBarCache.setMaximum(100);
+			progressBarCache.setMinimum(1);
+			progressBarCache.setValue(progressBarCache.getMinimum());
+			progressBarCache.setStringPainted(true);
+			progressBarCache.setString("");
+			bogus.add(progressBarCache);
+			labelCacheInfo = new JLabel("<html><body>cache-size : " + humanReadableByteCount(PLUGIN_CACHE.length(), true) + "<br/>" +
+					"entry-count : " + Cache.size() + "<br/>" +
+					"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
+			labelCacheInfo.setFont(Core.Resources.Font);
+			labelCacheInfo.setVerticalAlignment(JLabel.TOP);
+			bogus.add(labelCacheInfo);
 			tabs.addTab("Settings", Resources.Icons.get("Plugin/Settings"), tabSettings = bogus);
 			
 			bogus = new JPanel();
@@ -439,7 +489,7 @@ public final class DoujinshiDBScanner extends Plugin
 	                                	if(scannerTask.isAlive())
 	                    					return;
 	                                	scannerTask = new TaskScanner(file);
-	                                	scannerTask.setName(getClass().getName()+"$CacheBuilder");
+	                                	scannerTask.setName(getClass().getName()+"$TaskBuilder");
 	                                	scannerTask.setDaemon(true);
 	                                	scannerTask.start();
 	                    				tabScanner.doLayout();
@@ -462,14 +512,14 @@ public final class DoujinshiDBScanner extends Plugin
 			tabsScanResult.setFocusable(false);
 			tabsScanResult.setTabPlacement(JTabbedPane.RIGHT);
 			bogus.add(tabsScanResult);
-			barScan = new JProgressBar();
-			barScan.setFont(Core.Resources.Font);
-			barScan.setMaximum(100);
-			barScan.setMinimum(1);
-			barScan.setValue(barScan.getMinimum());
-			barScan.setStringPainted(true);
-			barScan.setString("");
-			bogus.add(barScan);
+			progressBarScan = new JProgressBar();
+			progressBarScan.setFont(Core.Resources.Font);
+			progressBarScan.setMaximum(100);
+			progressBarScan.setMinimum(1);
+			progressBarScan.setValue(progressBarScan.getMinimum());
+			progressBarScan.setStringPainted(true);
+			progressBarScan.setString("");
+			bogus.add(progressBarScan);
 			buttonScanCancel = new JButton();
 			buttonScanCancel.setText("Cancel");
 			buttonScanCancel.setIcon(Resources.Icons.get("Plugin/Cancel"));
@@ -528,7 +578,7 @@ public final class DoujinshiDBScanner extends Plugin
 							continue;
 						if(panelTasks.countTasks() < 1)
 							continue;
-						if(workerThread.isAlive())
+						if(workerTaskFetcher.isAlive())
 							continue;
 						else
 						{
@@ -536,8 +586,8 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								if(task.isDone())
 									continue;
-								workerThread = new Thread(task, getClass().getName()+"$Task[id:" + task.getId() + "]");
-								workerThread.start();
+								workerTaskFetcher = new Thread(task, getClass().getName()+"$Task[id:" + task.getId() + "]");
+								workerTaskFetcher.start();
 								break;
 							}
 						}
@@ -545,6 +595,17 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 			};
 			fetcherThread.start();
+		}
+		
+		/**
+		 * @see http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
+		 */
+		private String humanReadableByteCount(long bytes, boolean si) {
+		    int unit = si ? 1000 : 1024;
+		    if (bytes < unit) return bytes + " B";
+		    int exp = (int) (Math.log(bytes) / Math.log(unit));
+		    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+		    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 		}
 		
 		@Override
@@ -570,6 +631,17 @@ public final class DoujinshiDBScanner extends Plugin
 			buttonAddTask.setBounds(1,1,20,20);
 			buttonCleanCompleted.setBounds(width - 65,1,20,20);
 			buttonDeleteSelected.setBounds(width - 85,1,20,20);
+			if(!cacheBuilderRunning)
+			{
+				buttonCacheBuild.setBounds(5,25+200,20,20);
+				buttonCacheCancel.setBounds(0,0,20,20);
+			} else {
+				buttonCacheBuild.setBounds(0,0,20,20);
+				buttonCacheCancel.setBounds(5,25+200,20,20);
+			}
+			progressBarCache.setBounds(5,25+220,width-15,20);
+			boxCacheOverwrite.setBounds(5,25+240,width-15,20);
+			labelCacheInfo.setBounds(5,25+270,width,height-280);
 			if(fetcherRunning)
 			{
 				buttonWorkerResume.setBounds(21,1,0,0);
@@ -596,12 +668,12 @@ public final class DoujinshiDBScanner extends Plugin
 			buttonScanPreview.setBounds(5,5,180,256);
 			if(scannerTask.isAlive())
 			{
-				barScan.setBounds(5,265,180,20);
+				progressBarScan.setBounds(5,265,180,20);
 				buttonScanCancel.setBounds(5,290,180,20);
 			}
 			else
 			{
-				barScan.setBounds(0,0,0,0);
+				progressBarScan.setBounds(0,0,0,0);
 				buttonScanCancel.setBounds(0,0,0,0);
 			}
 			tabsScanResult.setBounds(190,5,width-190,height-10);
@@ -726,6 +798,17 @@ public final class DoujinshiDBScanner extends Plugin
 			{
 				for(TaskUI ui : panelTasks.map.values())
 					ui.bottonSelection.setSelected(bottonSelection.isSelected());
+				return;
+			}
+			if(ae.getSource() == buttonCacheBuild)
+			{
+				workerTaskBuilder = new TaskBuilder();
+				workerTaskBuilder.execute();
+				return;
+			}
+			if(ae.getSource() == buttonCacheCancel)
+			{
+				workerTaskBuilder.cancel(true);
 				return;
 			}
 		}
@@ -1005,13 +1088,14 @@ public final class DoujinshiDBScanner extends Plugin
 				/**
 				 * Check if cover image is ready to be shown
 				 */
-				if(task.getStatus(Step.SCAN).equals(State.COMPLETED))
+				if(task.getStatus(Step.SCAN).equals(State.COMPLETED) || //TODO
+					task.getStatus(Step.SCAN).equals(State.WARNING))
 				{
 					try {
 						imagePreview.setIcon(
 							new ImageIcon(
 								ImageTool.read(
-									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
+									new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
@@ -1025,7 +1109,7 @@ public final class DoujinshiDBScanner extends Plugin
 						XMLParser.XML_Book book = results.get(id);
 						JButton buttonResult = new JButton();
 						try {
-							buttonResult.setIcon(new ImageIcon(new File(new File(DoujinshiDBScanner.PLUGIN_HOME, ".cache"), book.ID + ".png").toURI().toURL()));
+							buttonResult.setIcon(new ImageIcon(new File(PLUGIN_DATA, book.ID + ".png").toURI().toURL()));
 						} catch (MalformedURLException murle) {
 							buttonResult.setIcon(new ImageIcon());
 						}
@@ -1199,13 +1283,15 @@ public final class DoujinshiDBScanner extends Plugin
 				/**
 				 * Check if cover image is ready to be shown
 				 */
-				if(step.equals(Step.SCAN) && status.equals(State.COMPLETED))
+				if(step.equals(Step.SCAN) && (
+					status.equals(State.COMPLETED) ||
+					status.equals(State.WARNING))) //FIXME
 				{
 					try {
 						imagePreview.setIcon(
 							new ImageIcon(
 								ImageTool.read(
-									new File(DoujinshiDBScanner.PLUGIN_HOME, task.getId() + ".png"))));
+									new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png"))));
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
@@ -1219,7 +1305,7 @@ public final class DoujinshiDBScanner extends Plugin
 						XMLParser.XML_Book book = results.get(id);
 						JButton buttonResult = new JButton();
 						try {
-							File file = new File(new File(DoujinshiDBScanner.PLUGIN_HOME, ".cache"), book.ID + ".png");
+							File file = new File(PLUGIN_DATA, book.ID + ".png");
 							if(!file.exists())
 								System.out.println(file);
 							buttonResult.setIcon(new ImageIcon(file.toURI().toURL()));
@@ -1301,6 +1387,80 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			public void mouseReleased(MouseEvent me) { }
 		}
+		
+		private final class TaskBuilder extends SwingWorker<Void, Integer>
+		{
+			@Override
+			protected Void doInBackground() throws Exception {
+				cacheBuilderRunning = true;
+				PluginUI.this.doLayout();
+
+				// Reset UI
+				progressBarCache.setValue(progressBarCache.getMinimum());
+				progressBarCache.setString("Loading ...");
+				
+				// Init data
+				int density = 15;
+				boolean cache_overwrite = boxCacheOverwrite.isSelected();
+				RecordSet<Book> books = Context.getBooks(null);
+				
+				progressBarCache.setMaximum(books.size());
+				progressBarCache.setMinimum(1);
+				progressBarCache.setValue(progressBarCache.getMinimum());
+				
+				for(Book book : books)
+				{
+					try { Thread.sleep(1); } catch (InterruptedException ie) { }
+					
+					if(isCancelled())
+						return null;
+						
+					int progress = progressBarCache.getValue() * 100 / progressBarCache.getMaximum();
+					progressBarCache.setString("[" + progressBarCache.getValue() + " / " + progressBarCache.getMaximum() + "] @ " + progress + "%");
+					progressBarCache.setValue(progressBarCache.getValue() + 1);
+					
+					BufferedImage bi;
+					try {
+						if(Cache.containsKey(book.getID()) && !cache_overwrite)
+							continue;
+						
+						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
+						bi = ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+						
+						NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
+						int[][] signature = nsf.getSignature();
+						Cache.put(book.getID(), signature);
+						
+					} catch (Exception e) { e.printStackTrace(); }
+				}
+				
+				// Write Cache
+				cacheWrite();
+				
+				// Cache build completed
+				labelCacheInfo.setText("<html><body>cache-size : " + humanReadableByteCount(PLUGIN_CACHE.length(), true) + "<br/>" +
+						"entry-count : " + Cache.size() + "<br/>" +
+						"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
+				
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				cacheBuilderRunning = false;
+				PluginUI.this.doLayout();
+				
+				progressBarCache.setValue(0);
+				progressBarCache.setString("");
+				
+				super.done();
+			}
+
+			@Override
+			protected void process(List<Integer> chunks) {
+				super.process(chunks);
+			}
+		}
 
 		private final class TaskScanner extends Thread
 		{
@@ -1337,8 +1497,8 @@ public final class DoujinshiDBScanner extends Plugin
 				while (tabsScanResult.getTabCount() > 0)
 					tabsScanResult.remove(0);
 				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
-				barScan.setValue(barScan.getMinimum());
-				barScan.setString("Loading ...");
+				progressBarScan.setValue(progressBarScan.getMinimum());
+				progressBarScan.setString("Loading ...");
 				
 				// Init data
 				int threshold = sliderThreshold.getValue();
@@ -1371,9 +1531,9 @@ public final class DoujinshiDBScanner extends Plugin
 					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, 15); //FIXME
 					RecordSet<Book> books = Context.getBooks(null);
 					
-					barScan.setMaximum(books.size());
-					barScan.setMinimum(1);
-					barScan.setValue(barScan.getMinimum());
+					progressBarScan.setMaximum(books.size());
+					progressBarScan.setMinimum(1);
+					progressBarScan.setValue(progressBarScan.getMinimum());
 					
 					for(Book book : books)
 					{
@@ -1397,11 +1557,11 @@ public final class DoujinshiDBScanner extends Plugin
 								}
 						}
 						
-						int progress = barScan.getValue() * 100 / barScan.getMaximum();
-						barScan.setString("[" + barScan.getValue() + " / " + barScan.getMaximum() + "] @ " + progress + "%");
-						barScan.setValue(barScan.getValue() + 1);
-						if(barScan.getValue() == barScan.getMaximum())
-							barScan.setValue(barScan.getMinimum());
+						int progress = progressBarScan.getValue() * 100 / progressBarScan.getMaximum();
+						progressBarScan.setString("[" + progressBarScan.getValue() + " / " + progressBarScan.getMaximum() + "] @ " + progress + "%");
+						progressBarScan.setValue(progressBarScan.getValue() + 1);
+						if(progressBarScan.getValue() == progressBarScan.getMaximum())
+							progressBarScan.setValue(progressBarScan.getMinimum());
 					}
 					
 					boolean first_result = false;
@@ -1455,8 +1615,8 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 					}
 					
-					barScan.setValue(barScan.getMaximum());
-					barScan.setString("Completed");
+					progressBarScan.setValue(progressBarScan.getMaximum());
+					progressBarScan.setString("Completed");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -1530,7 +1690,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static void cacheWrite()
 	{
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(CacheFile)));
+			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(PLUGIN_CACHE)));
 			oos.writeObject(Cache);
 			oos.flush();
 			oos.close();
@@ -1543,7 +1703,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static void cacheRead()
 	{
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(CacheFile)));
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(PLUGIN_CACHE)));
 			Cache = (TreeMap<String, int[][]>) ois.readObject();
 			ois.close();
 		} catch (Exception e) {

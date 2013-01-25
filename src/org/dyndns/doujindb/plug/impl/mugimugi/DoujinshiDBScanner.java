@@ -17,7 +17,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.*;
-import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.*;
 
 import org.dyndns.doujindb.Core;
@@ -209,8 +208,8 @@ public final class DoujinshiDBScanner extends Plugin
 		private boolean fetcherRunning = false;
 		private Thread fetcherThread;
 		
-		private Thread scannerTask = new TaskScanner(null);
-		private SwingWorker<String, Integer> workerCacheScanner;
+		private SwingWorker<Void, Integer> workerTaskScanner = new TaskScanner(null);
+		private boolean cacheScannerRunning = false;
 		private SwingWorker<Void, Integer> workerTaskBuilder = new TaskBuilder();
 		private boolean cacheBuilderRunning = false;
 		
@@ -457,7 +456,7 @@ public final class DoujinshiDBScanner extends Plugin
 				public synchronized void dragOver(DropTargetDragEvent dtde)
 				{
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						if(scannerTask.isAlive())
+						if(cacheScannerRunning)
 						{
 							dtde.rejectDrag();
 							return;
@@ -486,12 +485,10 @@ public final class DoujinshiDBScanner extends Plugin
 	                                @Override
 	                                public void run() {
 	                                	File file = transferData.iterator().next();
-	                                	if(scannerTask.isAlive())
+	                                	if(cacheScannerRunning)
 	                    					return;
-	                                	scannerTask = new TaskScanner(file);
-	                                	scannerTask.setName(getClass().getName()+"$TaskBuilder");
-	                                	scannerTask.setDaemon(true);
-	                                	scannerTask.start();
+	                                	workerTaskScanner = new TaskScanner(file);
+	                                	workerTaskScanner.execute();
 	                    				tabScanner.doLayout();
 	                                }
 	                        	}.start();
@@ -666,7 +663,7 @@ public final class DoujinshiDBScanner extends Plugin
 				textImageQueries.setText("");
 			}
 			buttonScanPreview.setBounds(5,5,180,256);
-			if(scannerTask.isAlive())
+			if(cacheScannerRunning)
 			{
 				progressBarScan.setBounds(5,265,180,20);
 				buttonScanCancel.setBounds(5,290,180,20);
@@ -802,6 +799,8 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 			if(ae.getSource() == buttonCacheBuild)
 			{
+				if(cacheBuilderRunning)
+					return;
 				workerTaskBuilder = new TaskBuilder();
 				workerTaskBuilder.execute();
 				return;
@@ -1088,7 +1087,7 @@ public final class DoujinshiDBScanner extends Plugin
 				/**
 				 * Check if cover image is ready to be shown
 				 */
-				if(task.getStatus(Step.SCAN).equals(State.COMPLETED) || //TODO
+				if(task.getStatus(Step.SCAN).equals(State.COMPLETED) ||
 					task.getStatus(Step.SCAN).equals(State.WARNING))
 				{
 					try {
@@ -1129,6 +1128,23 @@ public final class DoujinshiDBScanner extends Plugin
 					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
 				}
 				if(task.getStatus(Step.CHECK).equals(State.WARNING))
+				{
+					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
+					for(String dupe : task.getDuplicates())
+					{
+						JButton buttonDupe = new JButton();
+						buttonDupe.setText(dupe);
+						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+						buttonDupe.addActionListener(this);
+						buttonDupe.setActionCommand("openDupe:" + dupe);
+						buttonDupe.setHorizontalAlignment(SwingConstants.LEFT);
+						buttonDupe.setFocusable(false);
+						buttonDupes.put(dupe,
+								buttonDupe);
+						add(buttonDupe);
+					}
+				}
+				if(task.getStatus(Step.SCAN).equals(State.WARNING))
 				{
 					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
 					for(String dupe : task.getDuplicates())
@@ -1285,7 +1301,7 @@ public final class DoujinshiDBScanner extends Plugin
 				 */
 				if(step.equals(Step.SCAN) && (
 					status.equals(State.COMPLETED) ||
-					status.equals(State.WARNING))) //FIXME
+					status.equals(State.WARNING)))
 				{
 					try {
 						imagePreview.setIcon(
@@ -1330,6 +1346,26 @@ public final class DoujinshiDBScanner extends Plugin
 					validate();
 				}
 				if(task.getStatus(Step.CHECK).equals(State.WARNING))
+				{
+					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
+					for(String dupe : task.getDuplicates())
+					{
+						JButton buttonDupe = new JButton();
+						buttonDupe.setText(dupe);
+						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+						buttonDupe.addActionListener(this);
+						buttonDupe.addMouseListener(this);
+						buttonDupe.setActionCommand("openDupe:" + dupe);
+						buttonDupe.setFocusable(false);
+						buttonDupe.setPreferredSize(new Dimension(16, 16));
+						buttonDupes.put(dupe,
+								buttonDupe);
+						add(buttonDupe);
+					}
+					doLayout();
+					validate();
+				}
+				if(task.getStatus(Step.SCAN).equals(State.WARNING))
 				{
 					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
 					for(String dupe : task.getDuplicates())
@@ -1462,10 +1498,8 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 		}
 
-		private final class TaskScanner extends Thread
+		private final class TaskScanner extends SwingWorker<Void, Integer>
 		{
-			private boolean running = false;
-			
 			final private File file;
 			
 			private TaskScanner(final File file)
@@ -1474,25 +1508,11 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 			
 			@Override
-			public void interrupt() {
-				running = false;
-				super.interrupt();
-			}
-
-			@Override
-			public boolean isInterrupted() {
-				return !running;
-			}
-
-			@Override
-			public synchronized void start() {
-				this.running = true;
-				super.start();
-			}
-			
-			@Override
-			public void run()
+			protected Void doInBackground() throws Exception
 			{
+				cacheScannerRunning = true;
+				PluginUI.this.doLayout();
+				
 				// Reset UI
 				while (tabsScanResult.getTabCount() > 0)
 					tabsScanResult.remove(0);
@@ -1527,8 +1547,7 @@ public final class DoujinshiDBScanner extends Plugin
 							return b.compareTo(a);
 						}
 					});
-//					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, sliderDensity.getValue());
-					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, 15); //FIXME
+					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, 15); //FIXME ? Hardcoded Density
 					RecordSet<Book> books = Context.getBooks(null);
 					
 					progressBarScan.setMaximum(books.size());
@@ -1539,8 +1558,8 @@ public final class DoujinshiDBScanner extends Plugin
 					{
 						try { Thread.sleep(1); } catch (InterruptedException ie) { }
 						
-						if(!running)
-							return;
+						if(isCancelled())
+							return null;
 						
 						String book_id = book.getID();
 						if(Cache.containsKey(book_id))
@@ -1620,6 +1639,20 @@ public final class DoujinshiDBScanner extends Plugin
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				return null;
+			}
+			
+			@Override
+			protected void done() {
+				cacheScannerRunning = false;
+				PluginUI.this.doLayout();
+				super.done();
+			}
+
+			@Override
+			protected void process(List<Integer> chunks) {
+				super.process(chunks);
 			}
 		}
 	}

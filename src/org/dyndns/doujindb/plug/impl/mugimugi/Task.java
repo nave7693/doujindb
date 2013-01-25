@@ -489,33 +489,34 @@ final class Task implements Runnable
 				return State.ERROR;
 			}
 			
-//			NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(resized, 15);
-//
-//			synchronized(DoujinshiDBScanner.Cache)
-//			{
-//				double similarity_max = 0;
-//				
-//				for(String book_id : DoujinshiDBScanner.Cache.keySet())
-//				{
-//					try { Thread.sleep(1); } catch (InterruptedException ie) { }
-//					
-//					int[][] signature = DoujinshiDBScanner.Cache.get(book_id);
-//					double similarity = nsf.getPercentSimilarity(signature);
-//
-//					if(similarity >= threshold &&
-//						similarity > similarity_max)
-//						{
-//							dupes.clear();
-//							dupes.add(book_id);
-//						}
-//				}
-//				
-//				if(!dupes.isEmpty())
-//				{
-//					setMessage("Duplicate Book detected!");
-//					return State.WARNING;
-//				}
-//			}
+			NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(resized, 15);
+
+			synchronized(DoujinshiDBScanner.Cache)
+			{
+				double similarity_max = 0;
+				
+				for(String book_id : DoujinshiDBScanner.Cache.keySet())
+				{
+					try { Thread.sleep(1); } catch (InterruptedException ie) { }
+					
+					int[][] signature = DoujinshiDBScanner.Cache.get(book_id);
+					double similarity = nsf.getPercentSimilarity(signature);
+
+					if(similarity >= 90 && //FIXME ? Hardcoded Threshold
+						similarity > similarity_max)
+					{
+						similarity_max = similarity;
+						dupes.clear();
+						dupes.add(book_id);
+					}
+				}
+				
+				if(!dupes.isEmpty())
+				{
+					setMessage("Duplicate Book detected!");
+					return State.WARNING;
+				}
+			}
 			
 			return State.COMPLETED;
 		}

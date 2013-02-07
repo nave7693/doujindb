@@ -142,8 +142,9 @@ public final class ImageTool
 		int read;
 		while((read = is.read(buff)) != -1)
 			imagedata.write(buff, 0, read);
+		is.close();
 		Image image = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imagedata.toByteArray())).getImage();
-        bi = new java.awt.image.BufferedImage( image.getWidth( null ), image.getHeight( null ), java.awt.image.BufferedImage.TYPE_INT_RGB );
+        bi = new java.awt.image.BufferedImage( image.getWidth( null ), image.getHeight( null ), java.awt.image.BufferedImage.TYPE_INT_RGB);
         {
         	 java.awt.Graphics g = bi.createGraphics();
              g.setColor( java.awt.Color.white );

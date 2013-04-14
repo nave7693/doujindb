@@ -2,6 +2,7 @@ package org.dyndns.doujindb.plug;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.log.Level;
@@ -15,6 +16,7 @@ import org.dyndns.doujindb.log.Level;
 public final class PluginManager
 {
 	private static Set<Plugin> plugins;
+	private static int SHUTDOWN_TIMEOUT = 10;
 	
 	static
 	{
@@ -49,6 +51,50 @@ public final class PluginManager
 		} catch (ClassNotFoundException cnfe) {
 			Core.Logger.log("Failed to load plugins : " + cnfe.getMessage() + ".", Level.ERROR);
 		}
+		
+		/*
+		 * Register a shutdown hook to handle the shutdown of this JVM for every Plugin
+		 * If the Plugin doesn't shutdown after a TIMEOUT, skip it
+		 */
+		Runtime.getRuntime().addShutdownHook(new Thread(PluginManager.class.getName()+"$ShutdownHook")
+		{
+			@Override
+			public void run()
+			{
+				ExecutorService executor = Executors.newCachedThreadPool();
+				for(final Plugin plugin : plugins)
+				{
+					Callable<Void> task = new Callable<Void>()
+					{
+						public Void call()
+						{
+							try {
+								plugin.shutdown();
+								return null;
+							} catch (PluginException pe) {
+								return null;
+							}
+						}
+					};
+					Future<Void> future = executor.submit(task);
+					try
+					{
+						future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+					} catch (TimeoutException te) {
+						Core.Logger.log("TimeoutException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+						te.printStackTrace();
+					} catch (InterruptedException ie) {
+						Core.Logger.log("InterruptedException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+						ie.printStackTrace();
+					} catch (ExecutionException ee) {
+						Core.Logger.log("ExecutionException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+						ee.printStackTrace();
+					} finally {
+					   future.cancel(true);
+					}
+				}
+			}
+		});
 	}
 	
 	public static void install(Plugin plugin) throws PluginException
@@ -92,6 +138,7 @@ public final class PluginManager
 				plugins_names.add(plugin.getClass().getCanonicalName());
 			
 			oos.writeObject(plugins_names);
+			oos.close();
 		} catch (FileNotFoundException fnfe) {
 			try { file.createNewFile(); } catch (IOException ioe) { }
 			Core.Logger.log("Failed to save plugins : " + fnfe.getMessage() + ".", Level.WARNING);

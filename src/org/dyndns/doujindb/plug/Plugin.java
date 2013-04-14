@@ -32,6 +32,10 @@ public abstract class Plugin
 	
 	protected abstract void uninstall() throws PluginException;
 
+	protected void startup() throws PluginException { }
+	
+	protected void shutdown() throws PluginException { }
+
 	@Override
 	public boolean equals(Object obj) {
 		if(!(obj instanceof Plugin))

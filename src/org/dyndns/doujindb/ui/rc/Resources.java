@@ -40,6 +40,8 @@ public final class Resources
 		iconKeys.put("JFrame/Tab/Logs/Message","jframe/tab/logs/message.png");
 		iconKeys.put("JFrame/Tab/Logs/Warning","jframe/tab/logs/warning.png");
 		iconKeys.put("JFrame/Tab/Logs/Error","jframe/tab/logs/error.png");
+		iconKeys.put("JFrame/Tab/Logs/Debug","jframe/tab/logs/debug.png");
+		iconKeys.put("JFrame/Tab/Logs/Fatal","jframe/tab/logs/fatal.png");
 		iconKeys.put("JFrame/Tab/Logs/Clear","jframe/tab/logs/clear.png");
 		iconKeys.put("JFrame/Tab/Settings","jframe/tab/settings.png");
 		iconKeys.put("JFrame/Tab/Settings/Save","jframe/tab/settings/save.png");

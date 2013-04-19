@@ -99,7 +99,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	public UI(String title)
 	{
 		super(title);
-		UILoader loading = new UILoader(title);	
+		LoadingDialog loading = new LoadingDialog(title);	
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
@@ -351,6 +351,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		data.put("Icon:Console.Message",Core.Resources.Icons.get("JFrame/Tab/Logs/Message"));
 		data.put("Icon:Console.Warning",Core.Resources.Icons.get("JFrame/Tab/Logs/Warning"));
 		data.put("Icon:Console.Error",Core.Resources.Icons.get("JFrame/Tab/Logs/Error"));
+		data.put("Icon:Console.Fatal",Core.Resources.Icons.get("JFrame/Tab/Logs/Fatal"));
+		data.put("Icon:Console.Debug",Core.Resources.Icons.get("JFrame/Tab/Logs/Debug"));
 		uiPanelLogs = new PanelLogs(data);
 		uiPanelLogsScroll = new JScrollPane(uiPanelLogs);
 		bogus.add(uiPanelLogsScroll);
@@ -856,6 +858,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
 	    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
 	    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
+	    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
+	    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -891,6 +895,18 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		       	super.setIcon(renderIcon.get("Error"));
 		       	return this;
 		    }
+		    if(value.equals("{Fatal}"))
+		    {
+		       	super.setText("");
+		       	super.setIcon(renderIcon.get("Fatal"));
+		       	return this;
+		    }
+		    if(value.equals("{Debug}"))
+		    {
+		       	super.setText("");
+		       	super.setIcon(renderIcon.get("Debug"));
+		       	return this;
+		    }
 		    super.setText(value.toString());
 	        super.setIcon(null);
 	        super.setForeground(foregroundColor);
@@ -899,6 +915,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		    else
 		       	if(table.getValueAt(row, 0).equals("{Error}"))
 		       		super.setForeground(Color.RED);
+		       	else
+			       	if(table.getValueAt(row, 0).equals("{Fatal}"))
+			       	{
+			       		super.setForeground(Color.RED);
+			       		super.setFont(super.getFont().deriveFont(Font.BOLD));
+			       	}
+			       	else
+				       	if(table.getValueAt(row, 0).equals("{Debug}"))
+				       		super.setForeground(Color.GREEN);
+	        
 	        return this;
 		} catch (ArrayIndexOutOfBoundsException aioobe) {
 			// OH WELL
@@ -949,6 +975,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			break;
 		case ERROR:
 			TableModel.addRow(new Object[]{"{Error}",
+					event.getSource(),
+					event.getMessage()});
+			break;
+		case FATAL:
+			TableModel.addRow(new Object[]{"{Fatal}",
+					event.getSource(),
+					event.getMessage()});
+			break;
+		case DEBUG:
+			TableModel.addRow(new Object[]{"{Debug}",
 					event.getSource(),
 					event.getMessage()});
 			break;
@@ -1832,11 +1868,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	}
 	
 	@SuppressWarnings("serial")
-	private final class UILoader extends JWindow implements Runnable,LayoutManager
+	private final class LoadingDialog extends JWindow implements Runnable,LayoutManager
 	{
 
 		private JPanel cpane;
-		private KProgressBar bar;
+		private IProgressBar bar;
 		private JLabel title;
 		private JLabel status;
 		private Thread thread;
@@ -1844,7 +1880,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		private int size = 30;
 		private int direction = 1;
 
-		public UILoader(String string_title)
+		public LoadingDialog(String string_title)
 		{
 			super();
 			getRootPane().setBorder(BorderFactory.createLineBorder(new Color(75,75,75),1));
@@ -1856,7 +1892,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			cpane=new JPanel();
 			cpane.setSize(145,55);
 			cpane.setLayout(null);
-			bar=new KProgressBar(0,1,100);
+			bar=new IProgressBar(0,1,100);
 			bar.setEnabled(true);
 			bar.setValue(24);
 			cpane.add(bar);
@@ -1911,9 +1947,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			}
 		}
 
-		private final class KProgressBar extends JProgressBar
+		private final class IProgressBar extends JProgressBar
 		{
-			public KProgressBar(int orient,int min,int max)
+			public IProgressBar(int orient,int min,int max)
 			{
 				super(orient,min,max);
 			}

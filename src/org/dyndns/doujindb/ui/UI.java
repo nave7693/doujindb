@@ -30,6 +30,8 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DesktopEx.*;
 import org.dyndns.doujindb.ui.rc.*;
@@ -58,6 +60,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private PanelSettings uiPanelSettings;
 	private JButton uiPanelSettingsSave;
 	private JButton uiPanelSettingsLoad;
+	
+	private PanelPlugins uiPanelPlugins;
+	private JScrollPane uiPanelPluginsScroll;
+	private JButton uiPanelPluginsReload;
 	
 	public DesktopEx Desktop;
 	private JButton uiPanelDesktopShow;
@@ -345,6 +351,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		Desktop = new DesktopEx();
 		bogus.add(Desktop);
 		uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
+		
 		bogus = new JPanel();
 		bogus.setLayout(null);
 		Hashtable<String,ImageIcon> data = new Hashtable<String,ImageIcon>();
@@ -368,27 +375,33 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		bogus.setLayout(null);
 		uiPanelSettings = new PanelSettings();
 		bogus.add(uiPanelSettings);
-		
 		uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Save"));
 		uiPanelSettingsSave.addActionListener(this);
 		uiPanelSettingsSave.setBorder(null);
 		uiPanelSettingsSave.setFocusable(false);
 		uiPanelSettingsSave.setToolTipText("Save");
 		bogus.add(uiPanelSettingsSave);
-		
 		uiPanelSettingsLoad = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Load"));
 		uiPanelSettingsLoad.addActionListener(this);
 		uiPanelSettingsLoad.setBorder(null);
 		uiPanelSettingsLoad.setFocusable(false);
 		uiPanelSettingsLoad.setToolTipText("Load");
 		bogus.add(uiPanelSettingsLoad);
-		
 		uiPanelTabbed.addTab("Settings", Core.Resources.Icons.get("JFrame/Tab/Settings"), bogus);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
+		uiPanelPlugins = new PanelPlugins();
+		uiPanelPluginsScroll = new JScrollPane(uiPanelPlugins);
+		bogus.add(uiPanelPluginsScroll);
+		uiPanelPluginsReload = new JButton(Core.Resources.Icons.get("JFrame/Tab/Plugins/Reload"));
+		uiPanelPluginsReload.addActionListener(this);
+		uiPanelPluginsReload.setBorder(null);
+		uiPanelPluginsReload.setFocusable(false);
+		uiPanelPluginsReload.setToolTipText("Reload");
+		bogus.add(uiPanelPluginsReload);
+		
 		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("JFrame/Tab/Plugins"), bogus);
-		uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
@@ -477,6 +490,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelSettingsLoad.setBounds(1,1,20,20);
 		uiPanelSettingsSave.setBounds(21,1,20,20);
 		uiPanelSettings.setBounds(0,22,width-5,height-48);
+		uiPanelPluginsScroll.setBounds(0,22,width-5,height-48);
+		uiPanelPluginsReload.setBounds(1,1,20,20);
 		uiPanelTabbed.setBounds(0,0,width,height);
 	}
 	
@@ -524,6 +539,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 				Core.Properties.save();
 				Core.Logger.log("System properties saved.", Level.INFO);
+			}catch(Exception e)
+			{
+				Core.Logger.log(e.getMessage(), Level.ERROR);
+			}
+			return;
+		}
+		if(event.getSource() == uiPanelPluginsReload)
+		{
+			try
+			{
+				uiPanelPlugins.clear();
+				for(Plugin plugin : PluginManager.plugins())
+					uiPanelPlugins.add(plugin);
 			}catch(Exception e)
 			{
 				Core.Logger.log(e.getMessage(), Level.ERROR);
@@ -782,7 +810,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
          layoutContainer(getContentPane());
     }
 
-	@SuppressWarnings("serial")
+    @SuppressWarnings("serial")
 	private final class PanelLogs extends JTable implements Logger
 	{
 		private Renderer TableRender;
@@ -791,215 +819,340 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		private TableRowSorter<DefaultTableModel> TableSorter;
 		private String FilterPattern = "";
 
-	public PanelLogs(Hashtable<String,ImageIcon> renderingData)
-	{
-		super();
-		TableModel = new DefaultTableModel();
-		TableModel.addColumn("");
-		TableModel.addColumn("Component");
-		TableModel.addColumn("Message");
-		super.setModel(TableModel);
-		TableRender = new Renderer(renderingData);
-		TableEditor = new Editor();
-		TableSorter = new TableRowSorter<DefaultTableModel>(TableModel);
-		super.setRowSorter(TableSorter);
-		TableSorter.setRowFilter(RowFilter.regexFilter("", 0));
-		super.setFont(Core.Resources.Font);
-		super.setColumnSelectionAllowed(false);
-		super.setRowSelectionAllowed(false);
-		super.setCellSelectionEnabled(false);
-		super.getTableHeader().setFont(Core.Resources.Font);
-		super.getTableHeader().setReorderingAllowed(false);
-		super.getTableHeader().setDefaultRenderer(TableRender);
-		for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
+		public PanelLogs(Hashtable<String,ImageIcon> renderingData)
 		{
-			super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
-			super.getColumnModel().getColumn(k).setCellEditor(TableEditor);
+			super();
+			TableModel = new DefaultTableModel();
+			TableModel.addColumn("");
+			TableModel.addColumn("Component");
+			TableModel.addColumn("Message");
+			super.setModel(TableModel);
+			TableRender = new Renderer(renderingData);
+			TableEditor = new Editor();
+			TableSorter = new TableRowSorter<DefaultTableModel>(TableModel);
+			super.setRowSorter(TableSorter);
+			TableSorter.setRowFilter(RowFilter.regexFilter("", 0));
+			super.setFont(Core.Resources.Font);
+			super.setColumnSelectionAllowed(false);
+			super.setRowSelectionAllowed(false);
+			super.setCellSelectionEnabled(false);
+			super.getTableHeader().setFont(Core.Resources.Font);
+			super.getTableHeader().setReorderingAllowed(false);
+			super.getTableHeader().setDefaultRenderer(TableRender);
+			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
+			{
+				super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
+				super.getColumnModel().getColumn(k).setCellEditor(TableEditor);
+			}
+			super.getColumnModel().getColumn(0).setResizable(false);
+			super.getColumnModel().getColumn(0).setMaxWidth(20);
+			super.getColumnModel().getColumn(0).setMinWidth(20);
+			super.getColumnModel().getColumn(0).setWidth(20);
+			super.getColumnModel().getColumn(1).setMinWidth(150);
+			super.getColumnModel().getColumn(1).setWidth(150);
+			super.getColumnModel().getColumn(1).setPreferredWidth(150);
+			super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		}
-		super.getColumnModel().getColumn(0).setResizable(false);
-		super.getColumnModel().getColumn(0).setMaxWidth(20);
-		super.getColumnModel().getColumn(0).setMinWidth(20);
-		super.getColumnModel().getColumn(0).setWidth(20);
-		super.getColumnModel().getColumn(1).setMinWidth(150);
-		super.getColumnModel().getColumn(1).setWidth(150);
-		super.getColumnModel().getColumn(1).setPreferredWidth(150);
-		super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-	}
-
-	public void setFilter(String pattern)
-	{
-		FilterPattern = pattern;
-	}
 	
-	@Override
-	public void validate()
-	{
-		TableSorter.setRowFilter(RowFilter.regexFilter(FilterPattern, 0));
-		super.validate();
-	}
-
-	public void clear()
-	{
-		while(TableModel.getRowCount()>0)
-			TableModel.removeRow(0);
-	}
-	
-	private final class Renderer extends DefaultTableCellRenderer
-	{
-	    private Hashtable<String,ImageIcon> renderIcon;
-	    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
-		private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
-	
-	public Renderer(Hashtable<String,ImageIcon> renderingData)
-	{
-	    super();
-	    super.setFont(Core.Resources.Font);
-	    renderIcon = new Hashtable<String,ImageIcon>();
-	    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
-	    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
-	    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
-	    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
-	    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
-	}
-
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-	{
-		super.getTableCellRendererComponent(
-	        table,
-	        value,
-	        isSelected,
-	        hasFocus,
-	        row,
-	        column);
-		if(table.getModel().getRowCount() < 1)
-			return this;
-		try
+		public void setFilter(String pattern)
 		{
-			super.setIcon(null);
-			super.setBorder(null);
-	        if(value.equals("{Message}"))
-	        {
-		        super.setText("");
-		        super.setIcon(renderIcon.get("Message"));
-		        return this;
-		    }
-		    if(value.equals("{Warning}"))
-		    {
-		    	super.setText("");
-		        super.setIcon(renderIcon.get("Warning"));
-		        return this;
-		    }
-		    if(value.equals("{Error}"))
-		    {
-		       	super.setText("");
-		       	super.setIcon(renderIcon.get("Error"));
-		       	return this;
-		    }
-		    if(value.equals("{Fatal}"))
-		    {
-		       	super.setText("");
-		       	super.setIcon(renderIcon.get("Fatal"));
-		       	return this;
-		    }
-		    if(value.equals("{Debug}"))
-		    {
-		       	super.setText("");
-		       	super.setIcon(renderIcon.get("Debug"));
-		       	return this;
-		    }
-		    super.setText(value.toString());
-	        super.setIcon(null);
-	        super.setForeground(foregroundColor);
-	        if(table.getValueAt(row, 0).equals("{Warning}"))
-		       	super.setForeground(Color.ORANGE);
-		    else
-		       	if(table.getValueAt(row, 0).equals("{Error}"))
-		       		super.setForeground(Color.RED);
-		       	else
-			       	if(table.getValueAt(row, 0).equals("{Fatal}"))
-			       	{
+			FilterPattern = pattern;
+		}
+		
+		@Override
+		public void validate()
+		{
+			TableSorter.setRowFilter(RowFilter.regexFilter(FilterPattern, 0));
+			super.validate();
+		}
+	
+		public void clear()
+		{
+			while(TableModel.getRowCount()>0)
+				TableModel.removeRow(0);
+		}
+		
+		private final class Renderer extends DefaultTableCellRenderer
+		{
+		    private Hashtable<String,ImageIcon> renderIcon;
+		    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
+			private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+		
+		public Renderer(Hashtable<String,ImageIcon> renderingData)
+		{
+		    super();
+		    super.setFont(Core.Resources.Font);
+		    renderIcon = new Hashtable<String,ImageIcon>();
+		    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
+		    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
+		    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
+		    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
+		    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
+		}
+	
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+			super.getTableCellRendererComponent(
+		        table,
+		        value,
+		        isSelected,
+		        hasFocus,
+		        row,
+		        column);
+			if(table.getModel().getRowCount() < 1)
+				return this;
+			try
+			{
+				super.setIcon(null);
+				super.setBorder(null);
+		        if(value.equals("{Message}"))
+		        {
+			        super.setText("");
+			        super.setIcon(renderIcon.get("Message"));
+			        return this;
+			    }
+			    if(value.equals("{Warning}"))
+			    {
+			    	super.setText("");
+			        super.setIcon(renderIcon.get("Warning"));
+			        return this;
+			    }
+			    if(value.equals("{Error}"))
+			    {
+			       	super.setText("");
+			       	super.setIcon(renderIcon.get("Error"));
+			       	return this;
+			    }
+			    if(value.equals("{Fatal}"))
+			    {
+			       	super.setText("");
+			       	super.setIcon(renderIcon.get("Fatal"));
+			       	return this;
+			    }
+			    if(value.equals("{Debug}"))
+			    {
+			       	super.setText("");
+			       	super.setIcon(renderIcon.get("Debug"));
+			       	return this;
+			    }
+			    super.setText(value.toString());
+		        super.setIcon(null);
+		        super.setForeground(foregroundColor);
+		        if(table.getValueAt(row, 0).equals("{Warning}"))
+			       	super.setForeground(Color.ORANGE);
+			    else
+			       	if(table.getValueAt(row, 0).equals("{Error}"))
 			       		super.setForeground(Color.RED);
-			       		super.setFont(super.getFont().deriveFont(Font.BOLD));
-			       	}
 			       	else
-				       	if(table.getValueAt(row, 0).equals("{Debug}"))
-				       		super.setForeground(Color.GREEN);
-	        
+				       	if(table.getValueAt(row, 0).equals("{Fatal}"))
+				       	{
+				       		super.setForeground(Color.RED);
+				       		super.setFont(super.getFont().deriveFont(Font.BOLD));
+				       	}
+				       	else
+					       	if(table.getValueAt(row, 0).equals("{Debug}"))
+					       		super.setForeground(Color.GREEN);
+		        
+		        return this;
+			} catch (ArrayIndexOutOfBoundsException aioobe) {
+				// OH WELL
+			}
 	        return this;
-		} catch (ArrayIndexOutOfBoundsException aioobe) {
-			// OH WELL
 		}
-        return this;
-	}
-	}
-
-	private final class Editor extends AbstractCellEditor implements TableCellEditor
-	{
+		}
 	
-	public Editor()
-	{
-		super();
-	}
-	
-	public Object getCellEditorValue()
-	{
-		return 0;
-	}
-
-	public Component getTableCellEditorComponent(
-	    JTable table,
-	    Object value,
-	    boolean isSelected,
-	    int row,
-	    int column)
+		private final class Editor extends AbstractCellEditor implements TableCellEditor
 		{
-		    super.cancelCellEditing();
-		    return null;
-		}
-	}
-
-	@Override
-	public void log(LogEvent event)
-	{
-		switch(event.getLevel())
+		
+		public Editor()
 		{
-		case INFO:
-			TableModel.addRow(new Object[]{"{Message}",
-					event.getSource(),
-					event.getMessage()});
-			break;
-		case WARNING:
-			TableModel.addRow(new Object[]{"{Warning}",
-					event.getSource(),
-					event.getMessage()});
-			break;
-		case ERROR:
-			TableModel.addRow(new Object[]{"{Error}",
-					event.getSource(),
-					event.getMessage()});
-			break;
-		case FATAL:
-			TableModel.addRow(new Object[]{"{Fatal}",
-					event.getSource(),
-					event.getMessage()});
-			break;
-		case DEBUG:
-			TableModel.addRow(new Object[]{"{Debug}",
-					event.getSource(),
-					event.getMessage()});
-			break;
+			super();
+		}
+		
+		public Object getCellEditorValue()
+		{
+			return 0;
+		}
+	
+		public Component getTableCellEditorComponent(
+		    JTable table,
+		    Object value,
+		    boolean isSelected,
+		    int row,
+		    int column)
+			{
+			    super.cancelCellEditing();
+			    return null;
+			}
+		}
+	
+		@Override
+		public void log(LogEvent event)
+		{
+			switch(event.getLevel())
+			{
+			case INFO:
+				TableModel.addRow(new Object[]{"{Message}",
+						event.getSource(),
+						event.getMessage()});
+				break;
+			case WARNING:
+				TableModel.addRow(new Object[]{"{Warning}",
+						event.getSource(),
+						event.getMessage()});
+				break;
+			case ERROR:
+				TableModel.addRow(new Object[]{"{Error}",
+						event.getSource(),
+						event.getMessage()});
+				break;
+			case FATAL:
+				TableModel.addRow(new Object[]{"{Fatal}",
+						event.getSource(),
+						event.getMessage()});
+				break;
+			case DEBUG:
+				TableModel.addRow(new Object[]{"{Debug}",
+						event.getSource(),
+						event.getMessage()});
+				break;
+			}
+		}
+	
+		@Override
+		public void loggerAttach(Logger logger) { }
+		
+		@Override
+		public void loggerDetach(Logger logger) { }
+	
+		@Override
+		public void log(String message, Level level) { }
+	}
+	
+    @SuppressWarnings("serial")
+	private final class PanelPlugins extends JTable
+	{
+		private Renderer TableRender;
+		private Editor TableEditor;
+		private DefaultTableModel TableModel;
+		private TableRowSorter<DefaultTableModel> TableSorter;
+
+		public PanelPlugins()
+		{
+			super();
+			TableModel = new DefaultTableModel();
+			TableModel.addColumn("");
+			TableModel.addColumn("Name");
+			TableModel.addColumn("Version");
+			super.setModel(TableModel);
+			TableRender = new Renderer();
+			TableEditor = new Editor();
+			TableSorter = new TableRowSorter<DefaultTableModel>(TableModel);
+			super.setRowSorter(TableSorter);
+			TableSorter.setRowFilter(RowFilter.regexFilter("", 0));
+			super.setFont(Core.Resources.Font);
+			super.setColumnSelectionAllowed(false);
+			super.setRowSelectionAllowed(false);
+			super.setCellSelectionEnabled(false);
+			super.getTableHeader().setFont(Core.Resources.Font);
+			super.getTableHeader().setReorderingAllowed(false);
+			super.getTableHeader().setDefaultRenderer(TableRender);
+			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
+			{
+				super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
+				super.getColumnModel().getColumn(k).setCellEditor(TableEditor);
+			}
+			super.getColumnModel().getColumn(0).setResizable(false);
+			super.getColumnModel().getColumn(0).setMaxWidth(20);
+			super.getColumnModel().getColumn(0).setMinWidth(20);
+			super.getColumnModel().getColumn(0).setWidth(20);
+			super.getColumnModel().getColumn(1).setMinWidth(150);
+			super.getColumnModel().getColumn(2).setResizable(false);
+			super.getColumnModel().getColumn(2).setMinWidth(50);
+			super.getColumnModel().getColumn(2).setMaxWidth(50);
+			super.getColumnModel().getColumn(2).setWidth(50);
+			super.getColumnModel().getColumn(2).setPreferredWidth(50);
+			super.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		}
+		
+		public void add(Plugin plugin) {
+			TableModel.addRow(new Object[]{"{Plugin}",
+				plugin.getName(),
+				plugin.getVersion()});
+		}
+
+		public void clear()
+		{
+			while(TableModel.getRowCount()>0)
+				TableModel.removeRow(0);
+		}
+		
+		private final class Renderer extends DefaultTableCellRenderer
+		{
+		    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
+			private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+		
+			public Renderer()
+			{
+			    super();
+			    super.setFont(Core.Resources.Font);
+			}
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+			{
+				super.getTableCellRendererComponent(
+			        table,
+			        value,
+			        isSelected,
+			        hasFocus,
+			        row,
+			        column);
+				if(table.getModel().getRowCount() < 1)
+					return this;
+				try
+				{
+					super.setIcon(null);
+					super.setBorder(null);
+			        if(value.equals("{Plugin}"))
+			        {
+				        super.setText("");
+				        super.setIcon(Core.Resources.Icons.get("JFrame/Tab/Plugins"));
+				        return this;
+				    }
+				    super.setText(value.toString());
+			        super.setIcon(null);
+			        super.setForeground(foregroundColor);
+			        
+			        return this;
+				} catch (ArrayIndexOutOfBoundsException aioobe) {
+					// OH WELL
+				}
+		        return this;
+			}
+		}
+	
+		private final class Editor extends AbstractCellEditor implements TableCellEditor
+		{
+			public Editor()
+			{
+				super();
+			}
+			public Object getCellEditorValue()
+			{
+				return 0;
+			}
+			public Component getTableCellEditorComponent(
+			    JTable table,
+			    Object value,
+			    boolean isSelected,
+			    int row,
+			    int column)
+			{
+			    super.cancelCellEditing();
+			    return null;
+			}
 		}
 	}
-
-	@Override
-	public void loggerAttach(Logger logger) { }
 	
-	@Override
-	public void loggerDetach(Logger logger) { }
-
-	@Override
-	public void log(String message, Level level) { }
-}
 	@SuppressWarnings("serial")
 	private static final class PanelSettings extends JSplitPane
 	{

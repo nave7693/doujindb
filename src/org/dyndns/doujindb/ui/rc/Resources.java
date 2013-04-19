@@ -52,6 +52,7 @@ public final class Resources
 		iconKeys.put("JFrame/Tab/Settings/Editor/Apply","jframe/tab/settings/editor/apply.png");
 		iconKeys.put("JFrame/Tab/Settings/Editor/Discard","jframe/tab/settings/editor/discard.png");
 		iconKeys.put("JFrame/Tab/Plugins","jframe/tab/plugins.png");
+		iconKeys.put("JFrame/Tab/Plugins/Reload","jframe/tab/plugins/reload.png");
 		iconKeys.put("JFrame/Tab/Network","jframe/tab/network.png");
 		iconKeys.put("FileChooser/detailsViewIcon","filechooser/detailsview.png");
 		iconKeys.put("FileChooser/homeFolderIcon","filechooser/homefolder.png");

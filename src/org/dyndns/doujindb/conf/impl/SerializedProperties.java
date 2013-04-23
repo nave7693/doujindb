@@ -16,7 +16,7 @@ final class SerializedProperties implements Properties
 		values = new HashMap<String, Property>();
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue(new Font("Lucida Sans", Font.PLAIN, 12));
+			prop.setValue(new Font("Dialog.plain", Font.PLAIN, 12));
 			prop.setDescription("<html><body>Default JCK font.<br/>Used to render Japanese/Chinese/Korean strings.</body></html>");
 			values.put("org.dyndns.doujindb.ui.font", prop);
 		}
@@ -133,6 +133,12 @@ final class SerializedProperties implements Properties
 			prop.setValue(5);
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);
+		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(false);
+			prop.setDescription("<html><body>JDBC autocommit.</body></html>");
+			values.put("org.dyndns.doujindb.db.autocommit", prop);
 		}
 	}
 	

@@ -23,7 +23,7 @@ final class XMLProperties implements Properties
 		values = new HashMap<String, Property>();
 		{
 			Property prop = new PropertyImpl();
-			prop.setValue(new Font("Lucida Console", Font.PLAIN, 11));
+			prop.setValue(new Font("Dialog.plain", Font.PLAIN, 11));
 			prop.setDescription("<html><body>Default JCK font.<br/>Used to render Japanese/Chinese/Korean strings.</body></html>");
 			values.put("org.dyndns.doujindb.ui.font", prop);
 		}
@@ -141,6 +141,12 @@ final class XMLProperties implements Properties
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);
 		}
+		{
+			Property prop = new PropertyImpl();
+			prop.setValue(false);
+			prop.setDescription("<html><body>JDBC autocommit.</body></html>");
+			values.put("org.dyndns.doujindb.db.autocommit", prop);
+		}
 	}
 	
 	public Iterable<String> keys()
@@ -238,6 +244,8 @@ final class XMLProperties implements Properties
 			throw new PropertyException(jaxbe);
 		} catch (FileNotFoundException fnfe) {
 			throw new PropertyException(fnfe);
+		} catch (Exception e) {
+			throw new PropertyException(e);
 		}
 		try { in.close(); } catch (Exception e) { }
 	}
@@ -321,7 +329,7 @@ final class XMLProperties implements Properties
 		private String key;
 		@XmlAttribute(name="Type", required=true)
 		private String type;
-		@XmlElement(name="Value")
+		@XmlAttribute(name="Value")
 		private String value;
 	}
 }

@@ -7,6 +7,7 @@ import org.dyndns.doujindb.dat.Repository;
 import org.dyndns.doujindb.dat.impl.RepositoryImpl;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.rc.*;
 
@@ -87,6 +88,9 @@ public final class Core implements Runnable
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		
 		Database = DataBase.getInstance();
+		
+		Core.Logger.log("Discovering plugins ...", Level.INFO);
+		PluginManager.discovery();
 		
 		String version = Core.class.getPackage().getSpecificationVersion();
 		if(version != null)

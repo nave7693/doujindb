@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.log.Level;
 
 /**  
@@ -15,43 +18,15 @@ import org.dyndns.doujindb.log.Level;
 @SuppressWarnings("unchecked")
 public final class PluginManager
 {
-	private static Set<Plugin> plugins;
+	private static Set<Plugin> plugins = new HashSet<Plugin>();
+	
 	private static int SHUTDOWN_TIMEOUT = 10;
+	private static String PLUGIN_FILE = "plugins.bin";
+	
+	private PluginManager() { }
 	
 	static
 	{
-		plugins = new HashSet<Plugin>();
-		
-		for(String plugin : new String[]{
-			"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
-			"org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
-		})
-		try {
-			plugins.add((Plugin) Class.forName(plugin).newInstance());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		File file = new File(System.getProperty("doujindb.home"),"doujindb.plugins");
-		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			Set<String> plugins_names = (Set<String>) ois.readObject();
-			
-			for(String plugin : plugins_names)
-			try {
-				plugins.add((Plugin) Class.forName(plugin).newInstance());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			ois.close();
-		} catch (FileNotFoundException fnfe) {
-			Core.Logger.log("Failed to load plugins : " + fnfe.getMessage() + ".", Level.WARNING);
-		} catch (IOException ioe) {
-			Core.Logger.log("Failed to load plugins : " + ioe.getMessage() + ".", Level.ERROR);
-		} catch (ClassNotFoundException cnfe) {
-			Core.Logger.log("Failed to load plugins : " + cnfe.getMessage() + ".", Level.ERROR);
-		}
-		
 		/*
 		 * Register a shutdown hook to handle the shutdown of this JVM for every Plugin
 		 * If the Plugin doesn't shutdown after a TIMEOUT, skip it
@@ -61,40 +36,11 @@ public final class PluginManager
 			@Override
 			public void run()
 			{
-				ExecutorService executor = Executors.newCachedThreadPool();
-				for(final Plugin plugin : plugins)
-				{
-					Callable<Void> task = new Callable<Void>()
-					{
-						public Void call()
-						{
-							try {
-								plugin.shutdown();
-								return null;
-							} catch (PluginException pe) {
-								return null;
-							}
-						}
-					};
-					Future<Void> future = executor.submit(task);
-					try
-					{
-						future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
-					} catch (TimeoutException te) {
-						Core.Logger.log("TimeoutException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
-						te.printStackTrace();
-					} catch (InterruptedException ie) {
-						Core.Logger.log("InterruptedException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
-						ie.printStackTrace();
-					} catch (ExecutionException ee) {
-						Core.Logger.log("ExecutionException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
-						ee.printStackTrace();
-					} finally {
-					   future.cancel(true);
-					}
-				}
+				shutdown();
 			}
 		});
+		
+		Core.Database.addDataBaseListener(new Listener());
 	}
 	
 	public static void install(Plugin plugin) throws PluginException
@@ -127,9 +73,53 @@ public final class PluginManager
 		return plugins;
 	}
 	
-	private static void save()
+	public static void discovery()
 	{
-		File file = new File(System.getProperty("doujindb.home"),"doujindb.plugins");
+		// TODO : Dynamic discovery
+		for(String plugin : new String[]{
+				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
+				"org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
+			})
+			try {
+				Plugin plug = (Plugin) Class.forName(plugin).newInstance();
+				plug.startup();
+				plugins.add(plug);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	}
+	
+	public static void load()
+	{
+		File file = new File(System.getProperty("doujindb.home"), PLUGIN_FILE);
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			Set<String> plugins_names = (Set<String>) ois.readObject();
+			
+			for(String plugin : plugins_names)
+			try {
+				plugins.add((Plugin) Class.forName(plugin).newInstance());
+			} catch (RuntimeException re) {
+				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + re.getMessage() + ".", Level.ERROR);
+			} catch (InstantiationException ie) {
+				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + ie.getMessage() + ".", Level.ERROR);
+			} catch (IllegalAccessException iae) {
+				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + iae.getMessage() + ".", Level.ERROR);
+			}
+			
+			ois.close();
+		} catch (FileNotFoundException fnfe) {
+			Core.Logger.log("Failed to load plugins : " + fnfe.getMessage() + ".", Level.WARNING);
+		} catch (IOException ioe) {
+			Core.Logger.log("Failed to load plugins : " + ioe.getMessage() + ".", Level.ERROR);
+		} catch (ClassNotFoundException cnfe) {
+			Core.Logger.log("Failed to load plugins : " + cnfe.getMessage() + ".", Level.ERROR);
+		}
+	}
+	
+	public static void save()
+	{
+		File file = new File(System.getProperty("doujindb.home"), PLUGIN_FILE);
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 			
@@ -145,5 +135,115 @@ public final class PluginManager
 		} catch (IOException ioe) {
 			Core.Logger.log("Failed to save plugins : " + ioe.getMessage() + ".", Level.ERROR);
 		}
+	}
+	
+	private static void startup()
+	{
+		ExecutorService executor = Executors.newCachedThreadPool();
+		for(final Plugin plugin : plugins)
+		{
+			Callable<Void> task = new Callable<Void>()
+			{
+				public Void call()
+				{
+					try {
+						plugin.startup();
+						Core.Logger.log("[Plugin:'" + plugin.getName() + "'] started.", Level.DEBUG);
+						return null;
+					} catch (PluginException pe) {
+						return null;
+					}
+				}
+			};
+			Future<Void> future = executor.submit(task);
+			try
+			{
+				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			} catch (TimeoutException te) {
+				Core.Logger.log("TimeoutException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				te.printStackTrace();
+			} catch (InterruptedException ie) {
+				Core.Logger.log("InterruptedException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				ie.printStackTrace();
+			} catch (ExecutionException ee) {
+				Core.Logger.log("ExecutionException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				ee.printStackTrace();
+			} finally {
+			   future.cancel(true);
+			}
+		}
+	}
+	
+	private static void shutdown()
+	{
+		ExecutorService executor = Executors.newCachedThreadPool();
+		for(final Plugin plugin : plugins)
+		{
+			Callable<Void> task = new Callable<Void>()
+			{
+				public Void call()
+				{
+					try {
+						plugin.shutdown();
+						Core.Logger.log("[Plugin:'" + plugin.getName() + "'] stopped.", Level.DEBUG);
+						return null;
+					} catch (PluginException pe) {
+						return null;
+					}
+				}
+			};
+			Future<Void> future = executor.submit(task);
+			try
+			{
+				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+			} catch (TimeoutException te) {
+				Core.Logger.log("TimeoutException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				te.printStackTrace();
+			} catch (InterruptedException ie) {
+				Core.Logger.log("InterruptedException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				ie.printStackTrace();
+			} catch (ExecutionException ee) {
+				Core.Logger.log("ExecutionException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				ee.printStackTrace();
+			} finally {
+			   future.cancel(true);
+			}
+		}
+	}
+	
+	private static final class Listener implements DataBaseListener
+	{
+		@Override
+		public void recordAdded(Record rcd) { }
+
+		@Override
+		public void recordDeleted(Record rcd) { }
+
+		@Override
+		public void recordUpdated(Record rcd, UpdateData data) { }
+
+		@Override
+		public void recordRecycled(Record rcd) { }
+
+		@Override
+		public void recordRestored(Record rcd) { }
+
+		@Override
+		public void databaseConnected()
+		{
+			startup();
+		}
+
+		@Override
+		public void databaseDisconnected()
+		{
+			shutdown();
+		}
+
+		@Override
+		public void databaseCommit() { }
+
+		@Override
+		public void databaseRollback() { }
 	}
 }

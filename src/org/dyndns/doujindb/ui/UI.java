@@ -105,7 +105,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	public UI(String title)
 	{
 		super(title);
-		LoadingDialog loading = new LoadingDialog(title);	
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
@@ -113,22 +112,24 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.setAlwaysOnTop(true);
 		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 		Core.Logger.log("Basic user interface loaded.", Level.INFO);
-	
+			
 		try
 		{
 			Theme theme = new Theme(
 					Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
 					Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
 					Core.Resources.Font);
-			UIManager.setLookAndFeel(new MetalLookAndFeel());
-			MetalLookAndFeel.setCurrentTheme(theme);
-			SwingUtilities.updateComponentTreeUI(this);
+		    MetalLookAndFeel.setCurrentTheme(theme);
+		    UIManager.setLookAndFeel(new MetalLookAndFeel());
+		    SwingUtilities.updateComponentTreeUI(this);
 		}catch(Exception e)
 		{
 			Core.Logger.log(e.getMessage(), Level.ERROR);
 			return;
 		}
 		Core.Logger.log("Theme loaded.", Level.INFO);
+		
+		LoadingDialog loading = new LoadingDialog(title);
 		
 	    JComponent glassPane = new JComponent()
 	    {
@@ -400,6 +401,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelPluginsReload.setFocusable(false);
 		uiPanelPluginsReload.setToolTipText("Reload");
 		bogus.add(uiPanelPluginsReload);
+		
+		uiPanelPlugins.clear();
+		for(Plugin plugin : PluginManager.plugins())
+			uiPanelPlugins.add(plugin);
 		
 		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("JFrame/Tab/Plugins"), bogus);
 		
@@ -2055,25 +2060,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			add(cpane);
 			setLayout(this);
 			setSize(cpane.getWidth()+5,cpane.getHeight()+20);
-			applyTheme(new Theme(
-					Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
-					Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
-					Core.Resources.Font));
 			validate();
 			repaint();
 			thread = new Thread(this, getClass().getCanonicalName());
 			thread.setPriority(Thread.MIN_PRIORITY);
 			thread.start();
-		}
-
-		private void applyTheme(MetalTheme theme)
-		{
-			try
-			{
-			    MetalLookAndFeel.setCurrentTheme(theme);
-			    UIManager.setLookAndFeel(new MetalLookAndFeel());
-			    SwingUtilities.updateComponentTreeUI(this);
-			}catch(Exception e) { ; }
 		}
 
 		public void addLayoutComponent(String name, Component comp){}

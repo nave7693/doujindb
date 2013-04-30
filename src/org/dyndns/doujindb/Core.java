@@ -92,11 +92,7 @@ public final class Core implements Runnable
 		Core.Logger.log("Discovering plugins ...", Level.INFO);
 		PluginManager.discovery();
 		
-		String version = Core.class.getPackage().getSpecificationVersion();
-		if(version != null)
-			UI = new UI("DoujinDB v" + version);
-		else
-			UI = new UI("DoujinDB - Development Trunk~");
+		UI = new UI();
 		Core.Logger.log("User interface loaded.", Level.INFO);
 		
 		if(isConfigurationWizard)

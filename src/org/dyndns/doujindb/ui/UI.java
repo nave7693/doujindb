@@ -100,11 +100,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					"Configuration Wizard");
 		} catch (PropertyVetoException pve) { } 
 	}
-
+	
 	@SuppressWarnings("serial")
-	public UI(String title)
+	public UI()
 	{
-		super(title);
+		super();
+		super.setTitle("DoujinDB v" + getClass().getPackage().getSpecificationVersion());
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
@@ -129,7 +130,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		}
 		Core.Logger.log("Theme loaded.", Level.INFO);
 		
-		LoadingDialog loading = new LoadingDialog(title);
+		LoadingDialog loading = new LoadingDialog(super.getTitle());
 		
 	    JComponent glassPane = new JComponent()
 	    {

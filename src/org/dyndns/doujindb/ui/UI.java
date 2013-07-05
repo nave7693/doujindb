@@ -5,6 +5,7 @@ import java.net.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.awt.*;
@@ -817,7 +818,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
     }
 
     @SuppressWarnings("serial")
-	private final class PanelLogs extends JTable implements Logger
+	private static final class PanelLogs extends JTable implements Logger
 	{
 		private Renderer TableRender;
 		private Editor TableEditor;
@@ -830,6 +831,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super();
 			TableModel = new DefaultTableModel();
 			TableModel.addColumn("");
+			TableModel.addColumn("Time");
 			TableModel.addColumn("Component");
 			TableModel.addColumn("Message");
 			super.setModel(TableModel);
@@ -844,7 +846,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.setCellSelectionEnabled(false);
 			super.getTableHeader().setFont(Core.Resources.Font);
 			super.getTableHeader().setReorderingAllowed(false);
-			super.getTableHeader().setDefaultRenderer(TableRender);
 			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
 			{
 				super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
@@ -854,9 +855,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.getColumnModel().getColumn(0).setMaxWidth(20);
 			super.getColumnModel().getColumn(0).setMinWidth(20);
 			super.getColumnModel().getColumn(0).setWidth(20);
-			super.getColumnModel().getColumn(1).setMinWidth(150);
-			super.getColumnModel().getColumn(1).setWidth(150);
-			super.getColumnModel().getColumn(1).setPreferredWidth(150);
+			super.getColumnModel().getColumn(2).setMinWidth(150);
+			super.getColumnModel().getColumn(2).setWidth(150);
+			super.getColumnModel().getColumn(2).setPreferredWidth(150);
 			super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		}
 	
@@ -878,114 +879,124 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				TableModel.removeRow(0);
 		}
 		
-		private final class Renderer extends DefaultTableCellRenderer
+		private static final class Renderer extends DefaultTableCellRenderer
 		{
 		    private Hashtable<String,ImageIcon> renderIcon;
 		    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
 			private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
-		
-		public Renderer(Hashtable<String,ImageIcon> renderingData)
-		{
-		    super();
-		    super.setFont(Core.Resources.Font);
-		    renderIcon = new Hashtable<String,ImageIcon>();
-		    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
-		    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
-		    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
-		    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
-		    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
-		}
-	
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			super.getTableCellRendererComponent(
-		        table,
-		        value,
-		        isSelected,
-		        hasFocus,
-		        row,
-		        column);
-			if(table.getModel().getRowCount() < 1)
-				return this;
-			try
+			
+			private static SimpleDateFormat sdf;
+			
 			{
-				super.setIcon(null);
-				super.setBorder(null);
-		        if(value.equals("{Message}"))
-		        {
-			        super.setText("");
-			        super.setIcon(renderIcon.get("Message"));
-			        return this;
-			    }
-			    if(value.equals("{Warning}"))
-			    {
-			    	super.setText("");
-			        super.setIcon(renderIcon.get("Warning"));
-			        return this;
-			    }
-			    if(value.equals("{Error}"))
-			    {
-			       	super.setText("");
-			       	super.setIcon(renderIcon.get("Error"));
-			       	return this;
-			    }
-			    if(value.equals("{Fatal}"))
-			    {
-			       	super.setText("");
-			       	super.setIcon(renderIcon.get("Fatal"));
-			       	return this;
-			    }
-			    if(value.equals("{Debug}"))
-			    {
-			       	super.setText("");
-			       	super.setIcon(renderIcon.get("Debug"));
-			       	return this;
-			    }
-			    super.setText(value.toString());
-		        super.setIcon(null);
-		        super.setForeground(foregroundColor);
-		        if(table.getValueAt(row, 0).equals("{Warning}"))
-			       	super.setForeground(Color.ORANGE);
-			    else
-			       	if(table.getValueAt(row, 0).equals("{Error}"))
-			       		super.setForeground(Color.RED);
-			       	else
-				       	if(table.getValueAt(row, 0).equals("{Fatal}"))
-				       	{
-				       		super.setForeground(Color.RED);
-				       		super.setFont(super.getFont().deriveFont(Font.BOLD));
-				       	}
-				       	else
-					       	if(table.getValueAt(row, 0).equals("{Debug}"))
-					       		super.setForeground(Color.GREEN);
-		        
-		        return this;
-			} catch (ArrayIndexOutOfBoundsException aioobe) {
-				// OH WELL
+				sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			}
-	        return this;
-		}
+		
+			public Renderer(Hashtable<String,ImageIcon> renderingData)
+			{
+			    super();
+			    super.setFont(Core.Resources.Font);
+			    renderIcon = new Hashtable<String,ImageIcon>();
+			    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
+			    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
+			    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
+			    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
+			    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
+			}
+		
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+			{
+				super.getTableCellRendererComponent(
+			        table,
+			        value,
+			        isSelected,
+			        hasFocus,
+			        row,
+			        column);
+				if(table.getModel().getRowCount() < 1)
+					return this;
+				try
+				{
+					super.setIcon(null);
+					super.setBorder(null);
+					if(column == 1)
+					{
+						// It's a timestamp
+						super.setText(sdf.format(new Date((Long)value)));
+						return this;
+					}
+			        if(value.equals("{Message}"))
+			        {
+				        super.setText("");
+				        super.setIcon(renderIcon.get("Message"));
+				        return this;
+				    }
+				    if(value.equals("{Warning}"))
+				    {
+				    	super.setText("");
+				        super.setIcon(renderIcon.get("Warning"));
+				        return this;
+				    }
+				    if(value.equals("{Error}"))
+				    {
+				       	super.setText("");
+				       	super.setIcon(renderIcon.get("Error"));
+				       	return this;
+				    }
+				    if(value.equals("{Fatal}"))
+				    {
+				       	super.setText("");
+				       	super.setIcon(renderIcon.get("Fatal"));
+				       	return this;
+				    }
+				    if(value.equals("{Debug}"))
+				    {
+				       	super.setText("");
+				       	super.setIcon(renderIcon.get("Debug"));
+				       	return this;
+				    }
+				    super.setText(value.toString());
+			        super.setIcon(null);
+			        super.setForeground(foregroundColor);
+			        if(table.getValueAt(row, 0).equals("{Warning}"))
+				       	super.setForeground(Color.ORANGE);
+				    else
+				       	if(table.getValueAt(row, 0).equals("{Error}"))
+				       		super.setForeground(Color.RED);
+				       	else
+					       	if(table.getValueAt(row, 0).equals("{Fatal}"))
+					       	{
+					       		super.setForeground(Color.RED);
+					       		super.setFont(super.getFont().deriveFont(Font.BOLD));
+					       	}
+					       	else
+						       	if(table.getValueAt(row, 0).equals("{Debug}"))
+						       		super.setForeground(Color.GREEN);
+			        
+			        return this;
+				} catch (ArrayIndexOutOfBoundsException aioobe) {
+					// OH WELL
+				}
+		        return this;
+			}
 		}
 	
 		private final class Editor extends AbstractCellEditor implements TableCellEditor
 		{
+			public Editor()	{
+				super();
+			}
+			
+			public Object getCellEditorValue() {
+				return 0;
+			}
 		
-		public Editor()
-		{
-			super();
-		}
-		
-		public Object getCellEditorValue()
-		{
-			return 0;
-		}
-	
-		public Component getTableCellEditorComponent(
-		    JTable table,
-		    Object value,
-		    boolean isSelected,
-		    int row,
-		    int column)
+			public Component getTableCellEditorComponent(
+			    JTable table,
+			    Object value,
+			    boolean isSelected,
+			    int row,
+			    int column)
 			{
 			    super.cancelCellEditing();
 			    return null;
@@ -999,28 +1010,33 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 			case INFO:
 				TableModel.addRow(new Object[]{"{Message}",
-						event.getSource(),
-						event.getMessage()});
+					event.getTime(),
+					event.getSource(),
+					event.getMessage()});
 				break;
 			case WARNING:
 				TableModel.addRow(new Object[]{"{Warning}",
-						event.getSource(),
-						event.getMessage()});
+					event.getTime(),
+					event.getSource(),
+					event.getMessage()});
 				break;
 			case ERROR:
 				TableModel.addRow(new Object[]{"{Error}",
-						event.getSource(),
-						event.getMessage()});
+					event.getTime(),
+					event.getSource(),
+					event.getMessage()});
 				break;
 			case FATAL:
 				TableModel.addRow(new Object[]{"{Fatal}",
-						event.getSource(),
-						event.getMessage()});
+					event.getTime(),
+					event.getSource(),
+					event.getMessage()});
 				break;
 			case DEBUG:
 				TableModel.addRow(new Object[]{"{Debug}",
-						event.getSource(),
-						event.getMessage()});
+					event.getTime(),
+					event.getSource(),
+					event.getMessage()});
 				break;
 			}
 		}

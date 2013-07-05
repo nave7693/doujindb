@@ -76,13 +76,12 @@ public final class PluginManager
 	public static void discovery()
 	{
 		// TODO : Dynamic discovery
+		// "org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
 		for(String plugin : new String[]{
-				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
-				"org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
+				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner"
 			})
 			try {
 				Plugin plug = (Plugin) Class.forName(plugin).newInstance();
-				plug.startup();
 				plugins.add(plug);
 			} catch (Exception e) {
 				e.printStackTrace();

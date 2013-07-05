@@ -8,13 +8,14 @@ import javax.xml.bind.annotation.*;
 
 final class XMLParser
 {
-	public static XML_User parseUser(InputStream in) throws Exception
+	public static XML_User readUser(InputStream in) throws JAXBException
 	{
-		XML_List list;
-		JAXBContext context = JAXBContext.newInstance(XML_List.class);
-		Unmarshaller um = context.createUnmarshaller();
-		list = (XML_List) um.unmarshal(in);
-		return list.USER;
+		return parseObject(in, XML_List.class).USER;
+	}
+	
+	public static XML_List readList(InputStream in) throws JAXBException
+	{
+		return parseObject(in, XML_List.class);
 	}
 	
 	@XmlRootElement(namespace = "", name="LIST")
@@ -158,5 +159,15 @@ final class XMLParser
 		String EXACT;
 		@XmlElement(name="CODE", required=false)
 		int CODE;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static <T> T parseObject(InputStream in, Class<T> clazz) throws JAXBException
+	{
+		T parsed;
+		JAXBContext context = JAXBContext.newInstance(clazz);
+		Unmarshaller um = context.createUnmarshaller();
+		parsed = (T) um.unmarshal(in);
+		return parsed;
 	}
 }

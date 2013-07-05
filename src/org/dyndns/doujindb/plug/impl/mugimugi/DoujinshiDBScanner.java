@@ -8,16 +8,19 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
@@ -25,21 +28,24 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.plug.impl.mugimugi.Task.State;
-import org.dyndns.doujindb.plug.impl.mugimugi.Task.Step;
 import org.dyndns.doujindb.plug.impl.mugimugi.rc.Resources;
 import org.dyndns.doujindb.ui.desk.WindowEx;
 import org.dyndns.doujindb.util.ImageTool;
 
-import javax.xml.bind.*;
-
 /**  
 * DoujinshiDBScanner.java - Plugin to batch process media files thanks to the DoujinshiDB project APIs.
 * @author  nozomu
-* @version 1.0
+* @version 1.3
 */
 public final class DoujinshiDBScanner extends Plugin
 {
+	private static final String UUID = "{CB123239-06D1-4FB6-A4CC-05C4B436DF73}";
+	private static final String Author = "Nozomu";
+	private static final String Version = "1.3";
+	private static final String Weblink = "http://code.google.com/p/doujindb/";
+	private static final String Name = "DoujinshiDB Scanner";
+	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
+	
 	static String APIKEY = "";
 	static int THRESHOLD = 75;
 	static boolean RESIZE_COVER = false;
@@ -47,76 +53,20 @@ public final class DoujinshiDBScanner extends Plugin
 	static int IMAGE_QUERIES;
 	static String USERID;
 	static String USERNAME;
+	static String USER_AGENT = "Mozilla/5.0 (compatible; " + Name + "/" + Version + "; +" + Weblink + ")";
 	
 	private static Resources Resources = new Resources();
-	
-	static final String Author = "Nozomu";
-	static final String Version = "1.1";
-	static final String Weblink = "http://code.google.com/p/doujindb/";
-	static final String Name = "DoujinshiDB Scanner";
-	static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
-	static final ImageIcon Icon = new ImageIcon(DoujinshiDBScanner.class.getResource("rc/icons/plugin.png"));
-	
-	static final String UUID = "{CB123239-06D1-4FB6-A4CC-05C4B436DF73}";
-	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
-	static final DataBaseContext Context = Core.Database.getContext(UUID);
+	static DataBaseContext Context;
 	
 	private static JComponent UI;
-	static XMLParser.XML_User User = new XMLParser.XML_User();
-	static TreeMap<String, int[][]> Cache;
+	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
-	static File PLUGIN_CACHE = new File(PLUGIN_HOME, "fingerprint.ser");
-	static File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
-	static File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
+	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
+	static final File PLUGIN_CACHE = new File(PLUGIN_HOME, "imagesignature.ser");
+	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
+	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
 	
 	private static SimpleDateFormat sdf;
-	
-	static
-	{
-		Property prop;
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.apikey"))
-			APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").asString();
-		else
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.apikey");
-		{
-			prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey");
-			prop.setValue(APIKEY);
-			prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
-		}	
-
-
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.threshold"))
-			THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").asNumber();
-		else
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.threshold");
-		{
-			prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold");
-			prop.setValue(THRESHOLD);
-			prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
-		}	
-
-
-		if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.resize_cover"))
-			RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").asBoolean();
-		else
-			Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-		{
-			prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-			prop.setValue(RESIZE_COVER);
-			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
-		}
-		
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		
-		PLUGIN_HOME.mkdirs();
-		PLUGIN_DATA.mkdirs();
-		PLUGIN_QUERY.mkdirs();
-		
-		cacheRead();
-		
-		UI = new PluginUI();
-	}
 	
 	@Override
 	public String getUUID() {
@@ -125,7 +75,7 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	@Override
 	public Icon getIcon() {
-		return Icon;
+		return Resources.Icons.get("Plugin/Icon");
 	}
 	
 	@Override
@@ -159,304 +109,252 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 	
 	@SuppressWarnings("serial")
-	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener
+	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 	{
-		private JTabbedPane tabs;
-		private JPanel tabSettings;
-		private JPanel tabTasks;
-		private JPanel tabScanner;
+		private JTabbedPane m_TabbedPane;
+		private JPanel m_TabSettings;
+		private JPanel m_TabTasks;
+		private JPanel m_TabScanner;
 		
-		private JButton buttonRefresh;
-		private JLabel labelApikey;
-		private JTextField textApikey;
-		private JLabel labelThreshold;
-		//private JTextField textThreshold;
-		private JSlider sliderThreshold;
-		private JLabel labelUserid;
-		private JTextField textUserid;
-		private JLabel labelUsername;
-		private JTextField textUsername;
-		private JLabel labelQueries;
-		private JTextField textQueries;
-		private JLabel labelImageQueries;
-		private JTextField textImageQueries;
-		private JCheckBox boxResizeImage;
+		private JButton m_ButtonApiRefresh;
+		private JLabel m_LabelApikey;
+		private JTextField m_TextApikey;
+		private JLabel m_LabelApiThreshold;
+		private JSlider m_SliderApiThreshold;
+		private JLabel m_LabelApiUserid;
+		private JTextField m_TextApiUserid;
+		private JLabel m_LabelApiUsername;
+		private JTextField m_TextApiUsername;
+		private JLabel m_LabelApiQueryCount;
+		private JTextField m_TextApiQueryCount;
+		private JLabel m_LabelApiImageQueryCount;
+		private JTextField m_TextApiImageQueryCount;
+		private JCheckBox m_CheckboxApiResizeImage;
 		
-		private JButton buttonAddTask;
-		private JButton buttonDeleteSelected;
-		private JButton buttonCleanCompleted;
-		private JButton buttonWorkerResume;
-		private JButton buttonWorkerPause;
-		private JCheckBox bottonSelection;
-		private PanelTaskUI panelTasks;
-		private JScrollPane scrollTasks;
+		private JButton m_ButtonAddTask;
+		private JButton m_ButtonTaskManagerCtl;
+		private JCheckBox m_CheckboxSelection;
 		
-		private JCheckBox boxCacheOverwrite;
-		private JProgressBar progressBarCache;
-		private JButton buttonCacheBuild;
-		private JButton buttonCacheCancel;
-		private JLabel labelCacheInfo;
+		private JSplitPane m_SplitPane;
+		private PanelTaskUI m_PanelTasks;
+		private JScrollPane m_ScrollPanelTasks;
+		private TaskUI m_PanelTask;
 		
-		private JLabel labelMaxResults;
-		private JSlider sliderMaxResults;
-		private JButton buttonScanPreview;
-		private JTabbedPane tabsScanResult;
-		private JProgressBar progressBarScan;
-		private JButton buttonScanCancel;
+		private JCheckBox m_CheckboxCacheOverwrite;
+		private JProgressBar m_ProgressBarCache;
+		private JButton m_ButtonCacheBuild;
+		private JButton m_ButtonCacheCancel;
+		private JLabel m_LabelCacheInfo;
 		
-		private Thread workerTaskFetcher = new Thread(getClass().getName()+"$Task[null]");
-		private boolean fetcherRunning = false;
-		private Thread fetcherThread;
+		private JLabel m_LabelMaxResults;
+		private JSlider m_SliderMaxResults;
+		private JButton m_ButtonScanPreview;
+		private JTabbedPane m_TabbedPaneScanResult;
+		private JProgressBar m_ProgressBarScan;
+		private JButton m_ButtonScanCancel;
 		
-		private SwingWorker<Void, Integer> workerTaskScanner = new TaskScanner(null);
-		private boolean cacheScannerRunning = false;
-		private SwingWorker<Void, Integer> workerTaskBuilder = new TaskBuilder();
-		private boolean cacheBuilderRunning = false;
-		
-		static
-		{
-			Property prop;
-			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.apikey"))
-				APIKEY = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").asString();
-			else
-				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.apikey");
-			{
-				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey");
-				prop.setValue(APIKEY);
-				prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
-			}	
-
-
-			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.threshold"))
-				THRESHOLD = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").asNumber();
-			else
-				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.threshold");
-			{
-				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold");
-				prop.setValue(THRESHOLD);
-				prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
-			}	
-
-
-			if(Core.Properties.contains("org.dyndns.doujindb.plug.mugimugi.resize_cover"))
-				RESIZE_COVER = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").asBoolean();
-			else
-				Core.Properties.add("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-			{
-				prop = Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover");
-				prop.setValue(RESIZE_COVER);
-				prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
-			}
-		}
+		private SwingWorker<Void, Integer> m_WorkerScanner = new TaskScanner(null);
+		private boolean m_ScannerRunning = false;
+		private SwingWorker<Void, Integer> m_WorkerBuilder = new TaskBuilder();
+		private boolean m_BuilderRunning = false;
 		
 		public PluginUI()
 		{
 			super();
 			super.setLayout(this);
-			tabs = new JTabbedPane();
-			tabs.setFont(Core.Resources.Font);
-			tabs.setFocusable(false);
+			m_TabbedPane = new JTabbedPane();
+			m_TabbedPane.setFont(Core.Resources.Font);
+			m_TabbedPane.setFocusable(false);
 			
 			JPanel bogus;
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			buttonRefresh = new JButton(Resources.Icons.get("Plugin/Refresh"));
-			buttonRefresh.addActionListener(this);
-			buttonRefresh.setBorder(null);
-			buttonRefresh.setFocusable(false);
-			bogus.add(buttonRefresh);
-			labelApikey = new JLabel("Api Key :");
-			labelApikey.setFont(Core.Resources.Font);
-			bogus.add(labelApikey);
-			textApikey = new JTextField(APIKEY);
-			textApikey.setFont(Core.Resources.Font);
-			textApikey.getDocument().addDocumentListener(new DocumentListener()
+			m_ButtonApiRefresh = new JButton(Resources.Icons.get("Plugin/Refresh"));
+			m_ButtonApiRefresh.addActionListener(this);
+			m_ButtonApiRefresh.setBorder(null);
+			m_ButtonApiRefresh.setFocusable(false);
+			bogus.add(m_ButtonApiRefresh);
+			m_LabelApikey = new JLabel("Api Key :");
+			m_LabelApikey.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApikey);
+			m_TextApikey = new JTextField(APIKEY);
+			m_TextApikey.setFont(Core.Resources.Font);
+			m_TextApikey.getDocument().addDocumentListener(new DocumentListener()
 			{
 				@Override
 				public void changedUpdate(DocumentEvent de)
 				{
-					APIKEY = textApikey.getText();
+					APIKEY = m_TextApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
-					APIKEY = textApikey.getText();
+					APIKEY = m_TextApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
-					APIKEY = textApikey.getText();
+					APIKEY = m_TextApikey.getText();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}				
 			});
-			bogus.add(textApikey);
-			labelThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
-			labelThreshold.setFont(Core.Resources.Font);
-			bogus.add(labelThreshold);
-			sliderThreshold = new JSlider(0, 100, THRESHOLD);
-			sliderThreshold.setFont(Core.Resources.Font);
-			sliderThreshold.addChangeListener(new ChangeListener()
+			bogus.add(m_TextApikey);
+			m_LabelApiThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
+			m_LabelApiThreshold.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApiThreshold);
+			m_SliderApiThreshold = new JSlider(0, 100, THRESHOLD);
+			m_SliderApiThreshold.setFont(Core.Resources.Font);
+			m_SliderApiThreshold.addChangeListener(new ChangeListener()
 			{
 				@Override
 				public void stateChanged(ChangeEvent ce)
 				{
-					THRESHOLD = sliderThreshold.getValue();
-					labelThreshold.setText("Threshold : " + THRESHOLD + "%");
-					if(sliderThreshold.getValueIsAdjusting())
+					THRESHOLD = m_SliderApiThreshold.getValue();
+					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
+					if(m_SliderApiThreshold.getValueIsAdjusting())
 						return;
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").setValue(THRESHOLD);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.threshold");
 				}				
 			});
-			bogus.add(sliderThreshold);
-			labelUserid = new JLabel("User ID :");
-			labelUserid.setFont(Core.Resources.Font);
-			bogus.add(labelUserid);
-			textUserid = new JTextField(USERID);
-			textUserid.setFont(Core.Resources.Font);
-			textUserid.setEditable(false);
-			bogus.add(textUserid);
-			labelUsername = new JLabel("User Name :");
-			labelUsername.setFont(Core.Resources.Font);
-			bogus.add(labelUsername);
-			textUsername = new JTextField(USERNAME);
-			textUsername.setFont(Core.Resources.Font);
-			textUsername.setEditable(false);
-			bogus.add(textUsername);
-			labelQueries = new JLabel("Queries :");
-			labelQueries.setFont(Core.Resources.Font);
-			bogus.add(labelQueries);
-			textQueries = new JTextField("" + QUERIES);
-			textQueries.setFont(Core.Resources.Font);
-			textQueries.setEditable(false);
-			bogus.add(textQueries);
-			labelImageQueries = new JLabel("Image Queries :");
-			labelImageQueries.setFont(Core.Resources.Font);
-			bogus.add(labelImageQueries);
-			textImageQueries = new JTextField("" + IMAGE_QUERIES);
-			textImageQueries.setFont(Core.Resources.Font);
-			textImageQueries.setEditable(false);
-			bogus.add(textImageQueries);
-			boxResizeImage = new JCheckBox("<html><body>Resize covers before uploading*<br><i>(*will speed up searches and preserve bandwidth)</i></body></html>");
-			boxResizeImage.setFont(Core.Resources.Font);
-			boxResizeImage.setFocusable(false);
-			boxResizeImage.setSelected(RESIZE_COVER);
-			boxResizeImage.addChangeListener(new ChangeListener()
+			bogus.add(m_SliderApiThreshold);
+			m_LabelApiUserid = new JLabel("User ID :");
+			m_LabelApiUserid.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApiUserid);
+			m_TextApiUserid = new JTextField(USERID);
+			m_TextApiUserid.setFont(Core.Resources.Font);
+			m_TextApiUserid.setEditable(false);
+			bogus.add(m_TextApiUserid);
+			m_LabelApiUsername = new JLabel("User Name :");
+			m_LabelApiUsername.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApiUsername);
+			m_TextApiUsername = new JTextField(USERNAME);
+			m_TextApiUsername.setFont(Core.Resources.Font);
+			m_TextApiUsername.setEditable(false);
+			bogus.add(m_TextApiUsername);
+			m_LabelApiQueryCount = new JLabel("Queries :");
+			m_LabelApiQueryCount.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApiQueryCount);
+			m_TextApiQueryCount = new JTextField("" + QUERIES);
+			m_TextApiQueryCount.setFont(Core.Resources.Font);
+			m_TextApiQueryCount.setEditable(false);
+			bogus.add(m_TextApiQueryCount);
+			m_LabelApiImageQueryCount = new JLabel("Image Queries :");
+			m_LabelApiImageQueryCount.setFont(Core.Resources.Font);
+			bogus.add(m_LabelApiImageQueryCount);
+			m_TextApiImageQueryCount = new JTextField("" + IMAGE_QUERIES);
+			m_TextApiImageQueryCount.setFont(Core.Resources.Font);
+			m_TextApiImageQueryCount.setEditable(false);
+			bogus.add(m_TextApiImageQueryCount);
+			m_CheckboxApiResizeImage = new JCheckBox("<html><body>Resize covers before uploading*<br><i>(*will speed up searches and preserve bandwidth)</i></body></html>");
+			m_CheckboxApiResizeImage.setFont(Core.Resources.Font);
+			m_CheckboxApiResizeImage.setFocusable(false);
+			m_CheckboxApiResizeImage.setSelected(RESIZE_COVER);
+			m_CheckboxApiResizeImage.addChangeListener(new ChangeListener()
 			{
 				@Override
 				public void stateChanged(ChangeEvent ce)
 				{
-					RESIZE_COVER = boxResizeImage.isSelected();
+					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
 					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").setValue(RESIZE_COVER);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.resize_cover");
 				}				
 			});
-			bogus.add(boxResizeImage);
-			boxCacheOverwrite = new JCheckBox();
-			boxCacheOverwrite.setSelected(false);
-			boxCacheOverwrite.setFocusable(false);
-			boxCacheOverwrite.setText("Overwrite existing entries");
-			bogus.add(boxCacheOverwrite);
-			buttonCacheBuild = new JButton(Resources.Icons.get("Plugin/Cache"));
-			buttonCacheBuild.addActionListener(this);
-			buttonCacheBuild.setBorder(null);
-			buttonCacheBuild.setFocusable(false);
-			bogus.add(buttonCacheBuild);
-			buttonCacheCancel = new JButton(Resources.Icons.get("Plugin/Cancel"));
-			buttonCacheCancel.addActionListener(this);
-			buttonCacheCancel.setBorder(null);
-			buttonCacheCancel.setFocusable(false);
-			bogus.add(buttonCacheCancel);
-			progressBarCache = new JProgressBar();
-			progressBarCache.setFont(Core.Resources.Font);
-			progressBarCache.setMaximum(100);
-			progressBarCache.setMinimum(1);
-			progressBarCache.setValue(progressBarCache.getMinimum());
-			progressBarCache.setStringPainted(true);
-			progressBarCache.setString("");
-			bogus.add(progressBarCache);
-			labelCacheInfo = new JLabel("<html><body>cache-size : " + humanReadableByteCount(PLUGIN_CACHE.length(), true) + "<br/>" +
-					"entry-count : " + Cache.size() + "<br/>" +
+			bogus.add(m_CheckboxApiResizeImage);
+			m_CheckboxCacheOverwrite = new JCheckBox();
+			m_CheckboxCacheOverwrite.setSelected(false);
+			m_CheckboxCacheOverwrite.setFocusable(false);
+			m_CheckboxCacheOverwrite.setText("Overwrite existing entries");
+			bogus.add(m_CheckboxCacheOverwrite);
+			m_ButtonCacheBuild = new JButton(Resources.Icons.get("Plugin/Cache"));
+			m_ButtonCacheBuild.addActionListener(this);
+			m_ButtonCacheBuild.setBorder(null);
+			m_ButtonCacheBuild.setFocusable(false);
+			bogus.add(m_ButtonCacheBuild);
+			m_ButtonCacheCancel = new JButton(Resources.Icons.get("Plugin/Cancel"));
+			m_ButtonCacheCancel.addActionListener(this);
+			m_ButtonCacheCancel.setBorder(null);
+			m_ButtonCacheCancel.setFocusable(false);
+			bogus.add(m_ButtonCacheCancel);
+			m_ProgressBarCache = new JProgressBar();
+			m_ProgressBarCache.setFont(Core.Resources.Font);
+			m_ProgressBarCache.setMaximum(100);
+			m_ProgressBarCache.setMinimum(1);
+			m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
+			m_ProgressBarCache.setStringPainted(true);
+			m_ProgressBarCache.setString("");
+			bogus.add(m_ProgressBarCache);
+			m_LabelCacheInfo = new JLabel("<html><body>cache-size : " + humanReadableBytes(PLUGIN_CACHE.length(), true) + "<br/>" +
+					"entry-count : " + CacheManager.size() + "<br/>" +
 					"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
-			labelCacheInfo.setFont(Core.Resources.Font);
-			labelCacheInfo.setVerticalAlignment(JLabel.TOP);
-			bogus.add(labelCacheInfo);
-			tabs.addTab("Settings", Resources.Icons.get("Plugin/Settings"), tabSettings = bogus);
+			m_LabelCacheInfo.setFont(Core.Resources.Font);
+			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
+			bogus.add(m_LabelCacheInfo);
+			m_TabbedPane.addTab("Settings", Resources.Icons.get("Plugin/Settings"), m_TabSettings = bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			buttonAddTask = new JButton(Resources.Icons.get("Plugin/Add"));
-			buttonAddTask.addActionListener(this);
-			buttonAddTask.setBorder(null);
-			buttonAddTask.setFocusable(false);
-			bogus.add(buttonAddTask);
-			buttonCleanCompleted = new JButton(Resources.Icons.get("Plugin/CleanCompleted"));
-			buttonCleanCompleted.addActionListener(this);
-			buttonCleanCompleted.setBorder(null);
-			buttonCleanCompleted.setToolTipText("Clean Completed");
-			buttonCleanCompleted.setFocusable(false);
-			bogus.add(buttonCleanCompleted);
-			buttonDeleteSelected = new JButton(Resources.Icons.get("Plugin/DeleteSelected"));
-			buttonDeleteSelected.addActionListener(this);
-			buttonDeleteSelected.setBorder(null);
-			buttonDeleteSelected.setToolTipText("Delete Selected");
-			buttonDeleteSelected.setFocusable(false);
-			bogus.add(buttonDeleteSelected);
-			buttonWorkerResume = new JButton(Resources.Icons.get("Plugin/Task/Resume"));
-			buttonWorkerResume.addActionListener(this);
-			buttonWorkerResume.setBorder(null);
-			buttonWorkerResume.setToolTipText("Resume Worker");
-			buttonWorkerResume.setFocusable(false);
-			bogus.add(buttonWorkerResume);
-			buttonWorkerPause = new JButton(Resources.Icons.get("Plugin/Task/Pause"));
-			buttonWorkerPause.addActionListener(this);
-			buttonWorkerPause.setBorder(null);
-			buttonWorkerPause.setToolTipText("Pause Worker");
-			buttonWorkerPause.setFocusable(false);
-			bogus.add(buttonWorkerPause);
-			bottonSelection = new JCheckBox();
-			bottonSelection.setSelected(false);
-			bottonSelection.addActionListener(this);
-			bogus.add(bottonSelection);
-			panelTasks = new PanelTaskUI();
-			scrollTasks = new JScrollPane(panelTasks);
-			bogus.add(scrollTasks);
-			tabs.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), tabTasks = bogus);
+			m_ButtonAddTask = new JButton(Resources.Icons.get("Plugin/Add"));
+			m_ButtonAddTask.addActionListener(this);
+			m_ButtonAddTask.setBorder(null);
+			m_ButtonAddTask.setFocusable(false);
+			bogus.add(m_ButtonAddTask);
+			m_ButtonTaskManagerCtl = new JButton(Resources.Icons.get("Plugin/Task/Resume"));
+			m_ButtonTaskManagerCtl.addActionListener(this);
+			m_ButtonTaskManagerCtl.setBorder(null);
+			m_ButtonTaskManagerCtl.setToolTipText("Resume Worker");
+			m_ButtonTaskManagerCtl.setFocusable(false);
+			bogus.add(m_ButtonTaskManagerCtl);
+			m_CheckboxSelection = new JCheckBox();
+			m_CheckboxSelection.setSelected(false);
+			m_CheckboxSelection.addActionListener(this);
+			bogus.add(m_CheckboxSelection);
+			
+			m_SplitPane = new JSplitPane();
+			m_SplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+			m_SplitPane.setResizeWeight(1);
+			m_PanelTasks = new PanelTaskUI();
+			m_ScrollPanelTasks = new JScrollPane(m_PanelTasks);
+			m_ScrollPanelTasks.getVerticalScrollBar().setUnitIncrement(10);
+			m_SplitPane.setTopComponent(m_ScrollPanelTasks);
+			m_PanelTask = new TaskUI();
+			m_SplitPane.setBottomComponent(null);
+			bogus.add(m_SplitPane);
+			m_TabbedPane.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), m_TabTasks = bogus);
 			
 			bogus = new JPanel();
-			bogus.setLayout(null);
-			labelMaxResults = new JLabel("Max Results : " + 10);
-			labelMaxResults.setFont(Core.Resources.Font);
-			bogus.add(labelMaxResults);
-			sliderMaxResults = new JSlider(1, 25);
-			sliderMaxResults.setValue(10);
-			sliderMaxResults.setFont(Core.Resources.Font);
-			sliderMaxResults.addChangeListener(new ChangeListener()
+			m_LabelMaxResults = new JLabel("Max Results : " + 10);
+			m_LabelMaxResults.setFont(Core.Resources.Font);
+			bogus.add(m_LabelMaxResults);
+			m_SliderMaxResults = new JSlider(1, 25);
+			m_SliderMaxResults.setValue(10);
+			m_SliderMaxResults.setFont(Core.Resources.Font);
+			m_SliderMaxResults.addChangeListener(new ChangeListener()
 			{
 				@Override
 				public void stateChanged(ChangeEvent ce)
 				{
-					labelMaxResults.setText("Max Results : " + sliderMaxResults.getValue());
+					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
 				}				
 			});
-			bogus.add(sliderMaxResults);
-			buttonScanPreview = new JButton();
-			buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Search/Preview"));
-			buttonScanPreview.addActionListener(this);
-			buttonScanPreview.setBorder(null);
-			buttonScanPreview.setOpaque(false);
-			buttonScanPreview.setDropTarget(new DropTarget()
+			bogus.add(m_SliderMaxResults);
+			m_ButtonScanPreview = new JButton();
+			m_ButtonScanPreview.setIcon(Resources.Icons.get("Plugin/Search/Preview"));
+			m_ButtonScanPreview.addActionListener(this);
+			m_ButtonScanPreview.setBorder(null);
+			m_ButtonScanPreview.setOpaque(false);
+			m_ButtonScanPreview.setDropTarget(new DropTarget()
 			{
 				@Override
 				public synchronized void dragOver(DropTargetDragEvent dtde)
 				{
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						if(cacheScannerRunning)
+						if(m_ScannerRunning)
 						{
 							dtde.rejectDrag();
 							return;
@@ -485,11 +383,11 @@ public final class DoujinshiDBScanner extends Plugin
 	                                @Override
 	                                public void run() {
 	                                	File file = transferData.iterator().next();
-	                                	if(cacheScannerRunning)
+	                                	if(m_ScannerRunning)
 	                    					return;
-	                                	workerTaskScanner = new TaskScanner(file);
-	                                	workerTaskScanner.execute();
-	                    				tabScanner.doLayout();
+	                                	m_WorkerScanner = new TaskScanner(file);
+	                                	m_WorkerScanner.execute();
+	                    				m_TabScanner.doLayout();
 	                                }
 	                        	}.start();
 	                            dtde.dropComplete(true);
@@ -503,101 +401,38 @@ public final class DoujinshiDBScanner extends Plugin
 	                }
 				}
 			});
-			bogus.add(buttonScanPreview);
-			tabsScanResult = new JTabbedPane();
-			tabsScanResult.setFont(Core.Resources.Font);
-			tabsScanResult.setFocusable(false);
-			tabsScanResult.setTabPlacement(JTabbedPane.RIGHT);
-			bogus.add(tabsScanResult);
-			progressBarScan = new JProgressBar();
-			progressBarScan.setFont(Core.Resources.Font);
-			progressBarScan.setMaximum(100);
-			progressBarScan.setMinimum(1);
-			progressBarScan.setValue(progressBarScan.getMinimum());
-			progressBarScan.setStringPainted(true);
-			progressBarScan.setString("");
-			bogus.add(progressBarScan);
-			buttonScanCancel = new JButton();
-			buttonScanCancel.setText("Cancel");
-			buttonScanCancel.setIcon(Resources.Icons.get("Plugin/Cancel"));
-			buttonScanCancel.addActionListener(this);
-			buttonScanCancel.setToolTipText("Cancel");
-			buttonScanCancel.setFocusable(false);
-			bogus.add(buttonScanCancel);
-			tabs.addTab("Search", Resources.Icons.get("Plugin/Search"), tabScanner = bogus);
+			bogus.add(m_ButtonScanPreview);
+			m_TabbedPaneScanResult = new JTabbedPane();
+			m_TabbedPaneScanResult.setFont(Core.Resources.Font);
+			m_TabbedPaneScanResult.setFocusable(false);
+			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
+			bogus.add(m_TabbedPaneScanResult);
+			m_ProgressBarScan = new JProgressBar();
+			m_ProgressBarScan.setFont(Core.Resources.Font);
+			m_ProgressBarScan.setMaximum(100);
+			m_ProgressBarScan.setMinimum(1);
+			m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
+			m_ProgressBarScan.setStringPainted(true);
+			m_ProgressBarScan.setString("");
+			bogus.add(m_ProgressBarScan);
+			m_ButtonScanCancel = new JButton();
+			m_ButtonScanCancel.setText("Cancel");
+			m_ButtonScanCancel.setIcon(Resources.Icons.get("Plugin/Cancel"));
+			m_ButtonScanCancel.addActionListener(this);
+			m_ButtonScanCancel.setToolTipText("Cancel");
+			m_ButtonScanCancel.setFocusable(false);
+			bogus.add(m_ButtonScanCancel);
+			m_TabbedPane.addTab("Search", Resources.Icons.get("Plugin/Search"), m_TabScanner = bogus);
 			
-			super.add(tabs);
+			super.add(m_TabbedPane);
 			
-			Set<Task> tasks = taskRead();
-			for(Task task : tasks)
-				panelTasks.addTask(task);
-			
-			// Save Tasks every 5 seconds
-			new java.util.Timer(true).scheduleAtFixedRate(new TimerTask()
-			{
-				@Override
-				public void run()
-				{
-					Set<Task> tasks = new HashSet<Task>();
-					for(Task task : panelTasks)
-						tasks.add(task);
-					taskWrite(tasks);
-				}
-			}, 1, 5 * 1000);
-			
-			// Save Tasks on exit
-			Runtime.getRuntime().addShutdownHook(new Thread(getClass().getName()+"$TaskSerializer")
-			{
-				@Override
-				public void run()
-				{
-					Set<Task> tasks = new HashSet<Task>();
-					for(Task task : panelTasks)
-						tasks.add(task);
-					taskWrite(tasks);
-				}
-			});
-			
-			fetcherThread = new Thread(getClass().getName()+"$TaskFetcher")
-			{
-				@Override
-				public void run()
-				{
-					while(true)
-					{
-						/**
-						 * Put the sleep() here and not at the end so
-						 * it doesn't get skipped by calling those 'continue'
-						 */
-						try { sleep(1000); } catch (InterruptedException e) { }
-						
-						if(!fetcherRunning)
-							continue;
-						if(panelTasks.countTasks() < 1)
-							continue;
-						if(workerTaskFetcher.isAlive())
-							continue;
-						else
-						{
-							for(Task task : panelTasks)
-							{
-								if(task.isDone())
-									continue;
-								workerTaskFetcher = new Thread(task, getClass().getName()+"$Task[id:" + task.getId() + "]");
-								workerTaskFetcher.start();
-								break;
-							}
-						}
-					}
-				}
-			};
-			fetcherThread.start();
+			TaskManager.registerListener(this);
 		}
 		
 		/**
 		 * @see http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
 		 */
-		private String humanReadableByteCount(long bytes, boolean si) {
+		private String humanReadableBytes(long bytes, boolean si) {
 		    int unit = si ? 1000 : 1024;
 		    if (bytes < unit) return bytes + " B";
 		    int exp = (int) (Math.log(bytes) / Math.log(unit));
@@ -610,70 +445,61 @@ public final class DoujinshiDBScanner extends Plugin
 		{
 			int width = parent.getWidth(),
 				height = parent.getHeight();
-			tabs.setBounds(0,0,width,height);
-			buttonRefresh.setBounds(1,1,20,20);
-			labelApikey.setBounds(5,25,120,15);
-			textApikey.setBounds(125,25,width - 130,15);
-			labelThreshold.setBounds(5,25+20,120,15);
-			sliderThreshold.setBounds(125,25+20,width - 130,15);
-			labelUserid.setBounds(5,25+40,120,15);
-			textUserid.setBounds(125,25+40,width - 130,15);
-			labelUsername.setBounds(5,25+60,120,15);
-			textUsername.setBounds(125,25+60,width - 130,15);
-			labelQueries.setBounds(5,25+80,120,15);
-			textQueries.setBounds(125,25+80,width - 130,15);
-			labelImageQueries.setBounds(5,25+100,120,15);
-			textImageQueries.setBounds(125,25+100,width - 130,15);
-			boxResizeImage.setBounds(5,25+120,width,45);
-			buttonAddTask.setBounds(1,1,20,20);
-			buttonCleanCompleted.setBounds(width - 65,1,20,20);
-			buttonDeleteSelected.setBounds(width - 85,1,20,20);
-			if(!cacheBuilderRunning)
+			m_TabbedPane.setBounds(0,0,width,height);
+			m_ButtonApiRefresh.setBounds(1,1,20,20);
+			m_LabelApikey.setBounds(5,25,120,15);
+			m_TextApikey.setBounds(125,25,width-130,15);
+			m_LabelApiThreshold.setBounds(5,25+20,120,15);
+			m_SliderApiThreshold.setBounds(125,25+20,width-130,15);
+			m_LabelApiUserid.setBounds(5,25+40,120,15);
+			m_TextApiUserid.setBounds(125,25+40,width-130,15);
+			m_LabelApiUsername.setBounds(5,25+60,120,15);
+			m_TextApiUsername.setBounds(125,25+60,width-130,15);
+			m_LabelApiQueryCount.setBounds(5,25+80,120,15);
+			m_TextApiQueryCount.setBounds(125,25+80,width-130,15);
+			m_LabelApiImageQueryCount.setBounds(5,25+100,120,15);
+			m_TextApiImageQueryCount.setBounds(125,25+100,width-130,15);
+			m_CheckboxApiResizeImage.setBounds(5,25+120,width,45);
+			m_ButtonAddTask.setBounds(1,1,20,20);
+			m_ButtonTaskManagerCtl.setBounds(21,1,20,20);
+			if(!m_BuilderRunning)
 			{
-				buttonCacheBuild.setBounds(5,25+200,20,20);
-				buttonCacheCancel.setBounds(0,0,20,20);
+				m_ButtonCacheBuild.setBounds(5,25+200,20,20);
+				m_ButtonCacheCancel.setBounds(0,0,20,20);
 			} else {
-				buttonCacheBuild.setBounds(0,0,20,20);
-				buttonCacheCancel.setBounds(5,25+200,20,20);
+				m_ButtonCacheBuild.setBounds(0,0,20,20);
+				m_ButtonCacheCancel.setBounds(5,25+200,20,20);
 			}
-			progressBarCache.setBounds(5,25+220,width-15,20);
-			boxCacheOverwrite.setBounds(5,25+240,width-15,20);
-			labelCacheInfo.setBounds(5,25+270,width,height-280);
-			if(fetcherRunning)
+			m_ProgressBarCache.setBounds(5,25+220,width-15,20);
+			m_CheckboxCacheOverwrite.setBounds(5,25+240,width-15,20);
+			m_LabelCacheInfo.setBounds(5,25+270,width,height-280);
+			m_CheckboxSelection.setBounds(width-25,1,20,20);
+			m_SplitPane.setBounds(1,21,width-5,height-45);
+			if(UserInfo != null)
 			{
-				buttonWorkerResume.setBounds(21,1,0,0);
-				buttonWorkerPause.setBounds(21,1,20,20);
-			} else {
-				buttonWorkerResume.setBounds(21,1,20,20);
-				buttonWorkerPause.setBounds(21,1,0,0);
-			}
-			bottonSelection.setBounds(width - 45,1,20,20);
-			scrollTasks.setBounds(1,21,width - 5,height - 45);
-			if(User != null)
-			{
-				textUserid.setText(User.id);
-				textUsername.setText(User.User);
-				textQueries.setText("" + User.Queries);
-				textImageQueries.setText("" + User.Image_Queries);
+				m_TextApiUserid.setText(UserInfo.id);
+				m_TextApiUsername.setText(UserInfo.User);
+				m_TextApiQueryCount.setText("" + UserInfo.Queries);
+				m_TextApiImageQueryCount.setText("" + UserInfo.Image_Queries);
 			}else
 			{
-				textUserid.setText("");
-				textUsername.setText("");
-				textQueries.setText("");
-				textImageQueries.setText("");
+				m_TextApiUserid.setText("");
+				m_TextApiUsername.setText("");
+				m_TextApiQueryCount.setText("");
+				m_TextApiImageQueryCount.setText("");
 			}
-			buttonScanPreview.setBounds(5,5,180,256);
-			if(cacheScannerRunning)
+			m_ButtonScanPreview.setBounds(5,5,180,256);
+			if(m_ScannerRunning)
 			{
-				progressBarScan.setBounds(5,265,180,20);
-				buttonScanCancel.setBounds(5,290,180,20);
+				m_ProgressBarScan.setBounds(5,265,180,20);
+				m_ButtonScanCancel.setBounds(5,290,180,20);
 			}
 			else
 			{
-				progressBarScan.setBounds(0,0,0,0);
-				buttonScanCancel.setBounds(0,0,0,0);
+				m_ProgressBarScan.setBounds(0,0,0,0);
+				m_ButtonScanCancel.setBounds(0,0,0,0);
 			}
-			tabsScanResult.setBounds(190,5,width-190,height-10);
+			m_TabbedPaneScanResult.setBounds(190,5,width-190,height-10);
 		}
 		@Override
 		public void addLayoutComponent(String key,Component c){}
@@ -693,43 +519,46 @@ public final class DoujinshiDBScanner extends Plugin
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(ae.getSource() == buttonRefresh)
+			if(ae.getSource() == m_ButtonApiRefresh)
 			{
-				textApikey.setText(APIKEY);
-				sliderThreshold.setValue(THRESHOLD);
-				;
-				buttonRefresh.setEnabled(false);
-				textApikey.setEnabled(false);
-				sliderThreshold.setEnabled(false);
-				buttonRefresh.setIcon(Resources.Icons.get("Plugin/Loading"));
-				new Thread(getClass().getName()+"$ActionPerformed/Refresh")
+				m_TextApikey.setText(APIKEY);
+				m_SliderApiThreshold.setValue(THRESHOLD);
+				m_ButtonApiRefresh.setEnabled(false);
+				m_TextApikey.setEnabled(false);
+				m_SliderApiThreshold.setEnabled(false);
+				m_ButtonApiRefresh.setIcon(Resources.Icons.get("Plugin/Loading"));
+				new SwingWorker<Void,Void>()
 				{
 					@Override
-					public void run()
-					{
+					protected Void doInBackground() throws Exception {
 						try
 						{
 							if(APIKEY == null)
 								throw new Exception("Invalid API key provided.");
 							URLConnection urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + APIKEY + "/").openConnection();
-							urlc.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; " + DoujinshiDBScanner.Name + "/" + DoujinshiDBScanner.Version+ "; +" + DoujinshiDBScanner.Weblink + ")");
+							urlc.setRequestProperty("User-Agent", USER_AGENT);
 							InputStream in = new ClientHttpRequest(urlc).post();
-							User = XMLParser.parseUser(in);
+							XMLParser.XML_User parsedUser = XMLParser.readUser(in);
+							UserInfo = (parsedUser == null ? UserInfo : parsedUser);
 						} catch (Exception e)
 						{
 							e.printStackTrace();
 						}
-						buttonRefresh.setIcon(Resources.Icons.get("Plugin/Refresh"));
-						buttonRefresh.setEnabled(true);
-						textApikey.setEnabled(true);
-						sliderThreshold.setEnabled(true);
+						return null;
+					}
+					@Override
+					protected void done() {
+						m_ButtonApiRefresh.setIcon(Resources.Icons.get("Plugin/Refresh"));
+						m_ButtonApiRefresh.setEnabled(true);
+						m_TextApikey.setEnabled(true);
+						m_SliderApiThreshold.setEnabled(true);
 						doLayout();
 						validate();
 					}
-				}.start();
+				}.execute();
 				return;
 			}
-			if(ae.getSource() == buttonAddTask)
+			if(ae.getSource() == m_ButtonAddTask)
 			{
 				try 
 				{
@@ -745,486 +574,877 @@ public final class DoujinshiDBScanner extends Plugin
 					final File files[] = fc.getSelectedFiles();
 					for(File file : files)
 					{
-						String ID = java.util.UUID.randomUUID().toString();
-						while(panelTasks.containsTask(ID))
-							ID = java.util.UUID.randomUUID().toString();
-						Task task = new Task(ID, file);
-						panelTasks.addTask(task);
+						TaskManager.add(file);
 					}
-					panelTasks.doLayout();
+					m_PanelTasks.dataChanged();
 					fc.setFileSelectionMode(prev_option);
 				} catch (Exception e) {
-					panelTasks.doLayout();
 					e.printStackTrace();
 				}
 				return;
 			}
-			if(ae.getSource() == buttonCleanCompleted)
+			if(ae.getSource() == m_ButtonTaskManagerCtl)
 			{
-				for(Task task : panelTasks.getCompletedTasks())
+				if(TaskManager.isRunning())
 				{
-					panelTasks.removeTask(task);
+					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Loading"));
+					new SwingWorker<Void,Void>()
+					{
+						@Override
+						protected Void doInBackground() throws Exception {
+							TaskManager.stop();
+							return null;
+						}
+						@Override
+						protected void done() {
+							m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Resume"));
+						}
+					}.execute();
+				} else {
+					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Loading"));
+					new SwingWorker<Void,Void>()
+					{
+						@Override
+						protected Void doInBackground() throws Exception {
+							TaskManager.start();
+							return null;
+						}
+						@Override
+						protected void done() {
+							m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Pause"));
+						}
+					}.execute();
 				}
-				if(panelTasks.countTasks() < 1)
-					bottonSelection.setSelected(false);
 				return;
 			}
-			if(ae.getSource() == buttonDeleteSelected)
+			if(ae.getSource() == m_CheckboxSelection)
 			{
-				for(Task task : panelTasks.getSelectedTasks())
-				{
-					panelTasks.removeTask(task);
-				}
-				if(panelTasks.countTasks() < 1)
-					bottonSelection.setSelected(false);
+				for(Task task : TaskManager.tasks())
+					task.setSelected(m_CheckboxSelection.isSelected());
+				m_PanelTasks.dataChanged();
 				return;
 			}
-			if(ae.getSource() == buttonWorkerResume)
+			if(ae.getSource() == m_ButtonCacheBuild)
 			{
-				fetcherRunning = true;
-				doLayout();
-				return;
-			}
-			if(ae.getSource() == buttonWorkerPause)
-			{
-				fetcherRunning = false;
-				doLayout();
-				return;
-			}
-			if(ae.getSource() == bottonSelection)
-			{
-				for(TaskUI ui : panelTasks.map.values())
-					ui.bottonSelection.setSelected(bottonSelection.isSelected());
-				return;
-			}
-			if(ae.getSource() == buttonCacheBuild)
-			{
-				if(cacheBuilderRunning)
+				if(m_BuilderRunning)
 					return;
-				workerTaskBuilder = new TaskBuilder();
-				workerTaskBuilder.execute();
+				m_WorkerBuilder = new TaskBuilder();
+				m_WorkerBuilder.execute();
 				return;
 			}
-			if(ae.getSource() == buttonCacheCancel)
+			if(ae.getSource() == m_ButtonCacheCancel)
 			{
-				workerTaskBuilder.cancel(true);
+				m_WorkerBuilder.cancel(true);
 				return;
 			}
 		}
 		
-		@SuppressWarnings("unused")
-		private final class PanelTaskUI extends JPanel implements LayoutManager, Iterable<Task> 
+		private final class PanelTaskUI extends JTable implements PropertyChangeListener
 		{
-			private final Map<Task, TaskUI> map = new HashMap<Task, TaskUI>();
+			private Class<?>[] m_Types = new Class[] {
+				TaskInfo.class,			// Task info
+				Integer.class,			// Task Progress
+				Boolean.class			// Selection
+			};
 			
-			public PanelTaskUI()
+			private TaskSetTableModel m_TableModel;
+			private TaskRenderer m_TableRender;
+			private TaskEditor m_TableEditor;
+			private TableRowSorter<DefaultTableModel> m_TableSorter;
+			
+			private JPopupMenu m_PopupAction;
+			
+			private PanelTaskUI()
 			{
-				super();
-				super.setLayout(this);
+				m_TableModel = new TaskSetTableModel();
+				m_TableModel.addColumn("");
+				m_TableModel.addColumn("progress");
+				m_TableModel.addColumn("");
+				m_TableRender = new TaskRenderer();
+				m_TableEditor = new TaskEditor();
+				m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+				super.setRowSorter(m_TableSorter);
+				super.setModel(m_TableModel);
+				super.setFont(Core.Resources.Font);
+				super.setColumnSelectionAllowed(false);
+				super.setRowSelectionAllowed(false);
+				super.setCellSelectionEnabled(false);
+				super.getTableHeader().setReorderingAllowed(false);
+				super.getColumnModel().getColumn(0).setCellRenderer(m_TableRender);
+				super.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+				super.getColumnModel().getColumn(1).setCellRenderer(m_TableRender);
+				super.getColumnModel().getColumn(1).setCellEditor(m_TableEditor);
+				super.getColumnModel().getColumn(2).setCellRenderer(m_TableRender);
+				super.getColumnModel().getColumn(0).setResizable(false);
+				super.getColumnModel().getColumn(0).setMaxWidth(20);
+				super.getColumnModel().getColumn(0).setMinWidth(20);
+				super.getColumnModel().getColumn(0).setWidth(20);
+				super.getColumnModel().getColumn(1).setMinWidth(150);
+				super.getColumnModel().getColumn(1).setWidth(150);
+				super.getColumnModel().getColumn(1).setPreferredWidth(150);
+				super.getColumnModel().getColumn(2).setMaxWidth(20);
+				super.getColumnModel().getColumn(2).setMinWidth(20);
+				super.getColumnModel().getColumn(2).setWidth(20);
+				super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+				
+				super.addMouseListener(new MouseAdapter()
+				{
+					@Override
+					public void mouseClicked(MouseEvent me) {
+						if(me.getClickCount() != 2)
+							return;
+						int rowNumber = rowAtPoint(me.getPoint());
+						Task task = (Task) getValueAt(rowNumber, -1);
+						m_PanelTask.setTask(task);
+						m_SplitPane.setBottomComponent(m_PanelTask);
+					}
+				});
+				
+				m_PopupAction = new JPopupMenu();
+				m_PopupAction.addPopupMenuListener(new PopupMenuListener()
+				{
+
+					@Override
+					public void popupMenuCanceled(PopupMenuEvent pme) { }
+
+					@Override
+					public void popupMenuWillBecomeInvisible(PopupMenuEvent pme) { }
+
+					@Override
+					public void popupMenuWillBecomeVisible(PopupMenuEvent pme) { }
+					
+				});
+				super.addMouseListener(new MouseAdapter()
+				{
+					public void mousePressed(MouseEvent me)
+				    {
+						popup(me);
+				    }
+					public void mouseReleased(MouseEvent me)
+				    {
+						popup(me);
+				    }
+				    private void popup(MouseEvent me)
+				    {
+				    	if (me.isPopupTrigger())
+				    	{
+//				            JTable source = (JTable)me.getSource();
+//				            int row = source.rowAtPoint( me.getPoint() );
+//				            int column = source.columnAtPoint( me.getPoint() );
+//				            if (!source.isRowSelected(row))
+//				                source.changeSelection(row, column, false, false);
+				    		
+				    		// Reset PopupMenu
+				    		m_PopupAction.removeAll();
+				    		
+				    		final List<Task> selected = new Vector<Task>();
+				    		for(Task task : TaskManager.tasks())
+							{
+								if(task.isSelected() && !task.isRunning())
+								{
+									selected.add(task);
+								}
+							}
+				    		
+				    		// If no Task is selected don't show the PopupMenu
+				    		if(selected.isEmpty())
+				    			return;
+				    		
+							JMenuItem menuItem = new JMenuItem("Delete", Resources.Icons.get("Plugin/Task/Delete"));
+							menuItem.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae)
+								{
+									for(Task task : selected)
+									{
+										// If details panel is open, close it
+										if(task.equals(m_PanelTask.m_Task))
+											m_SplitPane.setBottomComponent(null);
+										TaskManager.remove(task);
+									}
+									dataChanged();
+								}
+							});
+							menuItem.setName("reset");
+							menuItem.setActionCommand("reset");
+							m_PopupAction.add(menuItem);
+							menuItem = new JMenuItem("Reset", Resources.Icons.get("Plugin/Task/Reset"));
+							menuItem.addActionListener(new ActionListener()
+							{
+								@Override
+								public void actionPerformed(ActionEvent ae)
+								{
+									for(Task task : selected)
+									{
+										// If details panel is open, close it
+										if(task.equals(m_PanelTask.m_Task))
+											m_SplitPane.setBottomComponent(null);
+										TaskManager.reset(task);
+									}
+								}
+							});
+							menuItem.setName("reset");
+							menuItem.setActionCommand("reset");
+							m_PopupAction.add(menuItem);
+				            m_PopupAction.show(me.getComponent(), me.getX(), me.getY());
+				        }
+				    }
+				});
+				
+				TaskManager.registerListener(this);
+			}
+			
+			public void dataChanged() {
+				m_TableModel.fireTableDataChanged();
+			}
+			
+			@SuppressWarnings("unused")
+			public void dataChanged(int row) {
+				for(int idx = 0; idx < m_TableModel.getColumnCount(); idx++)
+					m_TableModel.fireTableCellUpdated(row, idx);
 			}
 
-			public void addTask(Task task) {
-				TaskUI taskui = new TaskUI(task);
-				map.put(task, taskui);
-				add(taskui);
-				revalidate();
-				doLayout();
-			}
-			
-			public void removeTask(Task task) {
-				remove(map.remove(task));
-				doLayout();
-			}
-			
-			public boolean containsTask(Task task) {
-				return map.keySet().contains(task);
-			}
-			
-			public boolean containsTask(String taskid) {
-				return map.keySet().contains(taskid);
-			}
-			
-			public int countTasks() {
-				return map.size();
-			}
-			
-			public List<Task> getSelectedTasks() {
-				Vector<Task> selected = new Vector<Task>();
-				for(Task task : map.keySet())
+			private final class TaskSetTableModel extends DefaultTableModel
+			{
+				private TaskSetTableModel()
 				{
-					TaskUI ui = map.get(task);
-					if(ui.bottonSelection.isSelected())
-						selected.add(task);
+					
 				}
-				return selected;
+				
+				@Override
+				public int getRowCount() {
+					return TaskManager.size();
+				}
+
+				@Override
+				public int getColumnCount() {
+					return m_Types.length;
+				}
+				
+				public Class<?> getColumnClass(int columnIndex) {
+					return m_Types[columnIndex];
+				}
+
+				@Override
+				public Object getValueAt(int rowIndex, int columnIndex) {
+					Task row = TaskManager.get(rowIndex);
+					switch(columnIndex)
+					{
+						case -1:
+							return row;
+						case 0:
+							return row.getInfo();
+						case 1:
+							return row.getProgress();
+						case 2:
+							return row.isSelected();
+					}
+					throw new IllegalArgumentException("Argument columnIndex (= " + columnIndex + ") must be 0 < X < " + m_Types.length);
+				}
+				
+				@Override
+				public void setValueAt(Object value, int rowIndex, int columnIndex) {
+					Task row = TaskManager.get(rowIndex);
+				    if (columnIndex == 2) {
+				    	row.setSelected((Boolean)value);
+				        fireTableCellUpdated(rowIndex, columnIndex);
+				    }
+				}
 			}
 			
-			public List<Task> getCompletedTasks() {
-				Vector<Task> completed = new Vector<Task>();
-				for(Task task : map.keySet())
+			private final class TaskEditor extends AbstractCellEditor implements TableCellEditor
+			{
+				private TaskEditor()
 				{
-					boolean iscompleted = true;
-					for(Step step : Step.values())
+					super();
+				}
+				
+				public Object getCellEditorValue()
+				{
+					return 0;
+				}
+			
+				public Component getTableCellEditorComponent(
+				    JTable table,
+				    Object value,
+				    boolean isSelected,
+				    int row,
+				    int column)
 					{
-						State status = task.getStatus(step);
-						if(!status.equals(Task.State.COMPLETED))
+					    super.cancelCellEditing();
+					    return null;
+					}
+			}
+			
+			private final class TaskRenderer extends DefaultTableCellRenderer
+			{
+				private JProgressBar m_ProgressBar;
+				private JLabel m_LabelIcon;
+				private JCheckBox m_CheckBox;
+				
+				public TaskRenderer()
+				{
+				    super();
+				    super.setFont(Core.Resources.Font);
+				    
+				    m_ProgressBar = new JProgressBar();
+				    m_ProgressBar.setMaximum(100);
+					m_ProgressBar.setMinimum(0);
+					m_ProgressBar.setValue(0);
+					m_ProgressBar.setStringPainted(true);
+					m_ProgressBar.setString("");
+					
+					m_LabelIcon = new JLabel();
+					
+					m_CheckBox = new JCheckBox();
+				}
+			
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+				{
+					super.getTableCellRendererComponent(
+				        table,
+				        value,
+				        isSelected,
+				        hasFocus,
+				        row,
+				        column);
+					if(table.getModel().getRowCount() < 1)
+						return this;
+					if(column == 1)
+					{
+						Task task = (Task) getValueAt(row, -1);
+						m_ProgressBar.setValue(task.getProgress());
+						m_ProgressBar.setString(task.getMessage());
+						return m_ProgressBar;
+					}
+					if(value instanceof TaskInfo)
+					{
+						TaskInfo info = (TaskInfo) value;
+						switch (info)
 						{
-							iscompleted = false;
+						case COMPLETED:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Completed"));
+							break;
+						case ERROR:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Error"));
+							break;
+						case IDLE:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Idle"));
+							break;
+						case PAUSED:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Paused"));
+							break;
+						case RUNNING:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Running"));
+							break;
+						case WARNING:
+							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Warning"));
 							break;
 						}
+						m_LabelIcon.setToolTipText("" + info);
+						return m_LabelIcon;
 					}
-					if(iscompleted)
-						completed.add(task);
+					if(value instanceof Boolean)
+					{
+						Boolean selected = (Boolean) value;
+						m_CheckBox.setSelected(selected);
+						return m_CheckBox;
+					}
+					return this;
 				}
-				return completed;
-			}
-			
-			@Override
-			public Iterator<Task> iterator() {
-				return map.keySet().iterator();
 			}
 
 			@Override
-			public void layoutContainer(Container parent)
-			{
-				int height = 0;
-				int posy = 0;
-				int width = parent.getWidth();
-				for(TaskUI ui : map.values())
-				{
-					ui.setBounds(0, posy, width, ui.getHeight());
-					posy += ui.getHeight();
-					height += ui.getHeight();
-				}
-				panelTasks.setPreferredSize(new Dimension(250, height));
-				panelTasks.repaint();
-				scrollTasks.doLayout();
-			}
-			@Override
-			public void addLayoutComponent(String key,Component c){}
-			@Override
-			public void removeLayoutComponent(Component c){}
-			@Override
-			public Dimension minimumLayoutSize(Container parent)
-			{
-			     return parent.getMinimumSize();
-			}
-			@Override
-			public Dimension preferredLayoutSize(Container parent)
-			{
-				int height = 0;
-				for(TaskUI ui : map.values())
-					height += ui.getHeight();
-				return new Dimension(250, height);
+			public void propertyChange(PropertyChangeEvent evt) {
+				if(evt.getPropertyName().equals("task-exec"))
+					dataChanged();
+				if(evt.getPropertyName().equals("task-info"))
+					dataChanged();
 			}
 		}
 		
-		private final class TaskUI extends JPanel implements LayoutManager, ActionListener, MouseListener, TaskListener
+		private final class TaskUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 		{
-			private Task task;
-			private JLabel titleBar;
-			private JLabel imagePreview;
-			private JButton buttonToggle;
-			private JButton buttonLink;
-			private JButton buttonFolder;
-			private JButton buttonSkip;
-			private Map<String, JButton> buttonDupes;
-			private JButton buttonRerun;
-			private Map<Double, JButton> buttonResults;
-			private JButton buttonDirectURL;
-			private JCheckBox bottonSelection;
-			private String resultId;
-			private Map<Task.Step, JLabel> steps;
-			private final Map<Task.State, ImageIcon> icons = new HashMap<Task.State, ImageIcon>();
+			private Task m_Task;
+			private JLabel m_LabelTitle;
+			private JLabel m_LabelPreview;
+			private JButton m_ButtonClose;
 			
-			{
-				icons.put(State.IDLE, Resources.Icons.get("Plugin/Task/Step/Idle"));
-				icons.put(State.RUNNING, Resources.Icons.get("Plugin/Task/Step/Running"));
-				icons.put(State.ERROR, Resources.Icons.get("Plugin/Task/Step/Error"));
-				icons.put(State.WARNING, Resources.Icons.get("Plugin/Task/Step/Warning"));
-				icons.put(State.COMPLETED, Resources.Icons.get("Plugin/Task/Step/Completed"));
-			}
-
-			private final int STATUS_MINIMIZED = 0x1;
-			private final int STATUS_MAXIMIZED = 0x2;
-			private int STATUS = STATUS_MINIMIZED;
-			private ImageIcon ICON_CHECKED = Core.Resources.Icons.get("JPanel/ToggleButton/Checked");
-			private ImageIcon ICON_UNCHECKED = Core.Resources.Icons.get("JPanel/ToggleButton/Unchecked");
+			private JButton m_ButtonOpenFolder;
+			private JButton m_ButtonOpenXML;
+			private JButton m_ButtonOpenBook;
+			private JButton m_ButtonRunAgain;
+			private JButton m_ButtonSkipDuplicate;
+			private JButton m_ButtonImportBID;
 			
-			public TaskUI(Task task)
+			private JTabbedPane m_TabbedPaneImage;
+			
+			public TaskUI()
 			{
 				super();
 				setLayout(this);
-				setSize(100, 20);
-				setMinimumSize(new Dimension(100, 20));
+				setSize(280, 280);
+				setMinimumSize(new Dimension(280, 280));
+				setMaximumSize(new Dimension(280, 280));
 				setPreferredSize(new Dimension(280, 280));
-				setMaximumSize(new Dimension(1280, 280));
-				setBackground(UIManager.getColor("List.textBackground"));
-				setForeground(UIManager.getColor("List.textForeground"));
-				setPreferredSize(new Dimension(280, 20));
-				titleBar = new JLabel();
-				titleBar.setText(task.getMessage());
-				titleBar.setIcon(icons.get(task.getStatus(task.getStep())));
-				add(titleBar);
-				imagePreview = new JLabel();
-				imagePreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
-				add(imagePreview);
-				buttonToggle = new JButton(ICON_CHECKED);
-				buttonToggle.setSelected(true);
-				buttonToggle.addActionListener(this);
-				add(buttonToggle);
-				buttonLink = new JButton(Resources.Icons.get("Plugin/Task/Book"));
-				buttonLink.setFocusable(false);
-				buttonLink.addActionListener(new ActionListener()
+				
+				m_LabelTitle = new JLabel();
+				m_LabelTitle.setText("");
+				m_LabelTitle.setIcon(null);
+				add(m_LabelTitle);
+				m_LabelPreview = new JLabel();
+				m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
+				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
+				add(m_LabelPreview);
+				m_ButtonClose = new JButton(Resources.Icons.get("Plugin/Cancel"));
+				m_ButtonClose.setSelected(true);
+				m_ButtonClose.addActionListener(this);
+				add(m_ButtonClose);
+				
+				m_ButtonOpenFolder = new JButton();
+				m_ButtonOpenFolder.setText("Open Folder");
+				m_ButtonOpenFolder.setIcon(Resources.Icons.get("Plugin/Task/Folder"));
+				m_ButtonOpenFolder.setSelected(false);
+				m_ButtonOpenFolder.setFocusable(false);
+				m_ButtonOpenFolder.addActionListener(this);
+				m_ButtonOpenFolder.setOpaque(false);
+				m_ButtonOpenFolder.setIconTextGap(5);
+				m_ButtonOpenFolder.setMargin(new Insets(0,0,0,0));
+				m_ButtonOpenFolder.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonOpenFolder.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonOpenFolder);
+				m_ButtonOpenXML = new JButton();
+				m_ButtonOpenXML.setText("View Response");
+				m_ButtonOpenXML.setIcon(Resources.Icons.get("Plugin/Task/XML"));
+				m_ButtonOpenXML.setSelected(false);
+				m_ButtonOpenXML.setFocusable(false);
+				m_ButtonOpenXML.addActionListener(this);
+				m_ButtonOpenXML.setOpaque(false);
+				m_ButtonOpenXML.setIconTextGap(5);
+				m_ButtonOpenXML.setMargin(new Insets(0,0,0,0));
+				m_ButtonOpenXML.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonOpenXML.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonOpenXML);
+				m_ButtonOpenBook = new JButton();
+				m_ButtonOpenBook.setText("Open Book");
+				m_ButtonOpenBook.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+				m_ButtonOpenBook.setSelected(false);
+				m_ButtonOpenBook.setFocusable(false);
+				m_ButtonOpenBook.addActionListener(this);
+				m_ButtonOpenBook.setOpaque(false);
+				m_ButtonOpenBook.setIconTextGap(5);
+				m_ButtonOpenBook.setMargin(new Insets(0,0,0,0));
+				m_ButtonOpenBook.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonOpenBook.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonOpenBook);
+				
+				m_ButtonRunAgain = new JButton();
+				m_ButtonRunAgain.setText("Re-run Step");
+				m_ButtonRunAgain.setIcon(Resources.Icons.get("Plugin/Task/Reset"));
+				m_ButtonRunAgain.setSelected(false);
+				m_ButtonRunAgain.setFocusable(false);
+				m_ButtonRunAgain.addActionListener(this);
+				m_ButtonRunAgain.setOpaque(false);
+				m_ButtonRunAgain.setIconTextGap(5);
+				m_ButtonRunAgain.setMargin(new Insets(0,0,0,0));
+				m_ButtonRunAgain.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonRunAgain.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonRunAgain);
+				m_ButtonSkipDuplicate = new JButton();
+				m_ButtonSkipDuplicate.setText("Skip Duplicate");
+				m_ButtonSkipDuplicate.setIcon(Resources.Icons.get("Plugin/Task/Skip"));
+				m_ButtonSkipDuplicate.setSelected(false);
+				m_ButtonSkipDuplicate.setFocusable(false);
+				m_ButtonSkipDuplicate.addActionListener(this);
+				m_ButtonSkipDuplicate.setOpaque(false);
+				m_ButtonSkipDuplicate.setIconTextGap(5);
+				m_ButtonSkipDuplicate.setMargin(new Insets(0,0,0,0));
+				m_ButtonSkipDuplicate.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonSkipDuplicate.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonSkipDuplicate);
+				m_ButtonImportBID = new JButton();
+				m_ButtonImportBID.setText("Import from mugimugi ID");
+				m_ButtonImportBID.setIcon(Resources.Icons.get("Plugin/Task/Import"));
+				m_ButtonImportBID.setSelected(false);
+				m_ButtonImportBID.setFocusable(false);
+				m_ButtonImportBID.addActionListener(this);
+				m_ButtonImportBID.setOpaque(false);
+				m_ButtonImportBID.setIconTextGap(5);
+				m_ButtonImportBID.setMargin(new Insets(0,0,0,0));
+				m_ButtonImportBID.setHorizontalAlignment(SwingConstants.LEFT);
+				m_ButtonImportBID.setHorizontalTextPosition(SwingConstants.RIGHT);
+				add(m_ButtonImportBID);
+				
+				m_TabbedPaneImage = new JTabbedPane();
+				m_TabbedPaneImage.setFocusable(false);
+				m_TabbedPaneImage.setTabPlacement(JTabbedPane.RIGHT);
+				m_TabbedPaneImage.addChangeListener(new ChangeListener()
+				{
+                    @Override
+                    public void stateChanged(ChangeEvent ce) {
+                        if (ce.getSource() instanceof JTabbedPane) {
+                            JTabbedPane pane = (JTabbedPane) ce.getSource();
+                            if(pane.getSelectedIndex() == -1)
+                            	return;
+                            JButton selectedTab = (JButton) pane.getComponentAt(pane.getSelectedIndex());
+                            m_ButtonImportBID.setActionCommand(selectedTab.getActionCommand());
+                        }
+                    }
+                });
+				add(m_TabbedPaneImage);
+				
+				TaskManager.registerListener(this);
+			}
+			
+			private void fireInfoUpdated()
+			{
+				switch (m_Task.getInfo())
+				{
+				case COMPLETED:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Completed"));
+					break;
+				case ERROR:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Error"));
+					break;
+				case IDLE:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Idle"));
+					break;
+				case PAUSED:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Paused"));
+					break;
+				case RUNNING:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Running"));
+					break;
+				case WARNING:
+					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Warning"));
+					break;
+				}
+			}
+			
+			private void fireImageUpdated()
+			{
+				m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Loading"));
+				new SwingWorker<ImageIcon, Void>()
 				{
 					@Override
-					public void actionPerformed(ActionEvent ae) {
-						String bookid = TaskUI.this.task.getBook();
-						if(bookid != null)
+					protected ImageIcon doInBackground() throws Exception
+					{
+						return new ImageIcon(
+							ImageTool.read(
+								new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".png")));
+					}
+					@Override
+				    protected void process(List<Void> chunks) { ; }
+					@Override
+				    public void done() {
+				        ImageIcon icon;
+				        try {
+				        	icon = get();
+				        	m_LabelPreview.setIcon(icon);
+				        } catch (Exception e) {
+				        	m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+				        }
+				    }
+				}.execute();
+			}
+			
+			private void fireItemsUpdated()
+			{
+				m_TabbedPaneImage.removeAll();
+				new SwingWorker<Void, Map<String,Object>>()
+				{
+					private transient int selectedTab = -1;
+					
+					@Override
+					protected Void doInBackground() throws Exception
+					{
+						if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) || m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
 						{
-							QueryBook qid = new QueryBook();
-							qid.ID = bookid;
-							RecordSet<Book> set = Core.Database.getBooks(qid);
-							if(set.size() == 1)
-								Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
-						}
-					}
-				});
-				add(buttonLink);
-				buttonSkip = new JButton(Resources.Icons.get("Plugin/Task/Skip"));
-				buttonSkip.setFocusable(false);
-				buttonSkip.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						for(JButton button : buttonDupes.values())
-							remove(button);
-						TaskUI.this.task.skipDuplicates();
-						TaskUI.this.task.setDone(false);
-						doLayout();
-						validate();
-					}
-				});
-				add(buttonSkip);
-				buttonRerun = new JButton(Resources.Icons.get("Plugin/Task/Rerun"));
-				buttonRerun.setFocusable(false);
-				buttonRerun.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						TaskUI.this.task.setBook(resultId);
-						TaskUI.this.task.setDone(false);
-						doLayout();
-						validate();
-					}
-				});
-				add(buttonRerun);
-				buttonFolder = new JButton(Resources.Icons.get("Plugin/Task/Folder"));
-				buttonFolder.setFocusable(false);
-				buttonFolder.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						File workpath = TaskUI.this.task.getWorkpath();
-						try {
-							URI uri = workpath.toURI();
-							Desktop.getDesktop().browse(uri);
-						} catch (IOException ioe) {
-							ioe.printStackTrace();
-						}
-					}
-				});
-				add(buttonFolder);
-				buttonDirectURL = new JButton(Resources.Icons.get("Plugin/Task/Download"));
-				buttonDirectURL.setFocusable(false);
-				buttonDirectURL.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						new SwingWorker<Void, Void>()
-						{
-							@Override
-							protected Void doInBackground() throws Exception
+							for(String id : m_Task.getDuplicatelist())
 							{
-								Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-								Transferable contents = clipboard.getContents(null);
-							    boolean hasTransferableText = (contents != null) &&
-							    	contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-							    if(hasTransferableText) {
-							    	try {
-							    		String book_id = (String)contents.getTransferData(DataFlavor.stringFlavor);
-							    		TaskUI.this.task.fromBID(book_id);
-										TaskUI.this.task.setDone(false);
-										doLayout();
-										validate();
-							    	} catch (UnsupportedFlavorException ufe){
-							    		ufe.printStackTrace();
-							    	} catch (MalformedURLException murle) {
-										murle.printStackTrace();
-									} catch (IOException ioe) {
-										ioe.printStackTrace();
-									}
-							    }
-							    return null;
+								try
+								{
+									// Load images from local DataStore
+									ImageIcon ii = new ImageIcon(
+										ImageTool.read(
+											Core.Repository.getPreview(id).getInputStream()));
+									Map<String,Object> data = new HashMap<String,Object>();
+									data.put("id", id);
+									data.put("imageicon", ii);
+									publish(data);
+								} catch (Exception e) { e.printStackTrace(); }
 							}
-						}.execute();
-					}
-				});
-				add(buttonDirectURL);
-				bottonSelection = new JCheckBox();
-				bottonSelection.setSelected(false);
-				add(bottonSelection);
-				steps = new TreeMap<Task.Step, JLabel>();
-				for(Task.Step step : task.getSteps())
-				{
-					JLabel labelStep = new JLabel();
-					labelStep.setFont(Core.Resources.Font);
-					labelStep.setText("" + step);
-					labelStep.setIcon(icons.get(task.getStatus(step)));
-					steps.put(step, labelStep);
-					add(labelStep);
-				}
-				/**
-				 * Check if cover image is ready to be shown
-				 */
-				if(task.getStatus(Step.SCAN).equals(State.COMPLETED) ||
-					task.getStatus(Step.SCAN).equals(State.WARNING))
-				{
-					try {
-						imagePreview.setIcon(
-							new ImageIcon(
-								ImageTool.read(
-									new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png"))));
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
-				}
-				if(task.getStatus(Step.PARSE).equals(State.WARNING))
-				{
-					Map<String, XMLParser.XML_Book> results = task.getResults();
-					buttonResults = new TreeMap<Double, JButton>(Collections.reverseOrder());
-					for(String id : results.keySet())
-					{
-						XMLParser.XML_Book book = results.get(id);
-						JButton buttonResult = new JButton();
-						try {
-							buttonResult.setIcon(new ImageIcon(new File(PLUGIN_DATA, book.ID + ".png").toURI().toURL()));
-						} catch (MalformedURLException murle) {
-							buttonResult.setIcon(new ImageIcon());
 						}
-						buttonResult.setText("");
-						buttonResult.addActionListener(this);
-						buttonResult.addMouseListener(this);
-						buttonResult.setActionCommand("setResult:" + book.ID);
-						buttonResult.setFocusable(false);
-						buttonResult.setPreferredSize(new Dimension(25, 155));
-						buttonResults.put(Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", ".")),
-								buttonResult);
-						add(buttonResult);
+						if(m_Task.getExec().equals(TaskExec.PARSE_XML))
+						{
+							for(String id : m_Task.getMugimugiList())
+							{
+								try
+								{
+									// Load images from Website img.mugimugi.org
+									int bid = Integer.parseInt(id.substring(1));
+									URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
+									ImageIcon ii = new ImageIcon(thumbURL);
+									Map<String,Object> data = new HashMap<String,Object>();
+									data.put("id", id);
+									data.put("imageicon", ii);
+									publish(data);
+								} catch (Exception e) { e.printStackTrace(); }
+							}
+						}
+						return null;
 					}
-					// First result is already expanded
-					JButton firstResult = buttonResults.values().iterator().next();
-					firstResult.setPreferredSize(new Dimension(110, 155));
-					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
-				}
-				if(task.getStatus(Step.CHECK).equals(State.WARNING))
-				{
-					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
-					for(String dupe : task.getDuplicates())
+					@Override
+				    protected void process(List<Map<String,Object>> chunks)
 					{
-						JButton buttonDupe = new JButton();
-						buttonDupe.setText(dupe);
-						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
-						buttonDupe.addActionListener(this);
-						buttonDupe.setActionCommand("openDupe:" + dupe);
-						buttonDupe.setHorizontalAlignment(SwingConstants.LEFT);
-						buttonDupe.setFocusable(false);
-						buttonDupes.put(dupe,
-								buttonDupe);
-						add(buttonDupe);
+						for(Map<String,Object> data : chunks)
+						{
+							final String id = (String) data.get("id");
+							final ImageIcon imageicon = (ImageIcon) data.get("imageicon");
+							
+							JButton button = new JButton(imageicon);
+							button.setActionCommand(id);
+							button.setFocusable(false);
+							if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) || m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
+							{
+								// Open local Book
+								button.addActionListener(new ActionListener()
+								{
+									@Override
+									public void actionPerformed(ActionEvent ae) {
+										new SwingWorker<Void, Void>()
+										{
+											@Override
+											protected Void doInBackground() throws Exception
+											{
+												QueryBook qid = new QueryBook();
+												qid.ID = id;
+												RecordSet<Book> set = Core.Database.getBooks(qid);
+												if(set.size() == 1)
+													Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+												return null;
+											}
+										}.execute();
+									}
+								});
+								m_TabbedPaneImage.addTab("", button);
+							}
+							if(m_Task.getExec().equals(TaskExec.PARSE_XML))
+							{
+								// Open mugimugi Book
+								button.addActionListener(new ActionListener()
+								{
+									@Override
+									public void actionPerformed(ActionEvent ae) {
+										try {
+											int bid = Integer.parseInt(id.substring(1));
+											URI uri = new URI("http://doujinshi.mugimugi.org/book/" + bid + "/");
+											Desktop.getDesktop().browse(uri);
+										} catch (URISyntaxException urise) {
+											urise.printStackTrace();
+										} catch (IOException ioe) {
+											ioe.printStackTrace();
+										}
+									}
+								});
+								if((m_Task.getMugimugiBid()).equals(id))
+								{
+									m_TabbedPaneImage.addTab("", Resources.Icons.get("Plugin/Search/Star"), button);
+									selectedTab = m_TabbedPaneImage.getTabCount() - 1;
+								}
+								else
+									m_TabbedPaneImage.addTab("", button);
+							}
+						}
 					}
-				}
-				if(task.getStatus(Step.SCAN).equals(State.WARNING))
-				{
-					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
-					for(String dupe : task.getDuplicates())
+					@Override
+				    protected void done()
 					{
-						JButton buttonDupe = new JButton();
-						buttonDupe.setText(dupe);
-						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
-						buttonDupe.addActionListener(this);
-						buttonDupe.setActionCommand("openDupe:" + dupe);
-						buttonDupe.setHorizontalAlignment(SwingConstants.LEFT);
-						buttonDupe.setFocusable(false);
-						buttonDupes.put(dupe,
-								buttonDupe);
-						add(buttonDupe);
+						if(selectedTab != -1)
+							m_TabbedPaneImage.setSelectedIndex(selectedTab);
 					}
-				}
-				this.task = task;
-				this.task.addTaskListener(this);
+				}.execute();
 			}
 
-			@SuppressWarnings("unused")
+			public void setTask(Task task)
+			{
+				// Set displaying Task
+				this.m_Task = task;
+				// Display UUID
+				m_LabelTitle.setText("UUID : " + m_Task.getId());
+				// Display 'status' Icon
+				fireInfoUpdated();
+				// Display scanned Image
+				fireImageUpdated();
+				// Display duplicate/queried Items
+				fireItemsUpdated();
+			}
+
 			@Override
 			public void layoutContainer(Container parent)
 			{
 				int width = parent.getWidth(),
 					height = parent.getHeight();
-				bottonSelection.setBounds(width - 40, 0, 20, 20);
-				buttonToggle.setBounds(width - 20, 0, 20, 20);
-				buttonFolder.setBounds(width - 60, 0, 20, 20);
-				if(task.getBook() != null)
-					buttonLink.setBounds(width - 80, 0, 20, 20);
-				else
-					buttonLink.setBounds(width - 80, 0, 0, 0);
-				if(task.isDone()
-					&& task.getStatus(Step.CHECK).equals(State.WARNING))
-					buttonSkip.setBounds(width - 80, 0, 20, 20);
-				else
-					buttonSkip.setBounds(width - 80, 0, 0, 0);
-				if(task.isDone()
-					&& task.getStatus(Step.PARSE).equals(State.WARNING))
+				
+				m_LabelTitle.setBounds(0, 0, width - 80, 20);
+				m_LabelPreview.setBounds(0, 20, 200, 256);
+				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
+				
+				m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
+				m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
+				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
+				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
+				m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
+				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+				if(m_Task.isRunning())
 				{
-					buttonRerun.setBounds(width - 80, 0, 20, 20);
-					buttonDirectURL.setBounds(width - 100, 0, 20, 20);
+					m_ButtonOpenFolder.setEnabled(true);
+					m_ButtonRunAgain.setEnabled(false);
+					m_ButtonOpenXML.setEnabled(false);
+					m_ButtonOpenBook.setEnabled(false);
+					m_ButtonSkipDuplicate.setEnabled(false);
+					m_ButtonImportBID.setEnabled(false);
+					return;
 				}
-				else
+				if(m_Task.getInfo().equals(TaskInfo.COMPLETED))
 				{
-					buttonRerun.setBounds(width - 80, 0, 0, 0);
-					buttonDirectURL.setBounds(width - 100, 0, 0, 0);
+					m_ButtonOpenFolder.setEnabled(true);
+					m_ButtonRunAgain.setEnabled(false);
+					m_ButtonOpenXML.setEnabled(false);
+					m_ButtonOpenBook.setEnabled(true);
+					m_ButtonSkipDuplicate.setEnabled(false);
+					m_ButtonImportBID.setEnabled(false);
+					return;
 				}
-				titleBar.setBounds(0, 0, width - 80, 20);
-				imagePreview.setBounds(0, 20, 200, 256);
-				int index = 0;
-				for(JLabel labelStep : steps.values())
-					labelStep.setBounds(200, index = index + 18, width - 210, 20);
-				/**
-				 * Race conditions : State = WARNING, but we don't still have buttonResults initialized and layoutContainer kicks in
-				 * if(task.getSteps().get(Step.PARSE).equals(State.WARNING))
-				 */
-				if(buttonResults != null)
+				if(m_Task.getInfo().equals(TaskInfo.IDLE))
 				{
-					index += 30;
-					int prevsize = 0;
-					for(JButton button : buttonResults.values())
+					m_ButtonOpenFolder.setEnabled(true);
+					m_ButtonRunAgain.setEnabled(false);
+					m_ButtonOpenXML.setEnabled(false);
+					m_ButtonOpenBook.setEnabled(false);
+					m_ButtonSkipDuplicate.setEnabled(false);
+					m_ButtonImportBID.setEnabled(false);
+					return;
+				}
+				if(m_Task.getInfo().equals(TaskInfo.WARNING))
+				{
+					m_ButtonOpenFolder.setEnabled(true);
+					m_ButtonRunAgain.setEnabled(false);
+					m_ButtonOpenBook.setEnabled(false);
+					if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) ||
+						m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
 					{
-						Dimension prefsize = button.getPreferredSize();
-						button.setBounds(200 + prevsize, index, (int)prefsize.getWidth(), (int)prefsize.getHeight());
-						prevsize += (int)prefsize.getWidth();
+						m_ButtonOpenXML.setEnabled(false);
+						m_ButtonSkipDuplicate.setEnabled(true);
+						m_ButtonImportBID.setEnabled(false);
+						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
 					}
-				}
-				if(buttonDupes != null)
-				{
-					index += 30;
-					int margin = index;
-					index = 0;
-					for(JButton button : buttonDupes.values())
+					if(m_Task.getExec().equals(TaskExec.PARSE_XML))
 					{
-						Dimension prefsize = button.getPreferredSize();
-						button.setBounds(200, margin + index++ * 18, width - 210, 18);
+						m_ButtonOpenXML.setEnabled(true);
+						m_ButtonSkipDuplicate.setEnabled(false);
+						m_ButtonImportBID.setEnabled(true);
+						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
 					}
+					return;
 				}
+				if(m_Task.getInfo().equals(TaskInfo.ERROR))
+				{
+					m_ButtonOpenFolder.setEnabled(true);
+					m_ButtonRunAgain.setEnabled(true);
+					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
+						m_Task.getExec().equals(TaskExec.PARSE_XML) ||
+						m_Task.getExec().equals(TaskExec.PARSE_BID) ||
+						m_Task.getExec().equals(TaskExec.SAVE_DATABASE) ||
+						m_Task.getExec().equals(TaskExec.SAVE_DATASTORE))
+						m_ButtonOpenXML.setEnabled(true);
+					m_ButtonOpenBook.setEnabled(false);
+					m_ButtonSkipDuplicate.setEnabled(false);
+					m_ButtonImportBID.setEnabled(false);
+					return;
+				}
+				
+//				m_ButtonOpenFolder.setBounds(0, 0, 0, 0);
+//				m_ButtonRunAgain.setBounds(0, 0, 0, 0);
+//				m_ButtonOpenXML.setBounds(0, 0, 0, 0);
+//				m_ButtonOpenBook.setBounds(0, 0, 0, 0);
+//				m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//				m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+//				
+//				if(m_Task.isRunning())
+//				{
+//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
+//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+//					return;
+//				}
+//				if(m_Task.getInfo().equals(TaskInfo.COMPLETED))
+//				{
+//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
+//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+//					return;
+//				}
+//				if(m_Task.getInfo().equals(TaskInfo.IDLE))
+//				{
+//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
+//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+//					return;
+//				}
+//				if(m_Task.getInfo().equals(TaskInfo.WARNING))
+//				{
+//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
+//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
+//					if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE))
+//					{
+//						m_ButtonOpenXML.setBounds(0, 0, 0, 0);
+//						m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
+//						m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
+//					}
+//					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
+//					{
+//						m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
+//						m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//						m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
+//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
+//					}
+//					return;
+//				}
+//				if(m_Task.getInfo().equals(TaskInfo.ERROR))
+//				{
+//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+//					m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
+//					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
+//						m_Task.getExec().equals(TaskExec.PARSE_XML) ||
+//						m_Task.getExec().equals(TaskExec.PARSE_BID) ||
+//						m_Task.getExec().equals(TaskExec.SAVE_DATABASE) ||
+//						m_Task.getExec().equals(TaskExec.SAVE_DATASTORE))
+//						m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
+//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
+//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
+//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
+//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+//					return;
+//				}
 			}
 			
 			@Override
@@ -1242,207 +1462,159 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			public Dimension preferredLayoutSize(Container parent)
 			{
-			    return new Dimension(250, 250);
+			    return new Dimension(280, 280);
 			}
 			
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				if(ae.getSource() == buttonToggle)
+				if(ae.getSource() == m_ButtonClose)
 				{
-					if(STATUS == STATUS_MAXIMIZED)
-					{
-						STATUS = STATUS_MINIMIZED;
-						buttonToggle.setIcon(ICON_CHECKED);
-						setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
-						panelTasks.doLayout();
-						panelTasks.validate();
-					} else {
-						STATUS = STATUS_MAXIMIZED;
-						buttonToggle.setIcon(ICON_UNCHECKED);
-						setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
-						panelTasks.doLayout();
-						panelTasks.validate();
-					}
+					m_SplitPane.setBottomComponent(null);
 					return;
 				}
-				if(ae.getActionCommand().startsWith("setResult:"))
+				if(ae.getSource() == m_ButtonOpenFolder)
 				{
-					resultId = ae.getActionCommand().substring(ae.getActionCommand().indexOf(':') + 1);
-					JButton source = (JButton) ae.getSource();
-					for(JButton button : buttonResults.values())
+					new SwingWorker<Void,Void>()
 					{
-						button.setPreferredSize(new Dimension(25, 155));
-					}
-					source.setPreferredSize(new Dimension(110, 155));
-					doLayout();
-					validate();
-					return;
-				}
-				if(ae.getActionCommand().startsWith("openDupe:"))
-				{
-					String dupeId = ae.getActionCommand().substring(ae.getActionCommand().indexOf(':') + 1);
-					QueryBook qid = new QueryBook();
-					qid.ID = dupeId;
-					RecordSet<Book> set = Core.Database.getBooks(qid);
-					if(set.size() == 1)
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
-					return;
-				}
-			}
-
-			@Override
-			public void statusChanged(Step step, State status) {
-				titleBar.setIcon(icons.get(status));
-				titleBar.setText(task.getMessage());
-				steps.get(step).setIcon(icons.get(status));
-				/**
-				 * Check if cover image is ready to be shown
-				 */
-				if(step.equals(Step.SCAN) && (
-					status.equals(State.COMPLETED) ||
-					status.equals(State.WARNING)))
-				{
-					try {
-						imagePreview.setIcon(
-							new ImageIcon(
-								ImageTool.read(
-									new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png"))));
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
-				}
-				if(step.equals(Step.PARSE) && status.equals(State.WARNING))
-				{
-					Map<String, XMLParser.XML_Book> results = task.getResults();
-					buttonResults = new TreeMap<Double, JButton>(Collections.reverseOrder());
-					for(String id : results.keySet())
-					{
-						XMLParser.XML_Book book = results.get(id);
-						JButton buttonResult = new JButton();
-						try {
-							File file = new File(PLUGIN_DATA, book.ID + ".png");
-							if(!file.exists())
-								System.out.println(file);
-							buttonResult.setIcon(new ImageIcon(file.toURI().toURL()));
-						} catch (MalformedURLException murle) {
-							buttonResult.setIcon(new ImageIcon());
+						@Override
+						protected Void doInBackground() throws Exception {
+							try {
+								URI uri = new File(m_Task.getPath()).toURI();
+								Desktop.getDesktop().browse(uri);
+							} catch (IOException ioe) {
+								ioe.printStackTrace();
+							}
+							return null;
 						}
-						buttonResult.setText("");
-						buttonResult.addActionListener(this);
-						buttonResult.addMouseListener(this);
-						buttonResult.setActionCommand("setResult:" + book.ID);
-						buttonResult.setFocusable(false);
-						buttonResult.setPreferredSize(new Dimension(25, 155));
-						buttonResults.put(Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", ".")),
-								buttonResult);
-						add(buttonResult);
-					}
-					// First result is already expanded
-					JButton firstResult = buttonResults.values().iterator().next();
-					firstResult.setPreferredSize(new Dimension(110, 155));
-					resultId = firstResult.getActionCommand().substring(firstResult.getActionCommand().indexOf(':') + 1);
-					doLayout();
-					validate();
+					}.execute();
+					return;
 				}
-				if(task.getStatus(Step.CHECK).equals(State.WARNING))
+				if(ae.getSource() == m_ButtonOpenXML)
 				{
-					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
-					for(String dupe : task.getDuplicates())
+					new SwingWorker<Void,Void>()
 					{
-						JButton buttonDupe = new JButton();
-						buttonDupe.setText(dupe);
-						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
-						buttonDupe.addActionListener(this);
-						buttonDupe.addMouseListener(this);
-						buttonDupe.setActionCommand("openDupe:" + dupe);
-						buttonDupe.setFocusable(false);
-						buttonDupe.setPreferredSize(new Dimension(16, 16));
-						buttonDupes.put(dupe,
-								buttonDupe);
-						add(buttonDupe);
-					}
-					doLayout();
-					validate();
+						@Override
+						protected Void doInBackground() throws Exception {
+							try {
+								URI uri = new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".xml").toURI();
+								Desktop.getDesktop().browse(uri);
+							} catch (IOException ioe) {
+								ioe.printStackTrace();
+							}
+							return null;
+						}
+					}.execute();
+					return;
 				}
-				if(task.getStatus(Step.SCAN).equals(State.WARNING))
+				if(ae.getSource() == m_ButtonOpenBook)
 				{
-					buttonDupes = new TreeMap<String, JButton>(Collections.reverseOrder());
-					for(String dupe : task.getDuplicates())
+					if(m_Task.getBook() == null)
+						return;
+					new SwingWorker<Void,Void>()
 					{
-						JButton buttonDupe = new JButton();
-						buttonDupe.setText(dupe);
-						buttonDupe.setIcon(Resources.Icons.get("Plugin/Task/Book"));
-						buttonDupe.addActionListener(this);
-						buttonDupe.addMouseListener(this);
-						buttonDupe.setActionCommand("openDupe:" + dupe);
-						buttonDupe.setFocusable(false);
-						buttonDupe.setPreferredSize(new Dimension(16, 16));
-						buttonDupes.put(dupe,
-								buttonDupe);
-						add(buttonDupe);
-					}
+						@Override
+						protected Void doInBackground() throws Exception {
+							String bookid = m_Task.getBook();
+							if(bookid != null)
+							{
+								QueryBook qid = new QueryBook();
+								qid.ID = bookid;
+								RecordSet<Book> set = Core.Database.getBooks(qid);
+								if(set.size() == 1)
+									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+							}
+							return null;
+						}
+					}.execute();
+					return;
+				}
+				if(ae.getSource() == m_ButtonImportBID)
+				{
+					m_Task.setMugimugiBid(m_ButtonImportBID.getActionCommand());
+					m_Task.setInfo(TaskInfo.IDLE);
+					return;
+				}
+				if(ae.getSource() == m_ButtonSkipDuplicate)
+				{
+					m_Task.setInfo(TaskInfo.IDLE);
+					return;
+				}
+			}
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if(m_Task == null)
+					return;
+				if(evt.getPropertyName().equals("taskmanager-info"))
+				{
 					doLayout();
-					validate();
+					return;
+				}
+				if(evt.getPropertyName().equals("task-exec"))
+				{
+					;
+				}
+				if(evt.getPropertyName().equals("task-info"))
+				{
+					fireInfoUpdated();
+					if(m_Task.getInfo().equals(TaskInfo.WARNING) && (
+						m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) ||
+						m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
+						m_Task.getExec().equals(TaskExec.PARSE_XML)))
+						fireItemsUpdated();
+					doLayout();
+					return;
+				}
+				if(evt.getPropertyName().equals("task-image"))
+				{
+					m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Loading"));
+					new SwingWorker<ImageIcon, Void>()
+					{
+						@Override
+						protected ImageIcon doInBackground() throws Exception
+						{
+							return new ImageIcon(
+								ImageTool.read(
+									new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".png")));
+						}
+						@Override
+					    protected void process(List<Void> chunks) { ; }
+						@Override
+					    public void done() {
+					        ImageIcon icon;
+					        try {
+					        	icon = get();
+					        	m_LabelPreview.setIcon(icon);
+					        } catch (Exception e) {
+					        	m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+					        	doLayout();
+					        }
+					    }
+					}.execute();
+					return;
 				}
 			}
-
-			@Override
-			public void stepChanged(Step step) {
-				titleBar.setText(task.getMessage());
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent me)
-			{
-				if(me.getClickCount() == 2 && me.getSource() instanceof JButton) {
-					JButton button = (JButton) me.getSource();
-					String bookid = button.getActionCommand();
-					bookid = bookid.substring(bookid.indexOf(':') + 2); // Also remove the 'B'
-					URI uri;
-					try {
-						uri = new URI("http://doujinshi.mugimugi.org/book/" + bookid + "/");
-						Desktop.getDesktop().browse(uri);
-					} catch (URISyntaxException urise) {
-						urise.printStackTrace();
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
-				}
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent me) { }
-
-			@Override
-			public void mouseExited(MouseEvent me) { }
-
-			@Override
-			public void mousePressed(MouseEvent me) { }
-
-			@Override
-			public void mouseReleased(MouseEvent me) { }
 		}
-		
+
 		private final class TaskBuilder extends SwingWorker<Void, Integer>
 		{
 			@Override
 			protected Void doInBackground() throws Exception {
-				cacheBuilderRunning = true;
+				m_BuilderRunning = true;
 				PluginUI.this.doLayout();
 
 				// Reset UI
-				progressBarCache.setValue(progressBarCache.getMinimum());
-				progressBarCache.setString("Loading ...");
+				m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
+				m_ProgressBarCache.setString("Loading ...");
 				
 				// Init data
-				int density = 15;
-				boolean cache_overwrite = boxCacheOverwrite.isSelected();
+				boolean cache_overwrite = m_CheckboxCacheOverwrite.isSelected();
 				RecordSet<Book> books = Context.getBooks(null);
 				
-				progressBarCache.setMaximum(books.size());
-				progressBarCache.setMinimum(1);
-				progressBarCache.setValue(progressBarCache.getMinimum());
+				m_ProgressBarCache.setMaximum(books.size());
+				m_ProgressBarCache.setMinimum(1);
+				m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
 				
 				for(Book book : books)
 				{
@@ -1451,31 +1623,29 @@ public final class DoujinshiDBScanner extends Plugin
 					if(isCancelled())
 						return null;
 						
-					int progress = progressBarCache.getValue() * 100 / progressBarCache.getMaximum();
-					progressBarCache.setString("[" + progressBarCache.getValue() + " / " + progressBarCache.getMaximum() + "] @ " + progress + "%");
-					progressBarCache.setValue(progressBarCache.getValue() + 1);
+					int progress = m_ProgressBarCache.getValue() * 100 / m_ProgressBarCache.getMaximum();
+					m_ProgressBarCache.setString("[" + m_ProgressBarCache.getValue() + " / " + m_ProgressBarCache.getMaximum() + "] @ " + progress + "%");
+					m_ProgressBarCache.setValue(m_ProgressBarCache.getValue() + 1);
 					
 					BufferedImage bi;
 					try {
-						if(Cache.containsKey(book.getID()) && !cache_overwrite)
+						if(CacheManager.contains(book.getID()) && !cache_overwrite)
 							continue;
 						
 						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 						
-						NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, density);
-						int[][] signature = nsf.getSignature();
-						Cache.put(book.getID(), signature);
+						CacheManager.put(book.getID(), bi);
 						
 					} catch (Exception e) { e.printStackTrace(); }
 				}
 				
 				// Write Cache
-				cacheWrite();
+				CacheManager.write();
 				
 				// Cache build completed
-				labelCacheInfo.setText("<html><body>cache-size : " + humanReadableByteCount(PLUGIN_CACHE.length(), true) + "<br/>" +
-						"entry-count : " + Cache.size() + "<br/>" +
+				m_LabelCacheInfo.setText("<html><body>cache-size : " + humanReadableBytes(PLUGIN_CACHE.length(), true) + "<br/>" +
+						"entry-count : " + CacheManager.size() + "<br/>" +
 						"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
 				
 				return null;
@@ -1483,11 +1653,11 @@ public final class DoujinshiDBScanner extends Plugin
 
 			@Override
 			protected void done() {
-				cacheBuilderRunning = false;
+				m_BuilderRunning = false;
 				PluginUI.this.doLayout();
 				
-				progressBarCache.setValue(0);
-				progressBarCache.setString("");
+				m_ProgressBarCache.setValue(0);
+				m_ProgressBarCache.setString("");
 				
 				super.done();
 			}
@@ -1510,19 +1680,19 @@ public final class DoujinshiDBScanner extends Plugin
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				cacheScannerRunning = true;
+				m_ScannerRunning = true;
 				PluginUI.this.doLayout();
 				
 				// Reset UI
-				while (tabsScanResult.getTabCount() > 0)
-					tabsScanResult.remove(0);
-				buttonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
-				progressBarScan.setValue(progressBarScan.getMinimum());
-				progressBarScan.setString("Loading ...");
+				while (m_TabbedPaneScanResult.getTabCount() > 0)
+					m_TabbedPaneScanResult.remove(0);
+				m_ButtonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
+				m_ProgressBarScan.setString("Loading ...");
 				
 				// Init data
-				int threshold = sliderThreshold.getValue();
-				int max_results = sliderMaxResults.getValue();
+				int threshold = m_SliderApiThreshold.getValue();
+				int max_results = m_SliderMaxResults.getValue();
 				
 				BufferedImage bi;
 				try {
@@ -1537,62 +1707,20 @@ public final class DoujinshiDBScanner extends Plugin
 					g.dispose();
 					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 					
-					buttonScanPreview.setIcon(new ImageIcon(bi));
+					m_ButtonScanPreview.setIcon(new ImageIcon(bi));
 					
-					TreeMap<Double, Book> result = new TreeMap<Double, Book>(new Comparator<Double>()
-					{
-						@Override
-						public int compare(Double a, Double b)
-						{
-							return b.compareTo(a);
-						}
-					});
-					NaiveSimilarityFinder nsf = NaiveSimilarityFinder.getInstance(bi, 15); //FIXME ? Hardcoded Density
-					RecordSet<Book> books = Context.getBooks(null);
-					
-					progressBarScan.setMaximum(books.size());
-					progressBarScan.setMinimum(1);
-					progressBarScan.setValue(progressBarScan.getMinimum());
-					
-					for(Book book : books)
-					{
-						try { Thread.sleep(1); } catch (InterruptedException ie) { }
-						
-						if(isCancelled())
-							return null;
-						
-						String book_id = book.getID();
-						if(Cache.containsKey(book_id))
-						{
-							double similarity = nsf.getPercentSimilarity(Cache.get(book_id));
-							if(similarity >= threshold)
-								if(result.size() >= max_results)
-								{
-									double remove_me = result.lastKey();
-									result.put(similarity, book);
-									result.remove(remove_me);
-								} else {
-									result.put(similarity, book);
-								}
-						}
-						
-						int progress = progressBarScan.getValue() * 100 / progressBarScan.getMaximum();
-						progressBarScan.setString("[" + progressBarScan.getValue() + " / " + progressBarScan.getMaximum() + "] @ " + progress + "%");
-						progressBarScan.setValue(progressBarScan.getValue() + 1);
-						if(progressBarScan.getValue() == progressBarScan.getMaximum())
-							progressBarScan.setValue(progressBarScan.getMinimum());
-					}
+					TreeMap<Double, String> result = CacheManager.search(bi, max_results);
 					
 					boolean first_result = false;
 					for(double index : result.keySet())
 					{
-						final Book book = result.get(index);
+						final String book_id = result.get(index);
 						if(!first_result)
 						{
 							JButton button = new JButton(
 								new ImageIcon(
 									ImageTool.read(
-										Core.Repository.getPreview(book.getID()).getInputStream())));
+										Core.Repository.getPreview(book_id).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1602,20 +1730,24 @@ public final class DoujinshiDBScanner extends Plugin
 										@Override
 										protected Void doInBackground() throws Exception
 										{
-											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											QueryBook qid = new QueryBook();
+											qid.ID = book_id;
+											RecordSet<Book> set = Core.Database.getBooks(qid);
+											if(set.size() == 1)
+												Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
 										}
 									}.execute();
 								}
 							});
 							first_result = true;
-							tabsScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
+							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
 						} else
 						{
 							JButton button = new JButton(
 									new ImageIcon(
 										ImageTool.read(
-											Core.Repository.getPreview(book.getID()).getInputStream())));
+											Core.Repository.getPreview(book_id).getInputStream())));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1625,17 +1757,21 @@ public final class DoujinshiDBScanner extends Plugin
 										@Override
 										protected Void doInBackground() throws Exception
 										{
-											Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											QueryBook qid = new QueryBook();
+											qid.ID = book_id;
+											RecordSet<Book> set = Core.Database.getBooks(qid);
+											if(set.size() == 1)
+												Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
 										}
 									}.execute();								}
 							});
-							tabsScanResult.addTab(String.format("%3.2f", index) + "%", button);
+							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", button);
 						}
 					}
 					
-					progressBarScan.setValue(progressBarScan.getMaximum());
-					progressBarScan.setString("Completed");
+					m_ProgressBarScan.setValue(m_ProgressBarScan.getMaximum());
+					m_ProgressBarScan.setString("Completed");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -1645,7 +1781,7 @@ public final class DoujinshiDBScanner extends Plugin
 			
 			@Override
 			protected void done() {
-				cacheScannerRunning = false;
+				m_ScannerRunning = false;
 				PluginUI.this.doLayout();
 				super.done();
 			}
@@ -1655,94 +1791,94 @@ public final class DoujinshiDBScanner extends Plugin
 				super.process(chunks);
 			}
 		}
-	}
 
-	@Override
-	protected void install() throws PluginException { }
-
-	@Override
-	protected void update() throws PluginException { }
-
-	@Override
-	protected void uninstall() throws PluginException { }
-	
-	private static Set<Task> taskRead()
-	{
-		Set<Task> tasks = new HashSet<Task>();
-		File file = new File(PLUGIN_HOME, "tasks.xml");
-		FileInputStream in = null;
-		try
-		{
-			in = new FileInputStream(file);
-			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
-			Unmarshaller um = context.createUnmarshaller();
-			TaskSet set = (TaskSet) um.unmarshal(in);
-			for(Task task : set.tasks)
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			if(evt.getPropertyName().equals("taskmanager-info"))
 			{
-				task.loadResults();
-				tasks.add(task);
+				if(TaskManager.isRunning())
+					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Pause"));
+				else
+					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Resume"));
+				return;
 			}
-			return tasks;
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (JAXBException jaxbe) {
-			jaxbe.printStackTrace();
-		} catch (FileNotFoundException fnfe) {
-			;
-		} finally {
-			try { in.close(); } catch (Exception e) { }
+			if(evt.getPropertyName().equals("api-info"))
+			{
+				doLayout();
+				return;
+			}
 		}
-		return tasks;
 	}
+
+	@Override
+	protected void install() throws TaskErrorException { }
+
+	@Override
+	protected void update() throws TaskErrorException { }
+
+	@Override
+	protected void uninstall() throws TaskErrorException { }
 	
-	private static void taskWrite(Set<Task> tasks)
+	@Override
+	protected void startup() throws TaskErrorException
 	{
-		File file = new File(PLUGIN_HOME, "tasks.xml");
-		FileOutputStream out = null;
-		TaskSet set = new TaskSet();
-		try
+		Property prop;
+		String key;
+		
+		key = "org.dyndns.doujindb.plug.mugimugi.apikey";
+		if(Core.Properties.contains(key))
+			APIKEY = Core.Properties.get(key).asString();
+		else
+			Core.Properties.add(key);
 		{
-			for(Task task : tasks)
-				set.tasks.add(task);
-			out = new FileOutputStream(file);
-			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			m.marshal(set, out);
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (JAXBException jaxbe) {
-			jaxbe.printStackTrace();
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
-		} finally {
-			try { out.close(); } catch (Exception e) { }
+			prop = Core.Properties.get(key);
+			prop.setValue(APIKEY);
+			prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
+		}	
+
+		key = "org.dyndns.doujindb.plug.mugimugi.threshold";
+		if(Core.Properties.contains(key))
+			THRESHOLD = Core.Properties.get(key).asNumber();
+		else
+			Core.Properties.add(key);
+		{
+			prop = Core.Properties.get(key);
+			prop.setValue(THRESHOLD);
+			prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
+		}	
+
+		key = "org.dyndns.doujindb.plug.mugimugi.resize_cover";
+		if(Core.Properties.contains(key))
+			RESIZE_COVER = Core.Properties.get(key).asBoolean();
+		else
+			Core.Properties.add(key);
+		{
+			prop = Core.Properties.get(key);
+			prop.setValue(RESIZE_COVER);
+			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
 		}
+		
+		Context = Core.Database.getContext(UUID);
+		
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		PLUGIN_HOME.mkdirs();
+		PLUGIN_DATA.mkdirs();
+		PLUGIN_QUERY.mkdirs();
+
+		CacheManager.read();
+
+		TaskManager.read();
+		
+		UI = new PluginUI();
 	}
 	
-	private static void cacheWrite()
+	@Override
+	protected void shutdown() throws TaskErrorException
 	{
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(PLUGIN_CACHE)));
-			oos.writeObject(Cache);
-			oos.flush();
-			oos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static void cacheRead()
-	{
-		try {
-			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(PLUGIN_CACHE)));
-			Cache = (TreeMap<String, int[][]>) ois.readObject();
-			ois.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if(Cache == null)
-			Cache = new TreeMap<String, int[][]>();
+		TaskManager.write();
+
+		CacheManager.write();
 	}
 }

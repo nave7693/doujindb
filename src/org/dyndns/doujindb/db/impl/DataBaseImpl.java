@@ -39,7 +39,7 @@ public class DataBaseImpl extends DataBase
 	protected ObjectContext context;
 	private Hashtable<String, DataBaseContext> contexts;
 	private String connection;
-	private boolean autocommit = false;
+	private boolean autocommit = true;
 	
 	private static SelectQuery queryArtist;
 	private static SelectQuery queryBook;
@@ -673,8 +673,6 @@ public class DataBaseImpl extends DataBase
 		} catch (Exception e) {
 			throw new DataBaseException(e);
 		}
-		
-		autocommit = Core.Properties.get("org.dyndns.doujindb.db.autocommit").asBoolean();
 		
 		this._databaseConnected();
 	}

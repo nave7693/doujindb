@@ -134,12 +134,6 @@ final class SerializedProperties implements Properties
 			prop.setDescription("<html><body>JDBC connection timeout.</body></html>");
 			values.put("org.dyndns.doujindb.db.connection_timeout", prop);
 		}
-		{
-			Property prop = new PropertyImpl();
-			prop.setValue(false);
-			prop.setDescription("<html><body>JDBC autocommit.</body></html>");
-			values.put("org.dyndns.doujindb.db.autocommit", prop);
-		}
 	}
 	
 	public Iterable<String> keys()

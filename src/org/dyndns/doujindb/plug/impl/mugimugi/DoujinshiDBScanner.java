@@ -701,19 +701,6 @@ public final class DoujinshiDBScanner extends Plugin
 				});
 				
 				m_PopupAction = new JPopupMenu();
-				m_PopupAction.addPopupMenuListener(new PopupMenuListener()
-				{
-
-					@Override
-					public void popupMenuCanceled(PopupMenuEvent pme) { }
-
-					@Override
-					public void popupMenuWillBecomeInvisible(PopupMenuEvent pme) { }
-
-					@Override
-					public void popupMenuWillBecomeVisible(PopupMenuEvent pme) { }
-					
-				});
 				super.addMouseListener(new MouseAdapter()
 				{
 					public void mousePressed(MouseEvent me)
@@ -728,12 +715,6 @@ public final class DoujinshiDBScanner extends Plugin
 				    {
 				    	if (me.isPopupTrigger())
 				    	{
-//				            JTable source = (JTable)me.getSource();
-//				            int row = source.rowAtPoint( me.getPoint() );
-//				            int column = source.columnAtPoint( me.getPoint() );
-//				            if (!source.isRowSelected(row))
-//				                source.changeSelection(row, column, false, false);
-				    		
 				    		// Reset PopupMenu
 				    		m_PopupAction.removeAll();
 				    		
@@ -766,8 +747,8 @@ public final class DoujinshiDBScanner extends Plugin
 									dataChanged();
 								}
 							});
-							menuItem.setName("reset");
-							menuItem.setActionCommand("reset");
+							menuItem.setName("delete");
+							menuItem.setActionCommand("delete");
 							m_PopupAction.add(menuItem);
 							menuItem = new JMenuItem("Reset", Resources.Icons.get("Plugin/Task/Reset"));
 							menuItem.addActionListener(new ActionListener()

@@ -14,7 +14,6 @@ import javax.swing.plaf.TabbedPaneUI;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
-import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
@@ -22,7 +21,6 @@ import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -81,40 +79,33 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 					return;
 				if(tokenCircle.getID() == null)
 					return;
-				if(me.getButton() == MouseEvent.BUTTON3)
+				
+				// Reset PopupMenu
+	    		JPopupMenu popupMenu = new JPopupMenu();
+	    		
+	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));
+				menuItemA.addActionListener(new ActionListener()
 				{
-					JLabel lab = (JLabel) me.getSource();
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					final boolean isAdd = lab.getName().equals("no-banner");
-					if(isAdd)
-						tbl.put("Add Banner", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));
-					else
-						tbl.put("Remove Banner", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
-					final PopupMenuEx pop = new PopupMenuEx("", tbl);
-					pop.show(lab, me.getX(), me.getY());
-					new Thread(getClass().getName()+"$PopupMenu")
+					@Override
+					public void actionPerformed(ActionEvent ae)
 					{
-						@Override
-						public void run()
+						new SwingWorker<Void,Void>()
 						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException e) { }
-							if(pop.getResult() == PopupMenuEx.SELECTION_CANCELED)
-								return;
-							if(isAdd)
+							@Override
+							protected Void doInBackground() throws Exception
 							{
 								JFileChooser fc = Core.UI.getFileChooser();
 								fc.setMultiSelectionEnabled(false);
 								int result = fc.showOpenDialog(Core.UI);
 								if(result != JFileChooser.APPROVE_OPTION)
-									return;
+									return null;
 								Image img = null;
 								try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
 									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
 								if(img == null)
-									return;
+									return null;
 								try
 								{
 									DataFile ds = Core.Repository.child(tokenCircle.getID());
@@ -123,11 +114,12 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
+									BufferedImage image = ImageTool.read(in);
 									BufferedImage im = new BufferedImage(200, 40, BufferedImage.TYPE_INT_ARGB);
 									Graphics2D graphics2D = im.createGraphics();
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 									graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-									graphics2D.drawImage(new ImageIcon(in.getAbsolutePath()).getImage(), 0, 0, null);
+									graphics2D.drawImage(image, 0, 0, null);
 									ImageTool.write(im, out);
 									out.close();
 								} catch (Exception e) {
@@ -142,41 +134,79 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
-										labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
+										final ImageIcon ii = new ImageIcon(ImageTool.read(in));
+										SwingUtilities.invokeLater(new Runnable()
+										{
+											@Override
+											public void run() {
+												labelBanner.setIcon(ii);
+												labelBanner.setName("banner");
+											}
+										});
 										in.close();
 									}
-								} catch (NullPointerException npe) {
-								} catch (RepositoryException re) {
-									re.printStackTrace();
-									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
-								} catch (IOException ioe) {
-									ioe.printStackTrace();
-								} catch (DataBaseException dbe) {
-									dbe.printStackTrace();
+								} catch (NullPointerException | IOException | DataBaseException e) {
+									SwingUtilities.invokeLater(new Runnable()
+									{
+										@Override
+										public void run() {
+											labelBanner.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
+											labelBanner.setName("no-banner");
+										}
+									});
+									e.printStackTrace();
 								}
-								labelBanner.setName("banner");
+								return null;
 							}
-							else
+						}.execute();
+					}
+				});
+				menuItemA.setName("add");
+				menuItemA.setActionCommand("add");
+
+				JMenuItem menuItemR = new JMenuItem("Remove", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
+				menuItemR.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae)
+					{
+						new SwingWorker<Void,Void>()
+						{
+							@Override
+							protected Void doInBackground() throws Exception
 							{
 								try
 								{
-									DataFile ds = Core.Repository.child(tokenCircle.getID());
-									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID());
-									ds.delete();
+									DataFile df = Core.Repository.child(tokenCircle.getID());
+									df.mkdir();
+									df = Core.Repository.getPreview(tokenCircle.getID());
+									df.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
 								{
 									e.printStackTrace();
-									//Core.Logger.log(new Event(e.getMessage(), Level.WARNING));
+									Core.Logger.log(e.getMessage(), Level.WARNING);
 								}
+								return null;
+							}
+							@Override
+							protected void done() {
 								labelBanner.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Circle/Banner"));
 								labelBanner.setName("no-banner");
-							}								
-						}
-					}.start();
-				 }
-			  }
+						    }
+						}.execute();
+					}
+				});
+				menuItemR.setName("remove");
+				menuItemR.setActionCommand("remove");
+				
+				if(labelBanner.getName().equals("no-banner"))
+					popupMenu.add(menuItemA);
+				else
+					popupMenu.add(menuItemR);
+				
+				popupMenu.show(me.getComponent(), me.getX(), me.getY());
+			}
 		});
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);

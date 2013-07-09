@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TooManyListenersException;
 import java.util.TreeSet;
@@ -35,7 +34,6 @@ import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -114,99 +112,128 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 					return;
 				if(tokenBook.getID() == null)
 					return;
-				if(me.getButton() != MouseEvent.BUTTON3)
-					return;
 				
-				Hashtable<String,ImageIcon> icons = new Hashtable<String,ImageIcon>();
-				final boolean isAdd = labelPreview.getName().equals("no-preview");
-				
-				if(isAdd)
-					icons.put("Add Preview", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));
-				else
-					icons.put("Remove Preview", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Remove"));
-				
-				final PopupMenuEx pop = new PopupMenuEx("", icons);
-				pop.show(labelPreview, me.getX(), me.getY());
-				
-				new Thread(getClass().getName()+"$PopupMenu")
+				// Reset PopupMenu
+	    		JPopupMenu popupMenu = new JPopupMenu();
+	    		
+	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("JDesktop/Explorer/Book/Popup/Add"));
+				menuItemA.addActionListener(new ActionListener()
 				{
 					@Override
-					public void run()
+					public void actionPerformed(ActionEvent ae)
 					{
-						while(pop.isValid())
-							try { sleep(1); } catch (InterruptedException e) { }
-						if(pop.getResult() == PopupMenuEx.SELECTION_CANCELED)
-							return;
-						if(isAdd)
+						new SwingWorker<Void,Void>()
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
-							fc.setMultiSelectionEnabled(false);
-							int result = fc.showOpenDialog(Core.UI);
-							if(result != JFileChooser.APPROVE_OPTION)
-								return;
-							Image img = null;
-							try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
+							@Override
+							protected Void doInBackground() throws Exception
 							{
-								Core.Logger.log(ioe.getMessage(), Level.WARNING);
-							}
-							if(img == null)
-								return;
-							try
-							{
-								DataFile ds = Core.Repository.child(tokenBook.getID());
-								ds.mkdir();
-								ds = Core.Repository.getPreview(tokenBook.getID());
-								ds.touch();
-								OutputStream out = ds.getOutputStream();
-								File in = fc.getSelectedFile();
-								BufferedImage image = ImageTool.read(in);
-								ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
-								out.close();
-							} catch (Exception e) {
-								e.printStackTrace();
-								Core.Logger.log(e.getMessage(), Level.WARNING);
-							}
-							try
-							{
-								DataFile ds = Core.Repository.child(tokenBook.getID());
-								ds.mkdir();
-								ds = Core.Repository.getPreview(tokenBook.getID());
-								if(ds.exists())
+								JFileChooser fc = Core.UI.getFileChooser();
+								fc.setMultiSelectionEnabled(false);
+								int result = fc.showOpenDialog(Core.UI);
+								if(result != JFileChooser.APPROVE_OPTION)
+									return null;
+								Image img = null;
+								try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
 								{
-									InputStream in = ds.getInputStream();
-									labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
-									in.close();
+									Core.Logger.log(ioe.getMessage(), Level.WARNING);
 								}
-							} catch (NullPointerException npe) {
-							} catch (RepositoryException re) {
-								re.printStackTrace();
-								Core.Logger.log(re.getMessage(), Level.WARNING);
-							} catch (IOException ioe) {
-								ioe.printStackTrace();
-							} catch (DataBaseException dbe) {
-								dbe.printStackTrace();
+								if(img == null)
+									return null;
+								try
+								{
+									DataFile ds = Core.Repository.child(tokenBook.getID());
+									ds.mkdir();
+									ds = Core.Repository.getPreview(tokenBook.getID());
+									ds.touch();
+									OutputStream out = ds.getOutputStream();
+									File in = fc.getSelectedFile();
+									BufferedImage image = ImageTool.read(in);
+									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
+									out.close();
+								} catch (Exception e) {
+									e.printStackTrace();
+									Core.Logger.log(e.getMessage(), Level.WARNING);
+								}
+								try
+								{
+									DataFile ds = Core.Repository.child(tokenBook.getID());
+									ds.mkdir();
+									ds = Core.Repository.getPreview(tokenBook.getID());
+									if(ds.exists())
+									{
+										InputStream in = ds.getInputStream();
+										final ImageIcon ii = new ImageIcon(ImageTool.read(in));
+										SwingUtilities.invokeLater(new Runnable()
+										{
+											@Override
+											public void run() {
+												labelPreview.setIcon(ii);
+												labelPreview.setName("preview");
+											}
+										});
+										in.close();
+									}
+								} catch (NullPointerException | IOException | DataBaseException e) {
+									SwingUtilities.invokeLater(new Runnable()
+									{
+										@Override
+										public void run() {
+											labelPreview.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
+											labelPreview.setName("no-preview");
+										}
+									});
+									e.printStackTrace();
+								}
+								return null;
 							}
-							labelPreview.setName("preview");
-						}
-						else
-						{
-							try
-							{
-								DataFile ds = Core.Repository.child(tokenBook.getID());
-								ds.mkdir();
-								ds = Core.Repository.getPreview(tokenBook.getID());
-								ds.delete();
-							} catch (NullPointerException npe) {
-							} catch (Exception e)
-							{
-								e.printStackTrace();
-								Core.Logger.log(e.getMessage(), Level.WARNING);
-							}
-							labelPreview.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
-							labelPreview.setName("no-preview");
-						}								
+						}.execute();
 					}
-				}.start();
+				});
+				menuItemA.setName("add");
+				menuItemA.setActionCommand("add");
+
+				JMenuItem menuItemR = new JMenuItem("Remove", Core.Resources.Icons.get("JDesktop/Explorer/Book/Popup/Remove"));
+				menuItemR.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae)
+					{
+						new SwingWorker<Void,Void>()
+						{
+							@Override
+							protected Void doInBackground() throws Exception
+							{
+								try
+								{
+									DataFile df = Core.Repository.child(tokenBook.getID());
+									df.mkdir();
+									df = Core.Repository.getPreview(tokenBook.getID());
+									df.delete();
+								} catch (NullPointerException npe) {
+								} catch (Exception e)
+								{
+									e.printStackTrace();
+									Core.Logger.log(e.getMessage(), Level.WARNING);
+								}
+								return null;
+							}
+							@Override
+							protected void done() {
+								labelPreview.setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Book/Cover"));
+								labelPreview.setName("no-preview");
+						    }
+						}.execute();
+					}
+				});
+				menuItemR.setName("remove");
+				menuItemR.setActionCommand("remove");
+				
+				if(labelPreview.getName().equals("no-preview"))
+					popupMenu.add(menuItemA);
+				else
+					popupMenu.add(menuItemR);
+				
+				popupMenu.show(me.getComponent(), me.getX(), me.getY());
 			}
 		});
 		labelType = new JLabel("Type");

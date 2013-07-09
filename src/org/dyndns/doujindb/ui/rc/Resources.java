@@ -96,6 +96,8 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Book/Rating/Unchecked","jdesktop/explorer/book/rating/unchecked.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media","jdesktop/explorer/book/media.png");
 		iconKeys.put("JDesktop/Explorer/Book/Cover","jdesktop/explorer/book/cover.png");
+		iconKeys.put("JDesktop/Explorer/Book/Popup/Add","jdesktop/explorer/book/popup/add.png");
+		iconKeys.put("JDesktop/Explorer/Book/Popup/Remove","jdesktop/explorer/book/popup/remove.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Repository","jdesktop/explorer/book/media/datastore.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Types/Folder","jdesktop/explorer/book/media/types/folder.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Types/Archive","jdesktop/explorer/book/media/types/archive.png");
@@ -112,6 +114,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/MediaManager","jdesktop/explorer/mediamanager.png");
 		iconKeys.put("JDesktop/Explorer/Edit","jdesktop/explorer/edit.png");
 		iconKeys.put("JDesktop/Explorer/Delete","jdesktop/explorer/delete.png");
+		iconKeys.put("JDesktop/Explorer/Remove","jdesktop/explorer/remove.png");
 		iconKeys.put("JDesktop/Explorer/Clone","jdesktop/explorer/clone.png");
 		iconKeys.put("JDesktop/Explorer/ComboBox/Arrow","jdesktop/explorer/combobox/arrow.png");
 		iconKeys.put("JFrame/RecycleBin/Restore","jframe/recyclebin/restore.png");

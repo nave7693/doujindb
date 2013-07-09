@@ -2,9 +2,9 @@ package org.dyndns.doujindb.ui.desk.panels.util;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.datatransfer.*;
-import java.io.IOException;
 import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,42 +15,26 @@ import javax.swing.table.TableRowSorter;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 
-@SuppressWarnings({"serial", "rawtypes","unused"})
+@SuppressWarnings("serial")
 public final class RecordList<T extends Record> extends JPanel implements LayoutManager
 {
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 	private JScrollPane scrollPane;
 	private JTable tableData;
+	private JPopupMenu m_PopupAction;
+	
 	private RecordTableModel<T> tableModel;
 	private RecordTableRenderer tableRenderer;
 	private RecordTableEditor tableEditor;
 	private TableRowSorter<RecordTableModel<T>> tableSorter;
 	private RecordTableRowFilter<RecordTableModel<T>,Integer> tableFilter;
-	private Hashtable<Class,ImageIcon> iconData;
 	
-	private String filterTerm;
+	private String filterRegex;
 	
-	private Type type;
-	
-	private static DataFlavor flavorArtist;
-	private static DataFlavor flavorBook;
-	private static DataFlavor flavorCircle;
-	private static DataFlavor flavorConvention;
-	private static DataFlavor flavorContent;
-	private static DataFlavor flavorParody;
-	{
-		flavorArtist = new DataFlavor("doujindb/record-artist", "DoujinDB.Record.Artist");
-		flavorBook = new DataFlavor("doujindb/record-book", "DoujinDB.Record.Book");
-		flavorCircle = new DataFlavor("doujindb/record-circle", "DoujinDB.Record.Circle");
-		flavorConvention = new DataFlavor("doujindb/record-convention", "DoujinDB.Record.Convention");
-		flavorContent = new DataFlavor("doujindb/record-content", "DoujinDB.Record.Content");
-		flavorParody = new DataFlavor("doujindb/record-parody", "DoujinDB.Record.Parody");
-	}
+	private Type m_Type;
 	
 	private enum Type
 	{
@@ -64,26 +48,11 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	
 	public RecordList(Iterable<T> data, Class<?> clazz)
 	{
-		this(data, clazz, null);
-	}
-	
-	public RecordList(Iterable<T> data, Class<?> clazz, Hashtable<Class,ImageIcon> icons)
-	{
 		super();
 		super.setLayout(this);
-		iconData = icons;
-		if(clazz.equals(Artist.class))
-			type = Type.ARTIST;
-		if(clazz.equals(Book.class))
-			type = Type.BOOK;
-		if(clazz.equals(Circle.class))
-			type = Type.CIRCLE;
-		if(clazz.equals(Content.class))
-			type = Type.CONTENT;
-		if(clazz.equals(Convention.class))
-			type = Type.CONVENTION;
-		if(clazz.equals(Parody.class))
-			type = Type.PARODY;
+		
+		m_PopupAction = new JPopupMenu();
+		
 		tableData = new JTable();
 		tableModel = new RecordTableModel<T>(clazz);
 		tableData.setModel(tableModel);
@@ -93,7 +62,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		tableData.setRowSorter(tableSorter);
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 		tableEditor = new RecordTableEditor();
-		tableData.setFont(font);
+		tableData.setFont(Core.Resources.Font);
 		/**
 		 * The reason is that the empty table (unlike an empty list or an empty tree) does not occupy any space in the scroll pane.
 		 * The JTable does not automatically stretch to fill the height of a JScrollPane's viewport — it only takes up as much vertical room as needed for the rows that it contains.
@@ -103,7 +72,19 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		 */
 		tableData.setFillsViewportHeight(true);
 		TransferHandlerEx thex;
-		switch(type)
+		if(clazz.equals(Artist.class))
+			m_Type = Type.ARTIST;
+		if(clazz.equals(Book.class))
+			m_Type = Type.BOOK;
+		if(clazz.equals(Circle.class))
+			m_Type = Type.CIRCLE;
+		if(clazz.equals(Content.class))
+			m_Type = Type.CONTENT;
+		if(clazz.equals(Convention.class))
+			m_Type = Type.CONVENTION;
+		if(clazz.equals(Parody.class))
+			m_Type = Type.PARODY;
+		switch(m_Type)
         {
         case ARTIST:
         	thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
@@ -142,11 +123,11 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 			tableData.setTransferHandler(thex);
         	break;
         default:
-        	return;
+        	throw new IllegalArgumentException("Invalid Class<?> provided : " + clazz);
         }
 		tableData.setDragEnabled(true);
 		tableData.setDropMode(DropMode.ON);
-		tableData.getTableHeader().setFont(font);
+		tableData.getTableHeader().setFont(Core.Resources.Font);
 		tableData.getTableHeader().setReorderingAllowed(true);
 		tableData.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
 		tableData.getColumnModel().getColumn(0).setCellEditor(tableEditor);
@@ -163,16 +144,14 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		}
 		scrollPane = new JScrollPane(tableData);
 		tableData.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e)
+			public void mouseClicked(MouseEvent me)
 			{
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				if(me.getClickCount() == 2 &&
+					me.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						final Record item = (Record)tableData.getModel()
-							.getValueAt(
-									tableSorter.convertRowIndexToModel(
-										tableData.rowAtPoint(e.getPoint())), 0);
-						switch(type)
+						final Record item = (Record) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0);
+						switch(m_Type)
 		                {
 		                case ARTIST:
 		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
@@ -199,83 +178,135 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						Core.Logger.log(dbe.getMessage(), Level.ERROR);
 						dbe.printStackTrace();
 					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-					// If not item is selected don't show any popup
-					if(tableData.getSelectedRowCount() < 1)
-						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					if(tableData.getSelectedRowCount() == 1 &&
-							tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableData.getSelectedRow()), 0) instanceof Book)
-						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
+				}
+			}
+			public void mousePressed(MouseEvent me)
+		    {
+				popup(me);
+		    }
+			public void mouseReleased(MouseEvent me)
+		    {
+				popup(me);
+		    }
+			@SuppressWarnings("unchecked")
+			private void popup(MouseEvent me)
+		    {
+		    	if (me.isPopupTrigger())
+		    	{
+		    		// Reset PopupMenu
+		    		m_PopupAction.removeAll();
+		    		
+		    		// Get all selected Records
+		    		final Vector<T> selected = new Vector<T>();
+					for(int index : tableData.getSelectedRows())
+					{
+						T record = (T) tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
+						selected.add(record);
+					}
+		    		
+		    		// If no data is selected don't show the PopupMenu
+		    		if(selected.isEmpty())
+		    			return;
+		    		
+					JMenuItem menuItem = new JMenuItem("Remove", Core.Resources.Icons.get("JDesktop/Explorer/Remove"));
+					menuItem.addActionListener(new ActionListener()
 					{
 						@Override
-						public void run()
+						public void actionPerformed(ActionEvent ae)
 						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							String choice = pop.getChoice();
-							if(choice.equals("Delete"))
+							new SwingWorker<Void,T>()
 							{
-								try {
-									Vector<Record> deleted = new Vector<Record>();
-									for(int index : tableData.getSelectedRows())
-									{
-										Record rcd = (Record)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										deleted.add(rcd);
-									}
-									for(Record rcd : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Record)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(rcd))
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									for(T record : selected)
+										publish(record);
+									return null;
+								}
+								@Override
+								protected void process(List<T> chunks) {
+									for (T record : chunks) {
+							        	for(int index=0; index<tableModel.getRowCount();index++)
+											if(((T)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(record))
 											{
 												tableModel.removeRow(index);
 												break;
 											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
+							         }
+							     }
+								@Override
+								protected void done()
+								{
+									tableModel.fireTableDataChanged();
 								}
-								tableData.validate();
-							}
-							if(choice.equals("Clone"))
-							{
-								Book book = ((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableData.getSelectedRow()), 0));
-
-								Book clone = Core.Database.doInsert(Book.class);
-								clone.setJapaneseName(book.getJapaneseName());
-								clone.setTranslatedName(book.getTranslatedName());
-								clone.setRomajiName(book.getRomajiName());
-								clone.setInfo(book.getInfo());
-								clone.setDate(book.getDate());
-								clone.setRating(book.getRating());
-								clone.setConvention(book.getConvention());
-								clone.setType(book.getType());
-								clone.setPages(book.getPages());
-								clone.setAdult(book.isAdult());
-								clone.setDecensored(book.isDecensored());
-								clone.setTranslated(book.isTranslated());
-								clone.setColored(book.isColored());
-								for(Artist a : book.getArtists())
-									clone.addArtist(a);
-								for(Content c : book.getContents())
-									clone.addContent(c);
-								for(Parody p : book.getParodies())
-									clone.addParody(p);
-								if(Core.Database.isAutocommit())
-									Core.Database.doCommit();
-								WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, clone);
-								window.setTitle("(Clone) " + window.getTitle());
-							}
+							}.execute();
 						}
-					}.start();
-				}
-			  }
-			});
+					});
+					menuItem.setName("remove");
+					menuItem.setActionCommand("remove");
+					m_PopupAction.add(menuItem);
+					if(selected.size() == 1 && selected.get(0) instanceof Book)
+					{
+						menuItem = new JMenuItem("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
+						menuItem.addActionListener(new ActionListener()
+						{
+							@Override
+							public void actionPerformed(ActionEvent ae)
+							{
+								new SwingWorker<Void,Book>()
+								{
+									@Override
+									protected Void doInBackground() throws Exception
+									{
+										for(T record : selected)
+										{
+											Book book = (Book) record;
+											Book clone = Core.Database.doInsert(Book.class);
+											clone.setJapaneseName(book.getJapaneseName());
+											clone.setTranslatedName(book.getTranslatedName());
+											clone.setRomajiName(book.getRomajiName());
+											clone.setInfo(book.getInfo());
+											clone.setDate(book.getDate());
+											clone.setRating(book.getRating());
+											clone.setConvention(book.getConvention());
+											clone.setType(book.getType());
+											clone.setPages(book.getPages());
+											clone.setAdult(book.isAdult());
+											clone.setDecensored(book.isDecensored());
+											clone.setTranslated(book.isTranslated());
+											clone.setColored(book.isColored());
+											for(Artist a : book.getArtists())
+												clone.addArtist(a);
+											for(Content c : book.getContents())
+												clone.addContent(c);
+											for(Parody p : book.getParodies())
+												clone.addParody(p);
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											publish(clone);
+										}
+										return null;
+									}
+									@Override
+									protected void process(List<Book> chunks) {
+										for (Book book : chunks)
+										{
+											WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											window.setTitle("(Clone) " + window.getTitle());
+										}
+								    }
+								}.execute();
+							}
+						});
+						menuItem.setName("clone");
+						menuItem.setActionCommand("clone");
+						m_PopupAction.add(menuItem);
+					}
+		            m_PopupAction.show(me.getComponent(), me.getX(), me.getY());
+		        }
+		    }
+		});
+				
 		for(Record rcd : data)
 			tableModel.addRecord(rcd);
 		add(scrollPane);
@@ -345,9 +376,18 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		return tableModel.getRecordCount();
 	}
 	
-	public void filterChanged(String term)
+	public boolean filterChanged(String regex)
 	{
-		this.filterTerm = term;
+		try
+		{
+			Pattern.compile(regex);
+			this.filterRegex = regex;
+			tableModel.fireTableDataChanged();
+			return true;
+		} catch (PatternSyntaxException | NullPointerException e)
+		{
+			return false;
+		}
 	}
 	
 	private final class RecordTableRenderer extends DefaultTableCellRenderer
@@ -397,8 +437,52 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		@Override
 		public boolean include(javax.swing.RowFilter.Entry<? extends M, ? extends I> entry)
 		{
-			Record rcd = (Record) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-			return (!rcd.isRecycled());
+			String regex = filterRegex == null ? ".*" : filterRegex;
+			switch(m_Type)
+            {
+            case ARTIST:
+            	Artist a = (Artist) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(a.isRecycled())
+            		return false;
+            	return (a.getJapaneseName().matches(regex) ||
+            			a.getTranslatedName().matches(regex) ||
+            			a.getRomajiName().matches(regex));
+            case BOOK:
+            	Book b = (Book) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(b.isRecycled())
+            		return false;
+            	return (b.getJapaneseName().matches(regex) ||
+            			b.getTranslatedName().matches(regex) ||
+            			b.getRomajiName().matches(regex));
+            case CIRCLE:
+            	Circle c = (Circle) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(c.isRecycled())
+            		return false;
+            	return (c.getJapaneseName().matches(regex) ||
+            			c.getTranslatedName().matches(regex) ||
+            			c.getRomajiName().matches(regex));
+            case CONTENT:
+            	Content t = (Content) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(t.isRecycled())
+            		return false;
+            	return (t.getTagName().matches(regex) ||
+            			t.getInfo().matches(regex));
+            case CONVENTION:
+            	Convention e = (Convention) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(e.isRecycled())
+            		return false;
+            	return (e.getTagName().matches(regex) ||
+            			e.getInfo().matches(regex));
+            case PARODY:
+            	Parody p = (Parody) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+            	if(p.isRecycled())
+            		return false;
+            	return (p.getJapaneseName().matches(regex) ||
+            			p.getTranslatedName().matches(regex) ||
+            			p.getRomajiName().matches(regex));
+            default:
+            	return false;
+            }
 		}
 	}
 	

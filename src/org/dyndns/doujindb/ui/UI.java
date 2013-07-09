@@ -71,9 +71,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JButton uiPanelDesktopSearch;
 	private JButton uiPanelDesktopAdd;
 	private JPopupMenu uiPanelDesktopAddPopup;
-	private JLabel uiStatusBar;
-	private JButton uiStatusBarConnect;
-	private JButton uiStatusBarDisconnect;
+	private JLabel m_LabelConnectionStatus;
+	private JButton m_ButtonConnectionCtl;
 
 	private JMenuBar menuBar;
 	private JMenu menuLogs;
@@ -332,25 +331,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		itm5.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm5);
 		bogus.add(uiPanelDesktopAdd);
-		uiStatusBar = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
-		uiStatusBar.setText("Disconnected.");
-		uiStatusBar.setHorizontalAlignment(JLabel.LEFT);
-		uiStatusBar.setBorder(null);
-		uiStatusBar.setFocusable(false);
-		uiStatusBarConnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
-		uiStatusBarConnect.addActionListener(this);
-		uiStatusBarConnect.setBorder(null);
-		uiStatusBarConnect.setFocusable(false);
-		uiStatusBarConnect.setToolTipText("Connect");
-		uiStatusBarConnect.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
-		bogus.add(uiStatusBarConnect);
-		uiStatusBarDisconnect = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
-		uiStatusBarDisconnect.addActionListener(this);
-		uiStatusBarDisconnect.setBorder(null);
-		uiStatusBarDisconnect.setFocusable(false);
-		uiStatusBarDisconnect.setToolTipText("Disconnect");
-		bogus.add(uiStatusBarDisconnect);	
-		bogus.add(uiStatusBar);
+		m_LabelConnectionStatus = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
+		m_LabelConnectionStatus.setText("Disconnected.");
+		m_LabelConnectionStatus.setHorizontalAlignment(JLabel.LEFT);
+		m_LabelConnectionStatus.setBorder(null);
+		m_LabelConnectionStatus.setFocusable(false);
+		bogus.add(m_LabelConnectionStatus);
+		m_ButtonConnectionCtl = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
+		m_ButtonConnectionCtl.addActionListener(this);
+		m_ButtonConnectionCtl.setBorder(null);
+		m_ButtonConnectionCtl.setFocusable(false);
+		m_ButtonConnectionCtl.setToolTipText("Connect");
+		m_ButtonConnectionCtl.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
+		bogus.add(m_ButtonConnectionCtl);
 		Desktop = new DesktopEx();
 		bogus.add(Desktop);
 		uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
@@ -465,31 +458,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		uiStatusBar.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
+		m_ButtonConnectionCtl.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
+		m_LabelConnectionStatus.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
 		if(Core.Database.isConnected())
 		{
 			uiPanelDesktopShow.setBounds(1,1,20,20);
 			uiPanelDesktopSearch.setBounds(21,1,20,20);
 			uiPanelDesktopAdd.setBounds(41,1,20,20);
-			uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connected"));
-			uiStatusBarConnect.setBounds(-1,-1,0,0);
-			uiStatusBarDisconnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-			try {
-				uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
-			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
-			}
 		}
 		else
 		{
 			uiPanelDesktopShow.setBounds(-1,-1,0,0);
 			uiPanelDesktopSearch.setBounds(-1,-1,0,0);
 			uiPanelDesktopAdd.setBounds(-1,-1,0,0);
-			uiStatusBar.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
-			uiStatusBarConnect.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
-			uiStatusBarDisconnect.setBounds(-1,-1,0,0);
-			uiStatusBar.setText("Disconnected.");
 		}
 		Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
 		uiPanelLogsClear.setBounds(1,1,20,20);
@@ -736,45 +717,55 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if(event.getSource() == uiTrayPopupExit)
 		{
 			System.exit(0);
+			return;
 		}
-		if(event.getSource() == uiStatusBarConnect)
+		if(event.getSource() == m_ButtonConnectionCtl)
 		{
-			uiStatusBarConnect.setEnabled(false);
-			new Thread(getClass().getName()+"$ActionPerformed$Connect")
+			if(!m_ButtonConnectionCtl.isEnabled())
+				return;
+			m_ButtonConnectionCtl.setEnabled(false);
+			new SwingWorker<Void,Void>()
 			{
 				@Override
-				public void run()
+				protected Void doInBackground() throws Exception
 				{
-					try
+					if(Core.Database.isConnected())
 					{
-						Core.Database.connect();
-						Core.Database.doRollback();
-						uiStatusBar.setText("Connected to " + Core.Database.getConnection() + ".");
-						Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
-					} catch (DataBaseException dbe) {
-						Core.Database.disconnect();
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					} finally 
-					{
-						uiStatusBarConnect.setEnabled(true);
+						try
+						{
+							Core.Database.disconnect();
+							Core.Logger.log("Disconnected.", Level.INFO);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						}
+					} else {
+						try
+						{
+							Core.Database.connect();
+							Core.Database.doRollback();
+							Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						}
 					}
+					return null;
+				}
+				@Override
+				protected void done()
+				{
+					if(Core.Database.isConnected())
+					{
+						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
+						m_LabelConnectionStatus.setText("Connected to " + Core.Database.getConnection() + ".");
+					} else {
+						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
+						m_LabelConnectionStatus.setText("Disonnected.");
+					}
+					m_ButtonConnectionCtl.setEnabled(true);
 					Desktop.revalidate();
 				}
-			}.start();
-		}
-		if(event.getSource() == uiStatusBarDisconnect)
-		{
-			try
-			{
-				Core.Database.disconnect();
-				Core.Logger.log("Disconnected from remote host.", Level.INFO);
-				uiStatusBar.setText("Disconnected.");
-			} catch (RuntimeException re)
-			{
-				Core.Logger.log("" + re.getMessage(), Level.ERROR);
-				re.printStackTrace();
-			}
-			Desktop.revalidate();
+			}.execute();
+			return;
 		}
 	}
 	
@@ -919,12 +910,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					super.setIcon(null);
 					super.setBorder(null);
-					if(column == 1)
-					{
-						// It's a timestamp
-						super.setText(sdf.format(new Date((Long)value)));
-						return this;
-					}
 			        if(value.equals("{Message}"))
 			        {
 				        super.setText("");
@@ -956,6 +941,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				       	return this;
 				    }
 				    super.setText(value.toString());
+				    if(column == 1)
+					{
+						// It's a timestamp
+						super.setText(sdf.format(new Date((Long)value)));
+					}
 			        super.setIcon(null);
 			        super.setForeground(foregroundColor);
 			        if(table.getValueAt(row, 0).equals("{Warning}"))

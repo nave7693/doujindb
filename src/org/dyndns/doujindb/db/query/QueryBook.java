@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.records.Book;
 * @author nozomu
 * @version 1.0
 */
-public final class QueryBook
+public final class QueryBook extends Query<Book>
 {
 	public String ID = null;
 	public String JapaneseName = null;

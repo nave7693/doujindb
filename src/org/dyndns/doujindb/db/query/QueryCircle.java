@@ -1,11 +1,13 @@
 package org.dyndns.doujindb.db.query;
 
+import org.dyndns.doujindb.db.records.Circle;
+
 /**  
 * QueryCircle.java - Used to query Circle(s)
 * @author nozomu
 * @version 1.0
 */
-public final class QueryCircle
+public final class QueryCircle extends Query<Circle>
 {
 	public String ID = null;
 	public String JapaneseName = null;

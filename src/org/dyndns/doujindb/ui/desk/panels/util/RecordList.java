@@ -227,7 +227,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 								protected void process(List<T> chunks) {
 									for (T record : chunks) {
 							        	for(int index=0; index<tableModel.getRowCount();index++)
-											if(((T)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(record))
+											if(((T)tableModel.getValueAt(index, 0)).equals(record))
 											{
 												tableModel.removeRow(index);
 												break;

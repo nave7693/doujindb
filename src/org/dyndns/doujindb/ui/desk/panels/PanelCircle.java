@@ -31,7 +31,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 {
 	private Circle tokenCircle;
 	
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
@@ -80,7 +80,6 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				if(tokenCircle.getID() == null)
 					return;
 				
-				// Reset PopupMenu
 	    		JPopupMenu popupMenu = new JPopupMenu();
 	    		
 	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("JDesktop/Explorer/Circle/Popup/Add"));

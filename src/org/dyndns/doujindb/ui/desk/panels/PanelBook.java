@@ -45,7 +45,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 {
 	private Book tokenBook;
 	
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	private JPanel panelInfo;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
@@ -113,7 +113,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				if(tokenBook.getID() == null)
 					return;
 				
-				// Reset PopupMenu
 	    		JPopupMenu popupMenu = new JPopupMenu();
 	    		
 	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("JDesktop/Explorer/Book/Popup/Add"));

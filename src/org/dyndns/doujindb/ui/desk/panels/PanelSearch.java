@@ -2,19 +2,15 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.plaf.metal.MetalToolTipUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.conf.PropertyException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -22,69 +18,84 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
-import org.dyndns.doujindb.util.ImageTool;
 
 @SuppressWarnings("serial")
-public final class PanelSearch extends JPanel implements DataBaseListener
+public abstract class PanelSearch<T extends Record> extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
-	private DataBaseListener child;
+	protected JTabbedPane m_Tab;
+	protected int m_Index;
 	
-	public enum Type
+	protected SearchWorker<T> m_Worker;
+	
+	protected final Font font = Core.Resources.Font;
+	
+	protected RecordTableModel<T> m_TableModel;
+	protected RecordTableRenderer m_TableRenderer;
+	protected RecordTableEditor m_TableEditor;
+	protected TableRowSorter<DefaultTableModel> m_TableSorter;
+	protected JButton m_ButtonSearch;
+	protected JLabel m_LabelResults;
+	
+	public PanelSearch(JTabbedPane tab, int index)
 	{
-		ARTIST,
-		BOOK,
-		CIRCLE,
-		CONTENT,
-		CONVENTION,
-		PARODY
+		this.m_Tab = tab;
+		this.m_Index = index;
+		
+		this.m_LabelResults = new JLabel("Found");
+		this.m_LabelResults.setFont(font);
+		super.add(m_LabelResults);
+		this.m_ButtonSearch = new JButton("Search");
+		this.m_ButtonSearch.setMnemonic('S');
+		this.m_ButtonSearch.setFocusable(false);
+		this.m_ButtonSearch.addActionListener(this);
+		super.add(m_ButtonSearch);
+		
+		// Simulate search button press
+		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		super.registerKeyboardAction(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent actionEvent)
+			{
+				m_ButtonSearch.doClick();
+			}
+		}, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
 	
-	public PanelSearch(Type tokenType, JTabbedPane tab, int index)
+	@Override
+	public void addLayoutComponent(String key,Component c) {}
+	
+	@Override
+	public void removeLayoutComponent(Component c) {}
+	
+	@Override
+	public Dimension minimumLayoutSize(Container parent)
 	{
-		super();
-		switch(tokenType)
+	     return parent.getMinimumSize();
+	}
+	
+	@Override
+	public Dimension preferredLayoutSize(Container parent)
+	{
+	     return parent.getPreferredSize();
+	}
+	
+	private static abstract class SearchWorker<R extends Record> extends SwingWorker<Void, R>
+	{
+		protected Query<R> query;
+		
+		private SearchWorker(Query<R> query)
 		{
-		case ARTIST:
-		{
-			child = new IPanelArtist(this, tab, index);
-			break;
-		}
-		case BOOK:
-		{
-			child = new IPanelBook(this, tab, index);
-			break;
-		}
-		case CIRCLE:
-		{
-			child = new IPanelCircle(this, tab, index);
-			break;
-		}
-		case CONTENT:
-		{
-			child = new IPanelContent(this, tab, index);
-			break;
-		}
-		case CONVENTION:
-		{
-			child = new IPanelConvention(this, tab, index);
-			break;
-		}
-		case PARODY:
-		{
-			child = new IPanelParody(this, tab, index);
-			break;
-		}
+			this.query = query;
 		}
 	}
 	
-	private final class RecordTableRenderer extends DefaultTableCellRenderer
+	private static final class RecordTableRenderer extends DefaultTableCellRenderer
 	{
 		private Color background;
 		private Color foreground;
 		
 		public RecordTableRenderer(Color background, Color foreground)
 		{
-		    super();
 		    this.background = background;
 		    this.foreground = foreground;
 		}
@@ -95,7 +106,8 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		    boolean isSelected,
 		    boolean hasFocus,
 		    int row,
-		    int column) {
+		    int column)
+		{
 		    super.getTableCellRendererComponent(
 		        table,
 		        value,
@@ -104,7 +116,6 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		        row,
 		        column);
 		    super.setBorder(null);
-		    super.setText(" " + super.getText());
 		    if(isSelected)
 			{
 				setBackground(foreground);
@@ -117,105 +128,123 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		}
 	}
 	
-	private final class RecordTableModel extends DefaultTableModel
+	private static abstract class RecordTableModel<R extends Record> extends DefaultTableModel
 	{
-		public RecordTableModel(Class<?> record)
+		private static final class IArtist extends RecordTableModel<Artist>
 		{
-			super();
-			if(record == Artist.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(record == Book.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(record == Circle.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(record == Convention.class)
-		    {
-				addColumn("");
-				addColumn("Tag Name");
-				addColumn("Information");
-		    }
-			if(record == Content.class)
-		    {
-				addColumn("");
-				addColumn("Tag Name");
-				addColumn("Information");
-		    }
-			if(record == Parody.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-		}
-		
-		public void addRecord(Record record)
-		{
-			if(record instanceof Artist)
+			private IArtist()
 			{
-				Artist a = (Artist)record;
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romaji");
+			}
+			
+			@Override
+			public void addRecord(Artist a)
+			{
 				super.addRow(new Object[]{a,
-						a.getJapaneseName(),
-						a.getTranslatedName(),
-						a.getRomajiName()});
-			}
-			if(record instanceof Book)
-			{
-				Book b = (Book)record;
-				super.addRow(new Object[]{b,
-						b.getJapaneseName(),
-						b.getTranslatedName(),
-						b.getRomajiName()});
-			}
-			if(record instanceof Circle)
-			{
-				Circle c = (Circle)record;
-				super.addRow(new Object[]{c,
-						c.getJapaneseName(),
-						c.getTranslatedName(),
-						c.getRomajiName()});
-			}
-			if(record instanceof Convention)
-			{
-				Convention e = (Convention)record;
-				super.addRow(new Object[]{e,
-						e.getTagName(),
-						e.getInfo()});
-			}
-			if(record instanceof Content)
-			{
-				Content t = (Content)record;
-				super.addRow(new Object[]{t,
-						t.getTagName(),
-						t.getInfo()});
-			}
-			if(record instanceof Parody)
-			{
-				Parody p = (Parody)record;
-				super.addRow(new Object[]{p,
-						p.getJapaneseName(),
-						p.getTranslatedName(),
-						p.getRomajiName()});
+					a.getJapaneseName(),
+					a.getTranslatedName(),
+					a.getRomajiName()});
 			}
 		}
+		private static final class IBook extends RecordTableModel<Book>
+		{
+			private IBook()
+			{
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romaji");
+			}
+			
+			@Override
+			public void addRecord(Book b)
+			{
+				super.addRow(new Object[]{b,
+					b.getJapaneseName(),
+					b.getTranslatedName(),
+					b.getRomajiName()});
+			}
+		}
+		private static final class ICircle extends RecordTableModel<Circle>
+		{
+			private ICircle()
+			{
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romaji");
+			}
+			
+			@Override
+			public void addRecord(Circle c)
+			{
+				super.addRow(new Object[]{c,
+					c.getJapaneseName(),
+					c.getTranslatedName(),
+					c.getRomajiName()});
+			}
+		}
+		private static final class IContent extends RecordTableModel<Content>
+		{
+			private IContent()
+			{
+				addColumn("");
+				addColumn("Tag Name");
+				addColumn("Information");
+			}
+			
+			@Override
+			public void addRecord(Content t)
+			{
+				super.addRow(new Object[]{t,
+					t.getTagName(),
+					t.getInfo()});
+			}
+		}
+		private static final class IConvention extends RecordTableModel<Convention>
+		{
+			private IConvention()
+			{
+				addColumn("");
+				addColumn("Tag Name");
+				addColumn("Information");
+			}
+			
+			@Override
+			public void addRecord(Convention e)
+			{
+				super.addRow(new Object[]{e,
+					e.getTagName(),
+					e.getInfo()});
+			}
+		}
+		private static final class IParody extends RecordTableModel<Parody>
+		{
+			private IParody()
+			{
+				addColumn("");
+				addColumn("Japanese");
+				addColumn("Translated");
+				addColumn("Romaji");
+			}
+			
+			public void addRecord(Parody p)
+			{
+				super.addRow(new Object[]{p,
+					p.getJapaneseName(),
+					p.getTranslatedName(),
+					p.getRomajiName()});
+			}
+		}
+		public RecordTableModel() { }
+		
+		public void addRecord(R record) { }
 	}
-
-	private final class RecordTableEditor extends AbstractCellEditor implements TableCellEditor
+	
+	private static final class RecordTableEditor extends AbstractCellEditor implements TableCellEditor
 	{
 		public RecordTableEditor()
 		{
@@ -239,14 +268,62 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			}
 	}
 	
-	private final class IPanelArtist extends DataBaseAdapter implements LayoutManager, ActionListener
+	@Override
+	public void recordAdded(Record rcd)
 	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
-		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+		//TODO
+	}
+	
+	@Override
+	public void recordDeleted(Record rcd)
+	{
+		//TODO
+	}
+	
+	@Override
+	public void recordUpdated(Record rcd, UpdateData data)
+	{
+		//TODO
+	}
+	
+	@Override
+	public void databaseConnected()
+	{
+		//TODO
+	}
+	
+	@Override
+	public void databaseDisconnected()
+	{
+		//TODO
+	}
+	
+	@Override
+	public void databaseCommit()
+	{
+		//TODO
+	}
+	
+	@Override
+	public void databaseRollback()
+	{
+		//TODO
+	}
+
+	@Override
+	public void recordRecycled(Record rcd)
+	{
+		//TODO
+	}
+
+	@Override
+	public void recordRestored(Record rcd)
+	{
+		//TODO
+	}
+	
+	public static final class IArtist extends PanelSearch<Artist>
+	{
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -255,20 +332,14 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
-		private JLabel labelResults;
 		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
-		private JButton buttonSearch;
 		
-		public IPanelArtist(JPanel pane, JTabbedPane tab, int index)
+		public IArtist(JTabbedPane tab, int index)
 		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
+			super(tab, index);
+			super.setLayout(this);
+			
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
 			textJapaneseName = new JTextField("");
@@ -285,129 +356,154 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
 			tableResults = new JTable();
-			tableModel = new RecordTableModel(Artist.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
+			
+			m_TableModel = new RecordTableModel.IArtist();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
 			tableResults.setFont(font);
 			tableResults.getTableHeader().setFont(font);
 			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
 			tableResults.getColumnModel().getColumn(0).setResizable(false);
 			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
 			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
 			tableResults.getColumnModel().getColumn(0).setWidth(0);
 			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
 				tableResults.getColumnModel().getColumn(k).setResizable(true);
 				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
 			}
 			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
+			tableResults.addMouseListener(new MouseListener()
 			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
-					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				public void mouseClicked(MouseEvent me)
 				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-							.getValueAt(
-									tableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
 					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
+					checkPopup(me);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
 				{
+					if(!me.isPopupTrigger())
+						return;
+					
 					// If not item is selected don't show any popup
 					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
-						public void run()
+						public void actionPerformed(ActionEvent ae)
 						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
+							new SwingWorker<Void,Iterable<Artist>>()
 							{
-							case 0:{
-								try {
-									Vector<Artist> deleted = new Vector<Artist>();
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Artist> selected = new Vector<Artist>();
 									for(int index : tableResults.getSelectedRows())
 									{
-										Artist a = (Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										a.doRecycle();
-										deleted.add(a);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
+										try
+										{
+											Artist o = (Artist) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
 									}
-									for(Artist a : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Artist)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(a))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
+									publish(selected);
+									return null;
 								}
-								tableResults.validate();
-								break;
-							}
-							}
+								@Override
+								protected void process(java.util.List<Iterable<Artist>> data) {
+									for(Iterable<Artist> i : data)
+										for(Artist o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
 						}
-					}.start();
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
-			  }
 			});
 			tableResults.setDragEnabled(true);
 			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelJapaneseName);
-			pane.add(textJapaneseName);
-			pane.add(labelTranslatedName);
-			pane.add(textTranslatedName);
-			pane.add(labelRomajiName);
-			pane.add(textRomajiName);
-			pane.add(labelWeblink);
-			pane.add(textWeblink);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
+			super.add(labelJapaneseName);
+			super.add(textJapaneseName);
+			super.add(labelTranslatedName);
+			super.add(textTranslatedName);
+			super.add(labelRomajiName);
+			super.add(textRomajiName);
+			super.add(labelWeblink);
+			super.add(textWeblink);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchArtist(null);
+			m_Worker.cancel(true);
 		}
 		
 		@Override
@@ -423,379 +519,83 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 			labelWeblink.setBounds(3, 3 + 45, 100, 15);
 			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
+			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
 			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(stopped)
+			if(m_Worker.isDone())
 			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
-				{
-					@Override
-					public void run()
-					{
-						
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryArtist query = new QueryArtist();
-							if(!textJapaneseName.getText().equals(""))
-								query.JapaneseName = textJapaneseName.getText();
-							if(!textTranslatedName.getText().equals(""))
-								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomajiName.getText().equals(""))
-								query.RomajiName = textRomajiName.getText();
-							if(!textWeblink.getText().equals(""))
-								query.Weblink = textWeblink.getText();
-							RecordSet<Artist> result = Core.Database.getArtists(query);
-							for(Artist a : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(a);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();
-			}else
-			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				// Prepare the Query to be run
+				QueryArtist q = new QueryArtist();
+				if(!textJapaneseName.getText().equals(""))
+					q.JapaneseName = textJapaneseName.getText();
+				if(!textTranslatedName.getText().equals(""))
+					q.TranslatedName = textTranslatedName.getText();
+				if(!textRomajiName.getText().equals(""))
+					q.RomajiName = textRomajiName.getText();
+				if(!textWeblink.getText().equals(""))
+					q.Weblink = textWeblink.getText();
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchArtist(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
 			}
 		}
-	}
-	
-	private final class IPanelCircle extends DataBaseAdapter implements LayoutManager, ActionListener
-	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
 		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
-		private JLabel labelJapaneseName;
-		private JTextField textJapaneseName;
-		private JLabel labelTranslatedName;
-		private JTextField textTranslatedName;
-		private JLabel labelRomajiName;
-		private JTextField textRomajiName;
-		private JLabel labelWeblink;
-		private JTextField textWeblink;
-		private JLabel labelResults;
-		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
-		private JScrollPane scrollResults;
-		private JButton buttonSearch;
-		
-		public IPanelCircle(JPanel pane, JTabbedPane tab, int index)
+		private final class SearchArtist extends SearchWorker<Artist>
 		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
-			labelJapaneseName = new JLabel("Japanese Name");
-			labelJapaneseName.setFont(font);
-			textJapaneseName = new JTextField("");
-			textJapaneseName.setFont(font);
-			labelTranslatedName = new JLabel("Translated Name");
-			labelTranslatedName.setFont(font);
-			textTranslatedName = new JTextField("");
-			textTranslatedName.setFont(font);
-			labelRomajiName = new JLabel("Romaji Name");
-			labelRomajiName.setFont(font);
-			textRomajiName = new JTextField("");
-			textRomajiName.setFont(font);
-			labelWeblink = new JLabel("Weblink");
-			labelWeblink.setFont(font);
-			textWeblink = new JTextField("");
-			textWeblink.setFont(font);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
-			tableResults = new JTable();
-			tableModel = new RecordTableModel(Circle.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			private SearchArtist(Query<Artist> query)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				super(query);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
-			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
-					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Artist> result = Core.Database.getArtists((QueryArtist) query);
+				for(Artist o : result)
 				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
-						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
-					{
-						@Override
-						public void run()
-						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
-							{
-							case 0:{
-								try {
-									Vector<Circle> deleted = new Vector<Circle>();
-									for(int index : tableResults.getSelectedRows())
-									{
-										Circle c = (Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										c.doRecycle();
-										deleted.add(c);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
-									}
-									for(Circle c : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Circle)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(c))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
-								}
-								tableResults.validate();
-								break;
-							}
-							}
-						}
-					}.start();
+					publish(o);
+					if(super.isCancelled())
+						break;
 				}
-			  }
-			});
-			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelJapaneseName);
-			pane.add(textJapaneseName);
-			pane.add(labelTranslatedName);
-			pane.add(textTranslatedName);
-			pane.add(labelRomajiName);
-			pane.add(textRomajiName);
-			pane.add(labelWeblink);
-			pane.add(textWeblink);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
-		}
-		
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelJapaneseName.setBounds(3, 3, 100, 15);
-			textJapaneseName.setBounds(103, 3, width - 106, 15);
-			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-			labelWeblink.setBounds(3, 3 + 45, 100, 15);
-			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent ae)
-		{
-			if(stopped)
+				return null;
+			}
+			@Override
+			protected void process(java.util.List<Artist> data) {
+				for(Artist o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+			}
+			@Override
+			protected void done()
 			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
-				{
-					@Override
-					public void run()
-					{
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryCircle query = new QueryCircle();
-							if(!textJapaneseName.getText().equals(""))
-								query.JapaneseName = textJapaneseName.getText();
-							if(!textTranslatedName.getText().equals(""))
-								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomajiName.getText().equals(""))
-								query.RomajiName = textRomajiName.getText();
-							if(!textWeblink.getText().equals(""))
-								query.Weblink = textWeblink.getText();
-							RecordSet<Circle> result = Core.Database.getCircles(query);
-							for(Circle c : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(c);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();
-			}else
-			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				if(query == null)
+					return;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
 			}
 		}
 	}
 	
-	private final class IPanelBook extends DataBaseAdapter implements LayoutManager, ActionListener
+	public static final class IBook extends PanelSearch<Book>
 	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
-		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -808,20 +608,14 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JCheckBox checkDecensored;
 		private JCheckBox checkTranslated;
 		private JCheckBox checkColored;
-		private JLabel labelResults;
 		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
-		private JButton buttonSearch;
 		
-		public IPanelBook(JPanel pane, JTabbedPane tab, int index)
+		public IBook(JTabbedPane tab, int index)
 		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
+			super(tab, index);
+			super.setLayout(this);
+			
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
 			textJapaneseName = new JTextField("");
@@ -855,260 +649,159 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			checkColored = new JCheckBox("Colored", false);
 			checkColored.setFont(font);
 			checkColored.setFocusable(false);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
-			tableResults = new JTable()
-			{
-				private BookImageToolTip tooltip = new BookImageToolTip();
-				
-				@Override
-			    public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
-			    {
-			        Component c = super.prepareRenderer(renderer, row, column);
-			        if (c instanceof JComponent) {
-			            JComponent jc = (JComponent) c;
-			            /**
-			             * First things first: tool tip text = Record ID
-			             */
-			            jc.setToolTipText(((Record)getValueAt(row, 0)).getID());
-			        }
-			        return c;
-			    }
-			    
-			    @Override
-			    public JToolTip createToolTip() { return tooltip; }
-			    
-			    @Override
-			    public Point getToolTipLocation(MouseEvent me)
-			    {
-			    	Point p = me.getPoint();
-			    	return new Point((int) p.getX() + 16, (int) (p.getY() - tooltip.getPreferredSize().getHeight() / 2));
-			    }
-			    
-			    /**
-			     * I know i am a bad, vary bad programmer.
-			     * Just bear with me ok?
-			     */
-			    class BookImageToolTip extends JToolTip
-			    {
-			    	public BookImageToolTip()
-			    	{
-			    		setUI(new BookImageToolTipUI());
-			    	}
-			    	
-			    	class BookImageToolTipUI extends MetalToolTipUI
-			    	{
-			    		private BufferedImage Image;
-			    		private Thread ImageLoader;
-			    		private JComponent Component;
-			    		
-			    		public BookImageToolTipUI()
-			    		{
-			    			super();
-			    			Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
-			    			ImageLoader = new Thread(getClass().getName()+"$ImageLoader")
-			    			{
-			    				private String ID;
-			    				private String PrevID;
-			    				
-			    				@Override
-			    				public void run()
-			    				{
-			    					while(true)
-			    					{
-			    						if(super.isInterrupted())
-			    							break;
-			    						if(Component != null)
-			    							ID = ((JToolTip) Component).getTipText();
-			    						ID = ID == null ? "" : ID;
-			    						if(!ID.equals(PrevID == null ? "" : PrevID))
-			    						{
-			    							PrevID = ID;
-			    							/**
-						    				 * Second thing: use the tool tip text to get the Image from the Repository
-						    				 */
-			    							try {
-												Image = ImageTool.read(Core.Repository.getPreview(ID).getInputStream());
-											} catch (Exception e) {
-												Image = new BufferedImage(1, 1, BufferedImage.BITMASK);
-											}
-			    						}
-			    						try { sleep(100); } catch (InterruptedException ie) { }
-			    					}
-			    				}
-			    			};
-			    			ImageLoader.start();
-			    		}
-			    		
-			    		@Override
-			    		public void paint(Graphics g, JComponent c)
-			    		{
-			    			super.paint(g, c);
-			    			Component = c;
-			    			g.setColor(c.getForeground());
-			    			g.drawImage(Image, 0, 0, c);
-			    		}
-			    		
-			    		@Override
-			    		public Dimension getPreferredSize(JComponent c)
-			    		{
-			    			return new Dimension(Image.getWidth(), Image.getHeight());
-			    		}
-			    	}
-			    }
-			};			
-			tableModel = new RecordTableModel(Book.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
+			tableResults = new JTable();
+			
+			m_TableModel = new RecordTableModel.IBook();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
 			tableResults.setFont(font);
 			tableResults.getTableHeader().setFont(font);
 			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
 			tableResults.getColumnModel().getColumn(0).setResizable(false);
 			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
 			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
 			tableResults.getColumnModel().getColumn(0).setWidth(0);
 			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
 				tableResults.getColumnModel().getColumn(k).setResizable(true);
 				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
 			}
 			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
+			tableResults.addMouseListener(new MouseListener()
 			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
-					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				public void mouseClicked(MouseEvent me)
 				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
 					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
+					checkPopup(me);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
 				{
+					if(!me.isPopupTrigger())
+						return;
+					
 					// If not item is selected don't show any popup
 					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					if(tableResults.getSelectedRowCount() == 1)
-						tbl.put("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
-						public void run()
+						public void actionPerformed(ActionEvent ae)
 						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							String choice = pop.getChoice();
-							if(choice.equals("Delete"))
+							new SwingWorker<Void,Iterable<Book>>()
 							{
-								try {
-									Vector<Book> deleted = new Vector<Book>();
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Book> selected = new Vector<Book>();
 									for(int index : tableResults.getSelectedRows())
 									{
-										Book b = (Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										b.doRecycle();
-										deleted.add(b);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
+										try
+										{
+											Book o = (Book) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
 									}
-									for(Book b : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(b))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
+									publish(selected);
+									return null;
 								}
-								tableResults.validate();
-							}
-							if(choice.equals("Clone"))
-							{
-								Book book = ((Book)tableModel.getValueAt(tableSorter.convertRowIndexToModel(tableResults.getSelectedRow()), 0));
-
-								Book clone = Core.Database.doInsert(Book.class);
-								clone.setJapaneseName(book.getJapaneseName());
-								clone.setTranslatedName(book.getTranslatedName());
-								clone.setRomajiName(book.getRomajiName());
-								clone.setInfo(book.getInfo());
-								clone.setDate(book.getDate());
-								clone.setRating(book.getRating());
-								clone.setConvention(book.getConvention());
-								clone.setType(book.getType());
-								clone.setPages(book.getPages());
-								clone.setAdult(book.isAdult());
-								clone.setDecensored(book.isDecensored());
-								clone.setTranslated(book.isTranslated());
-								clone.setColored(book.isColored());
-								for(Artist a : book.getArtists())
-									clone.addArtist(a);
-								for(Content c : book.getContents())
-									clone.addContent(c);
-								for(Parody p : book.getParodies())
-									clone.addParody(p);
-								if(Core.Database.isAutocommit())
-									Core.Database.doCommit();
-								WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, clone);
-								window.setTitle("(Clone) " + window.getTitle());
-							}
+								@Override
+								protected void process(java.util.List<Iterable<Book>> data) {
+									for(Iterable<Book> i : data)
+										for(Book o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
 						}
-					}.start();
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
-			  }
 			});
 			tableResults.setDragEnabled(true);
 			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelJapaneseName);
-			pane.add(textJapaneseName);
-			pane.add(labelTranslatedName);
-			pane.add(textTranslatedName);
-			pane.add(labelRomajiName);
-			pane.add(textRomajiName);
-			pane.add(labelType);
-			pane.add(comboType);
-			pane.add(checkAdult);
-			pane.add(checkDecensored);
-			pane.add(checkTranslated);
-			pane.add(checkColored);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
+			
+			super.add(labelJapaneseName);
+			super.add(textJapaneseName);
+			super.add(labelTranslatedName);
+			super.add(textTranslatedName);
+			super.add(labelRomajiName);
+			super.add(textRomajiName);
+			super.add(labelType);
+			super.add(comboType);
+			super.add(checkAdult);
+			super.add(checkDecensored);
+			super.add(checkTranslated);
+			super.add(checkColored);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchBook(null);
+			m_Worker.cancel(true);
 		}
 		
 		@Override
@@ -1128,587 +821,90 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			checkDecensored.setBounds(3, 3 + 85, 100, 15);
 			checkTranslated.setBounds(3, 3 + 100, 100, 15);
 			checkColored.setBounds(3, 3 + 115, 100, 15);
-			labelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
+			m_LabelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
 			scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(stopped)
+			if(m_Worker.isDone())
 			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
-				{
-					@Override
-					public void run()
-					{
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryBook query = new QueryBook();
-							if(!textJapaneseName.getText().equals(""))
-								query.JapaneseName = textJapaneseName.getText();
-							if(!textTranslatedName.getText().equals(""))
-								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomajiName.getText().equals(""))
-								query.RomajiName = textRomajiName.getText();
-							query.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
-							if(checkAdult.isSelected())
-								query.Adult = true;
-							if(checkColored.isSelected())
-								query.Colored = true;
-							if(checkTranslated.isSelected())
-								query.Translated = true;
-							if(checkDecensored.isSelected())
-								query.Decensored = true;
-							RecordSet<Book> result = Core.Database.getBooks(query);
-							for(Book b : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(b);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();
-			}else
-			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Book"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				// Prepare the Query to be run
+				QueryBook q = new QueryBook();
+				if(!textJapaneseName.getText().equals(""))
+					q.JapaneseName = textJapaneseName.getText();
+				if(!textTranslatedName.getText().equals(""))
+					q.TranslatedName = textTranslatedName.getText();
+				if(!textRomajiName.getText().equals(""))
+					q.RomajiName = textRomajiName.getText();
+				q.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
+				if(checkAdult.isSelected())
+					q.Adult = true;
+				if(checkColored.isSelected())
+					q.Colored = true;
+				if(checkTranslated.isSelected())
+					q.Translated = true;
+				if(checkDecensored.isSelected())
+					q.Decensored = true;
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchBook(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
 			}
 		}
-	}
-	
-	private final class IPanelContent extends DataBaseAdapter implements LayoutManager, ActionListener
-	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
 		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
-		private JLabel labelTagName;
-		private JTextField textTagName;
-		private JLabel labelResults;
-		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
-		private JScrollPane scrollResults;
-		private JButton buttonSearch;
-		
-		public IPanelContent(JPanel pane, JTabbedPane tab, int index)
+		private final class SearchBook extends SearchWorker<Book>
 		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
-			labelTagName = new JLabel("Tag Name");
-			labelTagName.setFont(font);
-			textTagName = new JTextField("");
-			textTagName.setFont(font);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
-			tableResults = new JTable();
-			tableModel = new RecordTableModel(Content.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			private SearchBook(Query<Book> query)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				super(query);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
-			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
-					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Book> result = Core.Database.getBooks((QueryBook) query);
+				for(Book o : result)
 				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
-						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
-					{
-						@Override
-						public void run()
-						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
-							{
-							case 0:{
-								try {
-									Vector<Content> deleted = new Vector<Content>();
-									for(int index : tableResults.getSelectedRows())
-									{
-										Content t = (Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										t.doRecycle();
-										deleted.add(t);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
-									}
-									for(Content t : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Content)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(t))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
-								}
-								tableResults.validate();
-								break;
-							}
-							}
-						}
-					}.start();
+					publish(o);
+					if(super.isCancelled())
+						break;
 				}
-			  }
-			});
-			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelTagName);
-			pane.add(textTagName);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
-		}
-		
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelTagName.setBounds(3, 3, 100, 15);
-			textTagName.setBounds(103, 3, width - 106, 15);
-			labelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent ae)
-		{
-			if(stopped)
-			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
-				{
-					@Override
-					public void run()
-					{
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryContent query = new QueryContent();
-							if(!textTagName.getText().equals(""))
-								query.TagName = textTagName.getText();
-							RecordSet<Content> result = Core.Database.getContents(query);
-							for(Content t : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(t);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();
-			}else
-			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Content"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				return null;
 			}
-		}	
-	}
-	
-	private final class IPanelConvention extends DataBaseAdapter implements LayoutManager, ActionListener
-	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
-		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
-		private JLabel labelTagName;
-		private JTextField textTagName;
-		private JLabel labelResults;
-		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
-		private JScrollPane scrollResults;
-		private JButton buttonSearch;
-		
-		public IPanelConvention(JPanel pane, JTabbedPane tab, int index)
-		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
-			labelTagName = new JLabel("Tag Name");
-			labelTagName.setFont(font);
-			textTagName = new JTextField("");
-			textTagName.setFont(font);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
-			tableResults = new JTable();
-			tableModel = new RecordTableModel(Convention.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
-			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			@Override
+			protected void process(java.util.List<Book> data) {
+				for(Book o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
+			@Override
+			protected void done()
 			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
+				if(query == null)
 					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
-				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
-					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
-						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
-					{
-						@Override
-						public void run()
-						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
-							{
-							case 0:{
-								try {
-									Vector<Convention> deleted = new Vector<Convention>();
-									for(int index : tableResults.getSelectedRows())
-									{
-										Convention e = (Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										e.doRecycle();
-										deleted.add(e);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
-									}
-									for(Convention e : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Convention)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(e))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
-								}
-								tableResults.validate();
-								break;
-							}
-							}
-						}
-					}.start();
-				}
-			  }
-			});
-			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelTagName);
-			pane.add(textTagName);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
-		}
-		
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelTagName.setBounds(3, 3, 100, 15);
-			textTagName.setBounds(103, 3, width - 106, 15);
-			labelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent ae)
-		{
-			if(stopped)
-			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
-				{
-					@Override
-					public void run()
-					{
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryConvention query = new QueryConvention();
-							if(!textTagName.getText().equals(""))
-								query.TagName = textTagName.getText();
-							RecordSet<Convention> result = Core.Database.getConventions(query);
-							for(Convention e : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(e);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();
-			}else
-			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Book"));
 			}
 		}
 	}
 	
-	private final class IPanelParody extends DataBaseAdapter implements LayoutManager, ActionListener
+	public static final class ICircle extends PanelSearch<Circle>
 	{
-		private JTabbedPane tab;
-		private int index;
-		private Thread process;
-		private boolean stopped = true;
-		
-		private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
 		private JLabel labelJapaneseName;
 		private JTextField textJapaneseName;
 		private JLabel labelTranslatedName;
@@ -1717,20 +913,14 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
-		private JLabel labelResults;
 		private JTable tableResults;
-		private RecordTableModel tableModel;
-		private RecordTableRenderer tableRenderer;
-		private RecordTableEditor tableEditor;
-		private TableRowSorter<DefaultTableModel> tableSorter;
 		private JScrollPane scrollResults;
-		private JButton buttonSearch;
 		
-		public IPanelParody(JPanel pane, JTabbedPane tab, int index)
+		public ICircle(JTabbedPane tab, int index)
 		{
-			this.tab = tab;
-			this.index = index;
-			pane.setLayout(this);
+			super(tab, index);
+			super.setLayout(this);
+			
 			labelJapaneseName = new JLabel("Japanese Name");
 			labelJapaneseName.setFont(font);
 			textJapaneseName = new JTextField("");
@@ -1747,129 +937,154 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
-			labelResults = new JLabel("Found");
-			labelResults.setFont(font);
 			tableResults = new JTable();
-			tableModel = new RecordTableModel(Parody.class);
-			tableResults.setModel(tableModel);
-			tableSorter = new TableRowSorter<DefaultTableModel>(tableModel);
-			tableResults.setRowSorter(tableSorter);
-			tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
-			tableEditor = new RecordTableEditor();
+			
+			m_TableModel = new RecordTableModel.ICircle();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
 			tableResults.setFont(font);
 			tableResults.getTableHeader().setFont(font);
 			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(tableEditor);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
 			tableResults.getColumnModel().getColumn(0).setResizable(false);
 			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
 			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
 			tableResults.getColumnModel().getColumn(0).setWidth(0);
 			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(tableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(tableEditor);
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
 				tableResults.getColumnModel().getColumn(k).setResizable(true);
 				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
 			}
 			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseAdapter(){
-			public void mouseClicked(MouseEvent e)
+			tableResults.addMouseListener(new MouseListener()
 			{
-				if(!stopped) // check if JTable is not being populated or suffer a java.util.ConcurrentModificationException
-					return;
-				if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
+				public void mouseClicked(MouseEvent me)
 				{
-					try {
-						final Record item = (Record)tableResults.getModel()
-						.getValueAt(
-								tableSorter.convertRowIndexToModel(
-									tableResults.rowAtPoint(e.getPoint())), 0);
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
-					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
 					}
-				}else
-				if(e.getButton() == MouseEvent.BUTTON3)
+					checkPopup(me);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
 				{
+					if(!me.isPopupTrigger())
+						return;
+					
 					// If not item is selected don't show any popup
 					if(tableResults.getSelectedRowCount() < 1)
 						return;
-					Hashtable<String,ImageIcon> tbl = new Hashtable<String,ImageIcon>();
-					tbl.put("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
-					final PopupMenuEx pop = new PopupMenuEx("Options", tbl);
-					pop.show((Component)e.getSource(), e.getX(), e.getY());
-					new Thread(getClass().getName()+"$MouseClicked")
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
-						public void run()
+						public void actionPerformed(ActionEvent ae)
 						{
-							while(pop.isValid())
-								try { sleep(1); } catch (InterruptedException ie) { ; }
-							int selected = pop.getResult();
-							switch(selected)
+							new SwingWorker<Void,Iterable<Circle>>()
 							{
-							case 0:{
-								try {
-									Vector<Parody> deleted = new Vector<Parody>();
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Circle> selected = new Vector<Circle>();
 									for(int index : tableResults.getSelectedRows())
 									{
-										Parody p = (Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0);
-										p.doRecycle();
-										deleted.add(p);
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
+										try
+										{
+											Circle o = (Circle) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
 									}
-									for(Parody p : deleted)
-										for(int index=0; index<tableModel.getRowCount();index++)
-											if(((Parody)tableModel.getValueAt(tableSorter.convertRowIndexToModel(index), 0)).equals(p))
-											{
-												tableModel.removeRow(index);
-												break;
-											}
-								} catch (DataBaseException dbe) {
-									Core.Logger.log(dbe.getMessage(), Level.ERROR);
-									dbe.printStackTrace();
+									publish(selected);
+									return null;
 								}
-								tableResults.validate();
-								break;
-							}
-							}
+								@Override
+								protected void process(java.util.List<Iterable<Circle>> data) {
+									for(Iterable<Circle> i : data)
+										for(Circle o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
 						}
-					}.start();
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
-			  }
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
-			buttonSearch = new JButton("Search");
-			buttonSearch.setMnemonic('S');
-			buttonSearch.setFocusable(false);
-			buttonSearch.addActionListener(this);
-			// Simulate search button press
-			KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-			pane.registerKeyboardAction(new ActionListener()
-			    {
-			    	public void actionPerformed(ActionEvent actionEvent)
-			    	{
-			    		buttonSearch.doClick();
-			    	}
-			    }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-			pane.add(labelJapaneseName);
-			pane.add(textJapaneseName);
-			pane.add(labelTranslatedName);
-			pane.add(textTranslatedName);
-			pane.add(labelRomajiName);
-			pane.add(textRomajiName);
-			pane.add(labelWeblink);
-			pane.add(textWeblink);
-			pane.add(labelResults);
-			pane.add(scrollResults);
-			pane.add(buttonSearch);
+			super.add(labelJapaneseName);
+			super.add(textJapaneseName);
+			super.add(labelTranslatedName);
+			super.add(textTranslatedName);
+			super.add(labelRomajiName);
+			super.add(textRomajiName);
+			super.add(labelWeblink);
+			super.add(textWeblink);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchCircle(null);
+			m_Worker.cancel(true);
 		}
 		
 		@Override
@@ -1885,147 +1100,830 @@ public final class PanelSearch extends JPanel implements DataBaseListener
 			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
 			labelWeblink.setBounds(3, 3 + 45, 100, 15);
 			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			labelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
+			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
 			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
-			buttonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		     return parent.getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		     return parent.getPreferredSize();
-		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(stopped)
+			if(m_Worker.isDone())
 			{
-				buttonSearch.setText("Cancel");
-				buttonSearch.setMnemonic('C');
-				stopped = false;
-				process = new Thread(getClass().getName()+"$ActionPerformed")
+				// Prepare the Query to be run
+				QueryCircle q = new QueryCircle();
+				if(!textJapaneseName.getText().equals(""))
+					q.JapaneseName = textJapaneseName.getText();
+				if(!textTranslatedName.getText().equals(""))
+					q.TranslatedName = textTranslatedName.getText();
+				if(!textRomajiName.getText().equals(""))
+					q.RomajiName = textRomajiName.getText();
+				if(!textWeblink.getText().equals(""))
+					q.Weblink = textWeblink.getText();
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchCircle(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
+			}
+		}
+		
+		private final class SearchCircle extends SearchWorker<Circle>
+		{
+			private SearchCircle(Query<Circle> query)
+			{
+				super(query);
+			}
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Circle> result = Core.Database.getCircles((QueryCircle) query);
+				for(Circle o : result)
 				{
-					@Override
-					public void run()
-					{
-						while(tableModel.getRowCount()>0)
-							tableModel.removeRow(0);
-						tab.setIconAt(index, Core.Resources.Icons.get("JFrame/Loading"));
-						try {
-							QueryParody query = new QueryParody();
-							if(!textJapaneseName.getText().equals(""))
-								query.JapaneseName = textJapaneseName.getText();
-							if(!textTranslatedName.getText().equals(""))
-								query.TranslatedName = textTranslatedName.getText();
-							if(!textRomajiName.getText().equals(""))
-								query.RomajiName = textRomajiName.getText();
-							if(!textWeblink.getText().equals(""))
-								query.Weblink = textWeblink.getText();
-							RecordSet<Parody> result = Core.Database.getParodies(query);
-							for(Parody p : result)
-							{
-								if(stopped)
-								{
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									break;
-								}
-								try
-								{
-									tableModel.addRecord(p);
-									labelResults.setText("Found : " + tableModel.getRowCount());
-									sleep(1);
-								}
-								catch (InterruptedException ie) { ; }
-							}
-							labelResults.setText("Found : " + tableModel.getRowCount());
-						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
-						} catch (PropertyException pe) {
-							Core.Logger.log(pe.getMessage(), Level.ERROR);
-							pe.printStackTrace();
-						}
-						tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-						buttonSearch.setText("Search");
-						buttonSearch.setMnemonic('S');
-						stopped = true;
-					}
-				};
-				process.start();	
-			}else
+					publish(o);
+					if(super.isCancelled())
+						break;
+				}
+				return null;
+			}
+			@Override
+			protected void process(java.util.List<Circle> data) {
+				for(Circle o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+			}
+			@Override
+			protected void done()
 			{
-				tab.setIconAt(index, Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
-				buttonSearch.setText("Search");
-				buttonSearch.setMnemonic('S');
-				stopped = true;
+				if(query == null)
+					return;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
 			}
 		}
 	}
 	
-	@Override
-	public void recordAdded(Record rcd)
+	public static final class IContent extends PanelSearch<Content>
 	{
-		child.recordAdded(rcd);
-	}
-	
-	@Override
-	public void recordDeleted(Record rcd)
-	{
-		child.recordDeleted(rcd);
-	}
-	
-	@Override
-	public void recordUpdated(Record rcd, UpdateData data)
-	{
-		child.recordUpdated(rcd, data);
-	}
-	
-	@Override
-	public void databaseConnected()
-	{
-		child.databaseConnected();
-	}
-	
-	@Override
-	public void databaseDisconnected()
-	{
-		child.databaseDisconnected();
-	}
-	
-	@Override
-	public void databaseCommit()
-	{
-		child.databaseCommit();
-	}
-	
-	@Override
-	public void databaseRollback()
-	{
-		child.databaseRollback();
-	}
+		private JLabel labelTagName;
+		private JTextField textTagName;
+		private JLabel labelResults;
+		private JTable tableResults;
+		private JScrollPane scrollResults;
+		
+		public IContent(JTabbedPane tab, int index)
+		{
+			super(tab, index);
+			super.setLayout(this);
+			
+			labelTagName = new JLabel("Tag Name");
+			labelTagName.setFont(font);
+			textTagName = new JTextField("");
+			textTagName.setFont(font);
+			labelResults = new JLabel("Found");
+			labelResults.setFont(font);
+			tableResults = new JTable();
+			
+			m_TableModel = new RecordTableModel.IContent();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseListener()
+			{
+				public void mouseClicked(MouseEvent me)
+				{
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
+					}
+					checkPopup(me);
+				}
 
-	@Override
-	public void recordRecycled(Record rcd)
-	{
-		child.databaseRollback();
-	}
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
 
-	@Override
-	public void recordRestored(Record rcd)
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
+				{
+					if(!me.isPopupTrigger())
+						return;
+					
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
+						return;
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae)
+						{
+							new SwingWorker<Void,Iterable<Content>>()
+							{
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Content> selected = new Vector<Content>();
+									for(int index : tableResults.getSelectedRows())
+									{
+										try
+										{
+											Content o = (Content) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
+									}
+									publish(selected);
+									return null;
+								}
+								@Override
+								protected void process(java.util.List<Iterable<Content>> data) {
+									for(Iterable<Content> i : data)
+										for(Content o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
+						}
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
+			super.add(labelTagName);
+			super.add(textTagName);
+			super.add(labelResults);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchContent(null);
+			m_Worker.cancel(true);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			labelTagName.setBounds(3, 3, 100, 15);
+			textTagName.setBounds(103, 3, width - 106, 15);
+			m_LabelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
+			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent ae)
+		{
+			if(m_Worker.isDone())
+			{
+				// Prepare the Query to be run
+				QueryContent q = new QueryContent();
+				if(!textTagName.getText().equals(""))
+					q.TagName = textTagName.getText();
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchContent(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
+			}
+		}
+		
+		private final class SearchContent extends SearchWorker<Content>
+		{
+			private SearchContent(Query<Content> query)
+			{
+				super(query);
+			}
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Content> result = Core.Database.getContents((QueryContent) query);
+				for(Content o : result)
+				{
+					publish(o);
+					if(super.isCancelled())
+						break;
+				}
+				return null;
+			}
+			@Override
+			protected void process(java.util.List<Content> data) {
+				for(Content o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+			}
+			@Override
+			protected void done()
+			{
+				if(query == null)
+					return;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
+			}
+		}
+	}
+	
+	public static final class IConvention extends PanelSearch<Convention>
 	{
-		child.databaseRollback();
+		private JLabel labelTagName;
+		private JTextField textTagName;
+		private JLabel labelResults;
+		private JTable tableResults;
+		private JScrollPane scrollResults;
+		
+		public IConvention(JTabbedPane tab, int index)
+		{
+			super(tab, index);
+			super.setLayout(this);
+			
+			labelTagName = new JLabel("Tag Name");
+			labelTagName.setFont(font);
+			textTagName = new JTextField("");
+			textTagName.setFont(font);
+			labelResults = new JLabel("Found");
+			labelResults.setFont(font);
+			tableResults = new JTable();
+			
+			m_TableModel = new RecordTableModel.IConvention();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseListener()
+			{
+				public void mouseClicked(MouseEvent me)
+				{
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
+					}
+					checkPopup(me);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
+				{
+					if(!me.isPopupTrigger())
+						return;
+					
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
+						return;
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae)
+						{
+							new SwingWorker<Void,Iterable<Convention>>()
+							{
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Convention> selected = new Vector<Convention>();
+									for(int index : tableResults.getSelectedRows())
+									{
+										try
+										{
+											Convention o = (Convention) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
+									}
+									publish(selected);
+									return null;
+								}
+								@Override
+								protected void process(java.util.List<Iterable<Convention>> data) {
+									for(Iterable<Convention> i : data)
+										for(Convention o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
+						}
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
+			super.add(labelTagName);
+			super.add(textTagName);
+			super.add(labelResults);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchConvention(null);
+			m_Worker.cancel(true);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			labelTagName.setBounds(3, 3, 100, 15);
+			textTagName.setBounds(103, 3, width - 106, 15);
+			m_LabelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
+			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent ae)
+		{
+			if(m_Worker.isDone())
+			{
+				// Prepare the Query to be run
+				QueryConvention q = new QueryConvention();
+				if(!textTagName.getText().equals(""))
+					q.TagName = textTagName.getText();
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchConvention(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
+			}
+		}
+		
+		private final class SearchConvention extends SearchWorker<Convention>
+		{
+			private SearchConvention(Query<Convention> query)
+			{
+				super(query);
+			}
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Convention> result = Core.Database.getConventions((QueryConvention) query);
+				for(Convention o : result)
+				{
+					publish(o);
+					if(super.isCancelled())
+						break;
+				}
+				return null;
+			}
+			@Override
+			protected void process(java.util.List<Convention> data) {
+				for(Convention o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+			}
+			@Override
+			protected void done()
+			{
+				if(query == null)
+					return;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+			}
+		}
+	}
+	
+	public static final class IParody extends PanelSearch<Parody>
+	{
+		private JLabel labelJapaneseName;
+		private JTextField textJapaneseName;
+		private JLabel labelTranslatedName;
+		private JTextField textTranslatedName;
+		private JLabel labelRomajiName;
+		private JTextField textRomajiName;
+		private JLabel labelWeblink;
+		private JTextField textWeblink;
+		private JTable tableResults;
+		private JScrollPane scrollResults;
+		
+		public IParody(JTabbedPane tab, int index)
+		{
+			super(tab, index);
+			super.setLayout(this);
+			
+			labelJapaneseName = new JLabel("Japanese Name");
+			labelJapaneseName.setFont(font);
+			textJapaneseName = new JTextField("");
+			textJapaneseName.setFont(font);
+			labelTranslatedName = new JLabel("Translated Name");
+			labelTranslatedName.setFont(font);
+			textTranslatedName = new JTextField("");
+			textTranslatedName.setFont(font);
+			labelRomajiName = new JLabel("Romaji Name");
+			labelRomajiName.setFont(font);
+			textRomajiName = new JTextField("");
+			textRomajiName.setFont(font);
+			labelWeblink = new JLabel("Weblink");
+			labelWeblink.setFont(font);
+			textWeblink = new JTextField("");
+			textWeblink.setFont(font);
+			tableResults = new JTable();
+			
+			m_TableModel = new RecordTableModel.IParody();
+			tableResults.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			tableResults.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
+			tableResults.setFont(font);
+			tableResults.getTableHeader().setFont(font);
+			tableResults.getTableHeader().setReorderingAllowed(true);
+			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			tableResults.getColumnModel().getColumn(0).setResizable(false);
+			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
+			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
+			tableResults.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			{
+				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				tableResults.getColumnModel().getColumn(k).setResizable(true);
+				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+			}
+			scrollResults = new JScrollPane(tableResults);
+			tableResults.addMouseListener(new MouseListener()
+			{
+				public void mouseClicked(MouseEvent me)
+				{
+					if(me.getClickCount() == 2 && !me.isPopupTrigger())
+					{
+						try {
+							final Record item = (Record) tableResults.getModel()
+								.getValueAt(
+									m_TableSorter.convertRowIndexToModel(
+										tableResults.rowAtPoint(me.getPoint())), 0);
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
+						} catch (DataBaseException dbe) {
+							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							dbe.printStackTrace();
+						}
+						return;
+					}
+					checkPopup(me);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				
+				private void checkPopup(MouseEvent me)
+				{
+					if(!me.isPopupTrigger())
+						return;
+					
+					// If not item is selected don't show any popup
+					if(tableResults.getSelectedRowCount() < 1)
+						return;
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+		    		menuItem.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae)
+						{
+							new SwingWorker<Void,Iterable<Parody>>()
+							{
+								@Override
+								protected Void doInBackground() throws Exception
+								{
+									Vector<Parody> selected = new Vector<Parody>();
+									for(int index : tableResults.getSelectedRows())
+									{
+										try
+										{
+											Parody o = (Parody) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
+											o.doRecycle();
+											if(Core.Database.isAutocommit())
+												Core.Database.doCommit();
+											selected.add(o);
+										} catch (DataBaseException dbe)
+										{
+											dbe.printStackTrace();
+											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										}
+									}
+									publish(selected);
+									return null;
+								}
+								@Override
+								protected void process(java.util.List<Iterable<Parody>> data) {
+									for(Iterable<Parody> i : data)
+										for(Parody o : i)
+											for(int index=0; index<m_TableModel.getRowCount(); index++)
+												if((m_TableModel.getValueAt(index, 0)).equals(o))
+												{
+													m_TableModel.removeRow(index);
+													break;
+												}
+									m_TableModel.fireTableDataChanged();
+							    }
+								@Override
+								protected void done() {
+									tableResults.clearSelection();
+							    }
+							}.execute();
+						}
+					});
+		    		menuItem.setName("delete");
+					menuItem.setActionCommand("delete");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			});
+			tableResults.setDragEnabled(true);
+			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+			thex.setDragEnabled(true);
+			thex.setDropEnabled(false);
+			tableResults.setTransferHandler(thex);
+			super.add(labelJapaneseName);
+			super.add(textJapaneseName);
+			super.add(labelTranslatedName);
+			super.add(textTranslatedName);
+			super.add(labelRomajiName);
+			super.add(textRomajiName);
+			super.add(labelWeblink);
+			super.add(textWeblink);
+			super.add(scrollResults);
+			
+			m_Worker = new SearchParody(null);
+			m_Worker.cancel(true);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			labelJapaneseName.setBounds(3, 3, 100, 15);
+			textJapaneseName.setBounds(103, 3, width - 106, 15);
+			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
+			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
+			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
+			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
+			labelWeblink.setBounds(3, 3 + 45, 100, 15);
+			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
+			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
+			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
+			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent ae)
+		{
+			if(m_Worker.isDone())
+			{
+				// Prepare the Query to be run
+				QueryParody q = new QueryParody();
+				if(!textJapaneseName.getText().equals(""))
+					q.JapaneseName = textJapaneseName.getText();
+				if(!textTranslatedName.getText().equals(""))
+					q.TranslatedName = textTranslatedName.getText();
+				if(!textRomajiName.getText().equals(""))
+					q.RomajiName = textRomajiName.getText();
+				if(!textWeblink.getText().equals(""))
+					q.Weblink = textWeblink.getText();
+				
+				// Clean result
+				while(m_TableModel.getRowCount()>0)
+					m_TableModel.removeRow(0);
+				
+				// UI feedback
+				m_ButtonSearch.setText("Cancel");
+				m_ButtonSearch.setMnemonic('C');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JFrame/Loading"));
+				
+				// Run the Worker
+				m_Worker = new SearchParody(q);
+				m_Worker.execute();
+			} else {
+				m_Worker.cancel(true);
+			}
+		}
+		
+		private final class SearchParody extends SearchWorker<Parody>
+		{
+			private SearchParody(Query<Parody> query)
+			{
+				super(query);
+			}
+			
+			@Override
+			protected Void doInBackground() {
+				RecordSet<Parody> result = Core.Database.getParodies((QueryParody) query);
+				for(Parody o : result)
+				{
+					publish(o);
+					if(super.isCancelled())
+						break;
+				}
+				return null;
+			}
+			@Override
+			protected void process(java.util.List<Parody> data) {
+				for(Parody o : data)
+					m_TableModel.addRecord(o);
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+			}
+			@Override
+			protected void done()
+			{
+				if(query == null)
+					return;
+				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
+				m_ButtonSearch.setText("Search");
+				m_ButtonSearch.setMnemonic('S');
+				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
+			}
+		}
 	}
 }

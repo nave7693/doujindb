@@ -3,8 +3,9 @@ package org.dyndns.doujindb.log.impl;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.swing.SwingWorker;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.log.*;
 
 /**  
@@ -15,9 +16,7 @@ import org.dyndns.doujindb.log.*;
 final class SystemLogger implements Logger
 {
 	private List<Logger> loggers = new Vector<Logger>();
-	private OutputStream stream = System.out;
-	private LinkedList<LogEvent> buffer = new LinkedList<LogEvent>();
-    private final int MAX_LOG_BUFFER = 0xFF;
+	private ConcurrentLinkedQueue<LogEvent> queue = new ConcurrentLinkedQueue<LogEvent>();
 
 	private SimpleDateFormat sdf;
 	
@@ -26,62 +25,51 @@ final class SystemLogger implements Logger
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-		new Thread(getClass().getName()+"$EventPoller")
+		new SwingWorker<Void, LogEvent>()
 		{
 			@Override
-			public void run()
-			{
-				super.setPriority(Thread.MIN_PRIORITY);
+			protected Void doInBackground() throws Exception {
+				Thread.currentThread().setName("SystemLogger");
 				while(true)
 				{
-					if(!buffer.isEmpty())
+					try
 					{
-						LogEvent event = buffer.peek();
-						try
-						{
-							String level_string = "";
-							switch(event.getLevel())
-							{
-							case INFO:
-								level_string = "Info";
-								break;
-							case WARNING:
-								level_string = "Warning";
-								break;
-							case ERROR:
-								level_string = "Error";
-								break;
-							case DEBUG:
-								level_string = "Debug";
-								break;
-							case FATAL:
-								level_string = "Fatal";
-								break;
-							}
-							stream.write(
-									String.format(sdf.format(new Date(event.getTime())) + " [%s] %s: %s\r\n",
-											level_string,
-											event.getSource(),
-											event.getMessage()).getBytes()
-										);
-							buffer.poll();
-						} catch (IOException ioe) { ioe.printStackTrace(); }
-					} else
-						try { sleep(100); } catch (InterruptedException ie) { }
+						Thread.sleep(1);
+						if(queue.isEmpty())
+							continue;
+						publish(queue.poll());
+					} catch (Exception e) {
+						e.printStackTrace();
+					} catch (Error e) {
+						e.printStackTrace();
+						break;
+					}
 				}
+				return null;
 			}
-		}.start();
+			@Override
+			protected void process(List<LogEvent> events) {
+				for(LogEvent evt : events)
+					try {
+						System.out.write(
+							String.format(sdf.format(new Date(evt.getTime())) + " [%s] %s: %s\r\n",
+								evt.getLevel(),
+								evt.getSource(),
+								evt.getMessage()).getBytes()
+							);
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					}
+			}
+		}.execute();
 	}
 	
 	@Override
-	public void log(LogEvent event)
+	public synchronized void log(LogEvent evt)
 	{
-		if(buffer.size() > MAX_LOG_BUFFER)
-			Core.Logger.log("File logger exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(event);
+		queue.offer(evt);
 		for(Logger logger : loggers)
-			logger.log(event);
+			logger.log(evt);
 	}
 
 	@Override
@@ -98,7 +86,7 @@ final class SystemLogger implements Logger
 	}
 
 	@Override
-	public void log(String message, Level level)
+	public synchronized void log(String message, Level level)
 	{
 		log(new ImplEvent(message, level));
 	}

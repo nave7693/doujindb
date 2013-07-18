@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import javax.swing.SwingWorker;
+
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -25,7 +27,6 @@ import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Level;
 
 /**  
 * DataBase.java - DoujinDB database instance implementation.
@@ -49,8 +50,7 @@ public class DataBaseImpl extends DataBase
 	private static SelectQuery queryParody;
 	
 	private List<DataBaseListener> listeners = new Vector<DataBaseListener>();
-	private LinkedList<DataBaseEvent> buffer = new LinkedList<DataBaseEvent>();
-	private final int MAX_EVENT_BUFFER = 0xFF;
+	private ConcurrentLinkedQueue<DataBaseEvent> queue = new ConcurrentLinkedQueue<DataBaseEvent>();
 	
 	{
 		List<Expression> list;
@@ -163,39 +163,57 @@ public class DataBaseImpl extends DataBase
 
 		contexts = new Hashtable<String, DataBaseContext>();
 		
-		new Thread(getClass().getName()+"$EventPoller")
+		new SwingWorker<Void, DataBaseEvent>()
 		{
 			@Override
-			public void run()
-			{
-				super.setPriority(Thread.MIN_PRIORITY);
+			protected Void doInBackground() throws Exception {
+				Thread.currentThread().setName("DataBase/EventPoller");
 				while(true)
 				{
-					if(!buffer.isEmpty())
+					try
 					{
-						synchronized(listeners) {
-							DataBaseEvent event = buffer.peek();
-							switch(event.type)
+						Thread.sleep(1);
+						if(queue.isEmpty())
+							continue;
+						publish(queue.poll());
+					} catch (Exception e) {
+						e.printStackTrace();
+					} catch (Error e) {
+						e.printStackTrace();
+						break;
+					}
+				}
+				return null;
+			}
+			@Override
+			protected void process(List<DataBaseEvent> events)
+			{
+				for(DataBaseEvent evt : events)
+					try
+					{
+						synchronized(listeners)
+						{
+							switch(evt.type)
 							{
 								case RECORD_ADDED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordAdded(event.record);
+										dbl.recordAdded(evt.record);
 									break;
 								case RECORD_DELETED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordDeleted(event.record);
+										dbl.recordDeleted(evt.record);
 									break;
 								case RECORD_UPDATED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordUpdated(event.record, event.data);
+										dbl.recordUpdated(evt.record, evt.data);
 									break;
 								case RECORD_RECYCLED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordRecycled(event.record);
+										dbl.recordRecycled(evt.record);
 									break;
 								case RECORD_RESTORED:
 									for(DataBaseListener dbl : listeners)
-										dbl.recordRestored(event.record);
+										dbl.recordRestored(evt.record);
 									break;
 								case DATABASE_CONNECTED:
 									for(DataBaseListener dbl : listeners)
@@ -214,13 +232,12 @@ public class DataBaseImpl extends DataBase
 										dbl.databaseRollback();
 									break;
 							}
-							buffer.poll();
 						}
-					} else
-						try { sleep(100); } catch (InterruptedException ie) { }
-				}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
-		}.start();
+		}.execute();
 	}
 	
 	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
@@ -799,73 +816,46 @@ public class DataBaseImpl extends DataBase
 	
 	private void _recordAdded(Record rcd)
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, rcd));
 	}
 
 	private void _recordDeleted(Record rcd)
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
 	}
 
 	void _recordUpdated(Record rcd, UpdateData info)
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd, info));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd, info));
 	}
 	
 	void _recordRecycled(Record rcd)
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, rcd));
 	}
 
 	void _recordRestored(Record rcd)
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, rcd));
 	}
 
 	private void _databaseConnected()
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_CONNECTED));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_CONNECTED));
 	}
 
 	private void _databaseDisconnected()
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_DISCONNECTED));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_DISCONNECTED));
 	}
 
 	private void _databaseCommit()
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_COMMIT));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_COMMIT));
 	}
 
 	private void _databaseRollback()
 	{
-		if(buffer.size() > MAX_EVENT_BUFFER)
-			Core.Logger.log("DataBase event listener exceeded max number of cached entries.", Level.ERROR);
-		else
-			buffer.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
 	}
 }

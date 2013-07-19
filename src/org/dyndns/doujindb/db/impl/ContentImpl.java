@@ -112,13 +112,20 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	@Override
 	public void removeAlias(String alias) throws DataBaseException
 	{
-		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getAliases();
-		for(org.dyndns.doujindb.db.cayenne.ContentAlias r : result)
-			if(r.getTagName().equals(alias))
+		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> set = ((org.dyndns.doujindb.db.cayenne.Content)ref).getAliases();
+		synchronized(set)
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.ContentAlias> i = set.iterator();
+			while(i.hasNext())
 			{
-				((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(r);
-				((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(r);
+				org.dyndns.doujindb.db.cayenne.ContentAlias a = i.next();
+				if(a.getTagName().equals(alias))
+				{
+					((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(a);
+					((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(a);
+				}
 			}
+		}
 	}
 	
 	@Override

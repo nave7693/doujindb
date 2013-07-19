@@ -127,13 +127,20 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	@Override
 	public void removeAlias(String alias) throws DataBaseException
 	{
-		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getAliases();
-		for(org.dyndns.doujindb.db.cayenne.ConventionAlias r : result)
-			if(r.getTagName().equals(alias))
+		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> set = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getAliases();
+		synchronized(set)
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.ConventionAlias> i = set.iterator();
+			while(i.hasNext())
 			{
-				((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(r);
-				((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(r);
+				org.dyndns.doujindb.db.cayenne.ConventionAlias a = i.next();
+				if(a.getTagName().equals(alias))
+				{
+					((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(a);
+					((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(a);
+				}
 			}
+		}
 	}
 	
 	@Override

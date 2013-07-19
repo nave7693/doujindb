@@ -324,7 +324,7 @@ final class TaskManager
 				@Override
 				public void run()
 				{
-					super.setDaemon(true);
+					
 					while(true)
 					{
 						m_Paused = m_PauseReq;
@@ -332,6 +332,7 @@ final class TaskManager
 					}
 				}
 			};
+			m_PauseThread.setDaemon(true);
 			m_PauseThread.start();
 		}
 		

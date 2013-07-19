@@ -36,7 +36,6 @@ public final class PluginManager
 			@Override
 			public void run()
 			{
-				super.setDaemon(true);
 				shutdown();
 			}
 		});

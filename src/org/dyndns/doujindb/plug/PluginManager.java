@@ -31,11 +31,12 @@ public final class PluginManager
 		 * Register a shutdown hook to handle the shutdown of this JVM for every Plugin
 		 * If the Plugin doesn't shutdown after a TIMEOUT, skip it
 		 */
-		Runtime.getRuntime().addShutdownHook(new Thread(PluginManager.class.getName()+"$ShutdownHook")
+		Runtime.getRuntime().addShutdownHook(new Thread("PluginManager/ShutdownHook")
 		{
 			@Override
 			public void run()
 			{
+				super.setDaemon(true);
 				shutdown();
 			}
 		});

@@ -36,11 +36,11 @@ final class TaskManager
 		m_Tasks = new Vector<Task>();
 		read();
 		
-		Thread t = new Thread(m_Worker);
-		t.setName(TaskManager.class.getName()+"$Worker");
-		t.setDaemon(true);
-		t.setPriority(Thread.MIN_PRIORITY);
-		t.start();
+		Thread thread = new Thread(m_Worker);
+		thread.setName("DoujinshiDBScanner/TaskManager/Worker");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MIN_PRIORITY);
+		thread.start();
 	}
 	
 	public static void write() {
@@ -319,11 +319,12 @@ final class TaskManager
 		
 		private Worker()
 		{
-			m_PauseThread = new Thread(getClass().getName()+"$PauseCmdPoller")
+			m_PauseThread = new Thread("DoujinshiDBScanner/TaskManager/PauseCmdPoller")
 			{
 				@Override
 				public void run()
 				{
+					super.setDaemon(true);
 					while(true)
 					{
 						m_Paused = m_PauseReq;

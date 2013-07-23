@@ -27,7 +27,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	private ImageIcon wallpaperImage;
 	private JButton buttonWallpaper;
 	
-	private JButton buttonRecycleBin;
+	private JButton m_ButtonTrash;
 	private JButton buttonTools;
 	
 	private Vector<JButton> buttonPlugins;
@@ -80,26 +80,26 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}			
 		});
 		super.add(buttonWallpaper);
-		buttonRecycleBin = new JButton(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
-		buttonRecycleBin.setDisabledIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Disabled"));
-		buttonRecycleBin.setToolTipText("Recycle Bin");
-		buttonRecycleBin.setFocusable(false);
-		buttonRecycleBin.setContentAreaFilled(false);
-		buttonRecycleBin.setBorder(null);
-		buttonRecycleBin.addActionListener(new ActionListener()
+		m_ButtonTrash = new JButton(Core.Resources.Icons.get("JDesktop/Trash/Empty"));
+		m_ButtonTrash.setDisabledIcon(Core.Resources.Icons.get("JDesktop/Trash/Disabled"));
+		m_ButtonTrash.setToolTipText("Trash");
+		m_ButtonTrash.setFocusable(false);
+		m_ButtonTrash.setContentAreaFilled(false);
+		m_ButtonTrash.setBorder(null);
+		m_ButtonTrash.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.showRecycleBinWindow();
+					Core.UI.Desktop.showTrashWindow();
 				} catch (DataBaseException dbe) {
 					Core.Logger.log(dbe.getMessage(), Level.ERROR);
 					dbe.printStackTrace();
 				}
 			}
 		});
-		super.add(buttonRecycleBin);
+		super.add(m_ButtonTrash);
 		buttonTools = new JButton(Core.Resources.Icons.get("JDesktop/Tools/Enabled"));
 		buttonTools.setDisabledIcon(Core.Resources.Icons.get("JDesktop/Tools/Disabled"));
 		buttonTools.setToolTipText("Tools");
@@ -128,9 +128,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				int width = parent.getWidth();
 				wallpaper.setBounds(0,0,wallpaperImage.getIconWidth(),wallpaperImage.getIconHeight());
 				setComponentZOrder(wallpaper,getComponentCount()-1);
-				buttonRecycleBin.setBounds(5,5,32,32);
+				m_ButtonTrash.setBounds(5,5,32,32);
 				buttonTools.setBounds(5+32,5,32,32);
-				buttonRecycleBin.setEnabled(Core.Database.isConnected());
+				m_ButtonTrash.setEnabled(Core.Database.isConnected());
 				buttonTools.setEnabled(Core.Database.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
@@ -276,11 +276,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		return window;
 	}
 	
-	public WindowEx showRecycleBinWindow() throws DataBaseException
+	public WindowEx showTrashWindow() throws DataBaseException
 	{
-		if(checkWindow(WindowEx.Type.WINDOW_RECYCLEBIN))
+		if(checkWindow(WindowEx.Type.WINDOW_TRASH))
 			return null;
-		WindowEx window = new WindowRecycleBinImpl();
+		WindowEx window = new WindowTrashImpl();
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
@@ -522,9 +522,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	{
 		try {
 			if(Core.Database.getRecycled().size() > 0)
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Full"));
+				m_ButtonTrash.setIcon(Core.Resources.Icons.get("JDesktop/Trash/Full"));
 			else
-				buttonRecycleBin.setIcon(Core.Resources.Icons.get("JDesktop/RecycleBin/Empty"));
+				m_ButtonTrash.setIcon(Core.Resources.Icons.get("JDesktop/Trash/Empty"));
 		} catch (DataBaseException dbe) {
 			Core.Logger.log(dbe.getMessage(), Level.ERROR);
 			dbe.printStackTrace();
@@ -1622,15 +1622,15 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 	}
 	
-	private final class WindowRecycleBinImpl extends WindowEx
+	private final class WindowTrashImpl extends WindowEx
 	{
-		WindowRecycleBinImpl() throws DataBaseException
+		WindowTrashImpl() throws DataBaseException
 		{
 			super();
-			this.type = Type.WINDOW_RECYCLEBIN;
-			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/RecycleBin"));
-			super.setTitle("Recycle Bin");
-			PanelRecycleBin panel = new PanelRecycleBin();
+			this.type = Type.WINDOW_TRASH;
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Trash"));
+			super.setTitle("Trash");
+			PanelTrash panel = new PanelTrash();
 			listeners.add(panel);
 			super.add(panel);
 			super.setVisible(true);

@@ -108,7 +108,7 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Book/Media/Browse","jdesktop/explorer/book/media/browse.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Reload","jdesktop/explorer/book/media/reload.png");
 		iconKeys.put("JDesktop/Explorer/Book/Media/Package","jdesktop/explorer/book/media/package.png");
-		iconKeys.put("JDesktop/Explorer/RecycleBin","jdesktop/explorer/recyclebin.png");
+		iconKeys.put("JDesktop/Explorer/Trash","jdesktop/explorer/trash.png");
 		iconKeys.put("JDesktop/Explorer/Tools","jdesktop/explorer/tools.png");
 		iconKeys.put("JDesktop/Explorer/SharedItems","jdesktop/explorer/shareditems.png");
 		iconKeys.put("JDesktop/Explorer/MediaManager","jdesktop/explorer/mediamanager.png");
@@ -117,11 +117,11 @@ public final class Resources
 		iconKeys.put("JDesktop/Explorer/Remove","jdesktop/explorer/remove.png");
 		iconKeys.put("JDesktop/Explorer/Clone","jdesktop/explorer/clone.png");
 		iconKeys.put("JDesktop/Explorer/ComboBox/Arrow","jdesktop/explorer/combobox/arrow.png");
-		iconKeys.put("JFrame/RecycleBin/Restore","jframe/recyclebin/restore.png");
-		iconKeys.put("JFrame/RecycleBin/Delete","jframe/recyclebin/delete.png");
-		iconKeys.put("JFrame/RecycleBin/Empty","jframe/recyclebin/empty.png");
-		iconKeys.put("JFrame/RecycleBin/SelectAll","jframe/recyclebin/selectall.png");
-		iconKeys.put("JFrame/RecycleBin/DeselectAll","jframe/recyclebin/deselectall.png");
+		iconKeys.put("JFrame/Trash/Restore","jframe/trash/restore.png");
+		iconKeys.put("JFrame/Trash/Delete","jframe/trash/delete.png");
+		iconKeys.put("JFrame/Trash/Empty","jframe/trash/empty.png");
+		iconKeys.put("JFrame/Trash/SelectAll","jframe/trash/selectall.png");
+		iconKeys.put("JFrame/Trash/DeselectAll","jframe/trash/deselectall.png");
 		iconKeys.put("JFrame/MediaManager/Refresh","jframe/mediamanager/refresh.png");
 		iconKeys.put("JFrame/MediaManager/Import","jframe/mediamanager/import.png");
 		iconKeys.put("JFrame/MediaManager/Export","jframe/mediamanager/export.png");
@@ -140,9 +140,9 @@ public final class Resources
 		iconKeys.put("JFrame/Dialog/ConfigurationWizard/Error","jframe/dialog/confwiz/error.png");
 		iconKeys.put("JFrame/Dialog/About","jframe/dialog/about.png");
 		iconKeys.put("JDesktop/Wallpaper/Import","jdesktop/wallpaper/import.png");
-		iconKeys.put("JDesktop/RecycleBin/Full","jdesktop/recyclebin/full.png");
-		iconKeys.put("JDesktop/RecycleBin/Empty","jdesktop/recyclebin/empty.png");
-		iconKeys.put("JDesktop/RecycleBin/Disabled","jdesktop/recyclebin/disabled.png");
+		iconKeys.put("JDesktop/Trash/Full","jdesktop/trash/full.png");
+		iconKeys.put("JDesktop/Trash/Empty","jdesktop/trash/empty.png");
+		iconKeys.put("JDesktop/Trash/Disabled","jdesktop/trash/disabled.png");
 		iconKeys.put("JDesktop/Tools/Enabled","jdesktop/tools/enabled.png");
 		iconKeys.put("JDesktop/Tools/Disabled","jdesktop/tools/disabled.png");
 		iconKeys.put("JDesktop/SharedItems","jdesktop/shareditems.png");

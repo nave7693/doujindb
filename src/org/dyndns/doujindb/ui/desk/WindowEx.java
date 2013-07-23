@@ -19,7 +19,7 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	public static enum Type
 	{
 		WINDOW_SEARCH,
-		WINDOW_RECYCLEBIN,
+		WINDOW_TRASH,
 		WINDOW_TOOLS,
 		WINDOW_PLUGIN,
 		WINDOW_ARTIST,

@@ -216,12 +216,12 @@
 	<obj-relationship name="books" source="Artist" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.book"/>
 	<obj-relationship name="circles" source="Artist" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.circle"/>
 	<obj-relationship name="artists" source="Book" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.artist"/>
-	<obj-relationship name="circles" source="Book" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.artist.memberof.circle"/>
+	<obj-relationship name="circles" source="Book" target="Circle" collection-type="java.util.Set" deleteRule="NoAction" db-relationship-path="drawnby.artist.memberof.circle"/>
 	<obj-relationship name="contents" source="Book" target="Content" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.content"/>
 	<obj-relationship name="conventionof" source="Book" target="Convention" deleteRule="Deny" db-relationship-path="conventionof"/>
 	<obj-relationship name="parodies" source="Book" target="Parody" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.parody"/>
 	<obj-relationship name="artists" source="Circle" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.artist"/>
-	<obj-relationship name="books" source="Circle" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.artist.drawnby.book"/>
+	<obj-relationship name="books" source="Circle" target="Book" collection-type="java.util.Set" deleteRule="NoAction" db-relationship-path="memberof.artist.drawnby.book"/>
 	<obj-relationship name="books" source="Content" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.book"/>
 	<obj-relationship name="books" source="Convention" target="Book" collection-type="java.util.Set" deleteRule="Nullify" db-relationship-path="conventionof"/>
 	<obj-relationship name="books" source="Parody" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.book"/>

@@ -2,9 +2,14 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -35,6 +40,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	protected TableRowSorter<DefaultTableModel> m_TableSorter;
 	protected JButton m_ButtonSearch;
 	protected JLabel m_LabelResults;
+	
+	private static DialogSearch m_PopupDialog = null;
 	
 	public PanelSearch(JTabbedPane tab, int index)
 	{
@@ -438,20 +445,31 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Artist>>()
+							m_PopupDialog = new DialogSearch(IArtist.this,
+								"<html>" +
+								"<body>" +
+								"Move selected items to the Trash?<br/>" +
+								"</body>" +
+								"</html>", new SwingWorker<Void,Iterable<Artist>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Artist> selected = new Vector<Artist>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
+										if(super.isCancelled())
+											break;
 										try
 										{
 											Artist o = (Artist) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -459,6 +477,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -477,8 +497,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -731,20 +752,29 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Book>>()
+							m_PopupDialog = new DialogSearch(IBook.this,
+									"<html>" +
+									"<body>" +
+									"Move selected items to the Trash?<br/>" +
+									"</body>" +
+									"</html>", new SwingWorker<Void,Iterable<Book>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Book> selected = new Vector<Book>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
 										try
 										{
 											Book o = (Book) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -752,6 +782,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -770,8 +802,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -785,7 +818,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
-			
 			super.add(labelJapaneseName);
 			super.add(textJapaneseName);
 			super.add(labelTranslatedName);
@@ -1019,20 +1051,29 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Circle>>()
+							m_PopupDialog = new DialogSearch(ICircle.this,
+									"<html>" +
+									"<body>" +
+									"Move selected items to the Trash?<br/>" +
+									"</body>" +
+									"</html>", new SwingWorker<Void,Iterable<Circle>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Circle> selected = new Vector<Circle>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
 										try
 										{
 											Circle o = (Circle) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -1040,6 +1081,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1058,8 +1101,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1276,20 +1320,29 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Content>>()
+							m_PopupDialog = new DialogSearch(IContent.this,
+									"<html>" +
+									"<body>" +
+									"Move selected items to the Trash?<br/>" +
+									"</body>" +
+									"</html>", new SwingWorker<Void,Iterable<Content>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Content> selected = new Vector<Content>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
 										try
 										{
 											Content o = (Content) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -1297,6 +1350,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1315,8 +1370,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1516,20 +1572,29 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Convention>>()
+							m_PopupDialog = new DialogSearch(IConvention.this,
+									"<html>" +
+									"<body>" +
+									"Move selected items to the Trash?<br/>" +
+									"</body>" +
+									"</html>", new SwingWorker<Void,Iterable<Convention>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Convention> selected = new Vector<Convention>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
 										try
 										{
 											Convention o = (Convention) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -1537,6 +1602,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1555,8 +1622,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1771,20 +1839,29 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							new SwingWorker<Void,Iterable<Parody>>()
+							m_PopupDialog = new DialogSearch(IParody.this,
+									"<html>" +
+									"<body>" +
+									"Move selected items to the Trash?<br/>" +
+									"</body>" +
+									"</html>", new SwingWorker<Void,Iterable<Parody>>()
 							{
 								@Override
 								protected Void doInBackground() throws Exception
 								{
+									int cSelected, cProcessed;
 									Vector<Parody> selected = new Vector<Parody>();
+									
+									cProcessed = 0;
+									cSelected = tableResults.getSelectedRowCount();
+									
 									for(int index : tableResults.getSelectedRows())
 									{
 										try
 										{
 											Parody o = (Parody) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
 											o.doRecycle();
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
@@ -1792,6 +1869,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
+									if(Core.Database.isAutocommit())
+										Core.Database.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1810,8 +1889,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								@Override
 								protected void done() {
 									tableResults.clearSelection();
+									m_PopupDialog.dispose();
 							    }
-							}.execute();
+							});
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1924,6 +2004,163 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_ButtonSearch.setMnemonic('S');
 				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
 			}
+		}
+	}
+	
+	private static final class DialogSearch extends JInternalFrame implements LayoutManager
+	{
+		private JComponent m_GlassPane;
+		private JComponent m_Component;
+		private JLabel m_LabelMessage;
+		private JButton m_ButtonOk;
+		private JButton m_ButtonCancel;
+		private JProgressBar m_ProgressBar;
+		
+		private SwingWorker<?,?> m_Worker;
+		
+		public DialogSearch(JComponent parent, String message, SwingWorker<?,?> worker)
+		{
+			super();
+			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Trash"));
+			super.setTitle("Trash");
+			super.setMaximizable(false);
+			super.setIconifiable(false);
+			super.setResizable(false);
+			super.setClosable(false);
+			super.setPreferredSize(new Dimension(300, 150));
+			super.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+			super.addInternalFrameListener(new InternalFrameAdapter()
+			{
+				@Override
+				public void internalFrameClosed(InternalFrameEvent ife)
+				{
+					hideDialog();
+				}
+
+				@Override
+				public void internalFrameClosing(InternalFrameEvent ife)
+				{
+					hideDialog();
+				}
+			});
+			
+			m_GlassPane = (JComponent) ((RootPaneContainer) parent.getRootPane().getParent()).getGlassPane();
+			
+			m_Worker = worker;
+			m_Worker.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent evt) {
+					if ("progress".equals(evt.getPropertyName())) {
+						m_ProgressBar.setValue((Integer) evt.getNewValue());
+						return;
+					}
+				}
+			});
+			
+			m_Component = new JPanel();
+			m_Component.setSize(250, 150);
+			m_Component.setLayout(new GridLayout(3, 1));
+			m_LabelMessage = new JLabel(message);
+			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
+			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
+			m_LabelMessage.setFont(Core.Resources.Font);
+			m_Component.add(m_LabelMessage);
+			
+			m_ProgressBar = new JProgressBar();
+			m_ProgressBar.setValue(0);
+			m_ProgressBar.setMinimum(0);
+			m_ProgressBar.setMaximum(100);
+			m_ProgressBar.setStringPainted(true);
+			m_ProgressBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			m_Component.add(m_ProgressBar);
+			
+			JPanel bottomPanel = new JPanel();
+			bottomPanel.setLayout(new GridLayout(1, 2));
+			m_ButtonCancel = new JButton("Cancel");
+			m_ButtonCancel.setFont(Core.Resources.Font);
+			m_ButtonCancel.setMnemonic('C');
+			m_ButtonCancel.setFocusable(false);
+			m_ButtonCancel.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					m_Worker.cancel(true);
+					dispose();
+				}					
+			});
+			m_ButtonOk = new JButton("Ok");
+			m_ButtonOk.setFont(Core.Resources.Font);
+			m_ButtonOk.setMnemonic('O');
+			m_ButtonOk.setFocusable(false);
+			m_ButtonOk.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					m_ButtonOk.setEnabled(false);
+					m_Worker.execute();
+				}					
+			});
+			bottomPanel.add(m_ButtonOk);
+			bottomPanel.add(m_ButtonCancel);
+			m_Component.add(bottomPanel);
+			super.add(m_Component);
+			super.setVisible(true);
+			
+			showDialog();
+		}
+		
+		
+		private void showDialog()
+		{
+			m_GlassPane.add(this);
+			m_GlassPane.setEnabled(true);
+			m_GlassPane.setVisible(true);
+			m_GlassPane.setEnabled(false);
+			Dimension size = super.getPreferredSize();
+			int x = (int) (m_GlassPane.getWidth() - size.getWidth()) / 2;
+			int y = (int) (m_GlassPane.getHeight() - size.getHeight()) / 2;
+			setBounds(x, y, (int) size.getWidth(), (int) size.getHeight());
+			try {
+				setSelected(true);
+			} catch (PropertyVetoException pve) {
+				pve.printStackTrace();
+			}
+		}
+		
+		private void hideDialog()
+		{
+			m_GlassPane.remove(this);
+			m_GlassPane.setEnabled(true);
+			m_GlassPane.setVisible(false);
+			m_GlassPane.setEnabled(false);
+		}
+
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			m_Component.setBounds(0, 0, width, height);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) {}
+		
+		@Override
+		public void removeLayoutComponent(Component c) {}
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return getMinimumSize();
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return getPreferredSize();
 		}
 	}
 }

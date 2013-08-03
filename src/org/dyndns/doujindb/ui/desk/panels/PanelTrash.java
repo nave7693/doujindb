@@ -1058,6 +1058,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			m_LabelMessage = new JLabel(message);
 			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			m_LabelMessage.setFont(Core.Resources.Font);
+			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
+			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
 			m_Component.add(m_LabelMessage);
 			
 			m_ProgressBar = new JProgressBar();

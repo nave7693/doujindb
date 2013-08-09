@@ -540,12 +540,14 @@ final class TaskManager
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		{
 			BufferedImage dest;
-			if(coverImage.getWidth() > coverImage.getHeight())
-				dest = new BufferedImage(coverImage.getWidth() / 2, coverImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+			int img_width = coverImage.getWidth(),
+				img_height = coverImage.getHeight();
+			if(img_width > img_height)
+				dest = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_RGB);
 			else
-				dest = new BufferedImage(coverImage.getWidth(), coverImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+				dest = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_RGB);
 			Graphics g = dest.getGraphics();
-			g.drawImage(coverImage, 0, 0, coverImage.getWidth(), coverImage.getHeight(), null);
+			g.drawImage(coverImage, 0, 0, img_width, img_height, null);
 			g.dispose();
 			if(DoujinshiDBScanner.RESIZE_COVER)
 			try
@@ -639,9 +641,7 @@ final class TaskManager
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
 		try
 		{
-			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
-			Unmarshaller um = context.createUnmarshaller();
-			list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rspFile));
+			list = XMLParser.readList(new FileInputStream(rspFile));
 			if(list.ERROR != null)
 			{
 				throw new TaskErrorException("Server returned : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
@@ -672,13 +672,6 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execBIDParse(Task task) throws TaskWarningException, TaskErrorException
-	{
-		task.setExec(TaskExec.PARSE_BID);
-		
-		return true;
-	}
-	
 	private static boolean execSimilarityCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
 		task.setExec(TaskExec.CHECK_SIMILARITY);
@@ -692,16 +685,24 @@ final class TaskManager
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
 		try
 		{
-			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
-			Unmarshaller um = context.createUnmarshaller();
-			list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rspFile));
-			
+			list = XMLParser.readList(new FileInputStream(rspFile));
 			for(XMLParser.XML_Book _book : list.Books)
 			{
 				if(_book.ID.equals(task.getMugimugiBid()))
 				{
 					book = _book;
 					break;
+				}
+			}
+			if(book == null)
+			{
+				URLConnection urlc;
+				try {
+					urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
+					book = XMLParser.readList(urlc.getInputStream()).Books.get(0);
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
 				}
 			}
 			if(book == null)
@@ -757,16 +758,24 @@ final class TaskManager
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
 		try
 		{
-			JAXBContext context = JAXBContext.newInstance(XMLParser.XML_List.class);
-			Unmarshaller um = context.createUnmarshaller();
-			list = (XMLParser.XML_List) um.unmarshal(new FileInputStream(rspFile));
-			
+			list = XMLParser.readList(new FileInputStream(rspFile));
 			for(XMLParser.XML_Book _book : list.Books)
 			{
 				if(_book.ID.equals(task.getMugimugiBid()))
 				{
 					xmlbook = _book;
 					break;
+				}
+			}
+			if(xmlbook == null)
+			{
+				URLConnection urlc;
+				try {
+					urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
+					xmlbook = XMLParser.readList(urlc.getInputStream()).Books.get(0);
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
 				}
 			}
 			if(xmlbook == null)
@@ -897,19 +906,19 @@ final class TaskManager
 						break;
 					case parody:
 						_case:{
-						for(Parody parody : parodies)
-							if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-									(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-									(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-							{
-								book.addParody(parody);
-								break _case;
-							}
-						Parody p = DoujinshiDBScanner.Context.doInsert(Parody.class);
-						p.setJapaneseName(xmlitem.NAME_JP);
-						p.setTranslatedName(xmlitem.NAME_EN);
-						p.setRomajiName(xmlitem.NAME_R);
-						book.addParody(p);
+							for(Parody parody : parodies)
+								if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
+										(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
+										(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
+								{
+									book.addParody(parody);
+									break _case;
+								}
+							Parody p = DoujinshiDBScanner.Context.doInsert(Parody.class);
+							p.setJapaneseName(xmlitem.NAME_JP);
+							p.setTranslatedName(xmlitem.NAME_EN);
+							p.setRomajiName(xmlitem.NAME_R);
+							book.addParody(p);
 						}
 						break;
 					case publisher:
@@ -944,9 +953,7 @@ final class TaskManager
 					{
 						XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
 						Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
-						if(node == null)
-							continue;
-						else
+						if(node != null)
 							clink.get(cid).addArtist(alink.get(aid));
 					}
 				}

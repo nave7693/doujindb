@@ -112,7 +112,9 @@ public final class DoujinshiDBScanner extends Plugin
 	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 	{
 		private JTabbedPane m_TabbedPane;
+		@SuppressWarnings("unused")
 		private JPanel m_TabSettings;
+		@SuppressWarnings("unused")
 		private JPanel m_TabTasks;
 		private JPanel m_TabScanner;
 		
@@ -295,6 +297,21 @@ public final class DoujinshiDBScanner extends Plugin
 			m_LabelCacheInfo.setFont(Core.Resources.Font);
 			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
 			bogus.add(m_LabelCacheInfo);
+			m_LabelMaxResults = new JLabel("Max Results : " + 10);
+			m_LabelMaxResults.setFont(Core.Resources.Font);
+			bogus.add(m_LabelMaxResults);
+			m_SliderMaxResults = new JSlider(1, 25);
+			m_SliderMaxResults.setValue(10);
+			m_SliderMaxResults.setFont(Core.Resources.Font);
+			m_SliderMaxResults.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent ce)
+				{
+					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
+				}				
+			});
+			bogus.add(m_SliderMaxResults);
 			m_TabbedPane.addTab("Settings", Resources.Icons.get("Plugin/Settings"), m_TabSettings = bogus);
 			
 			bogus = new JPanel();
@@ -328,21 +345,7 @@ public final class DoujinshiDBScanner extends Plugin
 			m_TabbedPane.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), m_TabTasks = bogus);
 			
 			bogus = new JPanel();
-			m_LabelMaxResults = new JLabel("Max Results : " + 10);
-			m_LabelMaxResults.setFont(Core.Resources.Font);
-			bogus.add(m_LabelMaxResults);
-			m_SliderMaxResults = new JSlider(1, 25);
-			m_SliderMaxResults.setValue(10);
-			m_SliderMaxResults.setFont(Core.Resources.Font);
-			m_SliderMaxResults.addChangeListener(new ChangeListener()
-			{
-				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
-					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
-				}				
-			});
-			bogus.add(m_SliderMaxResults);
+			bogus.setLayout(null);
 			m_ButtonScanPreview = new JButton();
 			m_ButtonScanPreview.setIcon(Resources.Icons.get("Plugin/Search/Preview"));
 			m_ButtonScanPreview.addActionListener(this);
@@ -407,7 +410,45 @@ public final class DoujinshiDBScanner extends Plugin
 			m_TabbedPaneScanResult.setFocusable(false);
 			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
 			bogus.add(m_TabbedPaneScanResult);
-			m_ProgressBarScan = new JProgressBar();
+			//FIXME DiujinshiDB Plugin image scanner task should be cancellable
+//			m_ProgressBarScan = new JProgressBar();
+			m_ProgressBarScan = new JProgressBar()
+			{
+				private int size = 30;
+				private int direction = 1;
+				{
+					new SwingWorker<Void,Void>()
+					{
+						@Override
+						public Void doInBackground()
+						{
+							while(true)
+							{
+								try
+								{
+									Thread.sleep(100);
+									publish();
+								} catch (InterruptedException ie) { ; }
+								
+							}
+						}
+						@Override
+						public void process(java.util.List<Void> chunks)
+						{
+							setValue(getValue()+direction*5);
+							if(getValue() == getMaximum() || getValue() == getMinimum())
+								direction *= -1;
+						}
+					}.execute();
+				}
+				public void paint(Graphics g)
+				{
+					g.setColor(getBackground());
+					g.fillRect(0,0,getWidth(),getHeight());
+					g.setColor(getForeground());
+					g.fillRect(getValue(),2,size,getHeight()-3);
+				}
+			};
 			m_ProgressBarScan.setFont(Core.Resources.Font);
 			m_ProgressBarScan.setMaximum(100);
 			m_ProgressBarScan.setMinimum(1);
@@ -423,7 +464,6 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ButtonScanCancel.setFocusable(false);
 			bogus.add(m_ButtonScanCancel);
 			m_TabbedPane.addTab("Search", Resources.Icons.get("Plugin/Search"), m_TabScanner = bogus);
-			
 			super.add(m_TabbedPane);
 			
 			TaskManager.registerListener(this);
@@ -472,7 +512,9 @@ public final class DoujinshiDBScanner extends Plugin
 			}
 			m_ProgressBarCache.setBounds(5,25+220,width-15,20);
 			m_CheckboxCacheOverwrite.setBounds(5,25+240,width-15,20);
-			m_LabelCacheInfo.setBounds(5,25+270,width,height-280);
+			m_LabelCacheInfo.setBounds(5,25+270,width,50);
+			m_LabelMaxResults.setBounds(5,25+320,100,25);
+			m_SliderMaxResults.setBounds(105,25+320,100,25);
 			m_CheckboxSelection.setBounds(width-25,1,20,20);
 			m_SplitPane.setBounds(1,21,width-5,height-45);
 			if(UserInfo != null)
@@ -489,16 +531,22 @@ public final class DoujinshiDBScanner extends Plugin
 				m_TextApiImageQueryCount.setText("");
 			}
 			m_ButtonScanPreview.setBounds(5,5,180,256);
+			//FIXME DiujinshiDB Plugin image scanner task should be cancellable
+//			if(m_ScannerRunning)
+//			{
+//				m_ProgressBarScan.setBounds(5,265,180,20);
+//				m_ButtonScanCancel.setBounds(5,290,180,20);
+//			}
+//			else
+//			{
+//				m_ProgressBarScan.setBounds(0,0,0,0);
+//				m_ButtonScanCancel.setBounds(0,0,0,0);
+//			}
 			if(m_ScannerRunning)
-			{
 				m_ProgressBarScan.setBounds(5,265,180,20);
-				m_ButtonScanCancel.setBounds(5,290,180,20);
-			}
 			else
-			{
 				m_ProgressBarScan.setBounds(0,0,0,0);
-				m_ButtonScanCancel.setBounds(0,0,0,0);
-			}
+			m_ButtonScanCancel.setBounds(0,0,0,0);
 			m_TabbedPaneScanResult.setBounds(190,5,width-190,height-10);
 		}
 		@Override
@@ -635,6 +683,11 @@ public final class DoujinshiDBScanner extends Plugin
 			if(ae.getSource() == m_ButtonCacheCancel)
 			{
 				m_WorkerBuilder.cancel(true);
+				return;
+			}
+			if(ae.getSource() == m_ButtonScanCancel)
+			{
+				m_WorkerScanner.cancel(true);
 				return;
 			}
 		}
@@ -1071,10 +1124,46 @@ public final class DoujinshiDBScanner extends Plugin
                             	return;
                             JButton selectedTab = (JButton) pane.getComponentAt(pane.getSelectedIndex());
                             m_ButtonImportBID.setActionCommand(selectedTab.getActionCommand());
+                            m_ButtonImportBID.setText("Import from mugimugi ID [" + m_ButtonImportBID.getActionCommand() + "]");
                         }
                     }
                 });
 				add(m_TabbedPaneImage);
+				
+				new SwingWorker<Void,String>()
+				{
+					private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					private String prevValue = "";
+					@Override
+					protected Void doInBackground() throws Exception {
+						Thread.currentThread().setName("DoujinshiDBScanner/ClipboardMonitor");
+						while(true)
+							try
+							{
+								String data = (String) clipboard.getData(DataFlavor.stringFlavor);
+								if(data.matches("(http://doujinshi\\.mugimugi\\.org/book/)?[0-9]+(/)?"))
+								{
+									String mugimugi_id = "B" + data.replaceFirst("(http://doujinshi\\.mugimugi\\.org/book/)?([0-9]+)(/)?", "$2");
+									if(mugimugi_id.equals(prevValue))
+										continue;
+									prevValue = mugimugi_id;
+									publish(mugimugi_id);
+								}
+							} catch (ClassCastException | UnsupportedFlavorException | IOException ee) {
+							} catch (Exception e)
+							{
+								e.printStackTrace();
+							}
+					}
+					@Override
+				    protected void process(List<String> chunks) {
+						String mugimugi_id = chunks.iterator().next();
+						m_ButtonImportBID.setActionCommand(mugimugi_id);
+	                    m_ButtonImportBID.setText("Import from mugimugi ID [" + mugimugi_id + "]");
+					}
+					@Override
+					protected void done() { }
+				}.execute();
 				
 				TaskManager.registerListener(this);
 			}
@@ -1134,6 +1223,8 @@ public final class DoujinshiDBScanner extends Plugin
 			private void fireItemsUpdated()
 			{
 				m_TabbedPaneImage.removeAll();
+				m_ButtonImportBID.setText("Import from mugimugi ID");
+				
 				new SwingWorker<Void, Map<String,Object>>()
 				{
 					private transient int selectedTab = -1;
@@ -1347,85 +1438,6 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ButtonImportBID.setEnabled(false);
 					return;
 				}
-				
-//				m_ButtonOpenFolder.setBounds(0, 0, 0, 0);
-//				m_ButtonRunAgain.setBounds(0, 0, 0, 0);
-//				m_ButtonOpenXML.setBounds(0, 0, 0, 0);
-//				m_ButtonOpenBook.setBounds(0, 0, 0, 0);
-//				m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//				m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//				
-//				if(m_Task.isRunning())
-//				{
-//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
-//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
-//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(TaskInfo.COMPLETED))
-//				{
-//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
-//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
-//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(TaskInfo.IDLE))
-//				{
-//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
-//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenXML.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
-//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(TaskInfo.WARNING))
-//				{
-//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
-//					m_ButtonRunAgain.setBounds(0, 0, 0, 0);
-//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
-//					if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE))
-//					{
-//						m_ButtonOpenXML.setBounds(0, 0, 0, 0);
-//						m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
-//						m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
-//					}
-//					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
-//					{
-//						m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
-//						m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//						m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
-//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
-//					}
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(TaskInfo.ERROR))
-//				{
-//					m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
-//					m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
-//					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
-//						m_Task.getExec().equals(TaskExec.PARSE_XML) ||
-//						m_Task.getExec().equals(TaskExec.PARSE_BID) ||
-//						m_Task.getExec().equals(TaskExec.SAVE_DATABASE) ||
-//						m_Task.getExec().equals(TaskExec.SAVE_DATASTORE))
-//						m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
-//					m_ButtonOpenBook.setBounds(0, 0, 0, 0);
-//					m_ButtonSkipDuplicate.setBounds(0, 0, 0, 0);
-//					m_ButtonImportBID.setBounds(0, 0, 0, 0);
-//					m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//					return;
-//				}
 			}
 			
 			@Override
@@ -1672,19 +1684,20 @@ public final class DoujinshiDBScanner extends Plugin
 				m_ProgressBarScan.setString("Loading ...");
 				
 				// Init data
-				int threshold = m_SliderApiThreshold.getValue();
 				int max_results = m_SliderMaxResults.getValue();
 				
 				BufferedImage bi;
 				try {
 					bi = ImageTool.read(file);
 					BufferedImage resized_bi;
-					if(bi.getWidth() > bi.getHeight())
-						resized_bi = new BufferedImage(bi.getWidth() / 2, bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+					int img_width = bi.getWidth(),
+						img_height = bi.getHeight();
+					if(img_width > bi.getHeight())
+						resized_bi = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_RGB);
 					else
-						resized_bi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+						resized_bi = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_RGB);
 					Graphics g = resized_bi.getGraphics();
-					g.drawImage(bi, 0, 0, bi.getWidth(), bi.getHeight(), null);
+					g.drawImage(bi, 0, 0, img_width, img_height, null);
 					g.dispose();
 					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
 					
@@ -1841,7 +1854,7 @@ public final class DoujinshiDBScanner extends Plugin
 		
 		Context = Core.Database.getContext(UUID);
 		
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
 		PLUGIN_HOME.mkdirs();

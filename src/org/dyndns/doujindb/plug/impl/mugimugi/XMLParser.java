@@ -18,6 +18,11 @@ final class XMLParser
 		return parseObject(in, XML_List.class);
 	}
 	
+	public static XML_Book readBook(InputStream in) throws JAXBException
+	{
+		return parseObject(in, XML_Book.class);
+	}
+	
 	@XmlRootElement(namespace = "", name="LIST")
 	static final class XML_List
 	{

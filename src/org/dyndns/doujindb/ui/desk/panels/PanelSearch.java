@@ -782,8 +782,19 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Logger.log(dbe.getMessage(), Level.ERROR);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									try
+									{
+										if(Core.Database.isAutocommit())
+											Core.Database.doCommit();
+									} catch (DataBaseException dbe)
+									{
+										dbe.printStackTrace();
+										Core.Logger.log(dbe.getMessage(), Level.ERROR);
+									} catch (Exception e)
+									{
+										e.printStackTrace();
+										Core.Logger.log(e.getMessage(), Level.ERROR);
+									}
 									publish(selected);
 									return null;
 								}

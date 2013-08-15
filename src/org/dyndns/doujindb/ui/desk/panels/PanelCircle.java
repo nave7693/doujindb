@@ -210,7 +210,6 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenCircle);
-		editorWorks.setEnabled(false);
 		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
@@ -311,12 +310,18 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 			tokenCircle.setTranslatedName(textTranslatedName.getText());
 			tokenCircle.setRomajiName(textRomajiName.getText());
 			tokenCircle.setWeblink(textWeblink.getText());
-			for(Artist c : tokenCircle.getArtists())
-				if(!editorArtists.contains(c))
-				tokenCircle.removeArtist(c);
-			java.util.Iterator<Artist> Artists = editorArtists.iterator();
-			while(Artists.hasNext())
-				tokenCircle.addArtist(Artists.next());
+			for(Artist a : tokenCircle.getArtists())
+				if(!editorArtists.contains(a))
+				tokenCircle.removeArtist(a);
+			java.util.Iterator<Artist> artists = editorArtists.iterator();
+			while(artists.hasNext())
+				tokenCircle.addArtist(artists.next());
+			for(Book b : tokenCircle.getBooks())
+				if(!editorWorks.contains(b))
+				tokenCircle.removeBook(b);
+			java.util.Iterator<Book> books = editorWorks.iterator();
+			while(books.hasNext())
+				tokenCircle.addBook(books.next());
 
 			new SwingWorker<Void, Object>() {
 				@Override

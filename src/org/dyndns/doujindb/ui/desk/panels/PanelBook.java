@@ -338,7 +338,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		editorArtists = new RecordArtistEditor(tokenBook);
 		tabLists.addTab("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), editorArtists);
 		editorCircles = new RecordCircleEditor(tokenBook);
-		editorCircles.setEnabled(false);
 		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
 		editorContents = new RecordContentEditor(tokenBook);
 		tabLists.addTab("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), editorContents);
@@ -510,21 +509,27 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			tokenBook.setDecensored(checkDecensored.isSelected());
 			tokenBook.setTranslated(checkTranslated.isSelected());
 			tokenBook.setColored(checkColored.isSelected());
-			for(Artist b : tokenBook.getArtists())
-				if(!editorArtists.contains(b))
-					tokenBook.removeArtist(b);
+			for(Artist a : tokenBook.getArtists())
+				if(!editorArtists.contains(a))
+					tokenBook.removeArtist(a);
 			java.util.Iterator<Artist> Artists = editorArtists.iterator();
 			while(Artists.hasNext())
 				tokenBook.addArtist(Artists.next());
+			for(Circle c : tokenBook.getCircles())
+				if(!editorCircles.contains(c))
+					tokenBook.removeCircle(c);
+			java.util.Iterator<Circle> circles = editorCircles.iterator();
+			while(circles.hasNext())
+				tokenBook.addCircle(circles.next());
 			for(Content c : tokenBook.getContents())
 				if(!editorContents.contains(c))
 					tokenBook.removeContent(c);
 			java.util.Iterator<Content> contents = editorContents.iterator();
 			while(contents.hasNext())
 				tokenBook.addContent(contents.next());
-			for(Parody c : tokenBook.getParodies())
-				if(!editorParodies.contains(c))
-					tokenBook.removeParody(c);
+			for(Parody p : tokenBook.getParodies())
+				if(!editorParodies.contains(p))
+					tokenBook.removeParody(p);
 			java.util.Iterator<Parody> parodies = editorParodies.iterator();
 			while(parodies.hasNext())
 				tokenBook.addParody(parodies.next());

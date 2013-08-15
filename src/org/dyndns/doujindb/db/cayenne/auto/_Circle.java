@@ -68,7 +68,12 @@ public abstract class _Circle extends CayenneDataObject {
         return (Set<Artist>)readProperty("artists");
     }
 
-
+    public void addToBooks(Book obj) {
+        addToManyTarget("books", obj, true);
+    }
+    public void removeFromBooks(Book obj) {
+        removeToManyTarget("books", obj, true);
+    }
     @SuppressWarnings("unchecked")
     public Set<Book> getBooks() {
         return (Set<Book>)readProperty("books");

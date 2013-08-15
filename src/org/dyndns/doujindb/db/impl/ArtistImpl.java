@@ -188,22 +188,8 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	public void removeAll() throws DataBaseException
 	{
 		for(Book book : getBooks())
-		{
-			((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromBooks(
-					(org.dyndns.doujindb.db.cayenne.Book)
-					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-		}
+			removeBook(book);
 		for(Circle circle : getCircles())
-		{
-			((org.dyndns.doujindb.db.cayenne.Artist)ref).removeFromCircles(
-					(org.dyndns.doujindb.db.cayenne.Circle)
-					((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(circle));
-			((DataBaseImpl)Core.Database)._recordUpdated(circle, UpdateData.unlink(this));
-		}
+			removeCircle(circle);
 	}
 }

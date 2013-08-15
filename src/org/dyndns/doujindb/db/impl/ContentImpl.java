@@ -162,13 +162,6 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	public void removeAll() throws DataBaseException
 	{
 		for(Book book : getBooks())
-		{
-			((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromBooks(
-					(org.dyndns.doujindb.db.cayenne.Book)
-					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-		}
+			removeBook(book);
 	}
 }

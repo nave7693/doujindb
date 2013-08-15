@@ -65,9 +65,11 @@ public interface Book extends Record, CntArtist, CntCircle, CntContent, CntConve
 	public void setConvention(Convention convention) throws DataBaseException;
 	public RecordSet<Parody> getParodies() throws DataBaseException;
 	public void addArtist(Artist artist) throws DataBaseException;
+	public void addCircle(Circle circle) throws DataBaseException;
 	public void addContent(Content content) throws DataBaseException;
 	public void addParody(Parody parody) throws DataBaseException;
 	public void removeArtist(Artist artist) throws DataBaseException;
+	public void removeCircle(Circle circle) throws DataBaseException;
 	public void removeContent(Content content) throws DataBaseException;
 	public void removeParody(Parody parody) throws DataBaseException;
 	public void removeAll() throws DataBaseException;

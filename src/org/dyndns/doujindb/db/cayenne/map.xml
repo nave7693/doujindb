@@ -7,10 +7,10 @@
 	<db-entity name="Artist">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
-		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Book">
 		<db-attribute name="ADULT" type="BOOLEAN"/>
@@ -23,25 +23,34 @@
 		<db-attribute name="PAGES" type="INTEGER"/>
 		<db-attribute name="PUBLISHED" type="DATE"/>
 		<db-attribute name="RATING" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED" type="BOOLEAN"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TYPE" type="INTEGER" isMandatory="true"/>
-		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Circle">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
-		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="CircleOf">
+		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="CIRCLE_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Content">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
-		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="ContentAlias">
+		<db-attribute name="CONTENT_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 	</db-entity>
 	<db-entity name="ContentOf">
 		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
@@ -50,9 +59,14 @@
 	<db-entity name="Convention">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
+		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
-		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="ConventionAlias">
+		<db-attribute name="CONVENTION_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
 	</db-entity>
 	<db-entity name="DrawnBy">
 		<db-attribute name="ARTIST_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
@@ -65,33 +79,21 @@
 	<db-entity name="Parody">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
-		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="ParodyOf">
 		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="PARODY_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
-	<db-entity name="ConventionAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="CONVENTION_ID" type="INTEGER" isMandatory="true"/>
-		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
-		<post-add method-name="postAdd"/>
-	</db-entity>
-	<db-entity name="ContentAlias">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
-		<db-attribute name="CONTENT_ID" type="INTEGER" isMandatory="true"/>
-		<db-attribute name="TAG_NAME" type="VARCHAR" length="32"/>
-		<post-add method-name="postAdd"/>
-	</db-entity>
 	<obj-entity name="Artist" className="org.dyndns.doujindb.db.cayenne.Artist" dbEntityName="Artist">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
+		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
-		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
@@ -103,43 +105,24 @@
 		<obj-attribute name="pages" type="java.lang.Integer" db-attribute-path="PAGES"/>
 		<obj-attribute name="published" type="java.util.Date" db-attribute-path="PUBLISHED"/>
 		<obj-attribute name="rating" type="org.dyndns.doujindb.db.records.Book.Rating" db-attribute-path="RATING"/>
+		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
 		<obj-attribute name="translated" type="java.lang.Boolean" db-attribute-path="TRANSLATED"/>
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="type" type="org.dyndns.doujindb.db.records.Book.Type" db-attribute-path="TYPE"/>
-		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Circle" className="org.dyndns.doujindb.db.cayenne.Circle" dbEntityName="Circle">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
+		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
-		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Content" className="org.dyndns.doujindb.db.cayenne.Content" dbEntityName="Content">
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
-		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
-		<post-add method-name="postAdd"/>
-	</obj-entity>
-	<obj-entity name="Convention" className="org.dyndns.doujindb.db.cayenne.Convention" dbEntityName="Convention">
-		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
-		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
-		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
-		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
-		<post-add method-name="postAdd"/>
-	</obj-entity>
-	<obj-entity name="Parody" className="org.dyndns.doujindb.db.cayenne.Parody" dbEntityName="Parody">
-		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
-		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
-		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
-		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
-		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
-		<post-add method-name="postAdd"/>
-	</obj-entity>
-	<obj-entity name="ConventionAlias" className="org.dyndns.doujindb.db.cayenne.ConventionAlias" dbEntityName="ConventionAlias">
 		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
@@ -147,11 +130,33 @@
 		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
+	<obj-entity name="Convention" className="org.dyndns.doujindb.db.cayenne.Convention" dbEntityName="Convention">
+		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
+		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
+		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
+		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="ConventionAlias" className="org.dyndns.doujindb.db.cayenne.ConventionAlias" dbEntityName="ConventionAlias">
+		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
+		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="Parody" className="org.dyndns.doujindb.db.cayenne.Parody" dbEntityName="Parody">
+		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
+		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
+		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
+		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
+		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
+		<post-add method-name="postAdd"/>
+	</obj-entity>
 	<db-relationship name="drawnby" source="Artist" target="DrawnBy" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>
 	</db-relationship>
 	<db-relationship name="memberof" source="Artist" target="MemberOf" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>
+	</db-relationship>
+	<db-relationship name="circleof" source="Book" target="CircleOf" toMany="true">
+		<db-attribute-pair source="ID" target="BOOK_ID"/>
 	</db-relationship>
 	<db-relationship name="contentof" source="Book" target="ContentOf" toMany="true">
 		<db-attribute-pair source="ID" target="BOOK_ID"/>
@@ -165,20 +170,26 @@
 	<db-relationship name="parodyof" source="Book" target="ParodyOf" toMany="true">
 		<db-attribute-pair source="ID" target="BOOK_ID"/>
 	</db-relationship>
+	<db-relationship name="circleof" source="Circle" target="CircleOf" toMany="true">
+		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
+	</db-relationship>
 	<db-relationship name="memberof" source="Circle" target="MemberOf" toMany="true">
 		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
+	</db-relationship>
+	<db-relationship name="contentalias" source="Content" target="ContentAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CONTENT_ID"/>
 	</db-relationship>
 	<db-relationship name="contentof" source="Content" target="ContentOf" toMany="true">
 		<db-attribute-pair source="ID" target="CONTENT_ID"/>
 	</db-relationship>
-	<db-relationship name="book" source="ContentOf" target="Book" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="BOOK_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="content" source="ContentOf" target="Content" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="CONTENT_ID" target="ID"/>
+	<db-relationship name="conventionalias" source="Convention" target="ConventionAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CONVENTION_ID"/>
 	</db-relationship>
 	<db-relationship name="conventionof" source="Convention" target="Book" toMany="true">
 		<db-attribute-pair source="ID" target="CONVENTION"/>
+	</db-relationship>
+	<db-relationship name="parodyof" source="Parody" target="ParodyOf" toMany="true">
+		<db-attribute-pair source="ID" target="PARODY_ID"/>
 	</db-relationship>
 	<db-relationship name="artist" source="DrawnBy" target="Artist" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="ARTIST_ID" target="ID"/>
@@ -186,14 +197,29 @@
 	<db-relationship name="book" source="DrawnBy" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>
 	</db-relationship>
+	<db-relationship name="book" source="CircleOf" target="Book" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="BOOK_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="circle" source="CircleOf" target="Circle" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="book" source="ContentOf" target="Book" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="BOOK_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="content" source="ContentOf" target="Content" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="CONTENT_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="contentalias" source="ContentAlias" target="Content" toMany="false">
+		<db-attribute-pair source="CONTENT_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="conventionalias" source="ConventionAlias" target="Convention" toMany="false">
+		<db-attribute-pair source="CONVENTION_ID" target="ID"/>
+	</db-relationship>
 	<db-relationship name="artist" source="MemberOf" target="Artist" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="ARTIST_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="circle" source="MemberOf" target="Circle" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="parodyof" source="Parody" target="ParodyOf" toMany="true">
-		<db-attribute-pair source="ID" target="PARODY_ID"/>
 	</db-relationship>
 	<db-relationship name="book" source="ParodyOf" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>
@@ -201,30 +227,18 @@
 	<db-relationship name="parody" source="ParodyOf" target="Parody" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="PARODY_ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="conventionalias" source="ConventionAlias" target="Convention" toMany="false">
-		<db-attribute-pair source="CONVENTION_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="contentalias" source="ContentAlias" target="Content" toMany="false">
-		<db-attribute-pair source="CONTENT_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="conventionalias" source="Convention" target="ConventionAlias" toMany="true">
-		<db-attribute-pair source="ID" target="CONVENTION_ID"/>
-	</db-relationship>
-	<db-relationship name="contentalias" source="Content" target="ContentAlias" toMany="true">
-		<db-attribute-pair source="ID" target="CONTENT_ID"/>
-	</db-relationship>
 	<obj-relationship name="books" source="Artist" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.book"/>
 	<obj-relationship name="circles" source="Artist" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.circle"/>
 	<obj-relationship name="artists" source="Book" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.artist"/>
-	<obj-relationship name="circles" source="Book" target="Circle" collection-type="java.util.Set" deleteRule="NoAction" db-relationship-path="drawnby.artist.memberof.circle"/>
+	<obj-relationship name="circles" source="Book" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="circleof.circle"/>
 	<obj-relationship name="contents" source="Book" target="Content" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.content"/>
 	<obj-relationship name="conventionof" source="Book" target="Convention" deleteRule="Deny" db-relationship-path="conventionof"/>
 	<obj-relationship name="parodies" source="Book" target="Parody" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.parody"/>
 	<obj-relationship name="artists" source="Circle" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.artist"/>
-	<obj-relationship name="books" source="Circle" target="Book" collection-type="java.util.Set" deleteRule="NoAction" db-relationship-path="memberof.artist.drawnby.book"/>
+	<obj-relationship name="books" source="Circle" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="circleof.book"/>
+	<obj-relationship name="aliases" source="Content" target="ContentAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="contentalias"/>
 	<obj-relationship name="books" source="Content" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.book"/>
+	<obj-relationship name="aliases" source="Convention" target="ConventionAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="conventionalias"/>
 	<obj-relationship name="books" source="Convention" target="Book" collection-type="java.util.Set" deleteRule="Nullify" db-relationship-path="conventionof"/>
 	<obj-relationship name="books" source="Parody" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.book"/>
-	<obj-relationship name="aliases" source="Convention" target="ConventionAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="conventionalias"/>
-	<obj-relationship name="aliases" source="Content" target="ContentAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="contentalias"/>
 </data-map>

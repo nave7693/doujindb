@@ -177,13 +177,6 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public void removeAll() throws DataBaseException
 	{
 		for(Book book : getBooks())
-		{
-			((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
-					(org.dyndns.doujindb.db.cayenne.Book)
-					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-		}
+			removeBook(book);
 	}
 }

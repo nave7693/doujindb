@@ -154,13 +154,6 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	public void removeAll() throws DataBaseException
 	{
 		for(Book book : getBooks())
-		{
-			((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(
-					(org.dyndns.doujindb.db.cayenne.Book)
-					((org.dyndns.doujindb.db.impl.BookImpl)book).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-		}
+			removeBook(book);
 	}
 }

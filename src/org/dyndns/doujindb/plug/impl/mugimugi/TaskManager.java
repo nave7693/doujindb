@@ -800,8 +800,8 @@ final class TaskManager
 			RecordSet<Content> contents = DoujinshiDBScanner.Context.getContents(null);
 			RecordSet<Convention> conventions = DoujinshiDBScanner.Context.getConventions(null);
 			
-			Map<String, Artist> alink = new HashMap<String, Artist>();
-			Map<String, Circle> clink = new HashMap<String, Circle>();
+			Map<String, Artist> artists_added = new HashMap<String, Artist>();
+			Map<String, Circle> circles_added = new HashMap<String, Circle>();
 			
 			for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items)
 			{
@@ -822,7 +822,7 @@ final class TaskManager
 									(artist.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 								{
 									book.addArtist(artist);
-									alink.put(xmlitem.ID, artist);
+									artists_added.put(xmlitem.ID, artist);
 									break _case;
 								}
 							Artist a = DoujinshiDBScanner.Context.doInsert(Artist.class);
@@ -830,32 +830,36 @@ final class TaskManager
 							a.setTranslatedName(xmlitem.NAME_EN);
 							a.setRomajiName(xmlitem.NAME_R);
 							book.addArtist(a);
-							alink.put(xmlitem.ID, a);
+							/**
+							 * save Artist reference
+							 * so we can link it with the appropriate Circle
+							 */
+							artists_added.put(xmlitem.ID, a);
 						}
 						break;
 					case character:
 						break;
 					case circle:
-						/**
-						 * Ok, we cannot link book <--> circle directly.
-						 * We have to link book <--> artist <--> circle instead.
-						 */
 						_case:{
 							for(Circle circle : circles)
 								if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
 										(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
 										(circle.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
 								{
-									// book.addCircle(circle);
-									clink.put(xmlitem.ID, circle);
+									book.addCircle(circle);
+									circles_added.put(xmlitem.ID, circle);
 									break _case;
 								}
 							Circle c = DoujinshiDBScanner.Context.doInsert(Circle.class);
 							c.setJapaneseName(xmlitem.NAME_JP);
 							c.setTranslatedName(xmlitem.NAME_EN);
 							c.setRomajiName(xmlitem.NAME_R);
-							// book.addCircle(c);
-							clink.put(xmlitem.ID, c);
+							book.addCircle(c);
+							/**
+							 * save Artist reference
+							 * so we can link it with the appropriate Circle
+							 */
+							circles_added.put(xmlitem.ID, c);
 						}
 						break;
 					case collections:
@@ -931,10 +935,10 @@ final class TaskManager
 			
 			DoujinshiDBScanner.Context.doCommit();
 			
-			if(alink.size() > 0 && clink.size() > 0)
+			if(artists_added.size() > 0 && circles_added.size() > 0)
 			{
-				String[] ckeys = (String[]) clink.keySet().toArray(new String[0]);
-				String[] akeys = (String[]) alink.keySet().toArray(new String[0]);
+				String[] ckeys = (String[]) circles_added.keySet().toArray(new String[0]);
+				String[] akeys = (String[]) artists_added.keySet().toArray(new String[0]);
 				String ids = ckeys[0];
 				for(int i=1;i<ckeys.length;i++)
 					ids += ckeys[i] + ",";
@@ -954,7 +958,7 @@ final class TaskManager
 						XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
 						Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
 						if(node != null)
-							clink.get(cid).addArtist(alink.get(aid));
+							circles_added.get(cid).addArtist(artists_added.get(aid));
 					}
 				}
 			}

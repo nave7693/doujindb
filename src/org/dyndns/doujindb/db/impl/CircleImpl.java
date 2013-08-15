@@ -91,18 +91,9 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	public synchronized RecordSet<Book> getBooks() throws DataBaseException
 	{
 		Set<Book> set = new TreeSet<Book>();
-		/*
-		 * Flattened Relationships n0:m0 : n1:m1 are considered read-only.
-		 * There's a problem when updating data, these relations don't get updated, you have to rollback to see changes.
-		 * Let's fix that.
-		 * Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getBooks();
-		 */
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = new HashSet<org.dyndns.doujindb.db.cayenne.Book>();
-		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Circle)ref).getArtists())
-				for(org.dyndns.doujindb.db.cayenne.Book b : a.getBooks())
-						result.add(b);
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Circle)ref).getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
-			set.add(new BookImpl(r));
+				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
 	
@@ -126,11 +117,6 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		);
 		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(artist));
 		((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.link(this));
-		for(Book book : artist.getBooks())
-		{
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
-		}
 	}
 
 	@Override
@@ -142,11 +128,30 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 		);
 		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
 		((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
-		for(Book book : artist.getBooks())
-		{
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-			((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-		}
+	}
+	
+	@Override
+	public void addBook(Book book) throws DataBaseException
+	{
+		if(getBooks().contains(book))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).addToBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
+	}
+
+	@Override
+	public void removeBook(Book book) throws DataBaseException
+	{
+		((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromBooks(
+			(org.dyndns.doujindb.db.cayenne.Book)
+			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
+		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -183,18 +188,8 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	public void removeAll() throws DataBaseException
 	{
 		for(Artist artist : getArtists())
-		{
-			for(Book book : artist.getBooks())
-			{
-				((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-				((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
-			}
-			((org.dyndns.doujindb.db.cayenne.Circle)ref).removeFromArtists(
-					(org.dyndns.doujindb.db.cayenne.Artist)
-					((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
-			((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
-		}
+			removeArtist(artist);
+		for(Book book : getBooks())
+			removeBook(book);
 	}
 }

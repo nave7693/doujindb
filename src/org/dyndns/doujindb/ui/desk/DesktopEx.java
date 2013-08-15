@@ -992,6 +992,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 
 			@Override
 			public void addArtist(Artist artist) throws DataBaseException { }
+			
+			@Override
+			public void addCircle(Circle circle) throws DataBaseException { }
 
 			@Override
 			public void addContent(Content content) throws DataBaseException { }
@@ -1001,6 +1004,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 
 			@Override
 			public void removeArtist(Artist artist) throws DataBaseException { }
+			
+			@Override
+			public void removeCircle(Circle circle) throws DataBaseException { }
 
 			@Override
 			public void removeContent(Content content) throws DataBaseException { }
@@ -1162,9 +1168,15 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 
 			@Override
 			public void addArtist(Artist artist) throws DataBaseException { }
+			
+			@Override
+			public void addBook(Book book) throws DataBaseException { }
 
 			@Override
 			public void removeArtist(Artist artist) throws DataBaseException { }
+			
+			@Override
+			public void removeBook(Book book) throws DataBaseException { }
 
 			@Override
 			public void removeAll() throws DataBaseException { }

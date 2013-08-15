@@ -142,6 +142,12 @@ public abstract class _Book extends CayenneDataObject {
     }
 
 
+    public void addToCircles(Circle obj) {
+        addToManyTarget("circles", obj, true);
+    }
+    public void removeFromCircles(Circle obj) {
+        removeToManyTarget("circles", obj, true);
+    }
     @SuppressWarnings("unchecked")
     public Set<Circle> getCircles() {
         return (Set<Circle>)readProperty("circles");

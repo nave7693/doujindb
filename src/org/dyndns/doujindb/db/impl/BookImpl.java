@@ -76,18 +76,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public synchronized RecordSet<Circle> getCircles() throws DataBaseException
 	{
 		Set<Circle> set = new TreeSet<Circle>();
-		/*
-		 * Flattened Relationships n0:m0 : n1:m1 are considered read-only.
-		 * There's a problem when updating data, these relations don't get updated, you have to rollback to see changes.
-		 * Let's fix that.
-		 * Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getCircles();
-		 */
-		Set<org.dyndns.doujindb.db.cayenne.Circle> result = new HashSet<org.dyndns.doujindb.db.cayenne.Circle>();
-		for(org.dyndns.doujindb.db.cayenne.Artist a : ((org.dyndns.doujindb.db.cayenne.Book)ref).getArtists())
-				for(org.dyndns.doujindb.db.cayenne.Circle c : a.getCircles())
-						result.add(c);
+		Set<org.dyndns.doujindb.db.cayenne.Circle> result = ((org.dyndns.doujindb.db.cayenne.Book)ref).getCircles();
 		for(org.dyndns.doujindb.db.cayenne.Circle r : result)
-			set.add(new CircleImpl(r));
+				set.add(new CircleImpl(r));
 		return new RecordSetImpl<Circle>(set);
 	}
 
@@ -318,6 +309,30 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
 		((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
 	}
+	
+	@Override
+	public void addCircle(Circle circle) throws DataBaseException
+	{
+		if(getCircles().contains(circle))
+			return;
+		((org.dyndns.doujindb.db.cayenne.Book)ref).addToCircles(
+			(org.dyndns.doujindb.db.cayenne.Circle)
+			((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
+		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(circle));
+		((DataBaseImpl)Core.Database)._recordUpdated(circle, UpdateData.link(this));
+	}
+
+	@Override
+	public void removeCircle(Circle circle) throws DataBaseException
+	{
+		((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromCircles(
+			(org.dyndns.doujindb.db.cayenne.Circle)
+			((org.dyndns.doujindb.db.impl.CircleImpl)circle).ref
+		);
+		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(circle));
+		((DataBaseImpl)Core.Database)._recordUpdated(circle, UpdateData.unlink(this));
+	}
 
 	@Override
 	public void addContent(Content content) throws DataBaseException
@@ -401,37 +416,13 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public void removeAll() throws DataBaseException
 	{
 		for(Artist artist : getArtists())
-		{
-			for(Circle circle : artist.getCircles())
-			{
-				((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(circle));
-				((DataBaseImpl)Core.Database)._recordUpdated(circle, UpdateData.unlink(this));
-			}
-			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromArtists(
-					(org.dyndns.doujindb.db.cayenne.Artist)
-					((org.dyndns.doujindb.db.impl.ArtistImpl)artist).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(artist));
-			((DataBaseImpl)Core.Database)._recordUpdated(artist, UpdateData.unlink(this));
-		}
+			removeArtist(artist);
+		for(Circle circle : getCircles())
+			removeCircle(circle);
 		for(Content content : getContents())
-		{
-			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromContents(
-					(org.dyndns.doujindb.db.cayenne.Content)
-					((org.dyndns.doujindb.db.impl.ContentImpl)content).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(content));
-			((DataBaseImpl)Core.Database)._recordUpdated(content, UpdateData.unlink(this));
-		}
+			removeContent(content);
 		for(Parody parody : getParodies())
-		{
-			((org.dyndns.doujindb.db.cayenne.Book)ref).removeFromParodies(
-					(org.dyndns.doujindb.db.cayenne.Parody)
-					((org.dyndns.doujindb.db.impl.ParodyImpl)parody).ref
-				);
-			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(parody));
-			((DataBaseImpl)Core.Database)._recordUpdated(parody, UpdateData.unlink(this));
-		}
+			removeParody(parody);
 		if(getConvention() != null)
 		{
 			((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(getConvention()));

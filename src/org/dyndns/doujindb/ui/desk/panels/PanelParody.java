@@ -26,7 +26,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 {
 	private Parody tokenParody;
 	
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;

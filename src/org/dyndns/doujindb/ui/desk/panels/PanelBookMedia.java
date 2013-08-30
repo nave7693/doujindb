@@ -589,7 +589,7 @@ public class PanelBookMedia extends JPanel
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+			progressbar_overall.setFont(Core.Resources.Font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -681,7 +681,7 @@ public class PanelBookMedia extends JPanel
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+				list.setFont(Core.Resources.Font);
 				list.setSelectionBackground(list.getSelectionForeground());
 				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
@@ -810,7 +810,7 @@ public class PanelBookMedia extends JPanel
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+			progressbar_overall.setFont(Core.Resources.Font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -869,7 +869,7 @@ public class PanelBookMedia extends JPanel
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+				list.setFont(Core.Resources.Font);
 				list.setSelectionBackground(list.getSelectionForeground());
 				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
@@ -961,7 +961,7 @@ public class PanelBookMedia extends JPanel
 			progressbar_file.setFont(Core.Resources.Font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+			progressbar_overall.setFont(Core.Resources.Font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(progressbar_bytes);

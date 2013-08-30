@@ -21,7 +21,7 @@ public class RecordBookEditor extends JSplitPane implements DataBaseListener
 	private CntBook tokenIBook;
 	private RecordList<Book> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	
 	public RecordBookEditor(CntBook token) throws DataBaseException
 	{

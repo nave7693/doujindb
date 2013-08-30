@@ -36,7 +36,7 @@ public final class PopupMenuEx implements ActionListener
 		});
 		JLabel lab = new JLabel(title);
 		lab.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-		lab.setFont(Core.Properties.get("org.dyndns.doujindb.ui.font").asFont());
+		lab.setFont(Core.Resources.Font);
 		popup.add(lab);
 		this.items = new JMenuItem[items.size()];
 		int k = 0;

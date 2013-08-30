@@ -20,7 +20,7 @@ public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 	private CntArtist tokenIArtist;
 	private RecordList<Artist> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	
 	public RecordArtistEditor(CntArtist token) throws DataBaseException
 	{

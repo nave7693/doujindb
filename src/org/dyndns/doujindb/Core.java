@@ -48,12 +48,6 @@ public final class Core implements Runnable
 		{
 			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();
 			Properties.load();
-			Properties.get("org.dyndns.doujindb.ui.font").setValue(
-					new java.awt.Font(
-							Properties.get("org.dyndns.doujindb.ui.font").asFont().getFontName(),
-							java.awt.Font.PLAIN,
-							Properties.get("org.dyndns.doujindb.ui.font_size").asNumber()
-							));
 			Logger.log("System Properties loaded.", Level.INFO);
 		} catch (Exception e)
 		{
@@ -76,7 +70,10 @@ public final class Core implements Runnable
 		try
 		{
 			Resources = new Resources();
-			Resources.Font = Properties.get("org.dyndns.doujindb.ui.font").asFont();
+			Resources.Font = new java.awt.Font(
+				Properties.get("org.dyndns.doujindb.ui.font").asFont().getFontName(),
+				java.awt.Font.PLAIN,
+				Properties.get("org.dyndns.doujindb.ui.font_size").asNumber());
 		} catch (Exception e)
 		{
 			Core.Logger.log(e.getMessage(), Level.FATAL);

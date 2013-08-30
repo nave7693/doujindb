@@ -21,7 +21,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 	private CntParody tokenIParody;
 	private RecordList<Parody> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	
 	public RecordParodyEditor(CntParody token) throws DataBaseException
 	{

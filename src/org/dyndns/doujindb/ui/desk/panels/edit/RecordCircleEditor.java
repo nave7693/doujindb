@@ -21,7 +21,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	private CntCircle tokenICircle;
 	private RecordList<Circle> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Properties.get("org.dyndns.doujindb.ui.font").asFont();
+	private final Font font = Core.Resources.Font;
 	
 	public RecordCircleEditor(CntCircle token) throws DataBaseException
 	{

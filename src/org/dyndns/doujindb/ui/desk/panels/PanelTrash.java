@@ -68,7 +68,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		m_LabelTask.setOpaque(true);
 		m_LabelTask.setFont(Core.Resources.Font);
 		panel1.add(m_LabelTask);
-		m_ButtonRestore = new JButton("Restore", Core.Resources.Icons.get("JFrame/Trash/Restore"));
+		m_ButtonRestore = new JButton("Restore", Core.Resources.Icons.get("Frame/Trash/Restore"));
 		m_ButtonRestore.setFocusable(false);
 		m_ButtonRestore.setFont(Core.Resources.Font);
 		m_ButtonRestore.addActionListener(new ActionListener()
@@ -222,7 +222,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			}			
 		});
 		panel1.add(m_ButtonRestore);
-		m_ButtonDelete = new JButton("Delete", Core.Resources.Icons.get("JFrame/Trash/Delete"));
+		m_ButtonDelete = new JButton("Delete", Core.Resources.Icons.get("Frame/Trash/Delete"));
 		m_ButtonDelete.setFocusable(false);
 		m_ButtonDelete.setFont(Core.Resources.Font);
 		m_ButtonDelete.addActionListener(new ActionListener()
@@ -383,7 +383,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			}			
 		});
 		panel1.add(m_ButtonDelete);
-		m_ButtonEmpty = new JButton("Empty", Core.Resources.Icons.get("JFrame/Trash/Empty"));
+		m_ButtonEmpty = new JButton("Empty", Core.Resources.Icons.get("Frame/Trash/Empty"));
 		m_ButtonEmpty.setFocusable(false);
 		m_ButtonEmpty.setFont(Core.Resources.Font);
 		m_ButtonEmpty.addActionListener(new ActionListener()
@@ -763,17 +763,17 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 					m_PanelFrame[5].getHeight());
 			}
 		});
-		m_LabelListArtist = new JLabel("Artists", Core.Resources.Icons.get("JDesktop/Explorer/Artist"), JLabel.LEFT);
+		m_LabelListArtist = new JLabel("Artists", Core.Resources.Icons.get("Desktop/Explorer/Artist"), JLabel.LEFT);
 		m_PanelFrame[0] = new DynamicPanel(m_LabelListArtist, splitListA, m_PanelBase);
-		m_LabelListBook = new JLabel("Books", Core.Resources.Icons.get("JDesktop/Explorer/Book"), JLabel.LEFT);
+		m_LabelListBook = new JLabel("Books", Core.Resources.Icons.get("Desktop/Explorer/Book"), JLabel.LEFT);
 		m_PanelFrame[1] = new DynamicPanel(m_LabelListBook, splitListB, m_PanelBase);
-		m_LabelListCircle = new JLabel("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), JLabel.LEFT);
+		m_LabelListCircle = new JLabel("Circles", Core.Resources.Icons.get("Desktop/Explorer/Circle"), JLabel.LEFT);
 		m_PanelFrame[2] = new DynamicPanel(m_LabelListCircle, splitListC, m_PanelBase);
-		m_LabelListConvention = new JLabel("Conventions", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), JLabel.LEFT);
+		m_LabelListConvention = new JLabel("Conventions", Core.Resources.Icons.get("Desktop/Explorer/Convention"), JLabel.LEFT);
 		m_PanelFrame[3] = new DynamicPanel(m_LabelListConvention, splitListE, m_PanelBase);
-		m_LabelListContent = new JLabel("Contents", Core.Resources.Icons.get("JDesktop/Explorer/Content"), JLabel.LEFT);
+		m_LabelListContent = new JLabel("Contents", Core.Resources.Icons.get("Desktop/Explorer/Content"), JLabel.LEFT);
 		m_PanelFrame[4] = new DynamicPanel(m_LabelListContent, splitListT, m_PanelBase);
-		m_LabelListParody = new JLabel("Parodies", Core.Resources.Icons.get("JDesktop/Explorer/Parody"), JLabel.LEFT);
+		m_LabelListParody = new JLabel("Parodies", Core.Resources.Icons.get("Desktop/Explorer/Parody"), JLabel.LEFT);
 		m_PanelFrame[5] = new DynamicPanel(m_LabelListParody, splitListP, m_PanelBase);
 		for(DynamicPanel panel : m_PanelFrame)
 			m_PanelBase.add(panel);
@@ -816,7 +816,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				
 				JPopupMenu popupMenu = new JPopupMenu();
 	    		JMenuItem menuItem;
-	    		menuItem = new JMenuItem("Select All", Core.Resources.Icons.get("JFrame/Trash/SelectAll"));
+	    		menuItem = new JMenuItem("Select All", Core.Resources.Icons.get("Frame/Trash/SelectAll"));
 	    		menuItem.addActionListener(new ActionListener()
 				{
 					@Override
@@ -834,7 +834,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	    		menuItem.setName("select-all");
 				menuItem.setActionCommand("select-all");
 				popupMenu.add(menuItem);
-				menuItem = new JMenuItem("Deselect All", Core.Resources.Icons.get("JFrame/Trash/DeselectAll"));
+				menuItem = new JMenuItem("Deselect All", Core.Resources.Icons.get("Frame/Trash/DeselectAll"));
 	    		menuItem.addActionListener(new ActionListener()
 				{
 					@Override
@@ -1019,7 +1019,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		public DialogTrash(String message, SwingWorker<?,?> worker)
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("JDesktop/Explorer/Trash"));
+			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Trash"));
 			super.setTitle("Trash");
 			super.setMaximizable(false);
 			super.setIconifiable(false);

@@ -69,11 +69,11 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenConvention);
-		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
 		JPanel panel = new JPanel();
 		textAlias = new JTextField("");
 		listAlias = new JList<String>(new DefaultListModel<String>());
-		addAlias = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"));
+		addAlias = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/Add"));
 		textAlias.setFont(font);
 		textAlias.setDocument(new PlainDocument()
 		{
@@ -131,7 +131,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 				if(!(value instanceof String))
 					return null;
 				super.getListCellRendererComponent(list, value, index, isSelected, false);
-				setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+				setIcon(Core.Resources.Icons.get("Desktop/Explorer/Convention"));
 				if(isSelected)
 				{
 					setBackground(foregroundColor);
@@ -192,7 +192,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 					return;
 				
 				JPopupMenu popupMenu = new JPopupMenu();
-	    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+	    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
 	    		menuItem.addActionListener(new ActionListener()
 				{
 					@Override
@@ -257,7 +257,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 			     return parent.getPreferredSize();
 			}
 		});
-		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Convention"), panel);
+		tabLists.addTab("Aliases", Core.Resources.Icons.get("Desktop/Explorer/Convention"), panel);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList(),
 				null

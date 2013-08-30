@@ -96,7 +96,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			Core.UI.Desktop.showDialog(
 					UI.this,
 					firstRun,
-					Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Icon"),
+					Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Icon"),
 					"Configuration Wizard");
 		} catch (PropertyVetoException pve) { } 
 	}
@@ -108,7 +108,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setTitle("DoujinDB v" + getClass().getPackage().getSpecificationVersion());
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
-		super.setIconImage(Core.Resources.Icons.get("JFrame/Icon").getImage());
+		super.setIconImage(Core.Resources.Icons.get("Frame/Icon").getImage());
 		if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
 			super.setAlwaysOnTop(true);
 		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
@@ -168,7 +168,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.addComponentListener(this);
 		
 		{
-	    	//UIManager.put("InternalFrame.icon",Core.Resources.get("Icon:IFrame.Icon"));
 			UIManager.put("ComboBox.selectionBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
 			UIManager.put("InternalFrame.inactiveTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor().darker());
 			UIManager.put("InternalFrame.activeTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
@@ -206,7 +205,22 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    		
 	    		{
 	    			bundleIcon = new Hashtable<String,ImageIcon>();
-	    			bundleIcon.put("douz",Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("zip",  Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("rar",  Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("gz",   Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("tar",  Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("bz2",  Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("xz",   Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("cpio", Core.Resources.Icons.get("FileView/Archive"));
+	    			bundleIcon.put("jpg",  Core.Resources.Icons.get("FileView/Image"));
+	    			bundleIcon.put("jpeg", Core.Resources.Icons.get("FileView/Image"));
+	    			bundleIcon.put("gif",  Core.Resources.Icons.get("FileView/Image"));
+	    			bundleIcon.put("png",  Core.Resources.Icons.get("FileView/Image"));
+	    			bundleIcon.put("tiff", Core.Resources.Icons.get("FileView/Image"));
+	    			bundleIcon.put("txt",  Core.Resources.Icons.get("FileView/Text"));
+	    			bundleIcon.put("sql",  Core.Resources.Icons.get("FileView/Text"));
+	    			bundleIcon.put("db",   Core.Resources.Icons.get("FileView/Database"));
+	    			bundleIcon.put("csv",  Core.Resources.Icons.get("FileView/Database"));
 	    		}
 	    		
 	    		@Override
@@ -219,11 +233,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    		public Icon getIcon(File file)
 	    		{
 	    			String filename = file.getName();
-	    			String ext = (filename.lastIndexOf(".")==-1)?"":filename.substring(filename.lastIndexOf(".")+1,filename.length()).toLowerCase();
+	    			if(file.isDirectory())
+	    				return (Icon)Core.Resources.Icons.get("FileView/Folder");
+	    			String ext = (filename.lastIndexOf(".") == -1) ? "" : filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toLowerCase();
 	    			if(bundleIcon.containsKey(ext))
 	    	            return (Icon)bundleIcon.get(ext);
 	    	        else
-	    	        	return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
+	    	        	return (Icon)Core.Resources.Icons.get("FileView/Default");
+	    	        	// return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
 	    		}
 	
 	    	});
@@ -236,19 +253,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		menuBar.setFont(Core.Resources.Font);
 		menuLogs = new JMenu("Logs");
 		menuLogs.setMnemonic(KeyEvent.VK_L);
-		menuLogs.setIcon(Core.Resources.Icons.get("JMenuBar/Logs"));
+		menuLogs.setIcon(Core.Resources.Icons.get("MenuBar/Logs"));
 		menuLogs.setFont(Core.Resources.Font);
-		menuLogsMessage = new JCheckBoxMenuItem("Messages",Core.Resources.Icons.get("JMenuBar/Logs/Message"),true);
+		menuLogsMessage = new JCheckBoxMenuItem("Messages",Core.Resources.Icons.get("MenuBar/Logs/Message"),true);
 		menuLogsMessage.setMnemonic(KeyEvent.VK_M);
 		menuLogsMessage.setFont(Core.Resources.Font);
 		menuLogsMessage.addActionListener(this);
 		menuLogsMessage.setSelected(Core.Properties.get("org.dyndns.doujindb.log.info").asBoolean());
-		menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("JMenuBar/Logs/Warning"),true);
+		menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("MenuBar/Logs/Warning"),true);
 		menuLogsWarning.setMnemonic(KeyEvent.VK_W);
 		menuLogsWarning.setFont(Core.Resources.Font);
 		menuLogsWarning.addActionListener(this);
 		menuLogsWarning.setSelected(Core.Properties.get("org.dyndns.doujindb.log.warning").asBoolean());
-		menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("JMenuBar/Logs/Error"),true);
+		menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("MenuBar/Logs/Error"),true);
 		menuLogsError.setMnemonic(KeyEvent.VK_E);
 		menuLogsError.setFont(Core.Resources.Font);
 		menuLogsError.addActionListener(this);
@@ -259,15 +276,15 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		menuBar.add(menuLogs);
 		
 		menuHelp = new JMenu("Help");
-		menuHelp.setIcon(Core.Resources.Icons.get("JMenuBar/Help"));
+		menuHelp.setIcon(Core.Resources.Icons.get("MenuBar/Help"));
 		menuHelp.setMnemonic(KeyEvent.VK_H);
 		menuHelp.setFont(Core.Resources.Font);
-		menuHelpAbout = new JMenuItem("About",Core.Resources.Icons.get("JMenuBar/Help/About"));
+		menuHelpAbout = new JMenuItem("About",Core.Resources.Icons.get("MenuBar/Help/About"));
 		menuHelpAbout.setMnemonic(KeyEvent.VK_A);
 		menuHelpAbout.setFont(Core.Resources.Font);
 		menuHelpAbout.addActionListener(this);
 		menuHelp.add(menuHelpAbout);
-		menuHelpBugtrack = new JMenuItem("Report Bug",Core.Resources.Icons.get("JMenuBar/Help/Bugtrack"));
+		menuHelpBugtrack = new JMenuItem("Report Bug",Core.Resources.Icons.get("MenuBar/Help/Bugtrack"));
 		menuHelpBugtrack.setMnemonic(KeyEvent.VK_R);
 		menuHelpBugtrack.setFont(Core.Resources.Font);
 		menuHelpBugtrack.addActionListener(this);
@@ -280,19 +297,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
-		uiPanelDesktopShow = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Desktop"));
+		uiPanelDesktopShow = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/Desktop"));
 		uiPanelDesktopShow.addActionListener(this);
 		uiPanelDesktopShow.setBorder(null);
 		uiPanelDesktopShow.setFocusable(false);
 		uiPanelDesktopShow.setToolTipText("Show Desktop");
 		bogus.add(uiPanelDesktopShow);
-		uiPanelDesktopSearch = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Search"));
+		uiPanelDesktopSearch = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/Search"));
 		uiPanelDesktopSearch.addActionListener(this);
 		uiPanelDesktopSearch.setBorder(null);
 		uiPanelDesktopSearch.setFocusable(false);
 		uiPanelDesktopSearch.setToolTipText("Search");
 		bogus.add(uiPanelDesktopSearch);
-		uiPanelDesktopAdd = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"))
+		uiPanelDesktopAdd = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/Add"))
 		{
 			@Override
 			public void processMouseEvent(MouseEvent e) {
@@ -306,91 +323,91 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelDesktopAdd.setFocusable(false);
 		uiPanelDesktopAdd.setToolTipText("Add Item");
 		uiPanelDesktopAddPopup = new JPopupMenu();
-		JMenuItem itm0 = new JMenuItem("Artist",Core.Resources.Icons.get("JDesktop/Explorer/Artist"));
+		JMenuItem itm0 = new JMenuItem("Artist",Core.Resources.Icons.get("Desktop/Explorer/Artist"));
 		itm0.setActionCommand("Add:{Artist}");
 		itm0.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm0);
-		JMenuItem itm1 = new JMenuItem("Book",Core.Resources.Icons.get("JDesktop/Explorer/Book"));
+		JMenuItem itm1 = new JMenuItem("Book",Core.Resources.Icons.get("Desktop/Explorer/Book"));
 		itm1.setActionCommand("Add:{Book}");
 		itm1.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm1);
-		JMenuItem itm2 = new JMenuItem("Circle",Core.Resources.Icons.get("JDesktop/Explorer/Circle"));
+		JMenuItem itm2 = new JMenuItem("Circle",Core.Resources.Icons.get("Desktop/Explorer/Circle"));
 		itm2.setActionCommand("Add:{Circle}");
 		itm2.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm2);
-		JMenuItem itm3 = new JMenuItem("Parody",Core.Resources.Icons.get("JDesktop/Explorer/Parody"));
+		JMenuItem itm3 = new JMenuItem("Parody",Core.Resources.Icons.get("Desktop/Explorer/Parody"));
 		itm3.setActionCommand("Add:{Parody}");
 		itm3.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm3);
-		JMenuItem itm4 = new JMenuItem("Convention",Core.Resources.Icons.get("JDesktop/Explorer/Convention"));
+		JMenuItem itm4 = new JMenuItem("Convention",Core.Resources.Icons.get("Desktop/Explorer/Convention"));
 		itm4.setActionCommand("Add:{Convention}");
 		itm4.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm4);
-		JMenuItem itm5 = new JMenuItem("Content",Core.Resources.Icons.get("JDesktop/Explorer/Content"));
+		JMenuItem itm5 = new JMenuItem("Content",Core.Resources.Icons.get("Desktop/Explorer/Content"));
 		itm5.setActionCommand("Add:{Content}");
 		itm5.addActionListener(UI.this);
 		uiPanelDesktopAddPopup.add(itm5);
 		bogus.add(uiPanelDesktopAdd);
-		m_LabelConnectionStatus = new JLabel(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnected"));
+		m_LabelConnectionStatus = new JLabel(Core.Resources.Icons.get("Frame/Tab/Explorer/StatusBar/Disconnected"));
 		m_LabelConnectionStatus.setText("Disconnected.");
 		m_LabelConnectionStatus.setHorizontalAlignment(JLabel.LEFT);
 		m_LabelConnectionStatus.setBorder(null);
 		m_LabelConnectionStatus.setFocusable(false);
 		bogus.add(m_LabelConnectionStatus);
-		m_ButtonConnectionCtl = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
+		m_ButtonConnectionCtl = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/StatusBar/Connect"));
 		m_ButtonConnectionCtl.addActionListener(this);
 		m_ButtonConnectionCtl.setBorder(null);
 		m_ButtonConnectionCtl.setFocusable(false);
 		m_ButtonConnectionCtl.setToolTipText("Connect");
-		m_ButtonConnectionCtl.setDisabledIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connecting"));
+		m_ButtonConnectionCtl.setDisabledIcon(Core.Resources.Icons.get("Frame/Tab/Explorer/StatusBar/Connecting"));
 		bogus.add(m_ButtonConnectionCtl);
 		Desktop = new DesktopEx();
 		bogus.add(Desktop);
-		uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("JFrame/Tab/Explorer"), bogus);
+		uiPanelTabbed.addTab("Explorer", Core.Resources.Icons.get("Frame/Tab/Explorer"), bogus);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
 		Hashtable<String,ImageIcon> data = new Hashtable<String,ImageIcon>();
-		data.put("Icon:Console.Message",Core.Resources.Icons.get("JFrame/Tab/Logs/Message"));
-		data.put("Icon:Console.Warning",Core.Resources.Icons.get("JFrame/Tab/Logs/Warning"));
-		data.put("Icon:Console.Error",Core.Resources.Icons.get("JFrame/Tab/Logs/Error"));
-		data.put("Icon:Console.Fatal",Core.Resources.Icons.get("JFrame/Tab/Logs/Fatal"));
-		data.put("Icon:Console.Debug",Core.Resources.Icons.get("JFrame/Tab/Logs/Debug"));
+		data.put("Icon:Console.Message",Core.Resources.Icons.get("Frame/Tab/Logs/Message"));
+		data.put("Icon:Console.Warning",Core.Resources.Icons.get("Frame/Tab/Logs/Warning"));
+		data.put("Icon:Console.Error",Core.Resources.Icons.get("Frame/Tab/Logs/Error"));
+		data.put("Icon:Console.Fatal",Core.Resources.Icons.get("Frame/Tab/Logs/Fatal"));
+		data.put("Icon:Console.Debug",Core.Resources.Icons.get("Frame/Tab/Logs/Debug"));
 		uiPanelLogs = new PanelLogs(data);
 		uiPanelLogsScroll = new JScrollPane(uiPanelLogs);
 		bogus.add(uiPanelLogsScroll);
-		uiPanelLogsClear = new JButton(Core.Resources.Icons.get("JFrame/Tab/Logs/Clear"));
+		uiPanelLogsClear = new JButton(Core.Resources.Icons.get("Frame/Tab/Logs/Clear"));
 		uiPanelLogsClear.addActionListener(this);
 		uiPanelLogsClear.setBorder(null);
 		uiPanelLogsClear.setFocusable(false);
 		uiPanelLogsClear.setToolTipText("Clear");
 		bogus.add(uiPanelLogsClear);
-		uiPanelTabbed.addTab("Logs", Core.Resources.Icons.get("JFrame/Tab/Logs"), bogus);
+		uiPanelTabbed.addTab("Logs", Core.Resources.Icons.get("Frame/Tab/Logs"), bogus);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
 		uiPanelSettings = new PanelSettings();
 		bogus.add(uiPanelSettings);
-		uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Save"));
+		uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Save"));
 		uiPanelSettingsSave.addActionListener(this);
 		uiPanelSettingsSave.setBorder(null);
 		uiPanelSettingsSave.setFocusable(false);
 		uiPanelSettingsSave.setToolTipText("Save");
 		bogus.add(uiPanelSettingsSave);
-		uiPanelSettingsLoad = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Load"));
+		uiPanelSettingsLoad = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Load"));
 		uiPanelSettingsLoad.addActionListener(this);
 		uiPanelSettingsLoad.setBorder(null);
 		uiPanelSettingsLoad.setFocusable(false);
 		uiPanelSettingsLoad.setToolTipText("Load");
 		bogus.add(uiPanelSettingsLoad);
-		uiPanelTabbed.addTab("Settings", Core.Resources.Icons.get("JFrame/Tab/Settings"), bogus);
+		uiPanelTabbed.addTab("Settings", Core.Resources.Icons.get("Frame/Tab/Settings"), bogus);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
 		uiPanelPlugins = new PanelPlugins();
 		uiPanelPluginsScroll = new JScrollPane(uiPanelPlugins);
 		bogus.add(uiPanelPluginsScroll);
-		uiPanelPluginsReload = new JButton(Core.Resources.Icons.get("JFrame/Tab/Plugins/Reload"));
+		uiPanelPluginsReload = new JButton(Core.Resources.Icons.get("Frame/Tab/Plugins/Reload"));
 		uiPanelPluginsReload.addActionListener(this);
 		uiPanelPluginsReload.setBorder(null);
 		uiPanelPluginsReload.setFocusable(false);
@@ -401,11 +418,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		for(Plugin plugin : PluginManager.plugins())
 			uiPanelPlugins.add(plugin);
 		
-		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("JFrame/Tab/Plugins"), bogus);
+		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("Frame/Tab/Plugins"), bogus);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
-		uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("JFrame/Tab/Network"), bogus);
+		uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("Frame/Tab/Network"), bogus);
 		uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
 	
 		uiPanelTabbed.setFont(Core.Resources.Font);
@@ -418,11 +435,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		{
 			uiTrayPopup = new JPopupMenu();
 			uiTrayPopup.setFont(Core.Resources.Font);
-			uiTrayPopupExit = new JMenuItem("Exit",Core.Resources.Icons.get("JFrame/Tray/Exit"));
+			uiTrayPopupExit = new JMenuItem("Exit",Core.Resources.Icons.get("Frame/Tray/Exit"));
 			uiTrayPopupExit.setActionCommand("Exit");
 			uiTrayPopupExit.addActionListener(this);
 			uiTrayPopup.add(uiTrayPopupExit);
-			uiTrayIcon = new TrayIcon(Core.Resources.Icons.get("JFrame/Tray").getImage(),this.getTitle(),null);
+			uiTrayIcon = new TrayIcon(Core.Resources.Icons.get("Frame/Tray").getImage(),this.getTitle(),null);
 			uiTrayIcon.addMouseListener(new MouseAdapter()
 			{
 				public void mouseReleased(MouseEvent e)
@@ -565,7 +582,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				JPanel panel = new JPanel();
 				panel.setSize(240, 400);
 				panel.setLayout(new GridLayout(2,1));
-				JLabel lab = new JLabel(Core.Resources.Icons.get("JFrame/Dialog/About"));
+				JLabel lab = new JLabel(Core.Resources.Icons.get("Frame/Dialog/About"));
 				lab.setOpaque(true);
 				panel.add(lab);
 				JLabel l = new JLabel("<html><body style='margin:5px'>" +
@@ -605,7 +622,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					Core.UI.Desktop.showDialog(
 							UI.this,
 							panel,
-							Core.Resources.Icons.get("JMenuBar/Help/About"),
+							Core.Resources.Icons.get("MenuBar/Help/About"),
 							"About");
 				} catch (PropertyVetoException pve) { } 
 			}
@@ -755,10 +772,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					if(Core.Database.isConnected())
 					{
-						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Disconnect"));
+						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("Frame/Tab/Explorer/StatusBar/Disconnect"));
 						m_LabelConnectionStatus.setText("Connected to " + Core.Database.getConnection() + ".");
 					} else {
-						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("JFrame/Tab/Explorer/StatusBar/Connect"));
+						m_ButtonConnectionCtl.setIcon(Core.Resources.Icons.get("Frame/Tab/Explorer/StatusBar/Connect"));
 						m_LabelConnectionStatus.setText("Disonnected.");
 					}
 					m_ButtonConnectionCtl.setEnabled(true);
@@ -1127,7 +1144,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			        if(value.equals("{Plugin}"))
 			        {
 				        super.setText("");
-				        super.setIcon(Core.Resources.Icons.get("JFrame/Tab/Plugins"));
+				        super.setIcon(Core.Resources.Icons.get("Frame/Tab/Plugins"));
 				        return this;
 				    }
 				    super.setText(value.toString());
@@ -1335,8 +1352,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		renderIcon=new Hashtable<String,Icon>();
 	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
-	    renderIcon.put("Directory",Core.Resources.Icons.get("JFrame/Tab/Settings/Tree/Directory"));
-	    renderIcon.put("Value",Core.Resources.Icons.get("JFrame/Tab/Settings/Tree/Value"));
+	    renderIcon.put("Directory",Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Directory"));
+	    renderIcon.put("Value",Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Value"));
 	}
 
 	public Component getTreeCellRendererComponent(
@@ -1385,14 +1402,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			setLayout(this);
 			this.key = key2;
 			this.value = Core.Properties.get(key).getValue();
-			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Core.Resources.Icons.get("JFrame/Tab/Settings/Tree/Value"), JLabel.LEFT);
+			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Value"), JLabel.LEFT);
 			title.setFont(Core.Resources.Font);
 			add(title);
 			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Core.Properties.get(key).getDescription() + "</body></html>");
 			description.setVerticalAlignment(JLabel.TOP);
 			description.setFont(Core.Resources.Font);
 			add(description);
-			close = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Editor/Close"));
+			close = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Editor/Close"));
 			close.addActionListener(new ActionListener()
 			{
 				@Override
@@ -1405,7 +1422,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			close.setBorder(null);
 			close.setFocusable(false);
 			add(close);
-			editApply = new JButton("Apply", Core.Resources.Icons.get("JFrame/Tab/Settings/Editor/Apply"));
+			editApply = new JButton("Apply", Core.Resources.Icons.get("Frame/Tab/Settings/Editor/Apply"));
 			editApply.addActionListener(new ActionListener()
 			{
 				@Override
@@ -1417,7 +1434,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			editApply.setFont(Core.Resources.Font);
 			editApply.setFocusable(false);
 			add(editApply);
-			editDiscard = new JButton("Discard", Core.Resources.Icons.get("JFrame/Tab/Settings/Editor/Discard"));
+			editDiscard = new JButton("Discard", Core.Resources.Icons.get("Frame/Tab/Settings/Editor/Discard"));
 			editDiscard.addActionListener(new ActionListener()
 			{
 				@Override
@@ -1818,7 +1835,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					File file = new File(((File)value).getAbsolutePath());
 					valueNew = file;
-					final JButton chooser = new JButton(Core.Resources.Icons.get("JFrame/Tab/Settings/Tree/Directory"));
+					final JButton chooser = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Directory"));
 					final JLabel directory = new JLabel(file.getAbsolutePath());
 					directory.setUI(new BasicLabelUI()
 					{
@@ -2178,7 +2195,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			uiLabelHeader.setOpaque(true);
 			uiLabelHeader.setBackground(color);
 			super.add(uiLabelHeader);
-			uiLabelHeaderImage = new JLabel(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Header"));
+			uiLabelHeaderImage = new JLabel(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Header"));
 			uiLabelHeaderImage.setOpaque(true);
 			uiLabelHeaderImage.setBackground(color);
 			super.add(uiLabelHeaderImage);
@@ -2212,7 +2229,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				uiCompDatabase.add(uiCompDatabaseTextPassword);
 				uiCompDatabaseLabelResult = new JLabel("");
 				uiCompDatabase.add(uiCompDatabaseLabelResult);
-				uiCompDatabaseTest = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/DBTest"));
+				uiCompDatabaseTest = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/DBTest"));
 				uiCompDatabaseTest.setBorder(null);
 				uiCompDatabaseTest.setFocusable(false);
 				uiCompDatabaseTest.setText("Test");
@@ -2225,7 +2242,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						uiCompDatabaseTest.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Loading"));
+						uiCompDatabaseTest.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Loading"));
 						uiCompDatabaseTextDriver.setEditable(false);
 						uiCompDatabaseTextURL.setEditable(false);
 						uiCompDatabaseTextUsername.setEditable(false);
@@ -2253,7 +2270,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 											 * and print the stack trace to the standard output.
 											 */
 											uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
-											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 											uiCompDatabaseLabelResult.setForeground(Color.RED);
 											sqle.printStackTrace();
 											return null;
@@ -2269,40 +2286,40 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 											try
 											{
 												uiCompDatabaseLabelResult.setText("<html>Connection established.</html>");
-												uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Success"));
+												uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Success"));
 												uiCompDatabaseLabelResult.setForeground(Color.GREEN);
 												conn.close();
 											} catch (Exception e) {}
 										} else {
 											uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
-											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+											uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 											uiCompDatabaseLabelResult.setForeground(Color.RED);
 										}
 									} catch (TimeoutException te) {
 										uiCompDatabaseLabelResult.setText("<html>Timeout Exception while obtaining SQL connection.</html>");
-										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} catch (InterruptedException ie) {
 										uiCompDatabaseLabelResult.setText("<html>Interrupted Exception while obtaining SQL connection.</html>");
-										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} catch (ExecutionException ee) {
 										uiCompDatabaseLabelResult.setText("<html>Execution Exception while obtaining SQL connection.</html>");
-										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+										uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 										uiCompDatabaseLabelResult.setForeground(Color.RED);
 									} finally {
 									   future.cancel(true);
 									}
 								} catch (ClassNotFoundException cnfe) {
 									uiCompDatabaseLabelResult.setText("<html>Cannot load jdbc driver '" + uiCompDatabaseTextDriver.getText() + "' : Class not found.</html>");
-									uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+									uiCompDatabaseLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 									uiCompDatabaseLabelResult.setForeground(Color.RED);
 								}
 								uiCompDatabaseTextPassword.setEditable(true);
 								uiCompDatabaseTextUsername.setEditable(true);
 								uiCompDatabaseTextURL.setEditable(true);
 								uiCompDatabaseTextDriver.setEditable(true);
-								uiCompDatabaseTest.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/DBTest"));
+								uiCompDatabaseTest.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/DBTest"));
 							}
 						}.start();
 					}					
@@ -2356,7 +2373,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				uiCompDatastore.add(uiCompDatastoreTextTemp);
 				uiCompDatastoreLabelResult = new JLabel("");
 				uiCompDatastore.add(uiCompDatastoreLabelResult);
-				uiCompDatastoreTest = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/DSTest"));
+				uiCompDatastoreTest = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/DSTest"));
 				uiCompDatastoreTest.setBorder(null);
 				uiCompDatastoreTest.setFocusable(false);
 				uiCompDatastoreTest.setText("Test");
@@ -2369,7 +2386,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						uiCompDatastoreTest.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Loading"));
+						uiCompDatastoreTest.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Loading"));
 						uiCompDatastoreTextStore.setEditable(false);
 						uiCompDatastoreTextTemp.setEditable(false);
 						;
@@ -2404,20 +2421,20 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 										throw new RuntimeException("Temporary directory is not writable: check your permissions.");
 									;
 									uiCompDatastoreLabelResult.setText("<html>Both directories are valid.</html>");
-									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Success"));
+									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Success"));
 									uiCompDatastoreLabelResult.setForeground(Color.GREEN);
 								} catch (RuntimeException re) {
 									uiCompDatastoreLabelResult.setText("<html>" + re.getMessage() + "</html>");
-									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 									uiCompDatastoreLabelResult.setForeground(Color.RED);
 								} catch (IOException ioe) {
 									uiCompDatastoreLabelResult.setText("<html>" + ioe.getMessage() + "</html>");
-									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Error"));
+									uiCompDatastoreLabelResult.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Error"));
 									uiCompDatastoreLabelResult.setForeground(Color.RED);
 								}
 								uiCompDatastoreTextTemp.setEditable(true);
 								uiCompDatastoreTextStore.setEditable(true);
-								uiCompDatastoreTest.setIcon(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/DSTest"));
+								uiCompDatastoreTest.setIcon(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/DSTest"));
 							}
 						}.start();
 					}					
@@ -2466,7 +2483,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			uiBottomDivisor.setOpaque(true);
 			uiBottomDivisor.setBackground(color);
 			super.add(uiBottomDivisor);
-			uiButtonNext = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Next"));
+			uiButtonNext = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Next"));
 			uiButtonNext.setBorder(null);
 			uiButtonNext.setFocusable(false);
 			uiButtonNext.setText("Next");
@@ -2483,7 +2500,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}					
 			});
 			super.add(uiButtonNext);
-			uiButtonPrev = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Prev"));
+			uiButtonPrev = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Prev"));
 			uiButtonPrev.setEnabled(false);
 			uiButtonPrev.setBorder(null);
 			uiButtonPrev.setFocusable(false);
@@ -2501,7 +2518,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}					
 			});
 			super.add(uiButtonPrev);
-			uiButtonFinish = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Finish"));
+			uiButtonFinish = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Finish"));
 			uiButtonFinish.setVisible(false);
 			uiButtonFinish.setBorder(null);
 			uiButtonFinish.setFocusable(false);
@@ -2527,7 +2544,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}					
 			});
 			super.add(uiButtonFinish);
-			uiButtonCanc = new JButton(Core.Resources.Icons.get("JFrame/Dialog/ConfigurationWizard/Cancel"));
+			uiButtonCanc = new JButton(Core.Resources.Icons.get("Frame/Dialog/ConfigurationWizard/Cancel"));
 			uiButtonCanc.setBorder(null);
 			uiButtonCanc.setFocusable(false);
 			uiButtonCanc.setText("Cancel");

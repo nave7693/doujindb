@@ -63,11 +63,11 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenContent);
-		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
 		JPanel panel = new JPanel();
 		textAlias = new JTextField("");
 		listAlias = new JList<String>(new DefaultListModel<String>());
-		addAlias = new JButton(Core.Resources.Icons.get("JFrame/Tab/Explorer/Add"));
+		addAlias = new JButton(Core.Resources.Icons.get("Frame/Tab/Explorer/Add"));
 		textAlias.setFont(font);
 		textAlias.setDocument(new PlainDocument()
 		{
@@ -125,7 +125,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 				if(!(value instanceof String))
 					return null;
 				super.getListCellRendererComponent(list, value, index, isSelected, false);
-				setIcon(Core.Resources.Icons.get("JDesktop/Explorer/Content"));
+				setIcon(Core.Resources.Icons.get("Desktop/Explorer/Content"));
 				if(isSelected)
 				{
 					setBackground(foregroundColor);
@@ -186,7 +186,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 					return;
 				
 				JPopupMenu popupMenu = new JPopupMenu();
-	    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("JDesktop/Explorer/Delete"));
+	    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
 	    		menuItem.addActionListener(new ActionListener()
 				{
 					@Override
@@ -251,7 +251,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			     return parent.getPreferredSize();
 			}
 		});
-		tabLists.addTab("Aliases", Core.Resources.Icons.get("JDesktop/Explorer/Content"), panel);
+		tabLists.addTab("Aliases", Core.Resources.Icons.get("Desktop/Explorer/Content"), panel);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList(),
 				null

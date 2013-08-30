@@ -58,12 +58,12 @@ public final class TransferHandlerEx extends TransferHandler
 	private static HashMap<Type, Image> icons;
 	{
 		icons = new HashMap<Type, Image>();
-		icons.put(Type.ARTIST, Core.Resources.Icons.get("JDesktop/Explorer/Artist").getImage());
-		icons.put(Type.BOOK, Core.Resources.Icons.get("JDesktop/Explorer/Book").getImage());
-		icons.put(Type.CIRCLE, Core.Resources.Icons.get("JDesktop/Explorer/Circle").getImage());
-		icons.put(Type.CONTENT, Core.Resources.Icons.get("JDesktop/Explorer/Content").getImage());
-		icons.put(Type.CONVENTION, Core.Resources.Icons.get("JDesktop/Explorer/Convention").getImage());
-		icons.put(Type.PARODY, Core.Resources.Icons.get("JDesktop/Explorer/Parody").getImage());
+		icons.put(Type.ARTIST, Core.Resources.Icons.get("Desktop/Explorer/Artist").getImage());
+		icons.put(Type.BOOK, Core.Resources.Icons.get("Desktop/Explorer/Book").getImage());
+		icons.put(Type.CIRCLE, Core.Resources.Icons.get("Desktop/Explorer/Circle").getImage());
+		icons.put(Type.CONTENT, Core.Resources.Icons.get("Desktop/Explorer/Content").getImage());
+		icons.put(Type.CONVENTION, Core.Resources.Icons.get("Desktop/Explorer/Convention").getImage());
+		icons.put(Type.PARODY, Core.Resources.Icons.get("Desktop/Explorer/Parody").getImage());
 	}
 	
 	public TransferHandlerEx(Type type)

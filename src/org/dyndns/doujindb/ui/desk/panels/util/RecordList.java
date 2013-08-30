@@ -208,7 +208,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		    		if(selected.isEmpty())
 		    			return;
 		    		
-					JMenuItem menuItem = new JMenuItem("Remove", Core.Resources.Icons.get("JDesktop/Explorer/Remove"));
+					JMenuItem menuItem = new JMenuItem("Remove", Core.Resources.Icons.get("Desktop/Explorer/Remove"));
 					menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -247,7 +247,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 					m_PopupAction.add(menuItem);
 					if(selected.size() == 1 && selected.get(0) instanceof Book)
 					{
-						menuItem = new JMenuItem("Clone", Core.Resources.Icons.get("JDesktop/Explorer/Clone"));
+						menuItem = new JMenuItem("Clone", Core.Resources.Icons.get("Desktop/Explorer/Clone"));
 						menuItem.addActionListener(new ActionListener()
 						{
 							@Override

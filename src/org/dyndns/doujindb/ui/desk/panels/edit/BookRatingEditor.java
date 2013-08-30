@@ -13,8 +13,8 @@ public class BookRatingEditor extends JPanel
 {
 	private JButton[] buttons = new JButton[5];
 	private Rating bookRating;
-	private final ImageIcon CHECKED = Core.Resources.Icons.get("JDesktop/Explorer/Book/Rating/Checked");
-	private final ImageIcon UNCHECKED = Core.Resources.Icons.get("JDesktop/Explorer/Book/Rating/Unchecked");
+	private final ImageIcon CHECKED = Core.Resources.Icons.get("Desktop/Explorer/Book/Rating/Checked");
+	private final ImageIcon UNCHECKED = Core.Resources.Icons.get("Desktop/Explorer/Book/Rating/Unchecked");
 	
 	public BookRatingEditor(Rating rating)
 	{

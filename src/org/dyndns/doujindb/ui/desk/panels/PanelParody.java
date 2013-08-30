@@ -62,7 +62,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenParody);
-		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList()
 		}));

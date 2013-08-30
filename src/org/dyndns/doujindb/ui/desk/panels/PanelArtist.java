@@ -61,9 +61,9 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenArtist);
-		tabLists.addTab("Works", Core.Resources.Icons.get("JDesktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
 		editorCircles = new RecordCircleEditor(tokenArtist);
-		tabLists.addTab("Circles", Core.Resources.Icons.get("JDesktop/Explorer/Circle"), editorCircles);
+		tabLists.addTab("Circles", Core.Resources.Icons.get("Desktop/Explorer/Circle"), editorCircles);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList(),
 				editorCircles.getRecordList()

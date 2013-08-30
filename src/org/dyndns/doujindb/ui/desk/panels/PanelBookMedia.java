@@ -49,7 +49,7 @@ public class PanelBookMedia extends JPanel
 		treeMedia = new MediaTree(null);
 		treeMediaScroll = new JScrollPane(treeMedia);
 		add(treeMediaScroll);
-		buttonReload = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Reload"));
+		buttonReload = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Reload"));
 		buttonReload.setFocusable(false);
 		buttonReload.setToolTipText("Reload");
 		buttonReload.addActionListener(new ActionListener()
@@ -61,7 +61,7 @@ public class PanelBookMedia extends JPanel
 			}			
 		});
 		add(buttonReload);
-		buttonUpload = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"));
+		buttonUpload = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Upload"));
 		buttonUpload.setFocusable(false);
 		buttonUpload.setToolTipText("Upload");
 		buttonUpload.addActionListener(new ActionListener()
@@ -103,7 +103,7 @@ public class PanelBookMedia extends JPanel
 			}
 		});
 		add(buttonUpload);
-		buttonDownload = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"));
+		buttonDownload = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Download"));
 		buttonDownload.setFocusable(false);
 		buttonDownload.setToolTipText("Download");
 		buttonDownload.addActionListener(new ActionListener()
@@ -162,7 +162,7 @@ public class PanelBookMedia extends JPanel
 			}
 		});
 		add(buttonDownload);
-		buttonDelete = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Delete"));
+		buttonDelete = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Delete"));
 		buttonDelete.setFocusable(false);
 		buttonDelete.setToolTipText("Delete");
 		buttonDelete.addActionListener(new ActionListener()
@@ -235,7 +235,7 @@ public class PanelBookMedia extends JPanel
 					Core.UI.Desktop.showDialog(
 							(RootPaneContainer) getRootPane().getParent(),
 							panel,
-							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Delete"),
+							Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Delete"),
 							"Delete");
 				} catch (PropertyVetoException pve)
 				{
@@ -244,7 +244,7 @@ public class PanelBookMedia extends JPanel
 			}
 		});
 		add(buttonDelete);
-		buttonPackage = new JButton(Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"));
+		buttonPackage = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Package"));
 		buttonPackage.setFocusable(false);
 		buttonPackage.setToolTipText("Package");
 		buttonPackage.addActionListener(new ActionListener()
@@ -403,10 +403,10 @@ public class PanelBookMedia extends JPanel
 	{
 		renderIcon=new Hashtable<String,Icon>();
 	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
-	    renderIcon.put("/",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Repository"));
-	    renderIcon.put("?",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Unknown"));
-	    renderIcon.put("Folder",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Folder"));
-	    renderIcon.put(".zip",Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Types/Archive"));
+	    renderIcon.put("/",Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Repository"));
+	    renderIcon.put("?",Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Types/Unknown"));
+	    renderIcon.put("Folder",Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Types/Folder"));
+	    renderIcon.put(".zip",Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Types/Archive"));
 	}
 	private String getExtension(String file)
 	{
@@ -613,7 +613,7 @@ public class PanelBookMedia extends JPanel
 				Core.UI.Desktop.showDialog(
 						(RootPaneContainer) getRootPane().getParent(),
 						comp,
-						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
+						Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Download"),
 						"Downloading ...");
 				progress_overall_max = 0;
 				for(DataFile ds : dss)
@@ -709,7 +709,7 @@ public class PanelBookMedia extends JPanel
 					Core.UI.Desktop.showDialog(
 							(RootPaneContainer) getRootPane().getParent(),
 							panel,
-							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Download"),
+							Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Download"),
 							"Downloading - Error");
 				} catch (PropertyVetoException pve) {} 
 			}
@@ -834,7 +834,7 @@ public class PanelBookMedia extends JPanel
 				Core.UI.Desktop.showDialog(
 						(RootPaneContainer) getRootPane().getParent(),
 						comp,
-						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"),
+						Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Upload"),
 						"Uploading ...");
 				progress_overall_max = 0;
 				for(File file : files)
@@ -897,7 +897,7 @@ public class PanelBookMedia extends JPanel
 					Core.UI.Desktop.showDialog(
 							(RootPaneContainer) getRootPane().getParent(),
 							panel,
-							Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Upload"),
+							Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Upload"),
 							"Uploading - Error");
 				} catch (PropertyVetoException pve) {} 
 			}
@@ -989,7 +989,7 @@ public class PanelBookMedia extends JPanel
 //				Core.UI.Desktop.showDialog(
 //						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
 //						comp,
-//						Core.Resources.Icons.get("JDesktop/Explorer/Book/Media/Package"),
+//						Core.Resources.Icons.get("Desktop/Explorer/Book/Media/Package"),
 //						"Exporting ...");
 				progress_overall_max = 1;
 				{

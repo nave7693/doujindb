@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="doujindb" default="all" basedir=".">
+	
+	<path id="classpath">
+	  <fileset dir="lib">
+	    <include name="*.jar"/>
+	  </fileset>
+	</path>
+	
+	<target name="clean">
+		<echo message="Cleaning build directory ..." />
+		<delete includeemptydirs="true" quiet="true">
+			<fileset dir="bin" includes="**/*"/>
+		</delete>
+	</target>
+	
+    <target name="build">
+        <mkdir dir="bin"/>
+    	<javac
+    		srcdir="src"
+    		destdir="bin"
+    		debug="true"
+    		target="1.7"
+    		includeantruntime="no">
+    			<classpath refid="classpath"/>
+    	</javac>
+    </target>
+	
+	<target name="package">
+	   <property name="author" value="loli10K"/>
+		<property name="vendor" value="Fap Inc."/>
+		<property name="version.major" value="1"/>
+		<property name="version.minor" value="9"/>
+		<buildnumber file="build.version"/>
+		<tstamp>
+			<format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
+		</tstamp>
+		<echo message="Build-Version : ${version.major}.${version.minor}.${build.number}" />
+		<echo message="Build-Date    : ${timestamp}" />
+		<echo message="Built-By      : ${user.name}" />
+		<jar jarfile="doujindb.jar" includes="**/*.class" basedir="bin">
+			<fileset dir="bin">
+				<exclude name="**/Test*.class"/>
+			</fileset>
+			<fileset dir="src">
+				<include name="**/*.png"/>
+				<include name="**/*.gif"/>
+				<include name="**/*.java"/>
+				<include name="**/*.xml"/>
+				<exclude name="**/Test*.java"/>
+			</fileset>
+			<manifest>
+				<attribute name="Build-Version"          value="${version.major}.${version.minor}.${build.number}"/>
+				<attribute name="Build-Date"             value="${timestamp}"/>
+				<attribute name="Built-By"               value="${author}"/>
+				<attribute name="Main-Class"             value="org.dyndns.doujindb.Main"/>
+				<attribute name="Specification-Title"    value="DoujinDB"/>
+				<attribute name="Specification-Version"  value="${version.major}.${version.minor}"/>
+				<attribute name="Specification-Vendor"   value="${vendor}"/>
+				<attribute name="Implementation-Title"   value="DoujinDB"/>
+				<attribute name="Implementation-Version" value="${build.number}"/>
+				<attribute name="Implementation-Vendor"  value="${vendor}"/>
+				<attribute name="Implementation-URL"     value="https://github.com/loli10K/doujindb/"/>
+				<attribute name="Class-Path"             value="lib/cayenne-server.jar lib/commons-collections.jar lib/commons-logging.jar lib/ashwood.jar lib/velocity.jar lib/derby.jar lib/mysql.jar lib/hsqldb.jar lib/oracle.jar lib/postgresql.jar lib/sqlite.jar lib/sqlserver.jar lib/sybase.jar"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="all" depends="clean,build,package"/>
+	
+</project>

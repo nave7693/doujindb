@@ -1140,7 +1140,11 @@ public final class DoujinshiDBScanner extends Plugin
 						while(true)
 							try
 							{
+								// Prevent CPU hogging
+								Thread.sleep(500);
+								// Read clipboard data
 								String data = (String) clipboard.getData(DataFlavor.stringFlavor);
+								// Parse clipboard data
 								if(data.matches("(http://doujinshi\\.mugimugi\\.org/book/)?[0-9]+(/)?"))
 								{
 									String mugimugi_id = "B" + data.replaceFirst("(http://doujinshi\\.mugimugi\\.org/book/)?([0-9]+)(/)?", "$2");

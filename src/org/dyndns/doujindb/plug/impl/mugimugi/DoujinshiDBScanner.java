@@ -46,6 +46,11 @@ public final class DoujinshiDBScanner extends Plugin
 	private static final String Name = "DoujinshiDB Scanner";
 	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
 	
+	// DoujinshiDB URLs
+	static final String DOUJINSHIDB_URL    = "http://doujinshi.mugimugi.org/";
+	static final String DOUJINSHIDB_APIURL = "http://doujinshi.mugimugi.org/api/";
+	static final String DOUJINSHIDB_IMGURL = "http://img.mugimugi.org/";
+	
 	static String APIKEY = "";
 	static int THRESHOLD = 75;
 	static boolean RESIZE_COVER = false;
@@ -583,7 +588,7 @@ public final class DoujinshiDBScanner extends Plugin
 						{
 							if(APIKEY == null)
 								throw new Exception("Invalid API key provided.");
-							URLConnection urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + APIKEY + "/").openConnection();
+							URLConnection urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + APIKEY + "/").openConnection();
 							urlc.setRequestProperty("User-Agent", USER_AGENT);
 							InputStream in = new ClientHttpRequest(urlc).post();
 							XMLParser.XML_User parsedUser = XMLParser.readUser(in);
@@ -1259,9 +1264,9 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								try
 								{
-									// Load images from Website img.mugimugi.org
+									// Load images from doujinshidb website
 									int bid = Integer.parseInt(id.substring(1));
-									URL thumbURL = new URL("http://img.mugimugi.org/tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
+									URL thumbURL = new URL(DoujinshiDBScanner.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
 									ImageIcon ii = new ImageIcon(thumbURL);
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
@@ -1316,7 +1321,7 @@ public final class DoujinshiDBScanner extends Plugin
 									public void actionPerformed(ActionEvent ae) {
 										try {
 											int bid = Integer.parseInt(id.substring(1));
-											URI uri = new URI("http://doujinshi.mugimugi.org/book/" + bid + "/");
+											URI uri = new URI(DoujinshiDBScanner.DOUJINSHIDB_URL + "book/" + bid + "/");
 											Desktop.getDesktop().browse(uri);
 										} catch (URISyntaxException urise) {
 											urise.printStackTrace();

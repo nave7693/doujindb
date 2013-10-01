@@ -611,7 +611,7 @@ final class TaskManager
 		
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		try {
-			urlConnection = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
+			urlConnection = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=imageSearch").openConnection();
 			urlConnection.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 			InputStream rspIn = new ClientHttpRequest(urlConnection).post(
 				new Object[] {
@@ -698,7 +698,7 @@ final class TaskManager
 			{
 				URLConnection urlc;
 				try {
-					urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
 					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 					book = XMLParser.readList(urlc.getInputStream()).Books.get(0);
 				} catch (IOException ioe) {
@@ -771,7 +771,7 @@ final class TaskManager
 			{
 				URLConnection urlc;
 				try {
-					urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
 					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 					xmlbook = XMLParser.readList(urlc.getInputStream()).Books.get(0);
 				} catch (IOException ioe) {
@@ -942,7 +942,7 @@ final class TaskManager
 				String ids = ckeys[0];
 				for(int i=1;i<ckeys.length;i++)
 					ids += ckeys[i] + ",";
-				URLConnection urlc = new java.net.URL("http://doujinshi.mugimugi.org/api/" + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
+				URLConnection urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
 				urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 				InputStream in0 = urlc.getInputStream();
 				DocumentBuilderFactory docfactory = DocumentBuilderFactory.newInstance();

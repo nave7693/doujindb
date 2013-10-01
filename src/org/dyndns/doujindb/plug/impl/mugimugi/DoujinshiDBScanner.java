@@ -47,9 +47,9 @@ public final class DoujinshiDBScanner extends Plugin
 	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
 	
 	// DoujinshiDB URLs
-	static final String DOUJINSHIDB_URL    = "http://doujinshi.mugimugi.org/";
-	static final String DOUJINSHIDB_APIURL = "http://doujinshi.mugimugi.org/api/";
-	static final String DOUJINSHIDB_IMGURL = "http://img.mugimugi.org/";
+	static final String DOUJINSHIDB_URL    = "http://doujinshi.org/";
+	static final String DOUJINSHIDB_APIURL = "http://doujinshi.org/api/";
+	static final String DOUJINSHIDB_IMGURL = "http://img.doujinshi.org/";
 	
 	static String APIKEY = "";
 	static int THRESHOLD = 75;

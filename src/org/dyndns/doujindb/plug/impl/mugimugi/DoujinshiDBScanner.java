@@ -15,6 +15,8 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.regex.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -47,9 +49,10 @@ public final class DoujinshiDBScanner extends Plugin
 	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
 	
 	// DoujinshiDB URLs
-	static final String DOUJINSHIDB_URL    = "http://doujinshi.org/";
-	static final String DOUJINSHIDB_APIURL = "http://doujinshi.org/api/";
+	static final String DOUJINSHIDB_URL    = "http://www.doujinshi.org/";
+	static final String DOUJINSHIDB_APIURL = "http://www.doujinshi.org/api/";
 	static final String DOUJINSHIDB_IMGURL = "http://img.doujinshi.org/";
+	static final String DOUJINSHIDB_REGEXP = "(http://(www\\.)?doujinshi\\.org/book/)?([0-9]+)(/)?";
 	
 	static String APIKEY = "";
 	static int THRESHOLD = 75;
@@ -1139,6 +1142,8 @@ public final class DoujinshiDBScanner extends Plugin
 				{
 					private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 					private String prevValue = "";
+					private Pattern pattern = Pattern.compile(DOUJINSHIDB_REGEXP);
+					
 					@Override
 					protected Void doInBackground() throws Exception {
 						Thread.currentThread().setName("DoujinshiDBScanner/ClipboardMonitor");
@@ -1150,15 +1155,16 @@ public final class DoujinshiDBScanner extends Plugin
 								// Read clipboard data
 								String data = (String) clipboard.getData(DataFlavor.stringFlavor);
 								// Parse clipboard data
-								if(data.matches("(http://doujinshi\\.mugimugi\\.org/book/)?[0-9]+(/)?"))
+								Matcher matcher = pattern.matcher(data);
+								if(matcher.find())
 								{
-									String mugimugi_id = "B" + data.replaceFirst("(http://doujinshi\\.mugimugi\\.org/book/)?([0-9]+)(/)?", "$2");
+									String mugimugi_id = "B" + matcher.group(3);
 									if(mugimugi_id.equals(prevValue))
 										continue;
 									prevValue = mugimugi_id;
 									publish(mugimugi_id);
 								}
-							} catch (ClassCastException | UnsupportedFlavorException | IOException ee) {
+							} catch (ClassCastException | UnsupportedFlavorException | PatternSyntaxException | IOException ee) {
 							} catch (Exception e)
 							{
 								e.printStackTrace();

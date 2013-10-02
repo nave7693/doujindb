@@ -1141,7 +1141,7 @@ public final class DoujinshiDBScanner extends Plugin
 				new SwingWorker<Void,String>()
 				{
 					private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-					private String prevValue = "";
+					private String prevData = "";
 					private Pattern pattern = Pattern.compile(DOUJINSHIDB_REGEXP);
 					
 					@Override
@@ -1154,14 +1154,16 @@ public final class DoujinshiDBScanner extends Plugin
 								Thread.sleep(500);
 								// Read clipboard data
 								String data = (String) clipboard.getData(DataFlavor.stringFlavor);
+								// Skip parsing data if it's the same as before
+								if(data.equals(prevData))
+									continue;
+								else
+									prevData = data;
 								// Parse clipboard data
 								Matcher matcher = pattern.matcher(data);
 								if(matcher.find())
 								{
 									String mugimugi_id = "B" + matcher.group(3);
-									if(mugimugi_id.equals(prevValue))
-										continue;
-									prevValue = mugimugi_id;
 									publish(mugimugi_id);
 								}
 							} catch (ClassCastException | UnsupportedFlavorException | PatternSyntaxException | IOException ee) {

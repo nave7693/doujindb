@@ -35,6 +35,7 @@ import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
+import org.dyndns.doujindb.ui.desk.panels.util.ComboBoxConvention;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 import org.dyndns.doujindb.util.ImageTool;
@@ -64,7 +65,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	private JLabel labelType;
 	private JComboBox<Book.Type> comboType;
 	private JLabel labelConvention;
-	private JComboBox<Convention> comboConvention;
+	private ComboBoxConvention comboConvention;
 	private JCheckBox checkAdult;
 	private JCheckBox checkDecensored;
 	private JCheckBox checkTranslated;
@@ -241,9 +242,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		comboType.setFont(font);
 		comboType.setFocusable(false);
 		labelConvention = new JLabel("Convention");
-		comboConvention = new JComboBox<Convention>();
+		comboConvention = new ComboBoxConvention();
 		comboConvention.setFont(font);
-		comboConvention.setFocusable(false);
+		comboConvention.setFocusable(true);
 		comboConvention.addItem(null);
 		editorRating = new BookRatingEditor(tokenBook.getRating());
 		checkAdult = new JCheckBox("Adult", false);

@@ -9,7 +9,7 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.CntParody;
+import org.dyndns.doujindb.db.containers.ParodyContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Parody;
@@ -18,12 +18,12 @@ import org.dyndns.doujindb.ui.desk.panels.util.*;
 @SuppressWarnings("serial")
 public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 {
-	private CntParody tokenIParody;
+	private ParodyContainer tokenIParody;
 	private RecordList<Parody> recordList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Resources.Font;
 	
-	public RecordParodyEditor(CntParody token) throws DataBaseException
+	public RecordParodyEditor(ParodyContainer token) throws DataBaseException
 	{
 		super();
 		this.tokenIParody = token;

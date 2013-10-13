@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.records.*;
 * @author nozomu
 * @version 1.0
 */
-public interface CntArtist
+public interface ArtistContainer
 {
 	public RecordSet<Artist> getArtists() throws DataBaseException;
 }

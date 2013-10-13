@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Parody extends Record, CntBook
+public interface Parody extends Record, BookContainer
 {
 	public String getJapaneseName() throws DataBaseException;
 	public String getTranslatedName() throws DataBaseException;

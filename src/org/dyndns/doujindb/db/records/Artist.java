@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Artist extends Record, CntBook, CntCircle
+public interface Artist extends Record, BookContainer, CircleContainer
 {
 	public String getJapaneseName() throws DataBaseException;
 	public String getTranslatedName() throws DataBaseException;

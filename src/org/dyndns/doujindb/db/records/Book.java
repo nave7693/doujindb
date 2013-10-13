@@ -10,7 +10,7 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Book extends Record, CntArtist, CntCircle, CntContent, CntConvention, CntParody
+public interface Book extends Record, ArtistContainer, CircleContainer, ContentContainer, ConventionContainer, ParodyContainer
 {
 	public enum Type implements org.apache.cayenne.ExtendedEnumeration
 	{

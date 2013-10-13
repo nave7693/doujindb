@@ -10,7 +10,7 @@ import org.dyndns.doujindb.db.containers.*;
 * @author nozomu
 * @version 1.0
 */
-public interface Content extends Record, CntBook
+public interface Content extends Record, BookContainer
 {
 	public String getTagName() throws DataBaseException;
 	public String getInfo() throws DataBaseException;

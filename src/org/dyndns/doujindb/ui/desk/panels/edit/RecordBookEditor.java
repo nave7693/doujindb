@@ -11,7 +11,7 @@ import javax.swing.event.DocumentListener;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.CntBook;
+import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Book;
@@ -20,7 +20,7 @@ import org.dyndns.doujindb.ui.desk.panels.util.*;
 @SuppressWarnings("serial")
 public class RecordBookEditor extends JPanel implements LayoutManager, ActionListener, DataBaseListener
 {
-	private CntBook tokenIBook;
+	private BookContainer tokenIBook;
 	private RecordList<Book> recordList;
 	private JTextField searchField;
 	private boolean previewToggled = false;
@@ -28,7 +28,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	private JButton togglePreview;
 	private final Font font = Core.Resources.Font;
 	
-	public RecordBookEditor(CntBook token) throws DataBaseException
+	public RecordBookEditor(BookContainer token) throws DataBaseException
 	{
 		super();
 		this.tokenIBook = token;

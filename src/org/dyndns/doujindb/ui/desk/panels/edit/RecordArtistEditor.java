@@ -8,7 +8,7 @@ import javax.swing.event.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.CntArtist;
+import org.dyndns.doujindb.db.containers.ArtistContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Artist;
@@ -17,12 +17,12 @@ import org.dyndns.doujindb.ui.desk.panels.util.*;
 @SuppressWarnings("serial")
 public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 {
-	private CntArtist tokenIArtist;
+	private ArtistContainer tokenIArtist;
 	private RecordList<Artist> recordList;
 	private JTextField searchField = new JTextField("");
 	private final Font font = Core.Resources.Font;
 	
-	public RecordArtistEditor(CntArtist token) throws DataBaseException
+	public RecordArtistEditor(ArtistContainer token) throws DataBaseException
 	{
 		super();
 		this.tokenIArtist = token;

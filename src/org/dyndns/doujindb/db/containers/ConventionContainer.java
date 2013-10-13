@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.records.Convention;
 * @author nozomu
 * @version 1.0
 */
-public interface CntConvention
+public interface ConventionContainer
 {
 	public Convention getConvention() throws DataBaseException;
 	public void setConvention(Convention convention) throws DataBaseException;

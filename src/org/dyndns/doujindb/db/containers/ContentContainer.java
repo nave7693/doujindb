@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.records.*;
 * @author nozomu
 * @version 1.0
 */
-public interface CntContent
+public interface ContentContainer
 {
 	public RecordSet<Content> getContents() throws DataBaseException;
 }

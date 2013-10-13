@@ -120,6 +120,8 @@ public final class Resources
 		iconKeys.put("Desktop/Explorer/Remove","desktop/explorer/remove.png");
 		iconKeys.put("Desktop/Explorer/Clone","desktop/explorer/clone.png");
 		iconKeys.put("Desktop/Explorer/ComboBox/Arrow","desktop/explorer/combobox/arrow.png");
+		iconKeys.put("Desktop/Explorer/Table/View/List","desktop/explorer/table/view/list.png");
+		iconKeys.put("Desktop/Explorer/Table/View/Preview","desktop/explorer/table/view/preview.png");
 		iconKeys.put("JDesktop/IFrame/Iconify","jdesktop/iframe/iconify.png");
 		iconKeys.put("JDesktop/IFrame/Minimize","jdesktop/iframe/minimize.png");
 		iconKeys.put("JDesktop/IFrame/Maximize","jdesktop/iframe/maximize.png");

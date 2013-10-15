@@ -3,6 +3,13 @@ DoujinDB
 
 A program used to manage a digital collection of comic books
 
+Status
+---
+
+DoujinDB it's mostly stable and has been tested with MySQL and SQLite.
+
+I'm using it to catalog ~150GB on disk (data: image files) and 4MB on a vanilla MySQL install (metadata: 11K books, 4K artists and 3K circles) without problems.
+
 Build
 ---
 
@@ -18,7 +25,7 @@ Run it from a command promp as ```java -jar doujindb.jar```
 Requirements
 ---
 
-* [Java] - Java Runtime Environment (JDK is needed to build)
+* [Java] - Java Runtime Environment 1.7+ (Java Development Kit is needed to build)
 * [Ant] - Software tool for automating software build processes (needed to build)
 * [Cayenne] - Object Relational Mapping Framework
 * JDBC drivers (see README in lib folder)

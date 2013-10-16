@@ -9,6 +9,8 @@ Requirements
 
 Download Cayenne binaries (3.0.2 is the supported version, 3.1+ won't work) which also contain required libraries (Ashwood, Velocity, Commons) in lib/third-party
 
+UPDATE : just run `ant download-libs` to get cayenne plus required libraries (you'll still have to download JDBC drivers manually)
+
 Jar files should not contain version numbers in the file name or DoujinDB won't load them (you can change this in the Ant buildfile)
 
 Your lib directory should look like this

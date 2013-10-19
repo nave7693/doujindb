@@ -1,11 +1,9 @@
 package org.dyndns.doujindb.plug.impl.mugimugi.rc;
 
 import java.util.*;
-
 import javax.swing.ImageIcon;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.log.Level;
 
 public final class Resources
 {
@@ -58,7 +56,7 @@ public final class Resources
 			{
 				npe.printStackTrace();
 				Icons.put(key, new ImageIcon());
-				Core.Logger.log("Icon resource " + key + " not found.", Level.ERROR);
+				Core.Logger.logError("Icon resource '" + key + "' not found");
 			}
 	}
 }

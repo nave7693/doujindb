@@ -6,7 +6,6 @@ import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.swing.ImageIcon;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -22,7 +21,6 @@ import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.util.ImageTool;
 
 final class TaskManager
@@ -290,7 +288,7 @@ final class TaskManager
 		{
 			m_Worker.resume();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Core.Logger.log("Worker started.", Level.INFO);
+			Core.Logger.logInfo("Worker started");
 		}
 	}
 	
@@ -300,7 +298,7 @@ final class TaskManager
 		{
 			m_Worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Core.Logger.log("Worker stopped.", Level.INFO);
+			Core.Logger.logInfo("Worker stopped");
 		}
 	}
 	
@@ -384,7 +382,7 @@ final class TaskManager
 				int queryCount = DoujinshiDBScanner.UserInfo.Queries;
 				if( queryCount < 2)
 				{
-					Core.Logger.log("Not enough (" + queryCount + ") API queries to process more Tasks.", Level.WARNING);
+					Core.Logger.logWarning("Not enough (" + queryCount + ") API queries to process more Tasks");
 					TaskManager.stop();
 					pcs.firePropertyChange("api-info", 0, 1);
 					continue;

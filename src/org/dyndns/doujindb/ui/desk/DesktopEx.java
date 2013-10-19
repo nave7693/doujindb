@@ -7,7 +7,6 @@ import java.awt.image.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -15,7 +14,6 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
 import org.dyndns.doujindb.util.ImageTool;
@@ -72,7 +70,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							wallpaper.setIcon(wallpaperImage);
 						} catch (Exception e) {
 							e.printStackTrace();
-							Core.Logger.log(e.getMessage(), Level.WARNING);
+							Core.Logger.logWarning(e.getMessage(), e);
 						}
 						return null;
 					}
@@ -94,7 +92,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				try {
 					Core.UI.Desktop.showTrashWindow();
 				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					Core.Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
 				}
 			}
@@ -114,7 +112,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				try {
 					Core.UI.Desktop.showToolsWindow();
 				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					Core.Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
 				}
 			}
@@ -188,7 +186,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							}
 						}.execute();
 					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						Core.Logger.logError(dbe.getMessage(), dbe);
 						dbe.printStackTrace();
 					}
 				}
@@ -253,8 +251,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 					window.setIcon(false);
 				} catch (PropertyVetoException pve)
 				{
-					pve.printStackTrace();
-					Core.Logger.log(pve.getMessage(), Level.WARNING);
+					Core.Logger.logWarning(pve.getMessage(), pve);
 				}
 			}
 			
@@ -270,8 +267,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			window.setSelected(true);
 		} catch (PropertyVetoException pve)
 		{
-			pve.printStackTrace();
-			Core.Logger.log(pve.getMessage(), Level.WARNING);
+			Core.Logger.logWarning(pve.getMessage(), pve);
 		}
 		return window;
 	}
@@ -290,8 +286,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			window.setSelected(true);
 		} catch (PropertyVetoException pve)
 		{
-			pve.printStackTrace();
-			Core.Logger.log(pve.getMessage(), Level.WARNING);
+			Core.Logger.logWarning(pve.getMessage(), pve);
 		}
 		return window;
 	}
@@ -310,8 +305,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			window.setSelected(true);
 		} catch (PropertyVetoException pve)
 		{
-			pve.printStackTrace();
-			Core.Logger.log(pve.getMessage(), Level.WARNING);
+			Core.Logger.logWarning(pve.getMessage(), pve);
 		}
 		return window;
 	}
@@ -330,8 +324,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			window.setSelected(true);
 		} catch (PropertyVetoException pve)
 		{
-			pve.printStackTrace();
-			Core.Logger.log(pve.getMessage(), Level.WARNING);
+			Core.Logger.logWarning(pve.getMessage(), pve);
 		}
 		return window;
 	}
@@ -352,8 +345,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			window.setSelected(true);
 		} catch (PropertyVetoException pve)
 		{
-			pve.printStackTrace();
-			Core.Logger.log(pve.getMessage(), Level.WARNING);
+			Core.Logger.logWarning(pve.getMessage(), pve);
 		}
 		return window;
 	}
@@ -372,8 +364,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 					window.setIcon(false);
 				} catch (PropertyVetoException pve)
 				{
-					pve.printStackTrace();
-					Core.Logger.log(pve.getMessage(), Level.WARNING);
+					Core.Logger.logWarning(pve.getMessage(), pve);
 				}
 				return true;
 			}
@@ -399,8 +390,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 						window.setIcon(false);
 					} catch (PropertyVetoException pve)
 					{
-						pve.printStackTrace();
-						Core.Logger.log(pve.getMessage(), Level.WARNING);
+						Core.Logger.logWarning(pve.getMessage(), pve);
 					}
 					return true;
 				}
@@ -431,8 +421,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							window.setIcon(false);
 						} catch (PropertyVetoException pve)
 						{
-							pve.printStackTrace();
-							Core.Logger.log(pve.getMessage(), Level.WARNING);
+							Core.Logger.logWarning(pve.getMessage(), pve);
 						}
 						return true;
 					}
@@ -446,8 +435,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							window.setIcon(false);
 						} catch (PropertyVetoException pve)
 						{
-							pve.printStackTrace();
-							Core.Logger.log(pve.getMessage(), Level.WARNING);
+							Core.Logger.logWarning(pve.getMessage(), pve);
 						}
 						return true;
 					}
@@ -511,8 +499,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
             public void run() {
             	try { window.setSelected(true); } catch (PropertyVetoException pve)
             	{
-        			pve.printStackTrace();
-        			Core.Logger.log(pve.getMessage(), Level.WARNING);
+            		Core.Logger.logWarning(pve.getMessage(), pve);
         		}
             }
         });
@@ -526,7 +513,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			else
 				m_ButtonTrash.setIcon(Core.Resources.Icons.get("Desktop/Trash/Empty"));
 		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

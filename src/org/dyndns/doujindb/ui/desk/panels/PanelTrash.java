@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
 import java.beans.*;
 import java.util.Vector;
 
@@ -12,7 +11,6 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -182,13 +180,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.log(aioobe.getMessage(), Level.WARNING);
+							Core.Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
+							Core.Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -343,13 +341,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.log(aioobe.getMessage(), Level.WARNING);
+							Core.Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
+							Core.Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -504,13 +502,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.log(aioobe.getMessage(), Level.WARNING);
+							Core.Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
+							Core.Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -678,13 +676,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 						}
 					}
 				} catch(ArrayIndexOutOfBoundsException aioobe) {
-					Core.Logger.log(aioobe.getMessage(), Level.WARNING);
+					Core.Logger.logError(aioobe.getMessage(), aioobe);
 					aioobe.printStackTrace();
 				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
+					Core.Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
 				} catch (Exception e) {
-					Core.Logger.log(e.getMessage(), Level.ERROR);
+					Core.Logger.logError(e.getMessage(), e);
 					e.printStackTrace();
 				}
 				return null;
@@ -912,7 +910,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			count = Core.Database.getRecycled().size();
 			m_LabelCount.setText((count==1)?("Item : 1"):("Items : "+count));
 		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 		m_LabelListArtist.setText("Artists (" + (m_ListArtist.getSelectedIndices().length) + "/" + m_ListArtist.getModel().getSize() + ")");

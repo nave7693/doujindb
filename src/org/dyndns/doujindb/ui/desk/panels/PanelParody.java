@@ -6,7 +6,6 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.TooManyListenersException;
-
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
@@ -16,7 +15,6 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -179,7 +177,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

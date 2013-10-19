@@ -16,7 +16,6 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -175,8 +174,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		                	return;
 		                }
 					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
-						dbe.printStackTrace();
+						Core.Logger.logError(dbe.getMessage(), dbe);
 					}
 				}
 			}

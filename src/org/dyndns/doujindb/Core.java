@@ -7,6 +7,7 @@ import org.dyndns.doujindb.dat.Repository;
 import org.dyndns.doujindb.dat.impl.RepositoryImpl;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.log.impl.SystemLogger;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.rc.*;
@@ -38,7 +39,7 @@ public final class Core implements Runnable
 		}
 		try
 		{
-			Logger = org.dyndns.doujindb.log.impl.Factory.getService();
+			Logger = new SystemLogger();
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -48,25 +49,25 @@ public final class Core implements Runnable
 		{
 			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();
 			Properties.load();
-			Logger.log("System Properties loaded.", Level.INFO);
+			Logger.logInfo("System Properties loaded.");
 		} catch (Exception e)
 		{
-			Logger.log("Failed to load system Properties : " + e.getMessage() + ".", Level.ERROR);
-			Logger.log("System Properties restored to default.", Level.INFO);
+			Logger.logError("Failed to load system Properties", e);
+			Logger.logInfo("System Properties restored to default.");
 			isConfigurationWizard = true;
 		}
 		if(java.awt.GraphicsEnvironment.isHeadless()) 
 		{
-			Logger.log("DoujinDB cannot run on headless systems.", Level.FATAL);
+			Logger.logFatal("DoujinDB cannot run on headless systems.");
 			return;
 		}
 		
 		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
-			Core.Logger.log("Repository folder is the temporary system folder.", Level.WARNING);
-		Core.Logger.log("Repository loaded.", Level.INFO);
+			Core.Logger.logWarning("Repository folder is the temporary system folder.");
+		Core.Logger.logInfo("Repository loaded.");
 		
-		Logger.log("Loading user interface ...", Level.INFO);
+		Logger.logInfo("Loading user interface ...");
 		try
 		{
 			Resources = new Resources();
@@ -76,25 +77,25 @@ public final class Core implements Runnable
 				Properties.get("org.dyndns.doujindb.ui.font_size").asNumber());
 		} catch (Exception e)
 		{
-			Core.Logger.log(e.getMessage(), Level.FATAL);
+			Core.Logger.logFatal(e.getMessage(), e);
 			return;
 		}
-		Core.Logger.log("Resources loaded.", Level.INFO);
+		Core.Logger.logInfo("Resources loaded.");
 		
 		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		
 		Database = DataBase.getInstance();
 		
-		Core.Logger.log("Discovering plugins ...", Level.INFO);
+		Core.Logger.logInfo("Discovering plugins ...");
 		PluginManager.discovery();
 		
 		UI = new UI();
-		Core.Logger.log("User interface loaded.", Level.INFO);
+		Core.Logger.logInfo("User interface loaded.");
 		
 		if(isConfigurationWizard)
 		{
-			Core.Logger.log("Running configuration wizard ...", Level.INFO);
+			Core.Logger.logInfo("Running configuration wizard ...");
 			UI.showConfigurationWizard();
 		}
 	}

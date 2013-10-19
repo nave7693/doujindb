@@ -6,7 +6,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.*;
-
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -20,7 +19,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
 
@@ -401,8 +399,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -473,8 +470,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									if(Core.Database.isAutocommit())
@@ -708,8 +704,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -778,8 +773,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									try
@@ -788,12 +782,10 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Core.Database.doCommit();
 									} catch (DataBaseException dbe)
 									{
-										dbe.printStackTrace();
-										Core.Logger.log(dbe.getMessage(), Level.ERROR);
+										Core.Logger.logError(dbe.getMessage(), dbe);
 									} catch (Exception e)
 									{
-										e.printStackTrace();
-										Core.Logger.log(e.getMessage(), Level.ERROR);
+										Core.Logger.logError(e.getMessage(), e);
 									}
 									publish(selected);
 									return null;
@@ -1018,8 +1010,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -1088,8 +1079,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									if(Core.Database.isAutocommit())
@@ -1287,8 +1277,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -1357,8 +1346,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									if(Core.Database.isAutocommit())
@@ -1539,8 +1527,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -1609,8 +1596,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									if(Core.Database.isAutocommit())
@@ -1806,8 +1792,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
-							dbe.printStackTrace();
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 						return;
 					}
@@ -1876,8 +1861,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											selected.add(o);
 										} catch (DataBaseException dbe)
 										{
-											dbe.printStackTrace();
-											Core.Logger.log(dbe.getMessage(), Level.ERROR);
+											Core.Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
 									if(Core.Database.isAutocommit())

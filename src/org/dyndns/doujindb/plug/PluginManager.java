@@ -8,7 +8,6 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.log.Level;
 
 /**  
 * PluginManager.java - DoujinDB Plugin Manager.
@@ -99,20 +98,20 @@ public final class PluginManager
 			try {
 				plugins.add((Plugin) Class.forName(plugin).newInstance());
 			} catch (RuntimeException re) {
-				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + re.getMessage() + ".", Level.ERROR);
+				Core.Logger.logError("Failed to load plugin '" + plugin + "' : " + re.getMessage(), re);
 			} catch (InstantiationException ie) {
-				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + ie.getMessage() + ".", Level.ERROR);
+				Core.Logger.logError("Failed to load plugin '" + plugin + "' : " + ie.getMessage(), ie);
 			} catch (IllegalAccessException iae) {
-				Core.Logger.log("Failed to load plugin [" + plugin + "] : " + iae.getMessage() + ".", Level.ERROR);
+				Core.Logger.logError("Failed to load plugin '" + plugin + "' : " + iae.getMessage(), iae);
 			}
 			
 			ois.close();
 		} catch (FileNotFoundException fnfe) {
-			Core.Logger.log("Failed to load plugins : " + fnfe.getMessage() + ".", Level.WARNING);
+			Core.Logger.logError("Failed to load plugins : " + fnfe.getMessage(), fnfe);
 		} catch (IOException ioe) {
-			Core.Logger.log("Failed to load plugins : " + ioe.getMessage() + ".", Level.ERROR);
+			Core.Logger.logError("Failed to load plugins : " + ioe.getMessage(), ioe);
 		} catch (ClassNotFoundException cnfe) {
-			Core.Logger.log("Failed to load plugins : " + cnfe.getMessage() + ".", Level.ERROR);
+			Core.Logger.logError("Failed to load plugins : " + cnfe.getMessage(), cnfe);
 		}
 	}
 	
@@ -130,9 +129,9 @@ public final class PluginManager
 			oos.close();
 		} catch (FileNotFoundException fnfe) {
 			try { file.createNewFile(); } catch (IOException ioe) { }
-			Core.Logger.log("Failed to save plugins : " + fnfe.getMessage() + ".", Level.WARNING);
+			Core.Logger.logWarning("Failed to save plugins : " + fnfe.getMessage(), fnfe);
 		} catch (IOException ioe) {
-			Core.Logger.log("Failed to save plugins : " + ioe.getMessage() + ".", Level.ERROR);
+			Core.Logger.logError("Failed to save plugins : " + ioe.getMessage(), ioe);
 		}
 	}
 	
@@ -147,7 +146,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.startup();
-						Core.Logger.log("[Plugin:'" + plugin.getName() + "'] started.", Level.DEBUG);
+						Core.Logger.logInfo("Plugin '" + plugin.getName() + "' started");
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -159,13 +158,13 @@ public final class PluginManager
 			{
 				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Core.Logger.log("TimeoutException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("TimeoutException : Cannot startup plugin '" + plugin.getName() + "'", te);
 				te.printStackTrace();
 			} catch (InterruptedException ie) {
-				Core.Logger.log("InterruptedException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("InterruptedException : Cannot startup plugin '" + plugin.getName() + "'", ie);
 				ie.printStackTrace();
 			} catch (ExecutionException ee) {
-				Core.Logger.log("ExecutionException : Cannot startup [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("ExecutionException : Cannot startup plugin '" + plugin.getName() + "'", ee);
 				ee.printStackTrace();
 			} finally {
 			   future.cancel(true);
@@ -184,7 +183,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.shutdown();
-						Core.Logger.log("[Plugin:'" + plugin.getName() + "'] stopped.", Level.DEBUG);
+						Core.Logger.logInfo("Plugin '" + plugin.getName() + "' stopped");
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -196,13 +195,13 @@ public final class PluginManager
 			{
 				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Core.Logger.log("TimeoutException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("TimeoutException : Cannot shutdown plugin '" + plugin.getName() + "'", te);
 				te.printStackTrace();
 			} catch (InterruptedException ie) {
-				Core.Logger.log("InterruptedException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("InterruptedException : Cannot shutdown plugin '" + plugin.getName() + "'", ie);
 				ie.printStackTrace();
 			} catch (ExecutionException ee) {
-				Core.Logger.log("ExecutionException : Cannot shutdown [Plugin:'" + plugin.getName() + "']", Level.WARNING);
+				Core.Logger.logWarning("ExecutionException : Cannot shutdown plugin '" + plugin.getName() + "'", ee);
 				ee.printStackTrace();
 			} finally {
 			   future.cancel(true);

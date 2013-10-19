@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import javax.swing.SwingWorker;
 
 import org.dyndns.doujindb.log.*;
@@ -13,14 +14,14 @@ import org.dyndns.doujindb.log.*;
 * @author  nozomu
 * @version 1.0
 */
-final class SystemLogger implements Logger
+public final class SystemLogger implements Logger
 {
 	private List<Logger> loggers = new Vector<Logger>();
 	private ConcurrentLinkedQueue<LogEvent> queue = new ConcurrentLinkedQueue<LogEvent>();
 
 	private SimpleDateFormat sdf;
 	
-	SystemLogger()
+	public SystemLogger()
 	{
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -49,14 +50,15 @@ final class SystemLogger implements Logger
 			}
 			@Override
 			protected void process(List<LogEvent> events) {
-				for(LogEvent evt : events)
+				for(LogEvent log : events)
 					try {
 						System.out.write(
-							String.format(sdf.format(new Date(evt.getTime())) + " [%s] %s: %s\r\n",
-								evt.getLevel(),
-								evt.getSource(),
-								evt.getMessage()).getBytes()
-							);
+							String.format(sdf.format(new Date(log.getTime())) + " [%s] %s: %s\r\n",
+								log.getLevel(),
+								log.getSource(),
+								log.getMessage()).getBytes());
+						if(log.getThrowable() != null)
+							log.getThrowable().printStackTrace(System.out);
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 					}
@@ -65,11 +67,11 @@ final class SystemLogger implements Logger
 	}
 	
 	@Override
-	public synchronized void log(LogEvent evt)
+	public synchronized void log(LogEvent log)
 	{
-		queue.offer(evt);
+		queue.offer(log);
 		for(Logger logger : loggers)
-			logger.log(evt);
+			logger.log(log);
 	}
 
 	@Override
@@ -86,8 +88,52 @@ final class SystemLogger implements Logger
 	}
 
 	@Override
-	public synchronized void log(String message, Level level)
-	{
-		log(new ImplEvent(message, level));
+	public void logFatal(String message) {
+		log(new LogEvent(Level.FATAL, message));
+	}
+
+	@Override
+	public void logFatal(String message, Throwable err) {
+		log(new LogEvent(Level.FATAL, message, err));
+	}
+
+	@Override
+	public void logDebug(String message) {
+		log(new LogEvent(Level.DEBUG, message));
+	}
+
+	@Override
+	public void logDebug(String message, Throwable err) {
+		log(new LogEvent(Level.DEBUG, message, err));
+	}
+
+	@Override
+	public void logError(String message) {
+		log(new LogEvent(Level.ERROR, message));
+	}
+
+	@Override
+	public void logError(String message, Throwable err) {
+		log(new LogEvent(Level.ERROR, message, err));
+	}
+
+	@Override
+	public void logWarning(String message) {
+		log(new LogEvent(Level.WARNING, message));
+	}
+
+	@Override
+	public void logWarning(String message, Throwable err) {
+		log(new LogEvent(Level.WARNING, message, err));
+	}
+
+	@Override
+	public void logInfo(String message) {
+		log(new LogEvent(Level.INFO, message));
+	}
+
+	@Override
+	public void logInfo(String message, Throwable err) {
+		log(new LogEvent(Level.INFO, message, err));
 	}
 }

@@ -31,6 +31,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.log.Logger.LogEvent;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.desk.*;
@@ -112,7 +113,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
 			super.setAlwaysOnTop(true);
 		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-		Core.Logger.log("Basic user interface loaded.", Level.INFO);
+		Core.Logger.logInfo("Basic user interface loaded");
 			
 		try
 		{
@@ -125,10 +126,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		    SwingUtilities.updateComponentTreeUI(this);
 		}catch(Exception e)
 		{
-			Core.Logger.log(e.getMessage(), Level.ERROR);
+			Core.Logger.logError(e.getMessage(), e);
 			return;
 		}
-		Core.Logger.log("Theme loaded.", Level.INFO);
+		Core.Logger.logInfo("Theme loaded");
 		
 		LoadingDialog loading = new LoadingDialog(super.getTitle());
 		
@@ -161,7 +162,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    glassPane.setEnabled(false);
 	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
 		setGlassPane(glassPane);
-		Core.Logger.log("Glass panel added.", Level.INFO);
+		Core.Logger.logInfo("Glass panel added");
 		
 		uiPanelTabbed = new JTabbedPane();
 		super.addWindowListener(this);
@@ -247,7 +248,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 	    	uiFileChooser.setMultiSelectionEnabled(true);
 	    }
-		Core.Logger.log("JFileChooser loaded.", Level.INFO);
+		Core.Logger.logInfo("JFileChooser loaded");
 		
 		menuBar = new JMenuBar();
 		menuBar.setFont(Core.Resources.Font);
@@ -291,7 +292,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		menuHelp.add(menuHelpBugtrack);
 		menuBar.add(menuHelp);
 		super.setJMenuBar(menuBar);
-		Core.Logger.log("JMenuBar added.", Level.INFO);
+		Core.Logger.logInfo("JMenuBar added");
 		
 		JPanel bogus;
 		
@@ -429,7 +430,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelTabbed.setFocusable(false);
 		super.add(uiPanelTabbed);
 		
-		Core.Logger.log("JTabbedPane added.", Level.INFO);
+		Core.Logger.logInfo("JTabbedPane added");
 		
 		if(SystemTray.isSupported())
 		{
@@ -453,9 +454,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}
 			});
 			uiTrayIcon.addActionListener(this);
-			Core.Logger.log("SystemTray loaded.", Level.INFO);
-		}else
-		Core.Logger.log("SystemTray not supported.", Level.WARNING);
+			Core.Logger.logInfo("SystemTray loaded");
+		} else
+			Core.Logger.logWarning("SystemTray not supported");
 
 		super.setLayout(this);
 		/*
@@ -543,10 +544,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try
 			{
 				Core.Properties.save();
-				Core.Logger.log("System properties saved.", Level.INFO);
+				Core.Logger.logInfo("System properties saved");
 			}catch(Exception e)
 			{
-				Core.Logger.log(e.getMessage(), Level.ERROR);
+				Core.Logger.logError(e.getMessage(), e);
 			}
 			return;
 		}
@@ -559,7 +560,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					uiPanelPlugins.add(plugin);
 			}catch(Exception e)
 			{
-				Core.Logger.log(e.getMessage(), Level.ERROR);
+				Core.Logger.logError(e.getMessage(), e);
 			}
 			return;
 		}
@@ -569,10 +570,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 				Core.Properties.load();
 				uiPanelSettings.reload();
-				Core.Logger.log("System properties loaded.", Level.INFO);
+				Core.Logger.logInfo("System properties loaded");
 			}catch(Exception e)
 			{
-				Core.Logger.log(e.getMessage(), Level.ERROR);
+				Core.Logger.logError(e.getMessage(), e);
 			}
 			return;
 		}
@@ -635,11 +636,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/"));
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				Core.Logger.log(ioe.getMessage(), Level.WARNING);
+				Core.Logger.logError(ioe.getMessage(), ioe);
 			} catch (URISyntaxException use) {
-				use.printStackTrace();
-				Core.Logger.log(use.getMessage(), Level.WARNING);
+				Core.Logger.logError(use.getMessage(), use);
 			}
 			return;
 		}
@@ -652,8 +651,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showSearchWindow();
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -666,8 +664,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				setVisible(true);
 				setState(JFrame.NORMAL);
 			}catch(Exception e){
-				e.printStackTrace();
-				Core.Logger.log(e.getMessage(), Level.ERROR);
+				Core.Logger.logError(e.getMessage(), e);
 			}
 			return;
 		}
@@ -676,8 +673,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -686,8 +682,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -696,8 +691,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -706,8 +700,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -716,8 +709,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -726,8 +718,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -751,18 +742,18 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						try
 						{
 							Core.Database.disconnect();
-							Core.Logger.log("Disconnected.", Level.INFO);
+							Core.Logger.logInfo("Disconnected");
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 					} else {
 						try
 						{
 							Core.Database.connect();
 							Core.Database.doRollback();
-							Core.Logger.log("Connected to " + Core.Database.getConnection() + ".", Level.INFO);
+							Core.Logger.logInfo("Connected to " + Core.Database.getConnection());
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 						}
 					}
 					return null;
@@ -806,9 +797,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			SystemTray uiTray = SystemTray.getSystemTray();
 			uiTray.add(uiTrayIcon);
 			setVisible(false);
-		}catch(AWTException awte){
-			awte.printStackTrace();
-			Core.Logger.log(awte.getMessage(), Level.ERROR);
+		} catch(AWTException awte) {
+			Core.Logger.logError(awte.getMessage(), awte);
 		}
 	}
 	
@@ -1055,7 +1045,54 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		public void loggerDetach(Logger logger) { }
 	
 		@Override
-		public void log(String message, Level level) { }
+		public void logFatal(String message) {
+			log(new LogEvent(Level.FATAL, message));
+		}
+
+		@Override
+		public void logFatal(String message, Throwable err) {
+			log(new LogEvent(Level.FATAL, message, err));
+		}
+
+		@Override
+		public void logDebug(String message) {
+			log(new LogEvent(Level.DEBUG, message));
+		}
+
+		@Override
+		public void logDebug(String message, Throwable err) {
+			log(new LogEvent(Level.DEBUG, message, err));
+		}
+
+		@Override
+		public void logError(String message) {
+			log(new LogEvent(Level.ERROR, message));
+		}
+
+		@Override
+		public void logError(String message, Throwable err) {
+			log(new LogEvent(Level.ERROR, message, err));
+		}
+
+		@Override
+		public void logWarning(String message) {
+			log(new LogEvent(Level.WARNING, message));
+		}
+
+		@Override
+		public void logWarning(String message, Throwable err) {
+			log(new LogEvent(Level.WARNING, message, err));
+		}
+
+		@Override
+		public void logInfo(String message) {
+			log(new LogEvent(Level.INFO, message));
+		}
+
+		@Override
+		public void logInfo(String message, Throwable err) {
+			log(new LogEvent(Level.INFO, message, err));
+		}
 	}
 	
     @SuppressWarnings("serial")

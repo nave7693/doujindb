@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.*;
@@ -26,7 +25,6 @@ import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
@@ -95,8 +93,7 @@ public class PanelBookMedia extends JPanel
 							fc.setFileSelectionMode(prev_option);
 							loadData();	
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
-							e.printStackTrace();
+							Core.Logger.logError(e.getMessage(), e);
 						}
 					}
 				}.start();
@@ -154,8 +151,7 @@ public class PanelBookMedia extends JPanel
 							fc.setFileSelectionMode(prev_option);
 							loadData();
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
-							e.printStackTrace();
+							Core.Logger.logError(e.getMessage(), e);
 						}
 					}
 				}.start();				
@@ -220,7 +216,7 @@ public class PanelBookMedia extends JPanel
 								ds.delete();
 							} catch (Exception e) { e.printStackTrace(); }
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
+							Core.Logger.logError(e.getMessage(), e);
 						}
 						loadData();
 						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
@@ -239,7 +235,7 @@ public class PanelBookMedia extends JPanel
 							"Delete");
 				} catch (PropertyVetoException pve)
 				{
-					Core.Logger.log(pve.getMessage(), Level.WARNING);
+					Core.Logger.logWarning(pve.getMessage(), pve);
 				}
 			}
 		});
@@ -276,8 +272,7 @@ public class PanelBookMedia extends JPanel
 							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(prev_option);
 						} catch (Exception e) {
-							Core.Logger.log(e.getMessage(), Level.ERROR);
-							e.printStackTrace();
+							Core.Logger.logError(e.getMessage(), e);
 						}
 					}
 				}.start();
@@ -340,8 +335,7 @@ public class PanelBookMedia extends JPanel
 			if(!Core.Database.getBooks(null).contains(tokenBook))
 				return;
 		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
-			dbe.printStackTrace();
+			Core.Logger.logError(dbe.getMessage(), dbe);
 		}
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -366,11 +360,9 @@ public class PanelBookMedia extends JPanel
 						}
 					});
 				} catch (DataBaseException dbe) {
-					Core.Logger.log(dbe.getMessage(), Level.ERROR);
-					dbe.printStackTrace();
+					Core.Logger.logError(dbe.getMessage(), dbe);
 				} catch (RepositoryException re) {
-					Core.Logger.log(re.getMessage(), Level.ERROR);
-					re.printStackTrace();
+					Core.Logger.logError(re.getMessage(), re);
 				}
 			}
 		});
@@ -437,8 +429,7 @@ public class PanelBookMedia extends JPanel
 	    	try {
 				setText("datastore://" + tokenBook.getID());
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.ERROR);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 	    	return this;
 	    }
@@ -554,7 +545,10 @@ public class PanelBookMedia extends JPanel
 					out.write(buff, 0, read);		
 					progress_file_current += read;
 					if(stopped)
+					{
+						try { out.close(); } catch (Exception e) {}
 						throw new Exception("Thread stopped by user input.");
+					}
 				}
 				in.close();
 				out.close();
@@ -656,14 +650,11 @@ public class PanelBookMedia extends JPanel
 					}*/
 				}
 			} catch (PropertyVetoException pve) {
-				Core.Logger.log(pve.getMessage(), Level.WARNING);
-				pve.printStackTrace();
-			} catch (RepositoryException dse) {
-				Core.Logger.log(dse.getMessage(), Level.WARNING);
-				dse.printStackTrace();
+				Core.Logger.logError(pve.getMessage(), pve);
+			} catch (RepositoryException re) {
+				Core.Logger.logError(re.getMessage(), re);
 			} catch (DataBaseException dbe) {
-				Core.Logger.log(dbe.getMessage(), Level.WARNING);
-				dbe.printStackTrace();
+				Core.Logger.logError(dbe.getMessage(), dbe);
 			}
 			clock.stop();
 			DialogEx window = (DialogEx) comp.getRootPane().getParent();
@@ -775,7 +766,11 @@ public class PanelBookMedia extends JPanel
 					out.write(buff, 0, read);		
 					progress_file_current += read;
 					if(stopped)
+					{
+						try { in.close(); } catch (Exception e) {}
+						try { out.close(); } catch (Exception e) {}
 						throw new Exception("Thread stopped by user input.");
+					}
 				}
 				in.close();
 				out.close();
@@ -850,8 +845,7 @@ public class PanelBookMedia extends JPanel
 					} catch (Exception e) { e.printStackTrace(); }
 				}
 			} catch (PropertyVetoException pve) {
-				pve.printStackTrace();
-				Core.Logger.log(pve.getMessage(), Level.WARNING);
+				Core.Logger.logError(pve.getMessage(), pve);
 			}
 			clock.stop();
 			DialogEx window = (DialogEx) comp.getRootPane().getParent();
@@ -1012,13 +1006,12 @@ public class PanelBookMedia extends JPanel
 						zout.close();
 					} catch (IOException ioe) {
 						zip.delete();
-						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+						Core.Logger.logWarning(ioe.getMessage(), ioe);
 					}
 					progress_overall_current++;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
-				Core.Logger.log(e.getMessage(), Level.WARNING);
+				Core.Logger.logError(e.getMessage(), e);
 			}
 			clock.stop();
 			DialogEx window = (DialogEx) comp.getRootPane().getParent();
@@ -1048,8 +1041,7 @@ public class PanelBookMedia extends JPanel
 						zout.putNextEntry(entry);
 						zout.closeEntry();
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
-						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+						Core.Logger.logWarning(ioe.getMessage(), ioe);
 					}
 					zip(base + ds.getName() + "/", ds.children(), zout);
 				}else
@@ -1077,8 +1069,7 @@ public class PanelBookMedia extends JPanel
 						progress_file_current++;
 						in.close();
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
-						Core.Logger.log(ioe.getMessage(), Level.WARNING);
+						Core.Logger.logWarning(ioe.getMessage(), ioe);
 					}
 				}
 			}
@@ -1116,13 +1107,11 @@ public class PanelBookMedia extends JPanel
 				m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 				m.marshal(doujin, dest);
 			} catch (Exception e) {
-				Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
-				e.printStackTrace();
+				Core.Logger.logWarning("Error parsing XML file : " + e.getMessage(), e);
 			}
 		}
 		
 		@XmlRootElement(name="Doujin")
-		@SuppressWarnings("unused")
 		private static final class XMLBook
 		{
 			@XmlElement(required=true)

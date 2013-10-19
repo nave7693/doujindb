@@ -10,7 +10,6 @@ import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.*;
 
 public final class RepositoryIndexer
 {
@@ -63,11 +62,10 @@ public final class RepositoryIndexer
 			m.marshal(doujin, out);
 			out.close();
 		} catch (Exception e) {
-			Core.Logger.log("Error parsing XML file (" + e.getMessage() + ").", Level.WARNING);
+			Core.Logger.logWarning("Error parsing XML file : " + e.getMessage(), e);
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	@XmlRootElement(name="Doujin")
 	private static final class XMLBook
 	{

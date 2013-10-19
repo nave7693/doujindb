@@ -7,7 +7,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
-
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -20,7 +19,6 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
-import org.dyndns.doujindb.log.Level;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -150,7 +148,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 						if(Core.Database.isAutocommit())
 							Core.Database.doCommit();
 					} catch (DataBaseException dbe) {
-						Core.Logger.log(dbe.getMessage(), Level.ERROR);
+						Core.Logger.logError(dbe.getMessage(), dbe);
 						dbe.printStackTrace();
 					}
 					return;
@@ -211,7 +209,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 									});
 								}
 						} catch (DataBaseException dbe) {
-							Core.Logger.log(dbe.getMessage(), Level.ERROR);
+							Core.Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						}
 						listAlias.validate();
@@ -365,7 +363,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

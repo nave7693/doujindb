@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TooManyListenersException;
 import java.util.TreeSet;
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.TabbedPaneUI;
@@ -33,7 +32,6 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.ComboBoxConvention;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
@@ -133,9 +131,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								if(result != JFileChooser.APPROVE_OPTION)
 									return null;
 								Image img = null;
-								try { img = ImageTool.read(fc.getSelectedFile()); } catch (IOException ioe)
+								try
 								{
-									Core.Logger.log(ioe.getMessage(), Level.WARNING);
+									img = ImageTool.read(fc.getSelectedFile());
+								} catch (IOException ioe) {
+									Core.Logger.logError(ioe.getMessage(), ioe);
 								}
 								if(img == null)
 									return null;
@@ -151,8 +151,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
 									out.close();
 								} catch (Exception e) {
-									e.printStackTrace();
-									Core.Logger.log(e.getMessage(), Level.WARNING);
+									Core.Logger.logError(e.getMessage(), e);
 								}
 								try
 								{
@@ -212,8 +211,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
 								{
-									e.printStackTrace();
-									Core.Logger.log(e.getMessage(), Level.WARNING);
+									Core.Logger.logError(e.getMessage(), e);
 								}
 								return null;
 							}
@@ -480,7 +478,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			});
 			tmr.start();
 		} catch (DataBaseException dbe) {
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 		if(date == null && !textDate.getText().equals("--/--/----"))
@@ -560,7 +558,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Core.Logger.log(dbe.getMessage(), Level.ERROR);
+			Core.Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

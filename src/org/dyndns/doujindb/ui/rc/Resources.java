@@ -4,14 +4,18 @@ import java.awt.Font;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
-
 import javax.swing.ImageIcon;
+
+import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.log.Logger;
 
 public final class Resources
 {
 	public Hashtable<String, String> Strings;
 	public Hashtable<String, ImageIcon> Icons;
 	public Font Font = new Font("Tahoma", java.awt.Font.PLAIN, 10);
+	
+	private static Logger Logger = Core.Logger;
 	
 	public Resources() throws Exception
 	{
@@ -165,32 +169,36 @@ public final class Resources
 			try
 			{
 				Icons.put(key, new ImageIcon(Resources.class.getResource("icons/" + iconKeys.get(key))));
-			}catch(NullPointerException npe)
-			{
-				npe.printStackTrace();
-				throw new Exception("Icon resource " + key + " not found.");
+			} catch(NullPointerException npe) {
+				throw new Exception("Icon resource '" + key + "' not found.");
 			}
 		try
 		{
 			ZipFile zip = new ZipFile(new File(System.getProperty("doujindb.home"), "icons.zip"));
-			Vector<String> entries = new Vector<String>();
-			Enumeration<? extends ZipEntry> e = zip.entries();
-			while(e.hasMoreElements())
-				entries.add(e.nextElement().getName());
-			for(String key : iconKeys.keySet())
+			Enumeration<? extends ZipEntry> ze = zip.entries();
+			while(ze.hasMoreElements())
+			{
+				String entry = ze.nextElement().getName();
 				try
 				{
-					if(!entries.contains(iconKeys.get(key)))
+					if(entry.endsWith("/"))
+						// ZipEntry of 'folder' type
+						// We don't need to load this
 						continue;
-					Icons.put(key, new ImageIcon(javax.imageio.ImageIO.read(zip.getInputStream(zip.getEntry(iconKeys.get(key))))));
-				}catch(Exception exc)
-				{
-					exc.printStackTrace();
+					if(!iconKeys.containsValue(entry))
+					{
+						Logger.logWarning("Resource '" + entry + "' does not match any system key and won't be loaded");
+						continue;
+					}
+					Icons.put(entry, new ImageIcon(javax.imageio.ImageIO.read(zip.getInputStream(zip.getEntry(entry)))));
+				} catch(Exception e) {
+					Logger.logError("Error while loading resource '" + entry + "' from external bundle", e);
 				}
+			}
 			zip.close();
-		}catch(Exception e)
-		{
-			;
+		} catch(FileNotFoundException fnfe) {
+			// An external resource bundle was not found
+			// We can ignore this error
 		}
 	}
 }

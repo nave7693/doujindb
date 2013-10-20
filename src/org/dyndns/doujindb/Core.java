@@ -64,8 +64,8 @@ public final class Core implements Runnable
 		
 		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
-			Core.Logger.logWarning("Repository folder is the temporary system folder.");
-		Core.Logger.logInfo("Repository loaded.");
+			Logger.logWarning("Repository folder is the temporary system folder.");
+		Logger.logInfo("Repository loaded.");
 		
 		Logger.logInfo("Loading user interface ...");
 		try
@@ -77,25 +77,25 @@ public final class Core implements Runnable
 				Properties.get("org.dyndns.doujindb.ui.font_size").asNumber());
 		} catch (Exception e)
 		{
-			Core.Logger.logFatal(e.getMessage(), e);
+			Logger.logFatal(e.getMessage(), e);
 			return;
 		}
-		Core.Logger.logInfo("Resources loaded.");
+		Logger.logInfo("Resources loaded.");
 		
 		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		
 		Database = DataBase.getInstance();
 		
-		Core.Logger.logInfo("Discovering plugins ...");
+		Logger.logInfo("Discovering plugins ...");
 		PluginManager.discovery();
 		
 		UI = new UI();
-		Core.Logger.logInfo("User interface loaded.");
+		Logger.logInfo("User interface loaded.");
 		
 		if(isConfigurationWizard)
 		{
-			Core.Logger.logInfo("Running configuration wizard ...");
+			Logger.logInfo("Running configuration wizard ...");
 			UI.showConfigurationWizard();
 		}
 	}

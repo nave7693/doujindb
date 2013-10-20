@@ -2,6 +2,7 @@ package org.dyndns.doujindb.util;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
@@ -10,9 +11,12 @@ import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
+import org.dyndns.doujindb.log.Logger;
 
 public final class RepositoryIndexer
 {
+	private static Logger Logger = Core.Logger;
+	
 	public static void index() throws RepositoryException
 	{
 		RepositoryIndexer.index(Core.Database.getBooks(null));
@@ -62,7 +66,7 @@ public final class RepositoryIndexer
 			m.marshal(doujin, out);
 			out.close();
 		} catch (Exception e) {
-			Core.Logger.logWarning("Error parsing XML file : " + e.getMessage(), e);
+			Logger.logWarning("Error parsing XML file : " + e.getMessage(), e);
 		}
 	}
 	

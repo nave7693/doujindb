@@ -1,13 +1,17 @@
 package org.dyndns.doujindb.plug.impl.mugimugi.rc;
 
 import java.util.*;
+
 import javax.swing.ImageIcon;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.log.Logger;
 
 public final class Resources
 {
 	public Hashtable<String, ImageIcon> Icons;
+	
+	private static Logger Logger = Core.Logger;
 	
 	public Resources()
 	{
@@ -52,11 +56,9 @@ public final class Resources
 			try
 			{
 				Icons.put(key, new ImageIcon(Resources.class.getResource("icons/" + iconKeys.get(key))));
-			} catch(NullPointerException npe)
-			{
-				npe.printStackTrace();
+			} catch(NullPointerException npe) {
 				Icons.put(key, new ImageIcon());
-				Core.Logger.logError("Icon resource '" + key + "' not found");
+				Logger.logError("Icon resource '" + key + "' not found");
 			}
 	}
 }

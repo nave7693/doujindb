@@ -7,6 +7,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -19,6 +20,7 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.log.Logger;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -44,6 +46,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	private JButton addAlias;
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
+	
+	private static Logger Logger = Core.Logger;
 	
 	public PanelContent(Content token) throws DataBaseException
 	{
@@ -148,7 +152,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 						if(Core.Database.isAutocommit())
 							Core.Database.doCommit();
 					} catch (DataBaseException dbe) {
-						Core.Logger.logError(dbe.getMessage(), dbe);
+						Logger.logError(dbe.getMessage(), dbe);
 						dbe.printStackTrace();
 					}
 					return;
@@ -209,7 +213,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 									});
 								}
 						} catch (DataBaseException dbe) {
-							Core.Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						}
 						listAlias.validate();
@@ -363,7 +367,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Core.Logger.logError(dbe.getMessage(), dbe);
+			Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

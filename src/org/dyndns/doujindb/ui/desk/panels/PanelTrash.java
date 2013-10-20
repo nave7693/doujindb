@@ -2,8 +2,10 @@ package org.dyndns.doujindb.ui.desk.panels;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
+
 import java.beans.*;
 import java.util.Vector;
 
@@ -11,6 +13,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.log.Logger;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -44,6 +47,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	private JLabel m_LabelListParody;
 	
 	private DialogTrash m_PopupDialog = null;
+	
+	private static Logger Logger = Core.Logger;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PanelTrash()
@@ -180,13 +185,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.logError(aioobe.getMessage(), aioobe);
+							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.logError(e.getMessage(), e);
+							Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -341,13 +346,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.logError(aioobe.getMessage(), aioobe);
+							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.logError(e.getMessage(), e);
+							Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -502,13 +507,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(Core.Database.isAutocommit())
 								Core.Database.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Core.Logger.logError(aioobe.getMessage(), aioobe);
+							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
-							Core.Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(dbe.getMessage(), dbe);
 							dbe.printStackTrace();
 						} catch (Exception e) {
-							Core.Logger.logError(e.getMessage(), e);
+							Logger.logError(e.getMessage(), e);
 							e.printStackTrace();
 						}
 						return null;
@@ -676,13 +681,13 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 						}
 					}
 				} catch(ArrayIndexOutOfBoundsException aioobe) {
-					Core.Logger.logError(aioobe.getMessage(), aioobe);
+					Logger.logError(aioobe.getMessage(), aioobe);
 					aioobe.printStackTrace();
 				} catch (DataBaseException dbe) {
-					Core.Logger.logError(dbe.getMessage(), dbe);
+					Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
 				} catch (Exception e) {
-					Core.Logger.logError(e.getMessage(), e);
+					Logger.logError(e.getMessage(), e);
 					e.printStackTrace();
 				}
 				return null;
@@ -910,7 +915,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			count = Core.Database.getRecycled().size();
 			m_LabelCount.setText((count==1)?("Item : 1"):("Items : "+count));
 		} catch (DataBaseException dbe) {
-			Core.Logger.logError(dbe.getMessage(), dbe);
+			Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 		m_LabelListArtist.setText("Artists (" + (m_ListArtist.getSelectedIndices().length) + "/" + m_ListArtist.getModel().getSize() + ")");

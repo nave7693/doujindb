@@ -6,14 +6,15 @@ import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.swing.ImageIcon;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -21,6 +22,7 @@ import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
+import org.dyndns.doujindb.log.Logger;
 import org.dyndns.doujindb.util.ImageTool;
 
 final class TaskManager
@@ -29,6 +31,8 @@ final class TaskManager
 	private static Worker m_Worker = new Worker();
 	
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(m_Worker);
+	
+	private static Logger Logger = Core.Logger;
 		
 	static {
 		m_Tasks = new Vector<Task>();
@@ -288,7 +292,7 @@ final class TaskManager
 		{
 			m_Worker.resume();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Core.Logger.logInfo("Worker started");
+			Logger.logInfo("Worker started");
 		}
 	}
 	
@@ -298,7 +302,7 @@ final class TaskManager
 		{
 			m_Worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Core.Logger.logInfo("Worker stopped");
+			Logger.logInfo("Worker stopped");
 		}
 	}
 	
@@ -382,7 +386,7 @@ final class TaskManager
 				int queryCount = DoujinshiDBScanner.UserInfo.Queries;
 				if( queryCount < 2)
 				{
-					Core.Logger.logWarning("Not enough (" + queryCount + ") API queries to process more Tasks");
+					Logger.logWarning("Not enough (" + queryCount + ") API queries to process more Tasks");
 					TaskManager.stop();
 					pcs.firePropertyChange("api-info", 0, 1);
 					continue;

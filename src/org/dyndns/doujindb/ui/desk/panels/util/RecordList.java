@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -16,6 +17,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.log.Logger;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -34,6 +36,8 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	private String filterRegex;
 	
 	private Type m_Type;
+	
+	private static Logger Logger = Core.Logger;
 	
 	private enum Type
 	{
@@ -174,7 +178,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		                	return;
 		                }
 					} catch (DataBaseException dbe) {
-						Core.Logger.logError(dbe.getMessage(), dbe);
+						Logger.logError(dbe.getMessage(), dbe);
 					}
 				}
 			}

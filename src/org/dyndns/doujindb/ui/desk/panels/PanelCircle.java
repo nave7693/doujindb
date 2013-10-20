@@ -8,6 +8,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
@@ -19,6 +20,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.log.Logger;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -43,6 +45,8 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	private RecordBookEditor editorWorks;
 	private RecordArtistEditor editorArtists;
 	private JButton buttonConfirm;
+	
+	private static Logger Logger = Core.Logger;
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{
@@ -101,7 +105,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								{
 									img = ImageTool.read(fc.getSelectedFile());
 								} catch (IOException ioe) {
-									Core.Logger.logError(ioe.getMessage(), ioe);
+									Logger.logError(ioe.getMessage(), ioe);
 								}
 								if(img == null)
 									return null;
@@ -122,7 +126,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									ImageTool.write(im, out);
 									out.close();
 								} catch (Exception e) {
-									Core.Logger.logError(e.getMessage(), e);
+									Logger.logError(e.getMessage(), e);
 								}
 								try
 								{
@@ -182,7 +186,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
 								{
-									Core.Logger.logError(e.getMessage(), e);
+									Logger.logError(e.getMessage(), e);
 								}
 								return null;
 							}
@@ -335,7 +339,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Core.Logger.logError(dbe.getMessage(), dbe);
+			Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
 		}
 	}

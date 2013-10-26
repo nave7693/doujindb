@@ -1025,17 +1025,20 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					event.getSource(),
 					event.getMessage()});
 				break;
+			/**
+			 * Really, we shouldn't log FATAL nor DEBUG level logs in the User Interface
+			 */
 			case FATAL:
-				TableModel.addRow(new Object[]{"{Fatal}",
-					event.getTime(),
-					event.getSource(),
-					event.getMessage()});
+//				TableModel.addRow(new Object[]{"{Fatal}",
+//					event.getTime(),
+//					event.getSource(),
+//					event.getMessage()});
 				break;
 			case DEBUG:
-				TableModel.addRow(new Object[]{"{Debug}",
-					event.getTime(),
-					event.getSource(),
-					event.getMessage()});
+//				TableModel.addRow(new Object[]{"{Debug}",
+//					event.getTime(),
+//					event.getSource(),
+//					event.getMessage()});
 				break;
 			}
 		}

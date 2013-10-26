@@ -936,6 +936,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ProgressBar.setValue(0);
 					m_ProgressBar.setStringPainted(true);
 					m_ProgressBar.setString("");
+					m_ProgressBar.setBorder(BorderFactory.createLineBorder(m_ProgressBar.getForeground()));
 					
 					m_LabelIcon = new JLabel();
 					
@@ -958,6 +959,7 @@ public final class DoujinshiDBScanner extends Plugin
 						Task task = (Task) getValueAt(row, -1);
 						m_ProgressBar.setValue(task.getProgress());
 						m_ProgressBar.setString(task.getMessage());
+						m_ProgressBar.setBorderPainted(task.equals(m_PanelTask.m_Task) && m_SplitPane.getBottomComponent() != null);
 						return m_ProgressBar;
 					}
 					if(value instanceof TaskInfo)

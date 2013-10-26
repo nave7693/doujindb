@@ -3,14 +3,12 @@ package org.dyndns.doujindb.ui.desk.panels.edit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.BookContainer;
@@ -60,21 +58,41 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		toggleList.setFocusable(false);
 		recordPreview = new JPanel();
 		recordPreview.setLayout(new WrapLayout());
-		for(final Book book : token.getBooks())
-			try {
-				JButton bookButton;
-				recordPreview.add(
+		new SwingWorker<Void,JButton>()
+		{
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				for(final Book book : tokenIBook.getBooks())
+				{
+					JButton bookButton;
 					bookButton = new JButton(
 						new ImageIcon(
-							ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream()))));
-				bookButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) {
-						Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
-					}
-				});
-			} catch (IOException ioe) { }
+							ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream())));
+					bookButton.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae) {
+							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+						}
+					});
+					publish(bookButton);
+				}
+				return null;
+			}
+			@Override
+			protected void process(List<JButton> chunks) {
+				for(JButton button : chunks) {
+					recordPreview.add(button);
+				}
+			}
+			@Override
+			protected void done()
+			{
+				recordPreview.validate();
+				recordPreview.doLayout();
+			}
+		}.execute();
 		scrollRecordPreview = new JScrollPane(recordPreview);
 		scrollRecordPreview.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		togglePreview = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Table/View/Preview"));

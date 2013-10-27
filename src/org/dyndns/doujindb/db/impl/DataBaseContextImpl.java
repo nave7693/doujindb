@@ -10,7 +10,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 
-public final class DataBaseContextImpl implements DataBaseContext
+final class DataBaseContextImpl implements DataBaseContext
 {
 	private ObjectContext context;
 	

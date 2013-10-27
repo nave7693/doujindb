@@ -33,7 +33,7 @@ import org.dyndns.doujindb.db.records.*;
 * @author  nozomu
 * @version 1.0
 */
-public class DataBaseImpl extends DataBase
+public final class DataBaseImpl extends DataBase
 {
 	private DataDomain domain;
 	private DataNode node;

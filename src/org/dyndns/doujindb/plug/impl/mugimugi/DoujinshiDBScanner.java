@@ -475,6 +475,9 @@ public final class DoujinshiDBScanner extends Plugin
 			super.add(m_TabbedPane);
 			
 			TaskManager.registerListener(this);
+
+			// Load UserInfo by simulating a click
+			m_ButtonApiRefresh.doClick();
 		}
 		
 		/**

@@ -279,6 +279,8 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 											clone.setColored(book.isColored());
 											for(Artist a : book.getArtists())
 												clone.addArtist(a);
+											for(Circle c : book.getCircles())
+												clone.addCircle(c);
 											for(Content c : book.getContents())
 												clone.addContent(c);
 											for(Parody p : book.getParodies())

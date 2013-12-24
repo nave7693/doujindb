@@ -91,8 +91,6 @@ final class CacheManager
 		
 		for(String key : keys())
 		{
-			try { Thread.sleep(1); } catch (InterruptedException ie) { }
-			
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
 			if(diff >= DoujinshiDBScanner.THRESHOLD)
@@ -121,8 +119,6 @@ final class CacheManager
 		
 		for(String key : keys())
 		{
-			try { Thread.sleep(1); } catch (InterruptedException ie) { }
-			
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
 			if(diff > diff_min)

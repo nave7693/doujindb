@@ -162,7 +162,7 @@ final class CacheManager
 	{
 		private static final long serialVersionUID = 1L;
 		
-		private int DENSITY = 15;
+		private int DENSITY = 16;
 		private int[][] DATA;
 		
 		private ImageSignature(BufferedImage bi)

@@ -3,8 +3,7 @@ package org.dyndns.doujindb.util;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
-
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 
 /**	 
 *	Image.java - java.awt.Image utility methods.
@@ -135,15 +134,7 @@ public final class ImageTool
 	public static BufferedImage read(InputStream is) throws IOException
 	{
 		BufferedImage bi;
-		ByteArrayOutputStream imagedata;
-		
-		imagedata = new ByteArrayOutputStream();
-		byte[] buff = new byte[0x800];
-		int read;
-		while((read = is.read(buff)) != -1)
-			imagedata.write(buff, 0, read);
-		is.close();
-		Image image = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imagedata.toByteArray())).getImage();
+		Image image = ImageIO.read(is);
         bi = new java.awt.image.BufferedImage( image.getWidth( null ), image.getHeight( null ), java.awt.image.BufferedImage.TYPE_INT_RGB);
         {
         	 java.awt.Graphics g = bi.createGraphics();

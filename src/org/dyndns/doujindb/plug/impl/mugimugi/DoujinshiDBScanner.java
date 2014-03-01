@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -70,7 +71,7 @@ public final class DoujinshiDBScanner extends Plugin
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
 	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
-	static final File PLUGIN_CACHE = new File(PLUGIN_HOME, "imagesignature.ser");
+
 	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
 	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
 	
@@ -299,9 +300,8 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ProgressBarCache.setStringPainted(true);
 			m_ProgressBarCache.setString("");
 			bogus.add(m_ProgressBarCache);
-			m_LabelCacheInfo = new JLabel("<html><body>cache-size : " + humanReadableBytes(PLUGIN_CACHE.length(), true) + "<br/>" +
-					"entry-count : " + CacheManager.size() + "<br/>" +
-					"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
+			m_LabelCacheInfo = new JLabel("<html><body>cache-size : " + CacheManager.size() + "<br/>" +
+					"last-build : " + sdf.format(CacheManager.timestamp()) + "</body></html>");
 			m_LabelCacheInfo.setFont(Core.Resources.Font);
 			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
 			bogus.add(m_LabelCacheInfo);
@@ -403,7 +403,6 @@ public final class DoujinshiDBScanner extends Plugin
 	                        	}.start();
 	                            dtde.dropComplete(true);
 	                        }
-
 	                    } catch (Exception e) {
 	                        e.printStackTrace();
 	                    }
@@ -478,17 +477,6 @@ public final class DoujinshiDBScanner extends Plugin
 
 			// Load UserInfo by simulating a click
 			m_ButtonApiRefresh.doClick();
-		}
-		
-		/**
-		 * @see http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
-		 */
-		private String humanReadableBytes(long bytes, boolean si) {
-		    int unit = si ? 1000 : 1024;
-		    if (bytes < unit) return bytes + " B";
-		    int exp = (int) (Math.log(bytes) / Math.log(unit));
-		    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-		    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 		}
 		
 		@Override
@@ -1277,10 +1265,20 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								try
 								{
-									// Load images from doujinshidb website
-									int bid = Integer.parseInt(id.substring(1));
-									URL thumbURL = new URL(DoujinshiDBScanner.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
-									ImageIcon ii = new ImageIcon(thumbURL);
+									File imagetn= new File(DoujinshiDBScanner.PLUGIN_DATA, id + ".jpg");
+									if(!imagetn.exists())
+									{
+										// Load images from doujinshidb website
+										int bid = Integer.parseInt(id.substring(1));
+										URL thumbURL = new URL(DoujinshiDBScanner.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
+										Image i = new ImageIcon(thumbURL).getImage();
+										BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+										Graphics2D g2 = bi.createGraphics();
+										g2.drawImage(i, 0, 0, null);
+										g2.dispose();
+										ImageIO.write(bi, "JPG", imagetn);
+									}
+									ImageIcon ii = new ImageIcon(ImageIO.read(imagetn));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
 									data.put("imageicon", ii);
@@ -1633,15 +1631,9 @@ public final class DoujinshiDBScanner extends Plugin
 				
 				for(Book book : books)
 				{
-					try { Thread.sleep(1); } catch (InterruptedException ie) { }
-					
 					if(isCancelled())
 						return null;
 						
-					int progress = m_ProgressBarCache.getValue() * 100 / m_ProgressBarCache.getMaximum();
-					m_ProgressBarCache.setString("[" + m_ProgressBarCache.getValue() + " / " + m_ProgressBarCache.getMaximum() + "] @ " + progress + "%");
-					m_ProgressBarCache.setValue(m_ProgressBarCache.getValue() + 1);
-					
 					BufferedImage bi;
 					try {
 						if(CacheManager.contains(book.getID()) && !cache_overwrite)
@@ -1652,6 +1644,8 @@ public final class DoujinshiDBScanner extends Plugin
 						
 						CacheManager.put(book.getID(), bi);
 						
+						publish(m_ProgressBarCache.getValue()+1);
+						
 					} catch (Exception e) { e.printStackTrace(); }
 				}
 				
@@ -1659,9 +1653,8 @@ public final class DoujinshiDBScanner extends Plugin
 				CacheManager.write();
 				
 				// Cache build completed
-				m_LabelCacheInfo.setText("<html><body>cache-size : " + humanReadableBytes(PLUGIN_CACHE.length(), true) + "<br/>" +
-						"entry-count : " + CacheManager.size() + "<br/>" +
-						"last-build : " + sdf.format(new Date(PLUGIN_CACHE.lastModified())) + "</body></html>");
+				m_LabelCacheInfo.setText("<html><body>cache-size : " + CacheManager.size() + "<br/>" +
+						"last-build : " + sdf.format(CacheManager.timestamp()) + "</body></html>");
 				
 				return null;
 			}
@@ -1679,6 +1672,9 @@ public final class DoujinshiDBScanner extends Plugin
 
 			@Override
 			protected void process(List<Integer> chunks) {
+				m_ProgressBarCache.setValue(chunks.get(chunks.size() - 1));
+				int progress = m_ProgressBarCache.getValue() * 100 / m_ProgressBarCache.getMaximum();
+				m_ProgressBarCache.setString("[" + m_ProgressBarCache.getValue() + " / " + m_ProgressBarCache.getMaximum() + "] @ " + progress + "%");
 				super.process(chunks);
 			}
 		}

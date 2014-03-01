@@ -2,7 +2,6 @@ package org.dyndns.doujindb.plug.impl.mugimugi;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
 import java.awt.*;
 import java.awt.image.*;
 
@@ -11,10 +10,11 @@ import org.dyndns.doujindb.util.ImageTool;
 @SuppressWarnings("unchecked")
 final class CacheManager
 {
-	private static Map<String, ImageSignature> cache;
+	private static Map<String, ImageSignature> cacheData;
+	private static File cacheFile = new File(DoujinshiDBScanner.PLUGIN_HOME, "imagesignature.ser");
 	
 	static {
-		cache = new TreeMap<String, ImageSignature>();
+		cacheData = new TreeMap<String, ImageSignature>();
 		read();
 	}
 	
@@ -22,9 +22,8 @@ final class CacheManager
 		try
 		{
 			ObjectOutputStream oos = new ObjectOutputStream(
-				new GZIPOutputStream(
-					new FileOutputStream(DoujinshiDBScanner.PLUGIN_CACHE)));
-			oos.writeObject(cache);
+					new FileOutputStream(cacheFile));
+			oos.writeObject(cacheData);
 			oos.flush();
 			oos.close();
 		} catch (IOException ioe) {
@@ -34,52 +33,51 @@ final class CacheManager
 	
 	public static void read()
 	{
-		synchronized(cache)
+		synchronized(cacheData)
 		{
 			try {
 				ObjectInputStream ois = new ObjectInputStream(
-					new GZIPInputStream(
-						new FileInputStream(DoujinshiDBScanner.PLUGIN_CACHE)));
-				cache = (TreeMap<String, ImageSignature>) ois.readObject();
+						new FileInputStream(cacheFile));
+				cacheData = (TreeMap<String, ImageSignature>) ois.readObject();
 				ois.close();
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			} catch (ClassNotFoundException cnfe) {
 				cnfe.printStackTrace();
 			}
-			if(cache == null)
-				cache = new TreeMap<String, ImageSignature>();
+			if(cacheData == null)
+				cacheData = new TreeMap<String, ImageSignature>();
 		}
 	}
 	
 	public static long size() {
-		return cache.size();
+		return cacheData.size();
 	}
 
 	public static Set<String> keys() {
-		return cache.keySet();
+		return cacheData.keySet();
 	}
 
 	public static void put(String id, BufferedImage bi) {
-		synchronized(cache)
+		synchronized(cacheData)
 		{
-			cache.put(id, new ImageSignature(bi));
+			cacheData.put(id, new ImageSignature(bi));
 		}
 	}
 	
 	public static void remove(String id) {
-		synchronized(cache)
+		synchronized(cacheData)
 		{
-			cache.remove(id);
+			cacheData.remove(id);
 		}
 	}
 	
 	public static ImageSignature get(String id) {
-		return cache.get(id);
+		return cacheData.get(id);
 	}
 
 	public static boolean contains(String id) {
-		return cache.containsKey(id);
+		return cacheData.containsKey(id);
 	}
 	
 	public static String search(BufferedImage bi)
@@ -131,6 +129,10 @@ final class CacheManager
 		return result;
 	}
 	
+	public static long timestamp() {
+		return cacheFile.lastModified();
+	}
+	
 	/**
 	 * Internal use only
 	 */
@@ -139,20 +141,20 @@ final class CacheManager
 	{
 		File dump_folder = new File(DoujinshiDBScanner.PLUGIN_HOME, "imagesignature");
 		dump_folder.mkdirs();
-		for(String key : cache.keySet())
+		for(String key : cacheData.keySet())
 		{
-			ImageSignature ims = cache.get(key);
+			ImageSignature ims = cacheData.get(key);
 			File dump_entry = new File(dump_folder, key + ".png");
 			BufferedImage bi = new BufferedImage(256, 256, BufferedImage.TYPE_3BYTE_BGR);
 			Graphics2D g2D = bi.createGraphics();
-			for(int x=0;x<ims.DATA.length;x++)
-				for(int y=0;y<ims.DATA[0].length;y++)
+			for(int x=0;x<ims.pixelData.length;x++)
+				for(int y=0;y<ims.pixelData[0].length;y++)
 				{
-					int r = (ims.DATA[x][y] & 0x00ff0000) >> 16;
-					int g = (ims.DATA[x][y] & 0x0000ff00) >> 8;
-					int b =  ims.DATA[x][y] & 0x000000ff;
+					int r = (ims.pixelData[x][y] & 0x00ff0000) >> 16;
+					int g = (ims.pixelData[x][y] & 0x0000ff00) >> 8;
+					int b =  ims.pixelData[x][y] & 0x000000ff;
 					g2D.setColor(new Color(r, g, b));
-					g2D.fillRect(x * ims.DENSITY, y * ims.DENSITY, ims.DENSITY, ims.DENSITY);
+					g2D.fillRect(x * ims.pixelDensity, y * ims.pixelDensity, ims.pixelDensity, ims.pixelDensity);
 				}
 			ImageTool.write(bi, dump_entry);
 		}
@@ -162,37 +164,37 @@ final class CacheManager
 	{
 		private static final long serialVersionUID = 1L;
 		
-		private int DENSITY = 16;
-		private int[][] DATA;
+		private int pixelDensity= 16;
+		private int[][] pixelData;
 		
 		private ImageSignature(BufferedImage bi)
 		{
-			DATA = new int[bi.getWidth()/DENSITY][bi.getHeight()/DENSITY];
-			for (int x = 0; x < DATA.length; x++)
-				for (int y = 0; y < DATA[0].length; y++)
-					DATA[x][y] = colorAt(bi, x * DENSITY, y * DENSITY, DENSITY, DENSITY);
+			pixelData = new int[bi.getWidth()/pixelDensity][bi.getHeight()/pixelDensity];
+			for (int x = 0; x < pixelData.length; x++)
+				for (int y = 0; y < pixelData[0].length; y++)
+					pixelData[x][y] = colorAt(bi, x * pixelDensity, y * pixelDensity, pixelDensity, pixelDensity);
 		}
 		
 		public double diff(ImageSignature ims)
 		{
 			double diff = 0;
-			for (int x = 0; x < Math.min(DATA.length, ims.DATA.length); x++)
-				for (int y = 0; y < Math.min(DATA[0].length, ims.DATA[0].length); y++)
+			for (int x = 0; x < Math.min(pixelData.length, ims.pixelData.length); x++)
+				for (int y = 0; y < Math.min(pixelData[0].length, ims.pixelData[0].length); y++)
 				{
-					int r1 = (DATA[x][y] & 0x00ff0000) >> 16;
-					int g1 = (DATA[x][y] & 0x0000ff00) >> 8;
-					int b1 =  DATA[x][y] & 0x000000ff;
-					int r2 = (ims.DATA[x][y] & 0x00ff0000) >> 16;
-					int g2 = (ims.DATA[x][y] & 0x0000ff00) >> 8;
-					int b2 =  ims.DATA[x][y] & 0x000000ff;
+					int r1 = (pixelData[x][y] & 0x00ff0000) >> 16;
+					int g1 = (pixelData[x][y] & 0x0000ff00) >> 8;
+					int b1 =  pixelData[x][y] & 0x000000ff;
+					int r2 = (ims.pixelData[x][y] & 0x00ff0000) >> 16;
+					int g2 = (ims.pixelData[x][y] & 0x0000ff00) >> 8;
+					int b2 =  ims.pixelData[x][y] & 0x000000ff;
 					double _diff = Math.sqrt(
 							Math.pow(r1 - r2, 2) +
 							Math.pow(g1 - g2, 2) +
 							Math.pow(b1 - b2, 2));
 					diff += _diff;
 				}
-			long width = Math.min(DATA.length, ims.DATA.length);
-			long height = Math.min(DATA[0].length, ims.DATA[0].length);
+			long width = Math.min(pixelData.length, ims.pixelData.length);
+			long height = Math.min(pixelData[0].length, ims.pixelData[0].length);
 			return (100 - (diff * 100 / ((double)width * height * 0xff)));
 		}
 		

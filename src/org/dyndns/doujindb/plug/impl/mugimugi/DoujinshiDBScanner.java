@@ -1640,7 +1640,7 @@ public final class DoujinshiDBScanner extends Plugin
 							continue;
 						
 						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
-						bi = ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
 						CacheManager.put(book.getID(), bi);
 						
@@ -1717,7 +1717,7 @@ public final class DoujinshiDBScanner extends Plugin
 					Graphics g = resized_bi.getGraphics();
 					g.drawImage(bi, 0, 0, img_width, img_height, null);
 					g.dispose();
-					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, true);
 					
 					m_ButtonScanPreview.setIcon(new ImageIcon(bi));
 					

@@ -3,6 +3,7 @@ package org.dyndns.doujindb.util;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
+
 import javax.imageio.ImageIO;
 
 /**	 
@@ -41,7 +42,6 @@ public final class ImageTool
 	private static BufferedImage scaledInstance(BufferedImage img,
 	   int targetWidth,
 	   int targetHeight,
-	   Object hint,
 	   boolean higherQuality)
 	{
 		int type = (img.getTransparency() == Transparency.OPAQUE) ?
@@ -77,7 +77,10 @@ public final class ImageTool
 			}		
 			BufferedImage tmp = new BufferedImage(w, h, type);
 			Graphics2D g2 = tmp.createGraphics();
-			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+			g2.setRenderingHint(RenderingHints.KEY_RENDERING,           RenderingHints.VALUE_RENDER_QUALITY);
+			g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,        RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,       RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 			g2.drawImage(ret, 0, 0, w, h, null);
 			g2.dispose();
 			
@@ -89,7 +92,6 @@ public final class ImageTool
 	public static BufferedImage getScaledInstance(BufferedImage image,
 		int width,
 		int height,
-		Object hint,
 		boolean higherQuality)
 	{
 		int wi = image.getWidth(null),
@@ -110,7 +112,7 @@ public final class ImageTool
 				hi = (int) (hi * wscale);
 				wi = (int) (wi * wscale);
 			}
-			return scaledInstance(image, wi, hi, hint, higherQuality);
+			return scaledInstance(image, wi, hi, higherQuality);
 		} else {
 			if (wscale > hscale)
 			{

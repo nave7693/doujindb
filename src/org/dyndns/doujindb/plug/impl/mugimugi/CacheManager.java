@@ -85,7 +85,7 @@ final class CacheManager
 		String result = null;
 		double diff_min = 0;
 		ImageSignature ims = new ImageSignature(
-			ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true));
+			ImageTool.getScaledInstance(bi, 256, 256, true));
 		
 		for(String key : keys())
 		{
@@ -113,7 +113,7 @@ final class CacheManager
 		});
 		int diff_min = 0;
 		ImageSignature ims = new ImageSignature(
-			ImageTool.getScaledInstance(bi, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true));
+			ImageTool.getScaledInstance(bi, 256, 256, true));
 		
 		for(String key : keys())
 		{

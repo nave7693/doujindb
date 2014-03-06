@@ -555,7 +555,7 @@ final class TaskManager
 			try
 			{
 				resizedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-				resizedImage = ImageTool.getScaledInstance(dest, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+				resizedImage = ImageTool.getScaledInstance(dest, 256, 256, true);
 			} catch (Exception e) {
 				throw new TaskErrorException("Could not resize Image file '" + coverFile.getPath()+ "' : " + e.getMessage());
 			}else
@@ -1005,7 +1005,7 @@ final class TaskManager
 			df.touch();
 			OutputStream out = df.getOutputStream();
 			BufferedImage image = ImageTool.read(reqFile);
-			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
+			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
 			out.close();
 		} catch (IOException e) {
 			throw new TaskErrorException("Error creating preview in the DataStore : " + e.getMessage());

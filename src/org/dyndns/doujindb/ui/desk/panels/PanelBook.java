@@ -152,7 +152,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
 									BufferedImage image = ImageTool.read(in);
-									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true), out);
+									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
 									out.close();
 								} catch (Exception e) {
 									Logger.logError(e.getMessage(), e);

@@ -24,7 +24,6 @@ public interface Logger
 	public final class LogEvent
 	{	
 		private String message;
-		private String source;
 		private long timestamp;
 		private Level level;
 		private Throwable throwable;
@@ -34,7 +33,6 @@ public interface Logger
 			this.message = message;
 			this.level = level;
 			this.timestamp = System.currentTimeMillis();
-			this.source = new Throwable().fillInStackTrace().getStackTrace()[3].getClassName();
 			this.throwable = err;
 		}
 		
@@ -52,12 +50,7 @@ public interface Logger
 		{
 			return level;
 		}
-		
-		public String getSource()
-		{
-			return source;
-		}
-		
+
 		public long getTime()
 		{
 			return timestamp;

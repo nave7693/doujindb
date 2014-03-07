@@ -21,16 +21,25 @@ public final class SystemLogger implements Logger
 
 	private SimpleDateFormat sdf;
 	
+	private PrintWriter stdout;
+	
 	public SystemLogger()
 	{
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		/**
+		 * ISO 8601 Data elements and interchange formats – Information interchange – Representation of dates and times
+		 * @see http://en.wikipedia.org/wiki/ISO_8601
+		 */
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		stdout = new PrintWriter(new OutputStreamWriter(System.out));
 
 		new SwingWorker<Void, LogEvent>()
 		{
 			@Override
-			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("SystemLogger");
+			protected Void doInBackground() throws Exception
+			{
+				Thread.currentThread().setName("system-logger");
 				while(true)
 				{
 					try
@@ -48,20 +57,19 @@ public final class SystemLogger implements Logger
 				}
 				return null;
 			}
+			
 			@Override
-			protected void process(List<LogEvent> events) {
+			protected void process(List<LogEvent> events)
+			{
 				for(LogEvent log : events)
-					try {
-						System.out.write(
-							String.format(sdf.format(new Date(log.getTime())) + " [%s] %s: %s\r\n",
-								log.getLevel(),
-								log.getSource(),
-								log.getMessage()).getBytes());
-						if(log.getThrowable() != null)
-							log.getThrowable().printStackTrace(System.out);
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
+				{
+					stdout.printf("%s [%s] %s\r\n", sdf.format(new Date(log.getTime())),
+						log.getLevel(),
+						log.getMessage());
+					if(log.getThrowable() != null)
+						log.getThrowable().printStackTrace(stdout);
+				}
+				stdout.flush();
 			}
 		}.execute();
 	}

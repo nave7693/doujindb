@@ -832,7 +832,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			TableModel = new DefaultTableModel();
 			TableModel.addColumn("");
 			TableModel.addColumn("Time");
-			TableModel.addColumn("Component");
 			TableModel.addColumn("Message");
 			super.setModel(TableModel);
 			TableRender = new Renderer(renderingData);
@@ -855,9 +854,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.getColumnModel().getColumn(0).setMaxWidth(20);
 			super.getColumnModel().getColumn(0).setMinWidth(20);
 			super.getColumnModel().getColumn(0).setWidth(20);
-			super.getColumnModel().getColumn(2).setMinWidth(150);
-			super.getColumnModel().getColumn(2).setWidth(150);
-			super.getColumnModel().getColumn(2).setPreferredWidth(150);
+			super.getColumnModel().getColumn(1).setMinWidth(125);
+			super.getColumnModel().getColumn(1).setMaxWidth(125);
+			super.getColumnModel().getColumn(1).setWidth(125);
 			super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		}
 	
@@ -888,7 +887,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			private static SimpleDateFormat sdf;
 			
 			{
-				sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+				sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			}
 		
@@ -1010,19 +1009,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			case INFO:
 				TableModel.addRow(new Object[]{"{Message}",
 					event.getTime(),
-					event.getSource(),
 					event.getMessage()});
 				break;
 			case WARNING:
 				TableModel.addRow(new Object[]{"{Warning}",
 					event.getTime(),
-					event.getSource(),
 					event.getMessage()});
 				break;
 			case ERROR:
 				TableModel.addRow(new Object[]{"{Error}",
 					event.getTime(),
-					event.getSource(),
 					event.getMessage()});
 				break;
 			/**

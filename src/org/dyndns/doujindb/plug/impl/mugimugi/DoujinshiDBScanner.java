@@ -70,7 +70,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static JComponent UI;
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
-	static final File PLUGIN_HOME = new File(System.getProperty("doujindb.home"),  "plugins/" + UUID);
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME,  "plugins" + File.separator + UUID);
 
 	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
 	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");

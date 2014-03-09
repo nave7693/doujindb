@@ -92,7 +92,7 @@ public final class PluginManager
 	
 	public static void load()
 	{
-		File file = new File(System.getProperty("doujindb.home"), PLUGIN_FILE);
+		File file = new File(Core.DOUJINDB_HOME, PLUGIN_FILE);
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 			Set<String> plugins_names = (Set<String>) ois.readObject();
@@ -120,7 +120,7 @@ public final class PluginManager
 	
 	public static void save()
 	{
-		File file = new File(System.getProperty("doujindb.home"), PLUGIN_FILE);
+		File file = new File(Core.DOUJINDB_HOME, PLUGIN_FILE);
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 			

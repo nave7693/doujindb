@@ -38,7 +38,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	{
 		super();
 		setOpaque(false);
-		wallpaperImage = new ImageIcon(new File(System.getProperty("doujindb.home"),"doujindb.wallpaper").getAbsolutePath());
+		wallpaperImage = new ImageIcon(new File(Core.DOUJINDB_HOME,"doujindb.wallpaper").getAbsolutePath());
 		wallpaper = new JLabel(wallpaperImage);
 		buttonWallpaper = new JButton(Core.Resources.Icons.get("Desktop/Wallpaper/Import"));
 		buttonWallpaper.setFocusable(false);
@@ -69,7 +69,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 							graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 							graphics2D.drawImage(wallpaperImage.getImage(), 0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight(), null);
-							ImageTool.write(im, new File(System.getProperty("doujindb.home"), "doujindb.wallpaper"));
+							ImageTool.write(im, new File(Core.DOUJINDB_HOME, "doujindb.wallpaper"));
 							wallpaperImage = new ImageIcon(im);
 							wallpaper.setIcon(wallpaperImage);
 						} catch (Exception e) {

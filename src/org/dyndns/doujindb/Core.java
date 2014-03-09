@@ -25,18 +25,26 @@ public final class Core implements Runnable
 	public static UI UI;
 	public static DataBase Database;
 	public static Repository Repository;
+	
+	public final static File DOUJINDB_HOME = getHomedir();
+	
+	private static File getHomedir()
+	{
+		File homedir;
+		try
+		{
+			homedir = new File(java.net.URLDecoder.decode(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")).getParentFile();
+		} catch (UnsupportedEncodingException uee)
+		{
+			homedir = new File(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile();
+		}
+		return homedir;
+	}
 
 	@Override
 	public void run()
 	{
 		boolean isConfigurationWizard = false;
-		try
-		{
-			System.setProperty("doujindb.home", new File(java.net.URLDecoder.decode(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")).getParent());
-		} catch (UnsupportedEncodingException uee)
-		{
-			System.setProperty("doujindb.home", new File(Core.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent());
-		}
 		try
 		{
 			Logger = new SystemLogger();

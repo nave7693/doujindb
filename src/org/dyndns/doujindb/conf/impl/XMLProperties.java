@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.Properties;
 
@@ -186,7 +187,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void load() throws PropertyException
 	{
-		File file = new File(System.getProperty("doujindb.home"), "config.xml");
+		File file = new File(Core.DOUJINDB_HOME, "config.xml");
 		FileInputStream in = null;
 		try
 		{
@@ -247,7 +248,7 @@ final class XMLProperties implements Properties
 	@Override
 	public synchronized void save() throws PropertyException
 	{
-		File file = new File(System.getProperty("doujindb.home"), "config.xml");
+		File file = new File(Core.DOUJINDB_HOME, "config.xml");
 		FileOutputStream out = null;
 		try
 		{

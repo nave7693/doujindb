@@ -42,6 +42,7 @@ public final class Core implements Runnable
 	@Override
 	public void run()
 	{
+		Thread.currentThread().setName("core-bootstrap");
 		boolean isConfigurationWizard = false;
 		try
 		{

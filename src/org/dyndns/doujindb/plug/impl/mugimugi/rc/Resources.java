@@ -5,13 +5,11 @@ import java.util.*;
 import javax.swing.ImageIcon;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 
 public final class Resources
 {
 	public Hashtable<String, ImageIcon> Icons;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public Resources()
 	{

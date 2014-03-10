@@ -1,22 +1,18 @@
-package org.dyndns.doujindb.log.impl;
+package org.dyndns.doujindb.log;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import javax.swing.SwingWorker;
-
-import org.dyndns.doujindb.log.*;
-
 /**  
 * SystemLogger.java - Logger writing on the standard output.
 * @author  nozomu
-* @version 1.0
+* @version 1.2
 */
-public final class SystemLogger implements Logger
+final class SystemLogger implements ILogger
 {
-	private List<Logger> loggers = new Vector<Logger>();
+	private List<ILogger> loggers = new Vector<ILogger>();
 	private ConcurrentLinkedQueue<LogEvent> queue = new ConcurrentLinkedQueue<LogEvent>();
 
 	private SimpleDateFormat sdf;
@@ -34,10 +30,10 @@ public final class SystemLogger implements Logger
 		
 		stdout = new PrintWriter(new OutputStreamWriter(System.out));
 
-		new SwingWorker<Void, LogEvent>()
+		new Thread()
 		{
 			@Override
-			protected Void doInBackground() throws Exception
+			public void run()
 			{
 				Thread.currentThread().setName("system-logger");
 				while(true)
@@ -47,7 +43,7 @@ public final class SystemLogger implements Logger
 						Thread.sleep(1);
 						if(queue.isEmpty())
 							continue;
-						publish(queue.poll());
+						processLog(queue.poll());
 					} catch (Exception e) {
 						e.printStackTrace();
 					} catch (Error e) {
@@ -55,42 +51,37 @@ public final class SystemLogger implements Logger
 						break;
 					}
 				}
-				return null;
 			}
 			
-			@Override
-			protected void process(List<LogEvent> events)
+			private void processLog(LogEvent event)
 			{
-				for(LogEvent log : events)
-				{
-					stdout.printf("%s [%s] %s\r\n", sdf.format(new Date(log.getTime())),
-						log.getLevel(),
-						log.getMessage());
-					if(log.getThrowable() != null)
-						log.getThrowable().printStackTrace(stdout);
-				}
+				stdout.printf("%s [%s] %s\r\n", sdf.format(new Date(event.getTime())),
+						event.getLevel(),
+						event.getMessage());
+					if(event.getThrowable() != null)
+						event.getThrowable().printStackTrace(stdout);
 				stdout.flush();
 			}
-		}.execute();
+		}.start();
 	}
 	
 	@Override
-	public synchronized void log(LogEvent log)
+	public synchronized void log(LogEvent event)
 	{
-		queue.offer(log);
-		for(Logger logger : loggers)
-			logger.log(log);
+		queue.offer(event);
+		for(ILogger logger : loggers)
+			logger.log(event);
 	}
 
 	@Override
-	public synchronized void loggerAttach(Logger logger)
+	public synchronized void loggerAttach(ILogger logger)
 	{
 		if(!loggers.contains(logger))
 			loggers.add(logger);
 	}
 
 	@Override
-	public synchronized void loggerDetach(Logger logger)
+	public synchronized void loggerDetach(ILogger logger)
 	{
 		loggers.remove(logger);
 	}

@@ -7,7 +7,6 @@ import org.dyndns.doujindb.dat.Repository;
 import org.dyndns.doujindb.dat.impl.RepositoryImpl;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.log.impl.SystemLogger;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.rc.*;
@@ -19,7 +18,6 @@ import org.dyndns.doujindb.ui.rc.*;
 */
 public final class Core implements Runnable
 {
-	public static Logger Logger;
 	public static Properties Properties;
 	public static Resources Resources;
 	public static UI UI;
@@ -45,14 +43,6 @@ public final class Core implements Runnable
 	public void run()
 	{
 		boolean isConfigurationWizard = false;
-		try
-		{
-			Logger = new SystemLogger();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}
 		try
 		{
 			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();

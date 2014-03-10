@@ -15,7 +15,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
@@ -37,8 +37,6 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 	private RecordBookEditor editorWorks;
 	private RecordCircleEditor editorCircles;
 	private JButton buttonConfirm;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelArtist(Artist token) throws DataBaseException
 	{

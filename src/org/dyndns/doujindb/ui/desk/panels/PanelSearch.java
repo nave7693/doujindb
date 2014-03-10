@@ -20,7 +20,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
 
@@ -42,8 +42,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	protected JLabel m_LabelResults;
 	
 	private static DialogSearch m_PopupDialog = null;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelSearch(JTabbedPane tab, int index)
 	{

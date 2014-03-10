@@ -11,12 +11,10 @@ import org.dyndns.doujindb.dat.RepositoryException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 
 public final class RepositoryIndexer
 {
-	private static Logger Logger = Core.Logger;
-	
 	public static void index() throws RepositoryException
 	{
 		RepositoryIndexer.index(Core.Database.getBooks(null));

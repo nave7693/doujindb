@@ -16,7 +16,7 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Parody;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -38,8 +38,6 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 	private JTabbedPane tabLists;
 	private RecordBookEditor editorWorks;
 	private JButton buttonConfirm;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelParody(Parody token) throws DataBaseException
 	{

@@ -8,7 +8,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 
 /**  
 * PluginManager.java - DoujinDB Plugin Manager.
@@ -22,8 +22,6 @@ public final class PluginManager
 	
 	private static int SHUTDOWN_TIMEOUT = 10;
 	private static String PLUGIN_FILE = "plugins.bin";
-	
-	private static Logger Logger = Core.Logger;
 	
 	private PluginManager() { }
 	

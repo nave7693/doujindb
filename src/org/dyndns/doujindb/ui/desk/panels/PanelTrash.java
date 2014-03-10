@@ -13,7 +13,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -47,8 +47,6 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	private JLabel m_LabelListParody;
 	
 	private DialogTrash m_PopupDialog = null;
-	
-	private static Logger Logger = Core.Logger;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PanelTrash()

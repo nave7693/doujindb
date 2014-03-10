@@ -20,7 +20,7 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -48,8 +48,6 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	private JButton addAlias;
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelConvention(Convention token) throws DataBaseException
 	{

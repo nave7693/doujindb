@@ -17,7 +17,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -36,8 +36,6 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	private String filterRegex;
 	
 	private Type m_Type;
-	
-	private static Logger Logger = Core.Logger;
 	
 	private enum Type
 	{

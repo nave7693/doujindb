@@ -22,7 +22,7 @@ import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 final class TaskManager
@@ -32,8 +32,6 @@ final class TaskManager
 	
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(m_Worker);
 	
-	private static Logger Logger = Core.Logger;
-		
 	static {
 		m_Tasks = new Vector<Task>();
 		read();

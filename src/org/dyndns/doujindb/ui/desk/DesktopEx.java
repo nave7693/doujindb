@@ -15,7 +15,7 @@ import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
 import org.dyndns.doujindb.util.ImageTool;
@@ -31,8 +31,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	private JButton buttonTools;
 	
 	private Vector<JButton> buttonPlugins;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public DesktopEx()
 	{

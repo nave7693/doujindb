@@ -26,7 +26,7 @@ import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
@@ -41,8 +41,6 @@ public class PanelBookMedia extends JPanel
 	private JButton buttonPackage;
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelBookMedia(Book book)
 	{

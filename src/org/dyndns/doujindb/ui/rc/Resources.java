@@ -7,15 +7,13 @@ import java.util.zip.*;
 import javax.swing.ImageIcon;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 
 public final class Resources
 {
 	public Hashtable<String, String> Strings;
 	public Hashtable<String, ImageIcon> Icons;
 	public Font Font = new Font("Tahoma", java.awt.Font.PLAIN, 10);
-	
-	private static Logger Logger = Core.Logger;
 	
 	public Resources() throws Exception
 	{

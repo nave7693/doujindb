@@ -31,7 +31,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.log.Logger.LogEvent;
 import org.dyndns.doujindb.plug.Plugin;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.desk.*;
@@ -55,10 +54,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 
 	private JFileChooser uiFileChooser = new JFileChooser();
 	
-	private PanelLogs uiPanelLogs;
-	private JScrollPane uiPanelLogsScroll;
-	private JButton uiPanelLogsClear;
-	
 	private PanelSettings uiPanelSettings;
 	private JButton uiPanelSettingsSave;
 	private JButton uiPanelSettingsLoad;
@@ -77,15 +72,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 
 	private JMenuBar menuBar;
 	private JMenu menuLogs;
-	private JCheckBoxMenuItem menuLogsMessage;
-	private JCheckBoxMenuItem menuLogsWarning;
-	private JCheckBoxMenuItem menuLogsError;
 	private JMenu menuHelp;
 	private JMenuItem menuHelpAbout;
 	private JMenuItem menuHelpBugtrack;
 	
-	private static Logger Logger = Core.Logger;
-
 	public JFileChooser getFileChooser()
 	{
 		return uiFileChooser;
@@ -254,29 +244,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		menuBar = new JMenuBar();
 		menuBar.setFont(Core.Resources.Font);
-		menuLogs = new JMenu("Logs");
-		menuLogs.setMnemonic(KeyEvent.VK_L);
-		menuLogs.setIcon(Core.Resources.Icons.get("MenuBar/Logs"));
-		menuLogs.setFont(Core.Resources.Font);
-		menuLogsMessage = new JCheckBoxMenuItem("Messages",Core.Resources.Icons.get("MenuBar/Logs/Message"),true);
-		menuLogsMessage.setMnemonic(KeyEvent.VK_M);
-		menuLogsMessage.setFont(Core.Resources.Font);
-		menuLogsMessage.addActionListener(this);
-		menuLogsMessage.setSelected(Core.Properties.get("org.dyndns.doujindb.log.info").asBoolean());
-		menuLogsWarning = new JCheckBoxMenuItem("Warnings",Core.Resources.Icons.get("MenuBar/Logs/Warning"),true);
-		menuLogsWarning.setMnemonic(KeyEvent.VK_W);
-		menuLogsWarning.setFont(Core.Resources.Font);
-		menuLogsWarning.addActionListener(this);
-		menuLogsWarning.setSelected(Core.Properties.get("org.dyndns.doujindb.log.warning").asBoolean());
-		menuLogsError = new JCheckBoxMenuItem("Errors",Core.Resources.Icons.get("MenuBar/Logs/Error"),true);
-		menuLogsError.setMnemonic(KeyEvent.VK_E);
-		menuLogsError.setFont(Core.Resources.Font);
-		menuLogsError.addActionListener(this);
-		menuLogsError.setSelected(Core.Properties.get("org.dyndns.doujindb.log.error").asBoolean());
-		menuLogs.add(menuLogsMessage);
-		menuLogs.add(menuLogsWarning);
-		menuLogs.add(menuLogsError);
-		menuBar.add(menuLogs);
 		
 		menuHelp = new JMenu("Help");
 		menuHelp.setIcon(Core.Resources.Icons.get("MenuBar/Help"));
@@ -370,25 +337,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
-		Hashtable<String,ImageIcon> data = new Hashtable<String,ImageIcon>();
-		data.put("Icon:Console.Message",Core.Resources.Icons.get("Frame/Tab/Logs/Message"));
-		data.put("Icon:Console.Warning",Core.Resources.Icons.get("Frame/Tab/Logs/Warning"));
-		data.put("Icon:Console.Error",Core.Resources.Icons.get("Frame/Tab/Logs/Error"));
-		data.put("Icon:Console.Fatal",Core.Resources.Icons.get("Frame/Tab/Logs/Fatal"));
-		data.put("Icon:Console.Debug",Core.Resources.Icons.get("Frame/Tab/Logs/Debug"));
-		uiPanelLogs = new PanelLogs(data);
-		uiPanelLogsScroll = new JScrollPane(uiPanelLogs);
-		bogus.add(uiPanelLogsScroll);
-		uiPanelLogsClear = new JButton(Core.Resources.Icons.get("Frame/Tab/Logs/Clear"));
-		uiPanelLogsClear.addActionListener(this);
-		uiPanelLogsClear.setBorder(null);
-		uiPanelLogsClear.setFocusable(false);
-		uiPanelLogsClear.setToolTipText("Clear");
-		bogus.add(uiPanelLogsClear);
-		uiPanelTabbed.addTab("Logs", Core.Resources.Icons.get("Frame/Tab/Logs"), bogus);
-		
-		bogus = new JPanel();
-		bogus.setLayout(null);
 		uiPanelSettings = new PanelSettings();
 		bogus.add(uiPanelSettings);
 		uiPanelSettingsSave = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Save"));
@@ -469,8 +417,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setVisible(true);
 		
 		loading.dispose();
-	
-		Logger.loggerAttach(uiPanelLogs);
 	}
 
 	@Override
@@ -493,8 +439,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			uiPanelDesktopAdd.setBounds(-1,-1,0,0);
 		}
 		Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
-		uiPanelLogsClear.setBounds(1,1,20,20);
-		uiPanelLogsScroll.setBounds(0,22,width-5,height-48);
 		uiPanelSettingsLoad.setBounds(1,1,20,20);
 		uiPanelSettingsSave.setBounds(21,1,20,20);
 		uiPanelSettings.setBounds(0,22,width-5,height-48);
@@ -524,23 +468,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		if(event.getSource() == menuLogsMessage ||
-			event.getSource() == menuLogsWarning ||
-			event.getSource() == menuLogsError)
-		{
-			String sh_message = menuLogsMessage.isSelected() ? "Message" : "-",
-					sh_warning = menuLogsWarning.isSelected() ? "Warning" : "-",
-					sh_error = menuLogsError.isSelected() ? "Error" : "-";
-			String pattern = sh_message + "|" + sh_warning + "|" + sh_error;
-			uiPanelLogs.setFilter(pattern);
-			uiPanelLogs.validate();
-			return;
-		}
-		if(event.getSource() == uiPanelLogsClear)
-		{
-			uiPanelLogs.clear();
-			return;
-		}
 		if(event.getSource() == uiPanelSettingsSave)
 		{
 			try
@@ -817,285 +744,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
          layoutContainer(getContentPane());
     }
 
-    @SuppressWarnings("serial")
-	private static final class PanelLogs extends JTable implements Logger
-	{
-		private Renderer TableRender;
-		private Editor TableEditor;
-		private DefaultTableModel TableModel;
-		private TableRowSorter<DefaultTableModel> TableSorter;
-		private String FilterPattern = "";
-
-		public PanelLogs(Hashtable<String,ImageIcon> renderingData)
-		{
-			super();
-			TableModel = new DefaultTableModel();
-			TableModel.addColumn("");
-			TableModel.addColumn("Time");
-			TableModel.addColumn("Message");
-			super.setModel(TableModel);
-			TableRender = new Renderer(renderingData);
-			TableEditor = new Editor();
-			TableSorter = new TableRowSorter<DefaultTableModel>(TableModel);
-			super.setRowSorter(TableSorter);
-			TableSorter.setRowFilter(RowFilter.regexFilter("", 0));
-			super.setFont(Core.Resources.Font);
-			super.setColumnSelectionAllowed(false);
-			super.setRowSelectionAllowed(false);
-			super.setCellSelectionEnabled(false);
-			super.getTableHeader().setFont(Core.Resources.Font);
-			super.getTableHeader().setReorderingAllowed(false);
-			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
-			{
-				super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
-				super.getColumnModel().getColumn(k).setCellEditor(TableEditor);
-			}
-			super.getColumnModel().getColumn(0).setResizable(false);
-			super.getColumnModel().getColumn(0).setMaxWidth(20);
-			super.getColumnModel().getColumn(0).setMinWidth(20);
-			super.getColumnModel().getColumn(0).setWidth(20);
-			super.getColumnModel().getColumn(1).setMinWidth(125);
-			super.getColumnModel().getColumn(1).setMaxWidth(125);
-			super.getColumnModel().getColumn(1).setWidth(125);
-			super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-		}
-	
-		public void setFilter(String pattern)
-		{
-			FilterPattern = pattern;
-		}
-		
-		@Override
-		public void validate()
-		{
-			TableSorter.setRowFilter(RowFilter.regexFilter(FilterPattern, 0));
-			super.validate();
-		}
-	
-		public void clear()
-		{
-			while(TableModel.getRowCount()>0)
-				TableModel.removeRow(0);
-		}
-		
-		private static final class Renderer extends DefaultTableCellRenderer
-		{
-		    private Hashtable<String,ImageIcon> renderIcon;
-		    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
-			private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
-			
-			private static SimpleDateFormat sdf;
-			
-			{
-				sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-			}
-		
-			public Renderer(Hashtable<String,ImageIcon> renderingData)
-			{
-			    super();
-			    super.setFont(Core.Resources.Font);
-			    renderIcon = new Hashtable<String,ImageIcon>();
-			    renderIcon.put("Message",(ImageIcon)renderingData.get("Icon:Console.Message"));
-			    renderIcon.put("Warning",(ImageIcon)renderingData.get("Icon:Console.Warning"));
-			    renderIcon.put("Error",(ImageIcon)renderingData.get("Icon:Console.Error"));
-			    renderIcon.put("Fatal",(ImageIcon)renderingData.get("Icon:Console.Fatal"));
-			    renderIcon.put("Debug",(ImageIcon)renderingData.get("Icon:Console.Debug"));
-			}
-		
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			{
-				super.getTableCellRendererComponent(
-			        table,
-			        value,
-			        isSelected,
-			        hasFocus,
-			        row,
-			        column);
-				if(table.getModel().getRowCount() < 1)
-					return this;
-				try
-				{
-					super.setIcon(null);
-					super.setBorder(null);
-			        if(value.equals("{Message}"))
-			        {
-				        super.setText("");
-				        super.setIcon(renderIcon.get("Message"));
-				        return this;
-				    }
-				    if(value.equals("{Warning}"))
-				    {
-				    	super.setText("");
-				        super.setIcon(renderIcon.get("Warning"));
-				        return this;
-				    }
-				    if(value.equals("{Error}"))
-				    {
-				       	super.setText("");
-				       	super.setIcon(renderIcon.get("Error"));
-				       	return this;
-				    }
-				    if(value.equals("{Fatal}"))
-				    {
-				       	super.setText("");
-				       	super.setIcon(renderIcon.get("Fatal"));
-				       	return this;
-				    }
-				    if(value.equals("{Debug}"))
-				    {
-				       	super.setText("");
-				       	super.setIcon(renderIcon.get("Debug"));
-				       	return this;
-				    }
-				    super.setText(value.toString());
-				    if(column == 1)
-					{
-						// It's a timestamp
-						super.setText(sdf.format(new Date((Long)value)));
-					}
-			        super.setIcon(null);
-			        super.setForeground(foregroundColor);
-			        if(table.getValueAt(row, 0).equals("{Warning}"))
-				       	super.setForeground(Color.ORANGE);
-				    else
-				       	if(table.getValueAt(row, 0).equals("{Error}"))
-				       		super.setForeground(Color.RED);
-				       	else
-					       	if(table.getValueAt(row, 0).equals("{Fatal}"))
-					       	{
-					       		super.setForeground(Color.RED);
-					       		super.setFont(super.getFont().deriveFont(Font.BOLD));
-					       	}
-					       	else
-						       	if(table.getValueAt(row, 0).equals("{Debug}"))
-						       		super.setForeground(Color.GREEN);
-			        
-			        return this;
-				} catch (ArrayIndexOutOfBoundsException aioobe) {
-					// OH WELL
-				}
-		        return this;
-			}
-		}
-	
-		private final class Editor extends AbstractCellEditor implements TableCellEditor
-		{
-			public Editor()	{
-				super();
-			}
-			
-			public Object getCellEditorValue() {
-				return 0;
-			}
-		
-			public Component getTableCellEditorComponent(
-			    JTable table,
-			    Object value,
-			    boolean isSelected,
-			    int row,
-			    int column)
-			{
-			    super.cancelCellEditing();
-			    return null;
-			}
-		}
-	
-		@Override
-		public void log(LogEvent event)
-		{
-			switch(event.getLevel())
-			{
-			case INFO:
-				TableModel.addRow(new Object[]{"{Message}",
-					event.getTime(),
-					event.getMessage()});
-				break;
-			case WARNING:
-				TableModel.addRow(new Object[]{"{Warning}",
-					event.getTime(),
-					event.getMessage()});
-				break;
-			case ERROR:
-				TableModel.addRow(new Object[]{"{Error}",
-					event.getTime(),
-					event.getMessage()});
-				break;
-			/**
-			 * Really, we shouldn't log FATAL nor DEBUG level logs in the User Interface
-			 */
-			case FATAL:
-//				TableModel.addRow(new Object[]{"{Fatal}",
-//					event.getTime(),
-//					event.getSource(),
-//					event.getMessage()});
-				break;
-			case DEBUG:
-//				TableModel.addRow(new Object[]{"{Debug}",
-//					event.getTime(),
-//					event.getSource(),
-//					event.getMessage()});
-				break;
-			}
-		}
-	
-		@Override
-		public void loggerAttach(Logger logger) { }
-		
-		@Override
-		public void loggerDetach(Logger logger) { }
-	
-		@Override
-		public void logFatal(String message) {
-			log(new LogEvent(Level.FATAL, message));
-		}
-
-		@Override
-		public void logFatal(String message, Throwable err) {
-			log(new LogEvent(Level.FATAL, message, err));
-		}
-
-		@Override
-		public void logDebug(String message) {
-			log(new LogEvent(Level.DEBUG, message));
-		}
-
-		@Override
-		public void logDebug(String message, Throwable err) {
-			log(new LogEvent(Level.DEBUG, message, err));
-		}
-
-		@Override
-		public void logError(String message) {
-			log(new LogEvent(Level.ERROR, message));
-		}
-
-		@Override
-		public void logError(String message, Throwable err) {
-			log(new LogEvent(Level.ERROR, message, err));
-		}
-
-		@Override
-		public void logWarning(String message) {
-			log(new LogEvent(Level.WARNING, message));
-		}
-
-		@Override
-		public void logWarning(String message, Throwable err) {
-			log(new LogEvent(Level.WARNING, message, err));
-		}
-
-		@Override
-		public void logInfo(String message) {
-			log(new LogEvent(Level.INFO, message));
-		}
-
-		@Override
-		public void logInfo(String message, Throwable err) {
-			log(new LogEvent(Level.INFO, message, err));
-		}
-	}
-	
     @SuppressWarnings("serial")
 	private final class PanelPlugins extends JTable
 	{

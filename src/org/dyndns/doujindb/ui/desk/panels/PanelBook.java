@@ -33,7 +33,7 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
-import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.ComboBoxConvention;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
@@ -78,8 +78,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	private RecordParodyEditor editorParodies;
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
-	
-	private static Logger Logger = Core.Logger;
 	
 	public PanelBook(Book token) throws DataBaseException
 	{

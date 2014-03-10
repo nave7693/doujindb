@@ -5,7 +5,7 @@ package org.dyndns.doujindb.log;
 * @author  nozomu
 * @version 1.1
 */
-public interface ILogger
+interface ILogger
 {
 	public abstract void log(LogEvent event);
 	public abstract void logFatal(String message);

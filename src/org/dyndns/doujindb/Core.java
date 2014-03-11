@@ -26,6 +26,8 @@ public final class Core implements Runnable
 	
 	public final static File DOUJINDB_HOME = getHomedir();
 	
+	private static final String TAG = "Core : ";
+	
 	private static File getHomedir()
 	{
 		File homedir;
@@ -43,32 +45,35 @@ public final class Core implements Runnable
 	public void run()
 	{
 		Thread.currentThread().setName("core-bootstrap");
+		Logger.logInfo(TAG + "bootstrap started.");
 		boolean isConfigurationWizard = false;
 		try
 		{
+			Logger.logInfo(TAG + "loading system configuration ...");
 			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();
 			Properties.load();
-			Logger.logInfo("System Properties loaded.");
+			Logger.logInfo(TAG + "system configuration loaded.");
 		} catch (Exception e)
 		{
-			Logger.logError("Failed to load system Properties", e);
-			Logger.logInfo("System Properties restored to default.");
+			Logger.logError(TAG + "failed to load system configuration.", e);
+			Logger.logInfo(TAG + "Configuration Wizard scheduled to run on startup.");
 			isConfigurationWizard = true;
 		}
 		if(java.awt.GraphicsEnvironment.isHeadless()) 
 		{
-			Logger.logFatal("DoujinDB cannot run on headless systems.");
-			return;
+			Logger.logFatal(TAG + "DoujinDB cannot run on headless systems.");
+			System.exit(-1);
 		}
 		
+		Logger.logInfo(TAG + "loading repository ...");
 		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
 		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
-			Logger.logWarning("Repository folder is the temporary system folder.");
-		Logger.logInfo("Repository loaded.");
+			Logger.logWarning(TAG + "repository folder is set to the temporary system folder.");
+		Logger.logInfo(TAG + "repository loaded.");
 		
-		Logger.logInfo("Loading user interface ...");
 		try
 		{
+			Logger.logInfo(TAG + "loading resources ...");
 			Resources = new Resources();
 			Resources.Font = new java.awt.Font(
 				Properties.get("org.dyndns.doujindb.ui.font").asFont().getFontName(),
@@ -79,22 +84,23 @@ public final class Core implements Runnable
 			Logger.logFatal(e.getMessage(), e);
 			return;
 		}
-		Logger.logInfo("Resources loaded.");
+		Logger.logInfo(TAG + "resources loaded.");
 		
 		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		
 		Database = DataBase.getInstance();
 		
-		Logger.logInfo("Discovering plugins ...");
+		Logger.logInfo(TAG + "discovering plugins ...");
 		PluginManager.discovery();
 		
+		Logger.logInfo(TAG + "loading user interface ...");
 		UI = new UI();
-		Logger.logInfo("User interface loaded.");
+		Logger.logInfo(TAG + "user interface loaded.");
 		
 		if(isConfigurationWizard)
 		{
-			Logger.logInfo("Running configuration wizard ...");
+			Logger.logInfo(TAG + "running Configuration Wizard ...");
 			UI.showConfigurationWizard();
 		}
 	}

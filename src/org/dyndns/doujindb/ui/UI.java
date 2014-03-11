@@ -76,6 +76,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JMenuItem menuHelpAbout;
 	private JMenuItem menuHelpBugtrack;
 	
+	private static final String TAG = "UI : ";
+	
 	public JFileChooser getFileChooser()
 	{
 		return uiFileChooser;
@@ -105,7 +107,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
 			super.setAlwaysOnTop(true);
 		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-		Logger.logInfo("Basic user interface loaded");
+		Logger.logInfo(TAG + "basic user interface loaded.");
 			
 		try
 		{
@@ -118,10 +120,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		    SwingUtilities.updateComponentTreeUI(this);
 		}catch(Exception e)
 		{
-			Logger.logError(e.getMessage(), e);
+			Logger.logError(TAG + e.getMessage(), e);
 			return;
 		}
-		Logger.logInfo("Theme loaded");
+		Logger.logInfo(TAG + "system theme loaded.");
 		
 		LoadingDialog loading = new LoadingDialog(super.getTitle());
 		
@@ -154,7 +156,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    glassPane.setEnabled(false);
 	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
 		setGlassPane(glassPane);
-		Logger.logInfo("Glass panel added");
 		
 		uiPanelTabbed = new JTabbedPane();
 		super.addWindowListener(this);
@@ -240,7 +241,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 	    	uiFileChooser.setMultiSelectionEnabled(true);
 	    }
-		Logger.logInfo("JFileChooser loaded");
 		
 		menuBar = new JMenuBar();
 		menuBar.setFont(Core.Resources.Font);
@@ -261,7 +261,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		menuHelp.add(menuHelpBugtrack);
 		menuBar.add(menuHelp);
 		super.setJMenuBar(menuBar);
-		Logger.logInfo("JMenuBar added");
 		
 		JPanel bogus;
 		
@@ -380,8 +379,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelTabbed.setFocusable(false);
 		super.add(uiPanelTabbed);
 		
-		Logger.logInfo("JTabbedPane added");
-		
 		if(SystemTray.isSupported())
 		{
 			uiTrayPopup = new JPopupMenu();
@@ -404,9 +401,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}
 			});
 			uiTrayIcon.addActionListener(this);
-			Logger.logInfo("SystemTray loaded");
+			Logger.logInfo(TAG + "system tray loaded.");
 		} else
-			Logger.logWarning("SystemTray not supported");
+			Logger.logWarning(TAG + "system tray not supported.");
 
 		super.setLayout(this);
 		/*
@@ -473,10 +470,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try
 			{
 				Core.Properties.save();
-				Logger.logInfo("System properties saved");
+				Logger.logInfo(TAG + "system properties saved.");
 			}catch(Exception e)
 			{
-				Logger.logError(e.getMessage(), e);
+				Logger.logError(TAG + e.getMessage(), e);
 			}
 			return;
 		}
@@ -489,7 +486,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					uiPanelPlugins.add(plugin);
 			}catch(Exception e)
 			{
-				Logger.logError(e.getMessage(), e);
+				Logger.logError(TAG + e.getMessage(), e);
 			}
 			return;
 		}
@@ -499,10 +496,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 				Core.Properties.load();
 				uiPanelSettings.reload();
-				Logger.logInfo("System properties loaded");
+				Logger.logInfo(TAG + "system properties loaded.");
 			}catch(Exception e)
 			{
-				Logger.logError(e.getMessage(), e);
+				Logger.logError(TAG + e.getMessage(), e);
 			}
 			return;
 		}
@@ -565,9 +562,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/"));
 			} catch (IOException ioe) {
-				Logger.logError(ioe.getMessage(), ioe);
+				Logger.logError(TAG + ioe.getMessage(), ioe);
 			} catch (URISyntaxException use) {
-				Logger.logError(use.getMessage(), use);
+				Logger.logError(TAG + use.getMessage(), use);
 			}
 			return;
 		}
@@ -580,7 +577,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showSearchWindow();
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -593,7 +590,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				setVisible(true);
 				setState(JFrame.NORMAL);
 			}catch(Exception e){
-				Logger.logError(e.getMessage(), e);
+				Logger.logError(TAG + e.getMessage(), e);
 			}
 			return;
 		}
@@ -602,7 +599,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -611,7 +608,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -620,7 +617,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -629,7 +626,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -638,7 +635,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -647,7 +644,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+				Logger.logError(TAG + dbe.getMessage(), dbe);
 			}
 			return;
 		}
@@ -671,18 +668,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						try
 						{
 							Core.Database.disconnect();
-							Logger.logInfo("Disconnected");
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
 					} else {
 						try
 						{
 							Core.Database.connect();
 							Core.Database.doRollback();
-							Logger.logInfo("Connected to " + Core.Database.getConnection());
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
 					}
 					return null;
@@ -727,7 +722,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			uiTray.add(uiTrayIcon);
 			setVisible(false);
 		} catch(AWTException awte) {
-			Logger.logError(awte.getMessage(), awte);
+			Logger.logError(TAG + awte.getMessage(), awte);
 		}
 	}
 	

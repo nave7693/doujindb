@@ -1,5 +1,6 @@
 package org.dyndns.doujindb;
 
+import java.awt.Font;
 import java.io.*;
 
 import org.dyndns.doujindb.conf.*;
@@ -18,7 +19,6 @@ import org.dyndns.doujindb.ui.rc.*;
 */
 public final class Core implements Runnable
 {
-	public static Properties Properties;
 	public static Resources Resources;
 	public static UI UI;
 	public static DataBase Database;
@@ -50,12 +50,11 @@ public final class Core implements Runnable
 		try
 		{
 			Logger.logInfo(TAG + "loading system configuration ...");
-			Properties = org.dyndns.doujindb.conf.impl.Factory.getService();
-			Properties.load();
+			Configuration.configLoad();
 			Logger.logInfo(TAG + "system configuration loaded.");
-		} catch (Exception e)
+		} catch (ConfigurationException ce)
 		{
-			Logger.logError(TAG + "failed to load system configuration.", e);
+			Logger.logError(TAG + "failed to load system configuration.", ce);
 			Logger.logInfo(TAG + "Configuration Wizard scheduled to run on startup.");
 			isConfigurationWizard = true;
 		}
@@ -66,8 +65,8 @@ public final class Core implements Runnable
 		}
 		
 		Logger.logInfo(TAG + "loading repository ...");
-		Repository = new RepositoryImpl(new java.io.File(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString()));
-		if(Core.Properties.get("org.dyndns.doujindb.dat.datastore").asString().equals(Core.Properties.get("org.dyndns.doujindb.dat.temp").asString()))
+		Repository = new RepositoryImpl(new java.io.File(Configuration.configRead("org.dyndns.doujindb.dat.datastore").toString()));
+		if(Configuration.configRead("org.dyndns.doujindb.dat.datastore").equals(Configuration.configRead("org.dyndns.doujindb.dat.temp")))
 			Logger.logWarning(TAG + "repository folder is set to the temporary system folder.");
 		Logger.logInfo(TAG + "repository loaded.");
 		
@@ -76,9 +75,9 @@ public final class Core implements Runnable
 			Logger.logInfo(TAG + "loading resources ...");
 			Resources = new Resources();
 			Resources.Font = new java.awt.Font(
-				Properties.get("org.dyndns.doujindb.ui.font").asFont().getFontName(),
+				((Font)Configuration.configRead("org.dyndns.doujindb.ui.font")).getFontName(),
 				java.awt.Font.PLAIN,
-				Properties.get("org.dyndns.doujindb.ui.font_size").asNumber());
+				((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
 		} catch (Exception e)
 		{
 			Logger.logFatal(e.getMessage(), e);
@@ -86,7 +85,7 @@ public final class Core implements Runnable
 		}
 		Logger.logInfo(TAG + "resources loaded.");
 		
-		if(!Properties.get("org.dyndns.doujindb.log.cayenne").asBoolean())
+		if(!((Boolean)Configuration.configRead("org.dyndns.doujindb.log.cayenne")))
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		
 		Database = DataBase.getInstance();

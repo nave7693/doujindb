@@ -25,7 +25,7 @@ import javax.swing.plaf.basic.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.conf.Properties;
+import org.dyndns.doujindb.conf.IConfiguration;
 import org.dyndns.doujindb.conf.event.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.DataBaseListener;

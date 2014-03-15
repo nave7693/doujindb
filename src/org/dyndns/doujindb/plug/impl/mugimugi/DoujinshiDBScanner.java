@@ -1840,7 +1840,7 @@ public final class DoujinshiDBScanner extends Plugin
 		
 		Context = Core.Database.getContext(UUID);
 		
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
 		PLUGIN_HOME.mkdirs();

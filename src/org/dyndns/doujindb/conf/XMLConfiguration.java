@@ -40,7 +40,7 @@ final class XMLConfiguration implements IConfiguration
 	{
 		if(values.containsKey(key))
 			throw new ConfigurationException("Cannot add key: '" + key + "': is already present.");
-		values.put(key, new Object());
+		values.put(key, value);
 		infos.put(key, info);
 	}
 

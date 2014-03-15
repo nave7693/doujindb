@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
@@ -41,6 +42,8 @@ public class PanelBookMedia extends JPanel
 	private JButton buttonPackage;
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
+	
+	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
 	public PanelBookMedia(Book book)
 	{
@@ -676,7 +679,7 @@ public class PanelBookMedia extends JPanel
 				JList<String> list = new JList<String>(errors);
 				list.setFont(Core.Resources.Font);
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+				list.setSelectionForeground(backgroundColor);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(Core.Resources.Font);
@@ -867,7 +870,7 @@ public class PanelBookMedia extends JPanel
 				JList<String> list = new JList<String>(errors);
 				list.setFont(Core.Resources.Font);
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+				list.setSelectionForeground(backgroundColor);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(Core.Resources.Font);
@@ -989,7 +992,7 @@ public class PanelBookMedia extends JPanel
 //						"Exporting ...");
 				progress_overall_max = 1;
 				{
-					File zip = new File(destdir, book + Core.Properties.get("org.dyndns.doujindb.dat.file_extension").asString());
+					File zip = new File(destdir, book + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
 					DataFile ds = Core.Repository.child(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;

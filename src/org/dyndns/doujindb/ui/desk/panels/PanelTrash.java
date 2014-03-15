@@ -10,6 +10,7 @@ import java.beans.*;
 import java.util.Vector;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
@@ -551,8 +552,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		JSplitPane splitListE = new JSplitPane();
 		JSplitPane splitListT = new JSplitPane();
 		JSplitPane splitListP = new JSplitPane();
-		Color foreground = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
-		Color background = (Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor()).darker();
+		final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+		final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 		{
 			m_ListArtist = new JList<Artist>();
 			m_ListArtist.setModel(new DefaultListModel());

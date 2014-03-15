@@ -6,6 +6,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import javax.sql.DataSource;
 import javax.swing.SwingWorker;
 
@@ -16,12 +17,13 @@ import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.DataNode;
 import org.apache.cayenne.access.DbGenerator;
-import org.apache.cayenne.conf.Configuration;
+// import org.apache.cayenne.conf.Configuration;
 import org.apache.cayenne.conn.PoolManager;
 import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.exp.*;
 import org.apache.cayenne.query.SelectQuery;
-import org.dyndns.doujindb.Core;
+
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.event.*;
@@ -147,8 +149,8 @@ public final class DataBaseImpl extends DataBase
 	
 	public DataBaseImpl()
 	{
-		Configuration.initializeSharedConfiguration(EmbeddedConfiguration.class);
-		Configuration conf = Configuration.getSharedConfiguration();
+		org.apache.cayenne.conf.Configuration.initializeSharedConfiguration(EmbeddedConfiguration.class);
+		org.apache.cayenne.conf.Configuration conf = org.apache.cayenne.conf.Configuration.getSharedConfiguration();
 		
 		domain = conf.getDomain("doujindb");
 		node = new DataNode("default");
@@ -616,10 +618,10 @@ public final class DataBaseImpl extends DataBase
 			throw new DataBaseException("DataBase already connected.");
 		try
 		{
-			String driver = Core.Properties.get("org.dyndns.doujindb.db.driver").asString();
-			String url = Core.Properties.get("org.dyndns.doujindb.db.url").asString();
-			String username =Core.Properties.get("org.dyndns.doujindb.db.username").asString();
-			String password = Core.Properties.get("org.dyndns.doujindb.db.password").asString();
+			String driver =   (String) Configuration.configRead("org.dyndns.doujindb.db.driver");
+			String url =      (String) Configuration.configRead("org.dyndns.doujindb.db.url");
+			String username = (String) Configuration.configRead("org.dyndns.doujindb.db.username");
+			String password = (String) Configuration.configRead("org.dyndns.doujindb.db.password");
 			PoolManager pool = new PoolManager(driver,
 					url,
 			        1,
@@ -628,7 +630,7 @@ public final class DataBaseImpl extends DataBase
 			        password);
 			// Doesn't work, handle timeout manually
 			// pool.setLoginTimeout(3);
-			checkContext(pool, Core.Properties.get("org.dyndns.doujindb.db.connection_timeout").asNumber());
+			checkContext(pool, (Integer) Configuration.configRead("org.dyndns.doujindb.db.connection_timeout"));
 			
 			// Pool is valid
 			node.setDataSource(pool);

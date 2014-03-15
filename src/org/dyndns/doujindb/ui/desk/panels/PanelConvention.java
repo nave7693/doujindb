@@ -15,6 +15,7 @@ import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
@@ -30,8 +31,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 {
 	private Convention tokenConvention;
 	
-	private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
-	private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+	private final Color foregroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
 	private final Font font = Core.Resources.Font;
 	private JLabel labelTagName;

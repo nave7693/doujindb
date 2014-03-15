@@ -25,14 +25,12 @@ import javax.swing.plaf.basic.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.conf.IConfiguration;
 import org.dyndns.doujindb.conf.event.*;
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.event.DataBaseListener;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.plug.Plugin;
-import org.dyndns.doujindb.plug.PluginManager;
+import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.DesktopEx.*;
 import org.dyndns.doujindb.ui.rc.*;
@@ -104,16 +102,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Core.Resources.Icons.get("Frame/Icon").getImage());
-		if((Core.Properties.get("org.dyndns.doujindb.ui.always_on_top").asBoolean()) == true)
-			super.setAlwaysOnTop(true);
-		super.getContentPane().setBackground(Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+		super.setAlwaysOnTop((Boolean) Configuration.configRead("org.dyndns.doujindb.ui.always_on_top"));
+		
+		final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+		final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+		
+		super.getContentPane().setBackground(background);
 		Logger.logInfo(TAG + "basic user interface loaded.");
 			
 		try
 		{
 			Theme theme = new Theme(
-					Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor(),
-					Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor(),
+					foreground,
+					background,
 					Core.Resources.Font);
 		    MetalLookAndFeel.setCurrentTheme(theme);
 		    UIManager.setLookAndFeel(new MetalLookAndFeel());
@@ -162,11 +163,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.addComponentListener(this);
 		
 		{
-			UIManager.put("ComboBox.selectionBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
-			UIManager.put("InternalFrame.inactiveTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor().darker());
-			UIManager.put("InternalFrame.activeTitleForeground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
-			UIManager.put("InternalFrame.inactiveTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor().darker());
-			UIManager.put("InternalFrame.activeTitleBackground", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+			UIManager.put("ComboBox.selectionBackground", background);
+			UIManager.put("InternalFrame.inactiveTitleForeground", foreground.darker());
+			UIManager.put("InternalFrame.activeTitleForeground", foreground);
+			UIManager.put("InternalFrame.inactiveTitleBackground", background.darker());
+			UIManager.put("InternalFrame.activeTitleBackground", background);
 			UIManager.put("InternalFrame.font",Core.Resources.Font);
 			UIManager.put("InternalFrame.titleFont",Core.Resources.Font);
 	    	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));
@@ -189,8 +190,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    	UIManager.put("FileChooser.hardDriveIcon",Core.Resources.Icons.get("FileChooser/hardDriveIcon"));
 	    	UIManager.put("Tree.expandedIcon",Core.Resources.Icons.get("JTree/Node-"));
 	    	UIManager.put("Tree.collapsedIcon",Core.Resources.Icons.get("JTree/Node+"));
-	    	UIManager.put("ToolTip.foreground", Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor());
-	    	UIManager.put("ToolTip.background", Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor());
+	    	UIManager.put("ToolTip.foreground", foreground);
+	    	UIManager.put("ToolTip.background", background);
 	    	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
 	    	uiFileChooser.setFont(Core.Resources.Font);
 	    	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
@@ -469,7 +470,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		{
 			try
 			{
-				Core.Properties.save();
+				Configuration.configSave();
 				Logger.logInfo(TAG + "system properties saved.");
 			}catch(Exception e)
 			{
@@ -494,7 +495,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		{
 			try
 			{
-				Core.Properties.load();
+				Configuration.configLoad();
 				uiPanelSettings.reload();
 				Logger.logInfo(TAG + "system properties loaded.");
 			}catch(Exception e)
@@ -713,7 +714,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	public void windowClosing(WindowEvent event)
 	{
-		if((Core.Properties.get("org.dyndns.doujindb.ui.tray_on_exit").asBoolean()) == false)
+		if(! ((Boolean)Configuration.configRead("org.dyndns.doujindb.ui.tray_on_exit")))
 			System.exit(0);
 		setState(JFrame.ICONIFIED);
 		try
@@ -799,8 +800,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		private final class Renderer extends DefaultTableCellRenderer
 		{
-		    private Color backgroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.background").asColor();
-			private Color foregroundColor = Core.Properties.get("org.dyndns.doujindb.ui.theme.color").asColor();
+		    private Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+			private Color foregroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 		
 			public Renderer()
 			{
@@ -922,7 +923,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	public void reload()
 	{
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new NodeValue(null, "org.dyndns.doujindb"));
-		for(String key : Core.Properties.keys())
+		for(String key : Configuration.keys())
 		{
 			if(key.startsWith("org.dyndns.doujindb."))
 				addNode(root, key.substring("org.dyndns.doujindb.".length()));
@@ -971,7 +972,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			for(Object o : path_objects)
 				path += o + ".";
 			path = "org.dyndns.doujindb." + path.substring(0, path.length() - 1).substring("org.dyndns.doujindb.".length());
-			node2 = new DefaultMutableTreeNode(new NodeValue(Core.Properties.get(path + "." + key), key));
+			node2 = new DefaultMutableTreeNode(new NodeValue(Configuration.configRead(path + "." + key), key));
 			((DefaultMutableTreeNode)node).add(node2);
 		}
 	}
@@ -1082,11 +1083,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super();
 			setLayout(this);
 			this.key = key2;
-			this.value = Core.Properties.get(key).getValue();
+			this.value = Configuration.configRead(key);
 			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Value"), JLabel.LEFT);
 			title.setFont(Core.Resources.Font);
 			add(title);
-			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Core.Properties.get(key).getDescription() + "</body></html>");
+			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Configuration.configInfo(key) + "</body></html>");
 			description.setVerticalAlignment(JLabel.TOP);
 			description.setFont(Core.Resources.Font);
 			add(description);
@@ -1109,7 +1110,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					Core.Properties.get(key).setValue(valueNew);
+					Configuration.configWrite(key, valueNew);
 				}
 			});
 			editApply.setFont(Core.Resources.Font);
@@ -2213,13 +2214,13 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				public void actionPerformed(ActionEvent ae) 
 				{
-					Core.Properties.get("org.dyndns.doujindb.db.driver").setValue(uiCompDatabaseTextDriver.getText());
-					Core.Properties.get("org.dyndns.doujindb.db.url").setValue(uiCompDatabaseTextURL.getText());
-					Core.Properties.get("org.dyndns.doujindb.db.username").setValue(uiCompDatabaseTextUsername.getText());
-					Core.Properties.get("org.dyndns.doujindb.db.password").setValue(uiCompDatabaseTextPassword.getText());
-					Core.Properties.get("org.dyndns.doujindb.dat.datastore").setValue(uiCompDatastoreTextStore.getText());
-					Core.Properties.get("org.dyndns.doujindb.dat.temp").setValue(uiCompDatastoreTextTemp.getText());
-					Core.Properties.save();
+					Configuration.configWrite("org.dyndns.doujindb.db.driver", uiCompDatabaseTextDriver.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.url", uiCompDatabaseTextURL.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.username", uiCompDatabaseTextUsername.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.password", uiCompDatabaseTextPassword.getText());
+					Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiCompDatastoreTextStore.getText());
+					Configuration.configWrite("org.dyndns.doujindb.dat.temp", uiCompDatastoreTextTemp.getText());
+					Configuration.configSave();
 					DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 					window.dispose();
 				}					

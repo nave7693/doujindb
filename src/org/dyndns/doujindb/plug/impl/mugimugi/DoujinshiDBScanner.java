@@ -196,21 +196,21 @@ public final class DoujinshiDBScanner extends Plugin
 				public void changedUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.apikey").setValue(APIKEY);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}				
 			});
@@ -229,7 +229,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
 					if(m_SliderApiThreshold.getValueIsAdjusting())
 						return;
-					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.threshold").setValue(THRESHOLD);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", THRESHOLD);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.threshold");
 				}				
 			});
@@ -272,7 +272,7 @@ public final class DoujinshiDBScanner extends Plugin
 				public void stateChanged(ChangeEvent ce)
 				{
 					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
-					Core.Properties.get("org.dyndns.doujindb.plug.mugimugi.resize_cover").setValue(RESIZE_COVER);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.resize_cover", RESIZE_COVER);
 					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.resize_cover");
 				}				
 			});
@@ -1834,41 +1834,9 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void startup() throws TaskErrorException
 	{
-		Property prop;
-		String key;
-		
-		key = "org.dyndns.doujindb.plug.mugimugi.apikey";
-		if(Core.Properties.contains(key))
-			APIKEY = Core.Properties.get(key).asString();
-		else
-			Core.Properties.add(key);
-		{
-			prop = Core.Properties.get(key);
-			prop.setValue(APIKEY);
-			prop.setDescription("<html><body>Apikey used to query the doujinshidb database.</body></html>");
-		}	
-
-		key = "org.dyndns.doujindb.plug.mugimugi.threshold";
-		if(Core.Properties.contains(key))
-			THRESHOLD = Core.Properties.get(key).asNumber();
-		else
-			Core.Properties.add(key);
-		{
-			prop = Core.Properties.get(key);
-			prop.setValue(THRESHOLD);
-			prop.setDescription("<html><body>Threshold limit for matching cover queries.</body></html>");
-		}	
-
-		key = "org.dyndns.doujindb.plug.mugimugi.resize_cover";
-		if(Core.Properties.contains(key))
-			RESIZE_COVER = Core.Properties.get(key).asBoolean();
-		else
-			Core.Properties.add(key);
-		{
-			prop = Core.Properties.get(key);
-			prop.setValue(RESIZE_COVER);
-			prop.setDescription("<html><body>Whether to resize covers before uploading them.</body></html>");
-		}
+		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.apikey",       "<html><body>Apikey used to query the doujinshidb database.</body></html>", APIKEY);
+		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.threshold",    "<html><body>Threshold limit for matching cover queries.</body></html>", THRESHOLD);
+		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", RESIZE_COVER);
 		
 		Context = Core.Database.getContext(UUID);
 		

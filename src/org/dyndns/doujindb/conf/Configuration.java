@@ -66,6 +66,11 @@ public final class Configuration
 	{
 		return instance.configExists(key);
 	}
+	
+	public static String configInfo(String key)
+	{
+		return instance.configInfo(key);
+	}
 
 	public static Iterable<String> keys()
 	{

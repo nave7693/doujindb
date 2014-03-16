@@ -1,14 +1,11 @@
 package org.dyndns.doujindb.conf.event;
 
-public class ConfigurationAdapter implements ConfigurationListener {
-
+public class ConfigurationAdapter implements ConfigurationListener
+{
 	@Override
-	public void propertyAdded(String prop) { }
-
+	public void configAdded(String key) { }
 	@Override
-	public void propertyDeleted(String prop) { }
-
+	public void configDeleted(String key) { }
 	@Override
-	public void propertyUpdated(String prop) { }
-	
+	public void configUpdated(String key) { }
 }

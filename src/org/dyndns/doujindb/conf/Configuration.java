@@ -2,9 +2,11 @@ package org.dyndns.doujindb.conf;
 
 import java.io.*;
 import java.awt.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.log.Logger;
+import org.dyndns.doujindb.conf.event.*;
 
 /**  
 * Configuration.java - Configuration Gateway.
@@ -14,6 +16,7 @@ import org.dyndns.doujindb.log.Logger;
 public final class Configuration
 {
 	private static IConfiguration instance = new XMLConfiguration();
+	private static CopyOnWriteArraySet<ConfigurationListener> listeners = new CopyOnWriteArraySet<ConfigurationListener>();
 	
 	protected static final File CONFIG_FILE = new File(Core.DOUJINDB_HOME, "config.xml");
 	
@@ -50,15 +53,21 @@ public final class Configuration
 	public static void configWrite(String key, Object value) throws ConfigurationException
 	{
 		instance.configWrite(key, value);
+		for(ConfigurationListener cl : listeners)
+			cl.configUpdated(key);
 	}
 
 	public static void configAdd(String key, String info, Object value) throws ConfigurationException
 	{
 		instance.configAdd(key, info, value);
+		for(ConfigurationListener cl : listeners)
+			cl.configAdded(key);
 	}
 
 	public static void configRemove(String key) throws ConfigurationException
 	{
+		for(ConfigurationListener cl : listeners)
+			cl.configDeleted(key);
 		instance.configRemove(key);
 	}
 
@@ -90,5 +99,15 @@ public final class Configuration
 	public static void configSave() throws ConfigurationException
 	{
 		instance.configSave();
+	}
+	
+	public static void addConfigurationListener(ConfigurationListener cl)
+	{
+		listeners.add(cl);
+	}
+	
+	public static void removeConfigurationListener(ConfigurationListener cl)
+	{
+		listeners.remove(cl);
 	}
 }

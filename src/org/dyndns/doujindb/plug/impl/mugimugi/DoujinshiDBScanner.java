@@ -580,7 +580,7 @@ public final class DoujinshiDBScanner extends Plugin
 					protected Void doInBackground() throws Exception {
 						try
 						{
-							if(APIKEY == null)
+							if(APIKEY == null || APIKEY.equals(""))
 								throw new Exception("Invalid API key provided.");
 							URLConnection urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + APIKEY + "/").openConnection();
 							urlc.setRequestProperty("User-Agent", USER_AGENT);
@@ -1834,10 +1834,27 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void startup() throws TaskErrorException
 	{
-		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.apikey",       "<html><body>Apikey used to query the doujinshidb database.</body></html>", APIKEY);
-		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.threshold",    "<html><body>Threshold limit for matching cover queries.</body></html>", THRESHOLD);
-		Configuration.configAdd("org.dyndns.doujindb.plug.mugimugi.resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", RESIZE_COVER);
-		
+		String configBase = "org.dyndns.doujindb.plug.mugimugi.";
+		if(!Configuration.configExists(configBase + "apikey"))
+		{
+			APIKEY = "";
+			Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", APIKEY);
+		}
+		if(!Configuration.configExists(configBase + "threshold"))
+		{
+			THRESHOLD = 85;
+			Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", THRESHOLD);
+		}
+		if(!Configuration.configExists(configBase + "resize_cover"))
+		{
+			RESIZE_COVER = true;
+			Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", RESIZE_COVER);
+		}
+
+		APIKEY = (String) Configuration.configRead(configBase + "apikey");
+		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
+		RESIZE_COVER = (Boolean) Configuration.configRead(configBase + "resize_cover");
+
 		Context = Core.Database.getContext(UUID);
 		
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");

@@ -27,6 +27,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
+import org.dyndns.doujindb.conf.event.ConfigurationListener;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
@@ -118,7 +119,7 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 	
 	@SuppressWarnings("serial")
-	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
+	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener, ConfigurationListener
 	{
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
@@ -197,21 +198,18 @@ public final class DoujinshiDBScanner extends Plugin
 				{
 					APIKEY = m_TextApikey.getText();
 					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
-					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
 					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
-					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
 					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
-					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.apikey");
 				}				
 			});
 			bogus.add(m_TextApikey);
@@ -230,7 +228,6 @@ public final class DoujinshiDBScanner extends Plugin
 					if(m_SliderApiThreshold.getValueIsAdjusting())
 						return;
 					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", THRESHOLD);
-					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.threshold");
 				}				
 			});
 			bogus.add(m_SliderApiThreshold);
@@ -273,7 +270,6 @@ public final class DoujinshiDBScanner extends Plugin
 				{
 					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
 					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.resize_cover", RESIZE_COVER);
-					Core.UI.propertyUpdated("org.dyndns.doujindb.plug.mugimugi.resize_cover");
 				}				
 			});
 			bogus.add(m_CheckboxApiResizeImage);
@@ -474,6 +470,8 @@ public final class DoujinshiDBScanner extends Plugin
 			super.add(m_TabbedPane);
 			
 			TaskManager.registerListener(this);
+			
+			Configuration.addConfigurationListener(this);
 
 			// Load UserInfo by simulating a click
 			m_ButtonApiRefresh.doClick();
@@ -1819,6 +1817,39 @@ public final class DoujinshiDBScanner extends Plugin
 				doLayout();
 				return;
 			}
+		}
+		
+		@Override
+		public void configAdded(String key) { }
+
+		@Override
+		public void configDeleted(String key) { }
+
+		@Override
+		public void configUpdated(final String key)
+		{
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					switch(key)
+					{
+					case "org.dyndns.doujindb.plug.mugimugi.apikey":
+						if(!m_TextApikey.getText().equals((String) Configuration.configRead(key)))
+							m_TextApikey.setText((String) Configuration.configRead(key));
+						break;
+					case "org.dyndns.doujindb.plug.mugimugi.threshold":
+						if(m_SliderApiThreshold.getValue() != (Integer) Configuration.configRead(key))
+							m_SliderApiThreshold.setValue((Integer) Configuration.configRead(key));
+						break;
+					case "org.dyndns.doujindb.plug.mugimugi.resize_cover":
+						if(m_CheckboxApiResizeImage.isSelected() != (Boolean) Configuration.configRead(key))
+							m_CheckboxApiResizeImage.setSelected((Boolean) Configuration.configRead(key));
+						break;
+					}
+				}
+			});
 		}
 	}
 

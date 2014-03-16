@@ -414,6 +414,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		 */
 		super.setVisible(true);
 		
+		Configuration.addConfigurationListener(this);
+		
 		loading.dispose();
 	}
 
@@ -2347,14 +2349,27 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	}
 
 	@Override
-	public void propertyAdded(String prop) {}
-
-	@Override
-	public void propertyDeleted(String prop) {}
-
-	@Override
-	public void propertyUpdated(String prop)
+	public void configAdded(String key)
 	{
-		uiPanelSettings.reload(prop);
+		//TODO dynamically add new config keys to UI tree
+	}
+
+	@Override
+	public void configDeleted(String key)
+	{
+		//TODO dynamically remove config keys to UI tree
+	}
+
+	@Override
+	public void configUpdated(final String key)
+	{
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				uiPanelSettings.reload(key);
+			}
+		});
 	}
 }

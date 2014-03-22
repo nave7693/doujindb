@@ -71,12 +71,20 @@ public final class DoujinshiDBScanner extends Plugin
 	private static JComponent UI;
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
-	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME,  "plugins" + File.separator + UUID);
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + UUID);
 
 	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
 	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
 	
 	private static SimpleDateFormat sdf;
+	
+	static
+	{
+		String configBase = "org.dyndns.doujindb.plug.mugimugi.";
+		Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", "");
+		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
+		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
+	}
 	
 	@Override
 	public String getUUID() {
@@ -1865,28 +1873,12 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void startup() throws TaskErrorException
 	{
+		Context = Core.Database.getContext(UUID);
+		
 		String configBase = "org.dyndns.doujindb.plug.mugimugi.";
-		if(!Configuration.configExists(configBase + "apikey"))
-		{
-			APIKEY = "";
-			Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", APIKEY);
-		}
-		if(!Configuration.configExists(configBase + "threshold"))
-		{
-			THRESHOLD = 85;
-			Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", THRESHOLD);
-		}
-		if(!Configuration.configExists(configBase + "resize_cover"))
-		{
-			RESIZE_COVER = true;
-			Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", RESIZE_COVER);
-		}
-
 		APIKEY = (String) Configuration.configRead(configBase + "apikey");
 		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
 		RESIZE_COVER = (Boolean) Configuration.configRead(configBase + "resize_cover");
-
-		Context = Core.Database.getContext(UUID);
 		
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));

@@ -46,6 +46,10 @@ public final class Core implements Runnable
 	{
 		Thread.currentThread().setName("core-bootstrap");
 		Logger.logInfo(TAG + "bootstrap started.");
+		
+		Logger.logInfo(TAG + "discovering plugins ...");
+		PluginManager.discovery();
+		
 		boolean isConfigurationWizard = false;
 		try
 		{
@@ -90,12 +94,11 @@ public final class Core implements Runnable
 		
 		Database = DataBase.getInstance();
 		
-		Logger.logInfo(TAG + "discovering plugins ...");
-		PluginManager.discovery();
-		
 		Logger.logInfo(TAG + "loading user interface ...");
 		UI = new UI();
 		Logger.logInfo(TAG + "user interface loaded.");
+		
+		PluginManager.startup();
 		
 		if(isConfigurationWizard)
 		{

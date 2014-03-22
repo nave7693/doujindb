@@ -5,9 +5,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.event.DataBaseListener;
-import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.log.*;
 
 /**  
@@ -20,18 +17,21 @@ public final class PluginManager
 {
 	private static Set<Plugin> plugins = new HashSet<Plugin>();
 	
-	private static int SHUTDOWN_TIMEOUT = 10;
-	private static String PLUGIN_FILE = "plugins.bin";
-	
+	private static int PLUGIN_TIMEOUT = 10;
+	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
+
+	private static final String TAG = "PluginManager : ";
+
 	private PluginManager() { }
 	
 	static
 	{
 		/*
 		 * Register a shutdown hook to handle the shutdown of this JVM for every Plugin
-		 * If the Plugin doesn't shutdown after a TIMEOUT, skip it
+		 * If the Plugin doesn't shutdown after PLUGIN_TIMEOUT (seconds), skip it
 		 */
-		Runtime.getRuntime().addShutdownHook(new Thread("PluginManager/ShutdownHook")
+		Logger.logInfo(TAG + "registering shutdown hook for this JVM ...");
+		Runtime.getRuntime().addShutdownHook(new Thread("pluginmanager-shutdownhook")
 		{
 			@Override
 			public void run()
@@ -39,8 +39,6 @@ public final class PluginManager
 				shutdown();
 			}
 		});
-		
-		Core.Database.addDataBaseListener(new Listener());
 	}
 	
 	public static void install(Plugin plugin) throws PluginException
@@ -75,12 +73,13 @@ public final class PluginManager
 	
 	public static void discovery()
 	{
+		Logger.logInfo(TAG + "discovering plugins ...");
 		// TODO : Dynamic discovery
-		// "org.dyndns.doujindb.plug.impl.imagescanner.ImageScanner"
 		for(String plugin : new String[]{
 				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner"
 			})
 			try {
+				Logger.logInfo(TAG + "found '" + plugin + "'.");
 				Plugin plug = (Plugin) Class.forName(plugin).newInstance();
 				plugins.add(plug);
 			} catch (Exception e) {
@@ -90,9 +89,8 @@ public final class PluginManager
 	
 	public static void load()
 	{
-		File file = new File(Core.DOUJINDB_HOME, PLUGIN_FILE);
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(PLUGIN_INDEX));
 			Set<String> plugins_names = (Set<String>) ois.readObject();
 			
 			for(String plugin : plugins_names)
@@ -118,9 +116,8 @@ public final class PluginManager
 	
 	public static void save()
 	{
-		File file = new File(Core.DOUJINDB_HOME, PLUGIN_FILE);
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(PLUGIN_INDEX));
 			
 			Set<String> plugins_names = new HashSet<String>();
 			for(Plugin plugin : plugins)
@@ -129,14 +126,14 @@ public final class PluginManager
 			oos.writeObject(plugins_names);
 			oos.close();
 		} catch (FileNotFoundException fnfe) {
-			try { file.createNewFile(); } catch (IOException ioe) { }
+			try { PLUGIN_INDEX.createNewFile(); } catch (IOException ioe) { }
 			Logger.logWarning("Failed to save plugins : " + fnfe.getMessage(), fnfe);
 		} catch (IOException ioe) {
 			Logger.logError("Failed to save plugins : " + ioe.getMessage(), ioe);
 		}
 	}
 	
-	private static void startup()
+	public static void startup()
 	{
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
@@ -157,7 +154,7 @@ public final class PluginManager
 			Future<Void> future = executor.submit(task);
 			try
 			{
-				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				Logger.logWarning("TimeoutException : Cannot startup plugin '" + plugin.getName() + "'", te);
 				te.printStackTrace();
@@ -194,7 +191,7 @@ public final class PluginManager
 			Future<Void> future = executor.submit(task);
 			try
 			{
-				future.get(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				Logger.logWarning("TimeoutException : Cannot shutdown plugin '" + plugin.getName() + "'", te);
 				te.printStackTrace();
@@ -208,41 +205,5 @@ public final class PluginManager
 			   future.cancel(true);
 			}
 		}
-	}
-	
-	private static final class Listener implements DataBaseListener
-	{
-		@Override
-		public void recordAdded(Record rcd) { }
-
-		@Override
-		public void recordDeleted(Record rcd) { }
-
-		@Override
-		public void recordUpdated(Record rcd, UpdateData data) { }
-
-		@Override
-		public void recordRecycled(Record rcd) { }
-
-		@Override
-		public void recordRestored(Record rcd) { }
-
-		@Override
-		public void databaseConnected()
-		{
-			startup();
-		}
-
-		@Override
-		public void databaseDisconnected()
-		{
-			shutdown();
-		}
-
-		@Override
-		public void databaseCommit() { }
-
-		@Override
-		public void databaseRollback() { }
 	}
 }

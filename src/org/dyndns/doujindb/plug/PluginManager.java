@@ -3,6 +3,9 @@ package org.dyndns.doujindb.plug;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.jar.*;
+import javax.xml.bind.*;
+import javax.xml.bind.annotation.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.log.*;
@@ -12,7 +15,6 @@ import org.dyndns.doujindb.log.*;
 * @author  nozomu
 * @version 1.0
 */
-@SuppressWarnings("unchecked")
 public final class PluginManager
 {
 	private static Set<Plugin> plugins = new HashSet<Plugin>();
@@ -36,7 +38,8 @@ public final class PluginManager
 			@Override
 			public void run()
 			{
-				shutdown();
+				stopAll();
+				saveAll();
 			}
 		});
 	}
@@ -47,7 +50,7 @@ public final class PluginManager
 			throw new PluginException("Plugin '" + plugin.getName() + "' is already installed.");
 		plugin.install();
 		plugins.add(plugin);
-		save();
+		saveAll();
 	}
 	
 	public static void update(Plugin plugin) throws PluginException
@@ -63,78 +66,127 @@ public final class PluginManager
 			throw new PluginException("Plugin '" + plugin.getName() + "' is not installed.");
 		plugin.uninstall(); //TODO force removal even if PluginException is thrown?
 		plugins.remove(plugin);
-		save();
+		saveAll();
 	}
 	
-	public static Iterable<Plugin> plugins()
+	public static Iterable<Plugin> listAll()
 	{
 		return plugins;
 	}
 	
-	public static void discovery()
+	private static void discoverAll()
 	{
 		Logger.logInfo(TAG + "discovering plugins ...");
-		// TODO : Dynamic discovery
-		for(String plugin : new String[]{
+		for(File file : new File(Core.DOUJINDB_HOME, "lib").listFiles(new FilenameFilter()
+		{
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".jar");
+			}
+		}))
+		{
+			JarFile jf;
+			try {
+				jf = new JarFile(file);
+				if(jf.getManifest().getMainAttributes().getValue("Main-Class") != null) {
+				    String className = jf.getManifest().getMainAttributes().getValue("Main-Class");
+				    Set<String> classes = new HashSet<String>();
+				    for(Class<?> clazz : Class.forName(className).getClasses())
+				    {
+				    	classes.add(clazz.getCanonicalName());
+				    }
+				    if(classes.contains(Plugin.class.getCanonicalName()))
+				    {
+				    	Logger.logInfo(TAG + "found '" + className + "'.");
+				    	; //TODO Add file.jar to SystemClassLoader, then load Plugin
+				    }
+				}
+			} catch (IOException ioe) {
+			} catch (ClassNotFoundException cnfe) {
+			}
+		}
+		for(String pluginName : new String[]{
 				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner"
 			})
 			try {
-				Logger.logInfo(TAG + "found '" + plugin + "'.");
-				Plugin plug = (Plugin) Class.forName(plugin).newInstance();
-				plugins.add(plug);
+				Logger.logInfo(TAG + "found '" + pluginName + "'.");
+				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
+				plugins.add(plugin);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 	}
 	
-	public static void load()
+	public static void loadAll()
 	{
-		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(PLUGIN_INDEX));
-			Set<String> plugins_names = (Set<String>) ois.readObject();
-			
-			for(String plugin : plugins_names)
-			try {
-				plugins.add((Plugin) Class.forName(plugin).newInstance());
-			} catch (RuntimeException re) {
-				Logger.logError("Failed to load plugin '" + plugin + "' : " + re.getMessage(), re);
-			} catch (InstantiationException ie) {
-				Logger.logError("Failed to load plugin '" + plugin + "' : " + ie.getMessage(), ie);
-			} catch (IllegalAccessException iae) {
-				Logger.logError("Failed to load plugin '" + plugin + "' : " + iae.getMessage(), iae);
+		Logger.logInfo(TAG + "loading plugins ...");
+		FileInputStream in = null;
+		try
+		{
+			in = new FileInputStream(PLUGIN_INDEX);
+			JAXBContext context = JAXBContext.newInstance(XMLPluginManager.class);
+			Unmarshaller um = context.createUnmarshaller();
+			XMLPluginManager xmlroot = (XMLPluginManager) um.unmarshal(in);
+			for(XMLPlugin xmlnode : xmlroot.nodes)
+			{
+				String pluginName = xmlnode.namespace;
+				try {
+					if(xmlnode.enabled)
+						plugins.add((Plugin) Class.forName(pluginName).newInstance());
+				} catch (RuntimeException re) {
+					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + re.getMessage(), re);
+				} catch (InstantiationException ie) {
+					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + ie.getMessage(), ie);
+				} catch (IllegalAccessException iae) {
+					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + iae.getMessage(), iae);
+				}
 			}
-			
-			ois.close();
 		} catch (FileNotFoundException fnfe) {
-			Logger.logError("Failed to load plugins : " + fnfe.getMessage(), fnfe);
-		} catch (IOException ioe) {
-			Logger.logError("Failed to load plugins : " + ioe.getMessage(), ioe);
+			;
+		} catch (NullPointerException npe) {
+			Logger.logError(TAG + "failed to load plugins : " + npe.getMessage(), npe);
+		} catch (JAXBException jaxbe) {
+			Logger.logError(TAG + "failed to load plugins : " + jaxbe.getMessage(), jaxbe);
 		} catch (ClassNotFoundException cnfe) {
-			Logger.logError("Failed to load plugins : " + cnfe.getMessage(), cnfe);
+			Logger.logError(TAG + "failed to load plugins : " + cnfe.getMessage(), cnfe);
+		} finally {
+			try { in.close(); } catch (Exception e) { }
 		}
+		
+		discoverAll();
 	}
 	
-	public static void save()
+	public static void saveAll()
 	{
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(PLUGIN_INDEX));
-			
-			Set<String> plugins_names = new HashSet<String>();
+		Logger.logInfo(TAG + "saving plugins ...");
+		FileOutputStream out = null;
+		try
+		{
+			out = new FileOutputStream(PLUGIN_INDEX);
+			JAXBContext context = JAXBContext.newInstance(XMLPluginManager.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			XMLPluginManager xmlroot = new XMLPluginManager();
 			for(Plugin plugin : plugins)
-				plugins_names.add(plugin.getClass().getCanonicalName());
-			
-			oos.writeObject(plugins_names);
-			oos.close();
-		} catch (FileNotFoundException fnfe) {
-			try { PLUGIN_INDEX.createNewFile(); } catch (IOException ioe) { }
-			Logger.logWarning("Failed to save plugins : " + fnfe.getMessage(), fnfe);
+			{
+				XMLPlugin xmlnode = new XMLPlugin();
+				xmlnode.namespace = plugin.getClass().getCanonicalName();
+				xmlnode.enabled = true;
+				xmlroot.nodes.add(xmlnode);
+			}
+			m.marshal(xmlroot, out);
 		} catch (IOException ioe) {
-			Logger.logError("Failed to save plugins : " + ioe.getMessage(), ioe);
+			Logger.logError(TAG + "failed to save plugins : " + ioe.getMessage(), ioe);
+		} catch (JAXBException jaxbe) {
+			Logger.logError(TAG + "failed to save plugins : " + jaxbe.getMessage(), jaxbe);
+		} finally {
+			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	
-	public static void startup()
+	public static void startAll()
 	{
+		Logger.logInfo(TAG + "starting all plugins ...");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -144,7 +196,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.startup();
-						Logger.logInfo("Plugin '" + plugin.getName() + "' started");
+						Logger.logInfo(TAG + "plugin '" + plugin.getName() + "' started");
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -156,22 +208,20 @@ public final class PluginManager
 			{
 				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Logger.logWarning("TimeoutException : Cannot startup plugin '" + plugin.getName() + "'", te);
-				te.printStackTrace();
+				Logger.logWarning(TAG + "TimeoutException : Cannot startup plugin '" + plugin.getName() + "'", te);
 			} catch (InterruptedException ie) {
-				Logger.logWarning("InterruptedException : Cannot startup plugin '" + plugin.getName() + "'", ie);
-				ie.printStackTrace();
+				Logger.logWarning(TAG + "InterruptedException : Cannot startup plugin '" + plugin.getName() + "'", ie);
 			} catch (ExecutionException ee) {
-				Logger.logWarning("ExecutionException : Cannot startup plugin '" + plugin.getName() + "'", ee);
-				ee.printStackTrace();
+				Logger.logWarning(TAG + "ExecutionException : Cannot startup plugin '" + plugin.getName() + "'", ee);
 			} finally {
 			   future.cancel(true);
 			}
 		}
 	}
 	
-	private static void shutdown()
+	public static void stopAll()
 	{
+		Logger.logInfo(TAG + "stopping all plugins ...");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -181,7 +231,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.shutdown();
-						Logger.logInfo("Plugin '" + plugin.getName() + "' stopped");
+						Logger.logInfo(TAG + "plugin '" + plugin.getName() + "' stopped");
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -193,17 +243,32 @@ public final class PluginManager
 			{
 				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Logger.logWarning("TimeoutException : Cannot shutdown plugin '" + plugin.getName() + "'", te);
-				te.printStackTrace();
+				Logger.logWarning(TAG + "TimeoutException : Cannot shutdown plugin '" + plugin.getName() + "'", te);
 			} catch (InterruptedException ie) {
-				Logger.logWarning("InterruptedException : Cannot shutdown plugin '" + plugin.getName() + "'", ie);
-				ie.printStackTrace();
+				Logger.logWarning(TAG + "InterruptedException : Cannot shutdown plugin '" + plugin.getName() + "'", ie);
 			} catch (ExecutionException ee) {
-				Logger.logWarning("ExecutionException : Cannot shutdown plugin '" + plugin.getName() + "'", ee);
-				ee.printStackTrace();
+				Logger.logWarning(TAG + "ExecutionException : Cannot shutdown plugin '" + plugin.getName() + "'", ee);
 			} finally {
 			   future.cancel(true);
 			}
 		}
+	}
+	
+	@XmlRootElement(namespace = "org.dyndns.doujindb.plug", name="PluginManager")
+	private static final class XMLPluginManager
+	{
+		@XmlElements({
+		    @XmlElement(name="Plugin", type=XMLPlugin.class)
+		  })
+		private List<XMLPlugin> nodes = new Vector<XMLPlugin>();
+	}
+	
+	@XmlRootElement(namespace = "org.dyndns.doujindb.plug", name="Plugin")
+	private static final class XMLPlugin
+	{
+		@XmlAttribute(name="Namespace", required=true)
+		private String namespace;
+		@XmlAttribute(name="Enabled", required=true)
+		private boolean enabled;
 	}
 }

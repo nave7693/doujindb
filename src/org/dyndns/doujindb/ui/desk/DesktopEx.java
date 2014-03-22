@@ -159,7 +159,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		super.add(wallpaper);
 		
 		buttonPlugins = new Vector<JButton>();
-		for(Plugin plug : PluginManager.plugins())
+		for(Plugin plug : PluginManager.listAll())
 		{
 			JButton buttonPlugin;
 			final Plugin plugin = plug;

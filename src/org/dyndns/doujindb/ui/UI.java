@@ -366,7 +366,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		bogus.add(uiPanelPluginsReload);
 		
 		uiPanelPlugins.clear();
-		for(Plugin plugin : PluginManager.plugins())
+		for(Plugin plugin : PluginManager.listAll())
 			uiPanelPlugins.add(plugin);
 		
 		uiPanelTabbed.addTab("Plugins", Core.Resources.Icons.get("Frame/Tab/Plugins"), bogus);
@@ -485,7 +485,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try
 			{
 				uiPanelPlugins.clear();
-				for(Plugin plugin : PluginManager.plugins())
+				for(Plugin plugin : PluginManager.listAll())
 					uiPanelPlugins.add(plugin);
 			}catch(Exception e)
 			{

@@ -43,6 +43,8 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.db.username",           "<html><body>Database username.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.password",           "<html><body>Database password.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.connection_timeout", "<html><body>JDBC connection timeout in seconds.</body></html>", 5);
+//		configAdd("org.dyndns.doujindb.plug.discovery",        "<html><body>Automatic Plugin discovery.</body></html>", false);
+//		configAdd("org.dyndns.doujindb.plug.timeout",          "<html><body>Timeout (in seconds) which PluginManager will wait for plugins to start/stop.</body></html>", 60);
 	}
 
 	public static Object configRead(String key) throws ConfigurationException

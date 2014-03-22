@@ -1632,7 +1632,10 @@ public final class DoujinshiDBScanner extends Plugin
 				RecordSet<Book> books = Context.getBooks(null);
 				
 				m_ProgressBarCache.setMaximum(books.size());
-				m_ProgressBarCache.setMinimum(1);
+				if(cache_overwrite)
+					m_ProgressBarCache.setMinimum(1);
+				else
+					m_ProgressBarCache.setMinimum((int) CacheManager.size());
 				m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
 				
 				for(Book book : books)

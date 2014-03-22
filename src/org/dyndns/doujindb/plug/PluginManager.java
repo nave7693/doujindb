@@ -19,7 +19,7 @@ public final class PluginManager
 {
 	private static Set<Plugin> plugins = new HashSet<Plugin>();
 	
-	private static int PLUGIN_TIMEOUT = 10;
+	private static int PLUGIN_TIMEOUT = 60;
 	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
 
 	private static final String TAG = "PluginManager : ";

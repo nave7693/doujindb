@@ -43,4 +43,9 @@ public abstract class Plugin
 		else
 			return ((Plugin)obj).getUUID().equals(getUUID());
 	}
+	
+	@Override
+	public int hashCode() {
+		return getUUID().hashCode();
+	}
 }

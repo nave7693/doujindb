@@ -124,7 +124,12 @@ final class XMLConfiguration implements IConfiguration
 				{
 					Logger.logWarning(TAG + "could not unserialize configuration key '" + xmlnode.key + "': unexpected type of data '" + xmlnode.type + "'.");
 				} else {
-					values.put(xmlnode.key, value);
+					try
+					{
+						configWrite(xmlnode.key, value);
+					} catch (ConfigurationException ce) {
+						Logger.logWarning(TAG + "could not unserialize configuration key '" + xmlnode.key + "': not found in base configuration.");
+					}
 				}
 			}
 		} catch (NullPointerException npe) {

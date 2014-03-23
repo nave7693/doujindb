@@ -75,6 +75,7 @@ public final class DoujinshiDBScanner extends Plugin
 
 	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
 	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
+	static final File PLUGIN_CACHE = new File(PLUGIN_HOME, ".cache");
 	
 	private static SimpleDateFormat sdf;
 	
@@ -84,6 +85,7 @@ public final class DoujinshiDBScanner extends Plugin
 		Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", "");
 		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
 		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
+		Configuration.configAdd(configBase + "cache_locally", "<html><body>Keep a local cache of Book covers.</body></html>", true);
 	}
 	
 	@Override
@@ -1651,6 +1653,12 @@ public final class DoujinshiDBScanner extends Plugin
 						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
+						if((Boolean) Configuration.configRead("org.dyndns.doujindb.plug.mugimugi.cache_locally"))
+						{
+							File out = new File(PLUGIN_CACHE, book.getID());
+							ImageTool.write(bi, out);
+						}
+						
 						CacheManager.put(book.getID(), bi);
 						
 						publish(m_ProgressBarCache.getValue()+1);
@@ -1738,10 +1746,11 @@ public final class DoujinshiDBScanner extends Plugin
 						final String book_id = result.get(index);
 						if(!first_result)
 						{
-							JButton button = new JButton(
-								new ImageIcon(
-									ImageTool.read(
-										Core.Repository.getPreview(book_id).getInputStream())));
+							JButton button;
+							if(Core.Repository.getPreview(book_id).exists())
+								button = new JButton(new ImageIcon(ImageTool.read(Core.Repository.getPreview(book_id).getInputStream())));
+							else
+								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1765,10 +1774,11 @@ public final class DoujinshiDBScanner extends Plugin
 							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
 						} else
 						{
-							JButton button = new JButton(
-									new ImageIcon(
-										ImageTool.read(
-											Core.Repository.getPreview(book_id).getInputStream())));
+							JButton button;
+							if(Core.Repository.getPreview(book_id).exists())
+								button = new JButton(new ImageIcon(ImageTool.read(Core.Repository.getPreview(book_id).getInputStream())));
+							else
+								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1889,6 +1899,7 @@ public final class DoujinshiDBScanner extends Plugin
 		PLUGIN_HOME.mkdirs();
 		PLUGIN_DATA.mkdirs();
 		PLUGIN_QUERY.mkdirs();
+		PLUGIN_CACHE.mkdirs();
 
 		CacheManager.read();
 

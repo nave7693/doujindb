@@ -237,7 +237,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
 					if(m_SliderApiThreshold.getValueIsAdjusting())
 						return;
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", THRESHOLD);
+					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.threshold", THRESHOLD);
 				}				
 			});
 			bogus.add(m_SliderApiThreshold);

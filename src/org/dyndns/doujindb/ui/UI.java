@@ -76,6 +76,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private static final String TAG = "UI : ";
 	
+	public static final Icons Icon = new Icons();
 	public static final Font Font = loadFont();
 	
 	public JFileChooser getFileChooser()

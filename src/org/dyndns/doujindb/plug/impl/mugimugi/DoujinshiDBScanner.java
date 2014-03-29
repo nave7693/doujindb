@@ -81,6 +81,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static SimpleDateFormat sdf;
 	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
 	private static Font font;
+	private static Icons Icon;
 	
 	static
 	{
@@ -189,6 +190,8 @@ public final class DoujinshiDBScanner extends Plugin
 			m_TabbedPane = new JTabbedPane();
 			m_TabbedPane.setFont(font = UI.Font);
 			m_TabbedPane.setFocusable(false);
+			
+			Icon = new Icons();
 			
 			JPanel bogus;
 			bogus = new JPanel();

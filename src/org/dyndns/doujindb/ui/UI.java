@@ -76,9 +76,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private static final String TAG = "UI : ";
 	
+	public static final Font Font = loadFont();
+	
 	public JFileChooser getFileChooser()
 	{
 		return uiFileChooser;
+	}
+	
+	public static Font loadFont()
+	{
+		return new java.awt.Font(
+			((Font)Configuration.configRead("org.dyndns.doujindb.ui.font")).getFontName(),
+			java.awt.Font.PLAIN,
+			((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
 	}
 	
 	public void showConfigurationWizard()
@@ -115,7 +125,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			Theme theme = new Theme(
 					foreground,
 					background,
-					Core.Resources.Font);
+					Font);
 		    MetalLookAndFeel.setCurrentTheme(theme);
 		    UIManager.setLookAndFeel(new MetalLookAndFeel());
 		    SwingUtilities.updateComponentTreeUI(this);
@@ -168,8 +178,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			UIManager.put("InternalFrame.activeTitleForeground", foreground);
 			UIManager.put("InternalFrame.inactiveTitleBackground", background.darker());
 			UIManager.put("InternalFrame.activeTitleBackground", background);
-			UIManager.put("InternalFrame.font",Core.Resources.Font);
-			UIManager.put("InternalFrame.titleFont",Core.Resources.Font);
+			UIManager.put("InternalFrame.font",Font);
+			UIManager.put("InternalFrame.titleFont",Font);
 	    	UIManager.put("InternalFrame.iconifyIcon",Core.Resources.Icons.get("JDesktop/IFrame/Iconify"));
 	    	UIManager.put("InternalFrame.minimizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Minimize"));
 	    	UIManager.put("InternalFrame.maximizeIcon",Core.Resources.Icons.get("JDesktop/IFrame/Maximize"));
@@ -177,7 +187,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    	UIManager.put("InternalFrame.border",javax.swing.BorderFactory.createEtchedBorder(0));
 	    	UIManager.put("Slider.horizontalThumbIcon",Core.Resources.Icons.get("JSlider/ThumbIcon"));
 	    	UIManager.put("Desktop.background",new ColorUIResource(Color.BLACK));
-	    	UIManager.put("FileChooser.listFont",Core.Resources.Font);
+	    	UIManager.put("FileChooser.listFont",Font);
 	    	UIManager.put("FileChooser.detailsViewIcon",Core.Resources.Icons.get("FileChooser/detailsViewIcon"));
 	        UIManager.put("FileChooser.homeFolderIcon",Core.Resources.Icons.get("FileChooser/homeFolderIcon"));
 	        UIManager.put("FileChooser.listViewIcon",Core.Resources.Icons.get("FileChooser/listViewIcon"));
@@ -193,7 +203,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    	UIManager.put("ToolTip.foreground", foreground);
 	    	UIManager.put("ToolTip.background", background);
 	    	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
-	    	uiFileChooser.setFont(Core.Resources.Font);
+	    	uiFileChooser.setFont(Font);
 	    	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
 	    	{
 	    		private Hashtable<String,ImageIcon> bundleIcon;
@@ -244,20 +254,20 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    }
 		
 		menuBar = new JMenuBar();
-		menuBar.setFont(Core.Resources.Font);
+		menuBar.setFont(Font);
 		
 		menuHelp = new JMenu("Help");
 		menuHelp.setIcon(Core.Resources.Icons.get("MenuBar/Help"));
 		menuHelp.setMnemonic(KeyEvent.VK_H);
-		menuHelp.setFont(Core.Resources.Font);
+		menuHelp.setFont(Font);
 		menuHelpAbout = new JMenuItem("About",Core.Resources.Icons.get("MenuBar/Help/About"));
 		menuHelpAbout.setMnemonic(KeyEvent.VK_A);
-		menuHelpAbout.setFont(Core.Resources.Font);
+		menuHelpAbout.setFont(Font);
 		menuHelpAbout.addActionListener(this);
 		menuHelp.add(menuHelpAbout);
 		menuHelpBugtrack = new JMenuItem("Report Bug",Core.Resources.Icons.get("MenuBar/Help/Bugtrack"));
 		menuHelpBugtrack.setMnemonic(KeyEvent.VK_R);
-		menuHelpBugtrack.setFont(Core.Resources.Font);
+		menuHelpBugtrack.setFont(Font);
 		menuHelpBugtrack.addActionListener(this);
 		menuHelp.add(menuHelpBugtrack);
 		menuBar.add(menuHelp);
@@ -376,14 +386,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelTabbed.addTab("Network", Core.Resources.Icons.get("Frame/Tab/Network"), bogus);
 		uiPanelTabbed.setEnabledAt(uiPanelTabbed.getTabCount()-1, false);
 	
-		uiPanelTabbed.setFont(Core.Resources.Font);
+		uiPanelTabbed.setFont(Font);
 		uiPanelTabbed.setFocusable(false);
 		super.add(uiPanelTabbed);
 		
 		if(SystemTray.isSupported())
 		{
 			uiTrayPopup = new JPopupMenu();
-			uiTrayPopup.setFont(Core.Resources.Font);
+			uiTrayPopup.setFont(Font);
 			uiTrayPopupExit = new JMenuItem("Exit",Core.Resources.Icons.get("Frame/Tray/Exit"));
 			uiTrayPopupExit.setActionCommand("Exit");
 			uiTrayPopupExit.addActionListener(this);
@@ -534,7 +544,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				bottom.add(l, BorderLayout.CENTER);
 				bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
+				ok.setFont(Font);
 				ok.setMnemonic('O');
 				ok.setFocusable(false);
 				ok.addActionListener(new ActionListener()
@@ -763,11 +773,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			TableSorter = new TableRowSorter<DefaultTableModel>(TableModel);
 			super.setRowSorter(TableSorter);
 			TableSorter.setRowFilter(RowFilter.regexFilter("", 0));
-			super.setFont(Core.Resources.Font);
+			super.setFont(Font);
 			super.setColumnSelectionAllowed(false);
 			super.setRowSelectionAllowed(false);
 			super.setCellSelectionEnabled(false);
-			super.getTableHeader().setFont(Core.Resources.Font);
+			super.getTableHeader().setFont(Font);
 			super.getTableHeader().setReorderingAllowed(false);
 			super.getTableHeader().setDefaultRenderer(TableRender);
 			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
@@ -808,7 +818,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			public Renderer()
 			{
 			    super();
-			    super.setFont(Core.Resources.Font);
+			    super.setFont(Font);
 			}
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 			{
@@ -887,7 +897,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		tree = new JTree();
 		tree.setModel(model);
 		tree.setFocusable(false);
-		tree.setFont(Core.Resources.Font);
+		tree.setFont(Font);
 		tree.setEditable(false);
 		tree.setRootVisible(true);
 		tree.setScrollsOnExpand(true);
@@ -1087,11 +1097,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			this.key = key2;
 			this.value = Configuration.configRead(key);
 			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Core.Resources.Icons.get("Frame/Tab/Settings/Tree/Value"), JLabel.LEFT);
-			title.setFont(Core.Resources.Font);
+			title.setFont(Font);
 			add(title);
 			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Configuration.configInfo(key) + "</body></html>");
 			description.setVerticalAlignment(JLabel.TOP);
-			description.setFont(Core.Resources.Font);
+			description.setFont(Font);
 			add(description);
 			close = new JButton(Core.Resources.Icons.get("Frame/Tab/Settings/Editor/Close"));
 			close.addActionListener(new ActionListener()
@@ -1115,7 +1125,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					Configuration.configWrite(key, valueNew);
 				}
 			});
-			editApply.setFont(Core.Resources.Font);
+			editApply.setFont(Font);
 			editApply.setFocusable(false);
 			add(editApply);
 			editDiscard = new JButton("Discard", Core.Resources.Icons.get("Frame/Tab/Settings/Editor/Discard"));
@@ -1128,7 +1138,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					tree.setSelectionRow(0);
 				}
 			});
-			editDiscard.setFont(Core.Resources.Font);
+			editDiscard.setFont(Font);
 			editDiscard.setFocusable(false);
 			add(editDiscard);
 			panel = new JPanel();
@@ -1141,7 +1151,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final JCheckBox field = new JCheckBox((bool)?"True":"False");
 					field.setSelected(bool);
 					field.setFocusable(false);
-					field.setFont(Core.Resources.Font);
+					field.setFont(Font);
 					field.addChangeListener(new ChangeListener()
 					{
 						@Override
@@ -1179,7 +1189,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					valueNew = new Integer(ivalue);
 					final KBigIntegerField field = new KBigIntegerField();
 					field.setInt(ivalue);
-					field.setFont(Core.Resources.Font);
+					field.setFont(Font);
 					field.getDocument().addDocumentListener(new DocumentListener()
 					{
 						@Override
@@ -1223,7 +1233,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					valueNew = "" + ((String)value);
 					final JTextField field = new JTextField((String)value);
-					field.setFont(Core.Resources.Font);
+					field.setFont(Font);
 					field.getDocument().addDocumentListener(new DocumentListener()
 					{
 						@Override
@@ -1275,7 +1285,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final KSmallIntegerField field_r = new KSmallIntegerField();
 					final JSlider slide_r = new JSlider(JSlider.HORIZONTAL);
 					field_r.setInt(r);
-					field_r.setFont(Core.Resources.Font);
+					field_r.setFont(Font);
 					field_r.addKeyListener(new KeyListener()
 					{
 						@Override
@@ -1313,7 +1323,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final KSmallIntegerField field_g = new KSmallIntegerField();
 					final JSlider slide_g = new JSlider(JSlider.HORIZONTAL);
 					field_g.setInt(g);
-					field_g.setFont(Core.Resources.Font);
+					field_g.setFont(Font);
 					field_g.addKeyListener(new KeyListener()
 					{
 						@Override
@@ -1351,7 +1361,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final KSmallIntegerField field_b = new KSmallIntegerField();
 					final JSlider slide_b = new JSlider(JSlider.HORIZONTAL);
 					field_b.setInt(b);
-					field_b.setFont(Core.Resources.Font);
+					field_b.setFont(Font);
 					field_b.addKeyListener(new KeyListener()
 					{
 						@Override
@@ -1389,7 +1399,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final KSmallIntegerField field_a = new KSmallIntegerField();
 					final JSlider slide_a = new JSlider(JSlider.HORIZONTAL);
 					field_a.setInt(a);
-					field_a.setFont(Core.Resources.Font);
+					field_a.setFont(Font);
 					field_a.addKeyListener(new KeyListener()
 					{
 						@Override
@@ -1461,7 +1471,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					final JList<Font> list = new JList<Font>();
 					final JTextField field = new JTextField("Test string / 年");
 					field.setFont((Font)value);
-					list.setFont(Core.Resources.Font);
+					list.setFont(Font);
 					DefaultListModel<Font> model = new DefaultListModel<Font>();
 					list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 					list.setModel(model);

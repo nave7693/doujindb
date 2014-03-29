@@ -33,6 +33,7 @@ import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.plug.impl.mugimugi.rc.Resources;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.WindowEx;
 import org.dyndns.doujindb.util.ImageTool;
 
@@ -68,7 +69,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static Resources Resources = new Resources();
 	static DataBaseContext Context;
 	
-	private static JComponent UI;
+	private static JComponent m_UI;
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
 	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + UUID);
@@ -79,6 +80,7 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	private static SimpleDateFormat sdf;
 	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
+	private static Font font;
 	
 	static
 	{
@@ -125,7 +127,7 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	@Override
 	public JComponent getUI() {
-		return UI;
+		return m_UI;
 	}
 	
 	@SuppressWarnings("serial")
@@ -183,9 +185,9 @@ public final class DoujinshiDBScanner extends Plugin
 		public PluginUI()
 		{
 			super();
-			super.setLayout(this);
+			setLayout(this);
 			m_TabbedPane = new JTabbedPane();
-			m_TabbedPane.setFont(Core.Resources.Font);
+			m_TabbedPane.setFont(font = UI.Font);
 			m_TabbedPane.setFocusable(false);
 			
 			JPanel bogus;
@@ -197,10 +199,10 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ButtonApiRefresh.setFocusable(false);
 			bogus.add(m_ButtonApiRefresh);
 			m_LabelApikey = new JLabel("Api Key :");
-			m_LabelApikey.setFont(Core.Resources.Font);
+			m_LabelApikey.setFont(font);
 			bogus.add(m_LabelApikey);
 			m_TextApikey = new JTextField(APIKEY);
-			m_TextApikey.setFont(Core.Resources.Font);
+			m_TextApikey.setFont(font);
 			m_TextApikey.getDocument().addDocumentListener(new DocumentListener()
 			{
 				@Override
@@ -224,10 +226,10 @@ public final class DoujinshiDBScanner extends Plugin
 			});
 			bogus.add(m_TextApikey);
 			m_LabelApiThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
-			m_LabelApiThreshold.setFont(Core.Resources.Font);
+			m_LabelApiThreshold.setFont(font);
 			bogus.add(m_LabelApiThreshold);
 			m_SliderApiThreshold = new JSlider(0, 100, THRESHOLD);
-			m_SliderApiThreshold.setFont(Core.Resources.Font);
+			m_SliderApiThreshold.setFont(font);
 			m_SliderApiThreshold.addChangeListener(new ChangeListener()
 			{
 				@Override
@@ -242,35 +244,35 @@ public final class DoujinshiDBScanner extends Plugin
 			});
 			bogus.add(m_SliderApiThreshold);
 			m_LabelApiUserid = new JLabel("User ID :");
-			m_LabelApiUserid.setFont(Core.Resources.Font);
+			m_LabelApiUserid.setFont(font);
 			bogus.add(m_LabelApiUserid);
 			m_TextApiUserid = new JTextField(USERID);
-			m_TextApiUserid.setFont(Core.Resources.Font);
+			m_TextApiUserid.setFont(font);
 			m_TextApiUserid.setEditable(false);
 			bogus.add(m_TextApiUserid);
 			m_LabelApiUsername = new JLabel("User Name :");
-			m_LabelApiUsername.setFont(Core.Resources.Font);
+			m_LabelApiUsername.setFont(font);
 			bogus.add(m_LabelApiUsername);
 			m_TextApiUsername = new JTextField(USERNAME);
-			m_TextApiUsername.setFont(Core.Resources.Font);
+			m_TextApiUsername.setFont(font);
 			m_TextApiUsername.setEditable(false);
 			bogus.add(m_TextApiUsername);
 			m_LabelApiQueryCount = new JLabel("Queries :");
-			m_LabelApiQueryCount.setFont(Core.Resources.Font);
+			m_LabelApiQueryCount.setFont(font);
 			bogus.add(m_LabelApiQueryCount);
 			m_TextApiQueryCount = new JTextField("" + QUERIES);
-			m_TextApiQueryCount.setFont(Core.Resources.Font);
+			m_TextApiQueryCount.setFont(font);
 			m_TextApiQueryCount.setEditable(false);
 			bogus.add(m_TextApiQueryCount);
 			m_LabelApiImageQueryCount = new JLabel("Image Queries :");
-			m_LabelApiImageQueryCount.setFont(Core.Resources.Font);
+			m_LabelApiImageQueryCount.setFont(font);
 			bogus.add(m_LabelApiImageQueryCount);
 			m_TextApiImageQueryCount = new JTextField("" + IMAGE_QUERIES);
-			m_TextApiImageQueryCount.setFont(Core.Resources.Font);
+			m_TextApiImageQueryCount.setFont(font);
 			m_TextApiImageQueryCount.setEditable(false);
 			bogus.add(m_TextApiImageQueryCount);
 			m_CheckboxApiResizeImage = new JCheckBox("<html><body>Resize covers before uploading*<br><i>(*will speed up searches and preserve bandwidth)</i></body></html>");
-			m_CheckboxApiResizeImage.setFont(Core.Resources.Font);
+			m_CheckboxApiResizeImage.setFont(font);
 			m_CheckboxApiResizeImage.setFocusable(false);
 			m_CheckboxApiResizeImage.setSelected(RESIZE_COVER);
 			m_CheckboxApiResizeImage.addChangeListener(new ChangeListener()
@@ -299,7 +301,7 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ButtonCacheCancel.setFocusable(false);
 			bogus.add(m_ButtonCacheCancel);
 			m_ProgressBarCache = new JProgressBar();
-			m_ProgressBarCache.setFont(Core.Resources.Font);
+			m_ProgressBarCache.setFont(font);
 			m_ProgressBarCache.setMaximum(100);
 			m_ProgressBarCache.setMinimum(1);
 			m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
@@ -308,15 +310,15 @@ public final class DoujinshiDBScanner extends Plugin
 			bogus.add(m_ProgressBarCache);
 			m_LabelCacheInfo = new JLabel("<html><body>cache-size : " + CacheManager.size() + "<br/>" +
 					"last-build : " + sdf.format(CacheManager.timestamp()) + "</body></html>");
-			m_LabelCacheInfo.setFont(Core.Resources.Font);
+			m_LabelCacheInfo.setFont(font);
 			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
 			bogus.add(m_LabelCacheInfo);
 			m_LabelMaxResults = new JLabel("Max Results : " + 10);
-			m_LabelMaxResults.setFont(Core.Resources.Font);
+			m_LabelMaxResults.setFont(font);
 			bogus.add(m_LabelMaxResults);
 			m_SliderMaxResults = new JSlider(1, 25);
 			m_SliderMaxResults.setValue(10);
-			m_SliderMaxResults.setFont(Core.Resources.Font);
+			m_SliderMaxResults.setFont(font);
 			m_SliderMaxResults.addChangeListener(new ChangeListener()
 			{
 				@Override
@@ -419,7 +421,7 @@ public final class DoujinshiDBScanner extends Plugin
 			});
 			bogus.add(m_ButtonScanPreview);
 			m_TabbedPaneScanResult = new JTabbedPane();
-			m_TabbedPaneScanResult.setFont(Core.Resources.Font);
+			m_TabbedPaneScanResult.setFont(font);
 			m_TabbedPaneScanResult.setFocusable(false);
 			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
 			bogus.add(m_TabbedPaneScanResult);
@@ -462,7 +464,7 @@ public final class DoujinshiDBScanner extends Plugin
 					g.fillRect(getValue(),2,size,getHeight()-3);
 				}
 			};
-			m_ProgressBarScan.setFont(Core.Resources.Font);
+			m_ProgressBarScan.setFont(font);
 			m_ProgressBarScan.setMaximum(100);
 			m_ProgressBarScan.setMinimum(1);
 			m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
@@ -725,7 +727,7 @@ public final class DoujinshiDBScanner extends Plugin
 				m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
 				super.setRowSorter(m_TableSorter);
 				super.setModel(m_TableModel);
-				super.setFont(Core.Resources.Font);
+				super.setFont(font);
 				super.setColumnSelectionAllowed(false);
 				super.setRowSelectionAllowed(false);
 				super.setCellSelectionEnabled(false);
@@ -927,7 +929,7 @@ public final class DoujinshiDBScanner extends Plugin
 				public TaskRenderer()
 				{
 				    super();
-				    super.setFont(Core.Resources.Font);
+				    super.setFont(font);
 				    
 				    m_ProgressBar = new JProgressBar();
 				    m_ProgressBar.setMaximum(100);
@@ -1907,7 +1909,7 @@ public final class DoujinshiDBScanner extends Plugin
 
 		TaskManager.read();
 		
-		UI = new PluginUI();
+		m_UI = new PluginUI();
 	}
 	
 	@Override

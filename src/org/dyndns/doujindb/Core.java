@@ -1,6 +1,5 @@
 package org.dyndns.doujindb;
 
-import java.awt.Font;
 import java.io.*;
 
 import org.dyndns.doujindb.conf.*;
@@ -77,10 +76,6 @@ public final class Core implements Runnable
 		{
 			Logger.logInfo(TAG + "loading resources ...");
 			Resources = new Resources();
-			Resources.Font = new java.awt.Font(
-				((Font)Configuration.configRead("org.dyndns.doujindb.ui.font")).getFontName(),
-				java.awt.Font.PLAIN,
-				((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
 		} catch (Exception e)
 		{
 			Logger.logFatal(e.getMessage(), e);

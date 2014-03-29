@@ -21,6 +21,7 @@ import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -31,7 +32,6 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 {
 	private Circle tokenCircle;
 	
-	private final Font font = Core.Resources.Font;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
 	private JLabel labelTranslatedName;
@@ -45,6 +45,8 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	private RecordBookEditor editorWorks;
 	private RecordArtistEditor editorArtists;
 	private JButton buttonConfirm;
+	
+	protected static final Font font = UI.Font;
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{

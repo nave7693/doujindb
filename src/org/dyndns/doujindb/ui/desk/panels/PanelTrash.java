@@ -15,6 +15,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -49,6 +50,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	
 	private DialogTrash m_PopupDialog = null;
 	
+	protected static final Font font = UI.Font;
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PanelTrash()
 	{
@@ -60,19 +63,19 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		panel1.setMinimumSize(new Dimension(130,130));
 		m_LabelCount = new JLabel("Items : 0");
 		m_LabelCount.setVerticalAlignment(JLabel.TOP);
-		m_LabelCount.setFont(Core.Resources.Font);
+		m_LabelCount.setFont(font);
 		panel1.add(m_LabelCount);
 		m_LabelInfo = new JLabel(" Info");
 		m_LabelInfo.setOpaque(true);
-		m_LabelInfo.setFont(Core.Resources.Font);
+		m_LabelInfo.setFont(font);
 		panel1.add(m_LabelInfo);
 		m_LabelTask = new JLabel(" Tasks");
 		m_LabelTask.setOpaque(true);
-		m_LabelTask.setFont(Core.Resources.Font);
+		m_LabelTask.setFont(font);
 		panel1.add(m_LabelTask);
 		m_ButtonRestore = new JButton("Restore", Core.Resources.Icons.get("Frame/Trash/Restore"));
 		m_ButtonRestore.setFocusable(false);
-		m_ButtonRestore.setFont(Core.Resources.Font);
+		m_ButtonRestore.setFont(font);
 		m_ButtonRestore.addActionListener(new ActionListener()
 		{
 			@Override
@@ -226,7 +229,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		panel1.add(m_ButtonRestore);
 		m_ButtonDelete = new JButton("Delete", Core.Resources.Icons.get("Frame/Trash/Delete"));
 		m_ButtonDelete.setFocusable(false);
-		m_ButtonDelete.setFont(Core.Resources.Font);
+		m_ButtonDelete.setFont(font);
 		m_ButtonDelete.addActionListener(new ActionListener()
 		{
 			@Override
@@ -387,7 +390,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		panel1.add(m_ButtonDelete);
 		m_ButtonEmpty = new JButton("Empty", Core.Resources.Icons.get("Frame/Trash/Empty"));
 		m_ButtonEmpty.setFocusable(false);
-		m_ButtonEmpty.setFont(Core.Resources.Font);
+		m_ButtonEmpty.setFont(font);
 		m_ButtonEmpty.addActionListener(new ActionListener()
 		{
 			@Override
@@ -1059,7 +1062,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			m_Component.setLayout(new GridLayout(3, 1));
 			m_LabelMessage = new JLabel(message);
 			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_LabelMessage.setFont(Core.Resources.Font);
+			m_LabelMessage.setFont(font);
 			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
 			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
 			m_Component.add(m_LabelMessage);
@@ -1075,7 +1078,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			JPanel bottomPanel = new JPanel();
 			bottomPanel.setLayout(new GridLayout(1, 2));
 			m_ButtonCancel = new JButton("Cancel");
-			m_ButtonCancel.setFont(Core.Resources.Font);
+			m_ButtonCancel.setFont(font);
 			m_ButtonCancel.setMnemonic('C');
 			m_ButtonCancel.setFocusable(false);
 			m_ButtonCancel.addActionListener(new ActionListener()
@@ -1088,7 +1091,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				}					
 			});
 			m_ButtonOk = new JButton("Ok");
-			m_ButtonOk.setFont(Core.Resources.Font);
+			m_ButtonOk.setFont(font);
 			m_ButtonOk.setMnemonic('O');
 			m_ButtonOk.setFocusable(false);
 			m_ButtonOk.addActionListener(new ActionListener()

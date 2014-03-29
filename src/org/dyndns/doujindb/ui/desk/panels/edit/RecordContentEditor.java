@@ -6,13 +6,13 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.ContentContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
@@ -21,7 +21,7 @@ public class RecordContentEditor extends JSplitPane implements DataBaseListener
 	private ContentContainer tokenIContent;
 	private RecordList<Content> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Resources.Font;
+	protected static final Font font = UI.Font;
 	
 	public RecordContentEditor(ContentContainer token) throws DataBaseException
 	{

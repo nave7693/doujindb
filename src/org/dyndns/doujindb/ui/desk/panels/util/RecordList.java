@@ -18,6 +18,7 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 
 @SuppressWarnings("serial")
@@ -34,6 +35,8 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	private RecordTableRowFilter<RecordTableModel<T>,Integer> tableFilter;
 	
 	private String filterRegex;
+	
+	protected static final Font font = UI.Font;
 	
 	private Type m_Type;
 	
@@ -63,7 +66,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		tableData.setRowSorter(tableSorter);
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 		tableEditor = new RecordTableEditor();
-		tableData.setFont(Core.Resources.Font);
+		tableData.setFont(font);
 		/**
 		 * The reason is that the empty table (unlike an empty list or an empty tree) does not occupy any space in the scroll pane.
 		 * The JTable does not automatically stretch to fill the height of a JScrollPane's viewport — it only takes up as much vertical room as needed for the rows that it contains.
@@ -128,7 +131,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
         }
 		tableData.setDragEnabled(true);
 		tableData.setDropMode(DropMode.ON);
-		tableData.getTableHeader().setFont(Core.Resources.Font);
+		tableData.getTableHeader().setFont(font);
 		tableData.getTableHeader().setReorderingAllowed(true);
 		tableData.getColumnModel().getColumn(0).setCellRenderer(tableRenderer);
 		tableData.getColumnModel().getColumn(0).setCellEditor(tableEditor);

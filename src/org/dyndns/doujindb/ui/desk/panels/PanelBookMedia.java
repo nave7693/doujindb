@@ -28,6 +28,7 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
@@ -44,6 +45,8 @@ public class PanelBookMedia extends JPanel
 	private JScrollPane treeMediaScroll;
 	
 	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	
+	protected static final Font font = UI.Font;
 	
 	public PanelBookMedia(Book book)
 	{
@@ -178,12 +181,12 @@ public class PanelBookMedia extends JPanel
 				panel.setLayout(new GridLayout(2, 1));
 				JLabel lab = new JLabel("<html><body>Delete selected file/folders?<br/><i>(This cannot be undone)</i></body></html>");
 				lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-				lab.setFont(Core.Resources.Font);
+				lab.setFont(font);
 				panel.add(lab);
 				JPanel bottom = new JPanel();
 				bottom.setLayout(new GridLayout(1, 2));
 				JButton canc = new JButton("Cancel");
-				canc.setFont(Core.Resources.Font);
+				canc.setFont(font);
 				canc.setMnemonic('C');
 				canc.setFocusable(false);
 				canc.addActionListener(new ActionListener()
@@ -196,7 +199,7 @@ public class PanelBookMedia extends JPanel
 					}					
 				});
 				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
+				ok.setFont(font);
 				ok.setMnemonic('O');
 				ok.setFocusable(false);
 				ok.addActionListener(new ActionListener()
@@ -382,7 +385,7 @@ public class PanelBookMedia extends JPanel
 	{
 		super(root);
 		super.setFocusable(false);
-		super.setFont(Core.Resources.Font);
+		super.setFont(font);
 		super.setEditable(false);
 		super.setRootVisible(true);
 		super.setScrollsOnExpand(true);
@@ -569,7 +572,7 @@ public class PanelBookMedia extends JPanel
 			comp.setPreferredSize(new Dimension(250,75));
 			comp.setLayout(new GridLayout(3,1));
 			cancel = new JButton("Cancel");
-			cancel.setFont(Core.Resources.Font);
+			cancel.setFont(font);
 			cancel.setMnemonic('C');
 			cancel.setFocusable(false);
 			cancel.addActionListener(new ActionListener()
@@ -585,10 +588,10 @@ public class PanelBookMedia extends JPanel
 			});
 			progressbar_file = new JProgressBar(1,100);
 			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(Core.Resources.Font);
+			progressbar_file.setFont(font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Resources.Font);
+			progressbar_overall.setFont(font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -677,12 +680,12 @@ public class PanelBookMedia extends JPanel
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont(Core.Resources.Font);
+				list.setFont(font);
 				list.setSelectionBackground(list.getSelectionForeground());
 				list.setSelectionForeground(backgroundColor);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
+				ok.setFont(font);
 				ok.setMnemonic('O');
 				ok.setFocusable(false);
 				ok.addActionListener(new ActionListener()
@@ -791,7 +794,7 @@ public class PanelBookMedia extends JPanel
 			comp.setPreferredSize(new Dimension(250,75));
 			comp.setLayout(new GridLayout(3,1));
 			cancel = new JButton("Cancel");
-			cancel.setFont(Core.Resources.Font);
+			cancel.setFont(font);
 			cancel.setMnemonic('C');
 			cancel.setFocusable(false);
 			cancel.addActionListener(new ActionListener()
@@ -807,10 +810,10 @@ public class PanelBookMedia extends JPanel
 			});
 			progressbar_file = new JProgressBar(1,100);
 			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(Core.Resources.Font);
+			progressbar_file.setFont(font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Resources.Font);
+			progressbar_overall.setFont(font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(cancel);
@@ -868,12 +871,12 @@ public class PanelBookMedia extends JPanel
 						"</body></html>");
 				panel.add(lab, BorderLayout.NORTH);
 				JList<String> list = new JList<String>(errors);
-				list.setFont(Core.Resources.Font);
+				list.setFont(font);
 				list.setSelectionBackground(list.getSelectionForeground());
 				list.setSelectionForeground(backgroundColor);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
-				ok.setFont(Core.Resources.Font);
+				ok.setFont(font);
 				ok.setMnemonic('O');
 				ok.setFocusable(false);
 				ok.addActionListener(new ActionListener()
@@ -938,7 +941,7 @@ public class PanelBookMedia extends JPanel
 			comp.setPreferredSize(new Dimension(250,75));
 			comp.setLayout(new GridLayout(4,1));
 			cancel = new JButton("Cancel");
-			cancel.setFont(Core.Resources.Font);
+			cancel.setFont(font);
 			cancel.setMnemonic('C');
 			cancel.setFocusable(false);
 			cancel.addActionListener(new ActionListener()
@@ -954,13 +957,13 @@ public class PanelBookMedia extends JPanel
 			});
 			progressbar_bytes = new JProgressBar(1,100);
 			progressbar_bytes.setStringPainted(true);
-			progressbar_bytes.setFont(Core.Resources.Font);
+			progressbar_bytes.setFont(font);
 			progressbar_file = new JProgressBar(1,100);
 			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(Core.Resources.Font);
+			progressbar_file.setFont(font);
 			progressbar_overall = new JProgressBar(1,100);
 			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(Core.Resources.Font);
+			progressbar_overall.setFont(font);
 			comp.add(progressbar_overall);
 			comp.add(progressbar_file);
 			comp.add(progressbar_bytes);

@@ -22,6 +22,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
@@ -34,7 +35,6 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	private final Color foregroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
-	private final Font font = Core.Resources.Font;
 	private JLabel labelTagName;
 	private JTextField textTagName;
 	private JLabel labelWeblink;
@@ -49,6 +49,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	private JButton addAlias;
 	private JScrollPane scrollAlias;
 	private JButton buttonConfirm;
+	
+	protected static final Font font = UI.Font;
 	
 	public PanelConvention(Convention token) throws DataBaseException
 	{

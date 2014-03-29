@@ -34,6 +34,7 @@ import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.ComboBoxConvention;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
@@ -46,7 +47,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 {
 	private Book tokenBook;
 	
-	private final Font font = Core.Resources.Font;
 	private JPanel panelInfo;
 	private JLabel labelJapaneseName;
 	private JTextField textJapaneseName;
@@ -78,6 +78,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	private RecordParodyEditor editorParodies;
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
+	
+	protected static final Font font = UI.Font;
 	
 	public PanelBook(Book token) throws DataBaseException
 	{

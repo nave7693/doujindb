@@ -1,6 +1,5 @@
 package org.dyndns.doujindb.ui.rc;
 
-import java.awt.Font;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -13,7 +12,6 @@ public final class Resources
 {
 	public Hashtable<String, String> Strings;
 	public Hashtable<String, ImageIcon> Icons;
-	public Font Font = new Font("Tahoma", java.awt.Font.PLAIN, 10);
 	
 	public Resources() throws Exception
 	{

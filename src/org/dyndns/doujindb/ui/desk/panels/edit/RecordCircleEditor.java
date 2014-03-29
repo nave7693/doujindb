@@ -6,13 +6,13 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.CircleContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
@@ -21,7 +21,7 @@ public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 	private CircleContainer tokenICircle;
 	private RecordList<Circle> recordList;
 	private JTextField searchField = new JTextField("");
-	private final Font font = Core.Resources.Font;
+	protected static final Font font = UI.Font;
 	
 	public RecordCircleEditor(CircleContainer token) throws DataBaseException
 	{

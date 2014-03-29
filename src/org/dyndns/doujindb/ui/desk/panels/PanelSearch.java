@@ -21,6 +21,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
 
@@ -32,8 +33,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	
 	protected SearchWorker<T> m_Worker;
 	
-	protected final Font font = Core.Resources.Font;
-	
 	protected RecordTableModel<T> m_TableModel;
 	protected RecordTableRenderer m_TableRenderer;
 	protected RecordTableEditor m_TableEditor;
@@ -42,6 +41,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	protected JLabel m_LabelResults;
 	
 	private static DialogSearch m_PopupDialog = null;
+	
+	protected static final Font font = UI.Font;
 	
 	public PanelSearch(JTabbedPane tab, int index)
 	{
@@ -2060,7 +2061,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
 			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
-			m_LabelMessage.setFont(Core.Resources.Font);
+			m_LabelMessage.setFont(font);
 			m_Component.add(m_LabelMessage);
 			
 			m_ProgressBar = new JProgressBar();
@@ -2074,7 +2075,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			JPanel bottomPanel = new JPanel();
 			bottomPanel.setLayout(new GridLayout(1, 2));
 			m_ButtonCancel = new JButton("Cancel");
-			m_ButtonCancel.setFont(Core.Resources.Font);
+			m_ButtonCancel.setFont(font);
 			m_ButtonCancel.setMnemonic('C');
 			m_ButtonCancel.setFocusable(false);
 			m_ButtonCancel.addActionListener(new ActionListener()
@@ -2087,7 +2088,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}					
 			});
 			m_ButtonOk = new JButton("Ok");
-			m_ButtonOk.setFont(Core.Resources.Font);
+			m_ButtonOk.setFont(font);
 			m_ButtonOk.setMnemonic('O');
 			m_ButtonOk.setFocusable(false);
 			m_ButtonOk.addActionListener(new ActionListener()

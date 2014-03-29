@@ -3,11 +3,12 @@ package org.dyndns.doujindb.ui.desk;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Hashtable;
+
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.ui.UI;
 
 public final class PopupMenuEx implements ActionListener
 {
@@ -36,7 +37,7 @@ public final class PopupMenuEx implements ActionListener
 		});
 		JLabel lab = new JLabel(title);
 		lab.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-		lab.setFont(Core.Resources.Font);
+		lab.setFont(UI.Font);
 		popup.add(lab);
 		this.items = new JMenuItem[items.size()];
 		int k = 0;

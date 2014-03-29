@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -15,6 +16,7 @@ import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.WindowEx;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 import org.dyndns.doujindb.util.ImageTool;
@@ -30,7 +32,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	private boolean previewToggled = false;
 	private JButton toggleList;
 	private JButton togglePreview;
-	private final Font font = Core.Resources.Font;
+	protected static final Font font = UI.Font;
 	
 	public RecordBookEditor(BookContainer token) throws DataBaseException
 	{

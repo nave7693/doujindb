@@ -78,10 +78,10 @@ public final class DoujinshiDBScanner extends Plugin
 	static final File PLUGIN_CACHE = new File(PLUGIN_HOME, ".cache");
 	
 	private static SimpleDateFormat sdf;
+	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
 	
 	static
 	{
-		String configBase = "org.dyndns.doujindb.plug.mugimugi.";
 		Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", "");
 		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
 		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
@@ -207,19 +207,19 @@ public final class DoujinshiDBScanner extends Plugin
 				public void changedUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
+					Configuration.configWrite(configBase + "apikey", APIKEY);
 				}
 				@Override
 				public void insertUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
+					Configuration.configWrite(configBase + "apikey", APIKEY);
 				}
 				@Override
 				public void removeUpdate(DocumentEvent de)
 				{
 					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.apikey", APIKEY);
+					Configuration.configWrite(configBase + "apikey", APIKEY);
 				}				
 			});
 			bogus.add(m_TextApikey);
@@ -237,7 +237,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
 					if(m_SliderApiThreshold.getValueIsAdjusting())
 						return;
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.threshold", THRESHOLD);
+					Configuration.configWrite(configBase + "threshold", THRESHOLD);
 				}				
 			});
 			bogus.add(m_SliderApiThreshold);
@@ -279,7 +279,7 @@ public final class DoujinshiDBScanner extends Plugin
 				public void stateChanged(ChangeEvent ce)
 				{
 					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
-					Configuration.configWrite("org.dyndns.doujindb.plug.mugimugi.resize_cover", RESIZE_COVER);
+					Configuration.configWrite(configBase + "resize_cover", RESIZE_COVER);
 				}				
 			});
 			bogus.add(m_CheckboxApiResizeImage);
@@ -1653,7 +1653,7 @@ public final class DoujinshiDBScanner extends Plugin
 						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
-						if((Boolean) Configuration.configRead("org.dyndns.doujindb.plug.mugimugi.cache_locally"))
+						if((Boolean) Configuration.configRead(configBase + "cache_locally"))
 						{
 							File out = new File(PLUGIN_CACHE, book.getID());
 							ImageTool.write(bi, out);
@@ -1854,20 +1854,23 @@ public final class DoujinshiDBScanner extends Plugin
 				@Override
 				public void run()
 				{
-					switch(key)
+					if(key.equals(configBase + "apikey"))
 					{
-					case "org.dyndns.doujindb.plug.mugimugi.apikey":
 						if(!m_TextApikey.getText().equals((String) Configuration.configRead(key)))
 							m_TextApikey.setText((String) Configuration.configRead(key));
-						break;
-					case "org.dyndns.doujindb.plug.mugimugi.threshold":
+						return;
+					}
+					if(key.equals(configBase + "threshold"))
+					{
 						if(m_SliderApiThreshold.getValue() != (Integer) Configuration.configRead(key))
 							m_SliderApiThreshold.setValue((Integer) Configuration.configRead(key));
-						break;
-					case "org.dyndns.doujindb.plug.mugimugi.resize_cover":
+						return;
+					}
+					if(key.equals(configBase + "resize_cover"))
+					{
 						if(m_CheckboxApiResizeImage.isSelected() != (Boolean) Configuration.configRead(key))
 							m_CheckboxApiResizeImage.setSelected((Boolean) Configuration.configRead(key));
-						break;
+						return;
 					}
 				}
 			});
@@ -1888,7 +1891,6 @@ public final class DoujinshiDBScanner extends Plugin
 	{
 		Context = Core.Database.getContext(UUID);
 		
-		String configBase = "org.dyndns.doujindb.plug.mugimugi.";
 		APIKEY = (String) Configuration.configRead(configBase + "apikey");
 		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
 		RESIZE_COVER = (Boolean) Configuration.configRead(configBase + "resize_cover");

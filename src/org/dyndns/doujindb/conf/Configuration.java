@@ -34,8 +34,8 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.dat.datastore",         "<html><body>The folder in which are stored all the media files.</body></html>", System.getProperty("java.io.tmpdir"));
 		configAdd("org.dyndns.doujindb.dat.file_extension",    "<html><body>Default file extension given to files when exporting media archives.</body></html>", ".zip");
 		configAdd("org.dyndns.doujindb.dat.temp",              "<html><body>Temporary folder used to store session media files.</body></html>", System.getProperty("java.io.tmpdir"));
-		configAdd("org.dyndns.doujindb.net.listen_port",       "<html><body>Network port used to accept incoming connections.</body></html>", 1099);
-		configAdd("org.dyndns.doujindb.net.check_updates",     "<html><body>Whether to check if program updates are available.</body></html>", false);
+//		configAdd("org.dyndns.doujindb.net.listen_port",       "<html><body>Network port used to accept incoming connections.</body></html>", 1099);
+//		configAdd("org.dyndns.doujindb.sys.check_updates",     "<html><body>Whether to check if program updates are available.</body></html>", false);
 		configAdd("org.dyndns.doujindb.log.debug",             "<html><body>Log debug messages.</body></html>", false);
 		configAdd("org.dyndns.doujindb.log.cayenne",           "<html><body>Cayenne logging.</body></html>", false);
 		configAdd("org.dyndns.doujindb.db.driver",             "<html><body>SQL Driver full qualified class name.</body></html>", "sql.jdbc.Driver");
@@ -43,8 +43,8 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.db.username",           "<html><body>Database username.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.password",           "<html><body>Database password.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.connection_timeout", "<html><body>JDBC connection timeout in seconds.</body></html>", 5);
-//		configAdd("org.dyndns.doujindb.plug.discovery",        "<html><body>Automatic Plugin discovery.</body></html>", false);
-//		configAdd("org.dyndns.doujindb.plug.timeout",          "<html><body>Timeout (in seconds) which PluginManager will wait for plugins to start/stop.</body></html>", 60);
+//		configAdd("org.dyndns.doujindb.plugin.discovery",        "<html><body>Automatic Plugin discovery.</body></html>", false);
+//		configAdd("org.dyndns.doujindb.plugin.timeout",          "<html><body>Timeout (in seconds) which PluginManager will wait for plugins to start/stop.</body></html>", 60);
 	}
 
 	public static Object configRead(String key) throws ConfigurationException

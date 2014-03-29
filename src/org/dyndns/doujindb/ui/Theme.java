@@ -40,36 +40,28 @@ public final class Theme extends DefaultMetalTheme
 
 	public Theme(Color color1, Color color2, Font font)
 	{
-		int r1 = color1.getRed();
-		int g1 = color1.getGreen();
-		int b1 = color1.getBlue();
-		int r2 = color2.getRed();
-		int g2 = color2.getGreen();
-		int b2 = color2.getBlue();
-		prim1 = new ColorUIResource(new ColorUIResource(r1,g1,b1));
-		prim2 = new ColorUIResource(new ColorUIResource((int)(r1/1.1),(int)(g1/1.1),(int)(b1/1.1)));
-		prim3 = new ColorUIResource(new ColorUIResource((int)(r1/1.2),(int)(g1/1.2),(int)(b1/1.2)));
-		sec1 = new ColorUIResource(new ColorUIResource((int)(r2/1.1),(int)(g2/1.1),(int)(b2/1.1)));
-		sec2 = new ColorUIResource(new ColorUIResource(r2,g2,b2));
-		sec3 = new ColorUIResource(new ColorUIResource((int)(r2/1.3),(int)(g2/1.3),(int)(b2/1.3)));
-		win1 = new ColorUIResource(new ColorUIResource((int)(r1/1.1),(int)(g1/1.1),(int)(b1/1.1)));
-		win2 = new ColorUIResource(new ColorUIResource((int)(r2/1.4),(int)(g2/1.4),(int)(b2/1.4)));
-		win3 = new ColorUIResource(new ColorUIResource((int)(r2/1.4),(int)(g2/1.4),(int)(b2/1.4)));
-		win4 = new ColorUIResource(new ColorUIResource((int)(r1/1.1),(int)(g1/1.1),(int)(b1/1.1)));
-		win5 = new ColorUIResource(new ColorUIResource(r1,g1,b1));
-		win6 = new ColorUIResource(new ColorUIResource((int)(r2/1.4),(int)(g2/1.4),(int)(b2/1.4)));
-		win7 = new ColorUIResource(new ColorUIResource(0,0,0));
-		win8 = new ColorUIResource(new ColorUIResource(r1,g1,b1));
-		win9 = new ColorUIResource(new ColorUIResource(r1,g1,b1));
-		win10 = new ColorUIResource(new ColorUIResource((int)(r2/1.4),(int)(g2/1.4),(int)(b2/1.4)));
-		win11 = new ColorUIResource(new ColorUIResource(0,0,0));
-		win12 = new ColorUIResource(new ColorUIResource((int)(r2/1.4),(int)(g2/1.4),(int)(b2/1.4)));
-		FontUIResource fontUI = new FontUIResource(font);
-		controlFont = fontUI;
-		captionFont = fontUI;
-		systemFont = fontUI;
-		userFont = fontUI;
-		smallFont = fontUI;
+		ColorUIResource black = new ColorUIResource(0,0,0);
+		ColorUIResource colorui1 = new ColorUIResource(color1);
+		ColorUIResource colorui2 = new ColorUIResource(color2);
+		prim1 = colorui1;
+		prim2 = new ColorUIResource(color1.darker());
+		prim3 = new ColorUIResource(color1.darker().darker());
+		sec1 = colorui2;
+		sec2 = new ColorUIResource(color2.brighter());
+		sec3 = new ColorUIResource(color2.brighter());
+		win1 = colorui1;
+		win2 = new ColorUIResource(color2.brighter());
+		win3 = new ColorUIResource(color2.brighter().brighter());
+		win4 = new ColorUIResource(color1.darker());
+		win5 = black;
+		win6 = new ColorUIResource(color2.brighter());
+		win7 = black;
+		win8 = colorui1;
+		win9 = colorui1;
+		win10 = colorui1;
+		win11 = black;
+		win12 = colorui2;
+		controlFont = captionFont = systemFont = userFont = smallFont = new FontUIResource(font);
 	}
 
 	@Override

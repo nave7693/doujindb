@@ -32,7 +32,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.plug.impl.mugimugi.rc.Resources;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.WindowEx;
 import org.dyndns.doujindb.util.ImageTool;
@@ -66,7 +65,6 @@ public final class DoujinshiDBScanner extends Plugin
 	static String USERNAME;
 	static String USER_AGENT = "Mozilla/5.0 (compatible; " + Name + "/" + Version + "; +" + Weblink + ")";
 	
-	private static Resources Resources = new Resources();
 	static DataBaseContext Context;
 	
 	private static JComponent m_UI;
@@ -81,7 +79,7 @@ public final class DoujinshiDBScanner extends Plugin
 	private static SimpleDateFormat sdf;
 	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
 	private static Font font;
-	private static Icons Icon;
+	private static Icons Icon = new Icons();
 	
 	static
 	{
@@ -98,7 +96,7 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	@Override
 	public Icon getIcon() {
-		return Resources.Icons.get("Plugin/Icon");
+		return Icon.icon;
 	}
 	
 	@Override
@@ -191,12 +189,10 @@ public final class DoujinshiDBScanner extends Plugin
 			m_TabbedPane.setFont(font = UI.Font);
 			m_TabbedPane.setFocusable(false);
 			
-			Icon = new Icons();
-			
 			JPanel bogus;
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			m_ButtonApiRefresh = new JButton(Resources.Icons.get("Plugin/Refresh"));
+			m_ButtonApiRefresh = new JButton(Icon.refresh);
 			m_ButtonApiRefresh.addActionListener(this);
 			m_ButtonApiRefresh.setBorder(null);
 			m_ButtonApiRefresh.setFocusable(false);
@@ -293,12 +289,12 @@ public final class DoujinshiDBScanner extends Plugin
 			m_CheckboxCacheOverwrite.setFocusable(false);
 			m_CheckboxCacheOverwrite.setText("Overwrite existing entries");
 			bogus.add(m_CheckboxCacheOverwrite);
-			m_ButtonCacheBuild = new JButton(Resources.Icons.get("Plugin/Cache"));
+			m_ButtonCacheBuild = new JButton(Icon.cache);
 			m_ButtonCacheBuild.addActionListener(this);
 			m_ButtonCacheBuild.setBorder(null);
 			m_ButtonCacheBuild.setFocusable(false);
 			bogus.add(m_ButtonCacheBuild);
-			m_ButtonCacheCancel = new JButton(Resources.Icons.get("Plugin/Cancel"));
+			m_ButtonCacheCancel = new JButton(Icon.cancel);
 			m_ButtonCacheCancel.addActionListener(this);
 			m_ButtonCacheCancel.setBorder(null);
 			m_ButtonCacheCancel.setFocusable(false);
@@ -331,16 +327,16 @@ public final class DoujinshiDBScanner extends Plugin
 				}				
 			});
 			bogus.add(m_SliderMaxResults);
-			m_TabbedPane.addTab("Settings", Resources.Icons.get("Plugin/Settings"), m_TabSettings = bogus);
+			m_TabbedPane.addTab("Settings", Icon.settings, m_TabSettings = bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			m_ButtonAddTask = new JButton(Resources.Icons.get("Plugin/Add"));
+			m_ButtonAddTask = new JButton(Icon.add);
 			m_ButtonAddTask.addActionListener(this);
 			m_ButtonAddTask.setBorder(null);
 			m_ButtonAddTask.setFocusable(false);
 			bogus.add(m_ButtonAddTask);
-			m_ButtonTaskManagerCtl = new JButton(Resources.Icons.get("Plugin/Task/Resume"));
+			m_ButtonTaskManagerCtl = new JButton(Icon.task_resume);
 			m_ButtonTaskManagerCtl.addActionListener(this);
 			m_ButtonTaskManagerCtl.setBorder(null);
 			m_ButtonTaskManagerCtl.setToolTipText("Resume Worker");
@@ -361,12 +357,12 @@ public final class DoujinshiDBScanner extends Plugin
 			m_PanelTask = new TaskUI();
 			m_SplitPane.setBottomComponent(null);
 			bogus.add(m_SplitPane);
-			m_TabbedPane.addTab("Tasks", Resources.Icons.get("Plugin/Tasks"), m_TabTasks = bogus);
+			m_TabbedPane.addTab("Tasks", Icon.tasks, m_TabTasks = bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
 			m_ButtonScanPreview = new JButton();
-			m_ButtonScanPreview.setIcon(Resources.Icons.get("Plugin/Search/Preview"));
+			m_ButtonScanPreview.setIcon(Icon.search_preview);
 			m_ButtonScanPreview.addActionListener(this);
 			m_ButtonScanPreview.setBorder(null);
 			m_ButtonScanPreview.setOpaque(false);
@@ -476,12 +472,12 @@ public final class DoujinshiDBScanner extends Plugin
 			bogus.add(m_ProgressBarScan);
 			m_ButtonScanCancel = new JButton();
 			m_ButtonScanCancel.setText("Cancel");
-			m_ButtonScanCancel.setIcon(Resources.Icons.get("Plugin/Cancel"));
+			m_ButtonScanCancel.setIcon(Icon.cancel);
 			m_ButtonScanCancel.addActionListener(this);
 			m_ButtonScanCancel.setToolTipText("Cancel");
 			m_ButtonScanCancel.setFocusable(false);
 			bogus.add(m_ButtonScanCancel);
-			m_TabbedPane.addTab("Search", Resources.Icons.get("Plugin/Search"), m_TabScanner = bogus);
+			m_TabbedPane.addTab("Search", Icon.search, m_TabScanner = bogus);
 			super.add(m_TabbedPane);
 			
 			TaskManager.registerListener(this);
@@ -586,7 +582,7 @@ public final class DoujinshiDBScanner extends Plugin
 				m_ButtonApiRefresh.setEnabled(false);
 				m_TextApikey.setEnabled(false);
 				m_SliderApiThreshold.setEnabled(false);
-				m_ButtonApiRefresh.setIcon(Resources.Icons.get("Plugin/Loading"));
+				m_ButtonApiRefresh.setIcon(Icon.loading);
 				new SwingWorker<Void,Void>()
 				{
 					@Override
@@ -608,7 +604,7 @@ public final class DoujinshiDBScanner extends Plugin
 					}
 					@Override
 					protected void done() {
-						m_ButtonApiRefresh.setIcon(Resources.Icons.get("Plugin/Refresh"));
+						m_ButtonApiRefresh.setIcon(Icon.refresh);
 						m_ButtonApiRefresh.setEnabled(true);
 						m_TextApikey.setEnabled(true);
 						m_SliderApiThreshold.setEnabled(true);
@@ -647,7 +643,7 @@ public final class DoujinshiDBScanner extends Plugin
 			{
 				if(TaskManager.isRunning())
 				{
-					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Loading"));
+					m_ButtonTaskManagerCtl.setIcon(Icon.loading);
 					new SwingWorker<Void,Void>()
 					{
 						@Override
@@ -657,11 +653,11 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 						@Override
 						protected void done() {
-							m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Resume"));
+							m_ButtonTaskManagerCtl.setIcon(Icon.task_resume);
 						}
 					}.execute();
 				} else {
-					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Loading"));
+					m_ButtonTaskManagerCtl.setIcon(Icon.loading);
 					new SwingWorker<Void,Void>()
 					{
 						@Override
@@ -671,7 +667,7 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 						@Override
 						protected void done() {
-							m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Pause"));
+							m_ButtonTaskManagerCtl.setIcon(Icon.task_pause);
 						}
 					}.execute();
 				}
@@ -796,7 +792,7 @@ public final class DoujinshiDBScanner extends Plugin
 				    		if(selected.isEmpty())
 				    			return;
 				    		
-							JMenuItem menuItem = new JMenuItem("Delete", Resources.Icons.get("Plugin/Task/Delete"));
+							JMenuItem menuItem = new JMenuItem("Delete", Icon.task_delete);
 							menuItem.addActionListener(new ActionListener()
 							{
 								@Override
@@ -815,7 +811,7 @@ public final class DoujinshiDBScanner extends Plugin
 							menuItem.setName("delete");
 							menuItem.setActionCommand("delete");
 							m_PopupAction.add(menuItem);
-							menuItem = new JMenuItem("Reset", Resources.Icons.get("Plugin/Task/Reset"));
+							menuItem = new JMenuItem("Reset", Icon.task_reset);
 							menuItem.addActionListener(new ActionListener()
 							{
 								@Override
@@ -972,22 +968,22 @@ public final class DoujinshiDBScanner extends Plugin
 						switch (info)
 						{
 						case COMPLETED:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Completed"));
+							m_LabelIcon.setIcon(Icon.task_info_completed);
 							break;
 						case ERROR:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Error"));
+							m_LabelIcon.setIcon(Icon.task_info_error);
 							break;
 						case IDLE:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Idle"));
+							m_LabelIcon.setIcon(Icon.task_info_idle);
 							break;
 						case PAUSED:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Paused"));
+							m_LabelIcon.setIcon(Icon.task_info_paused);
 							break;
 						case RUNNING:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Running"));
+							m_LabelIcon.setIcon(Icon.task_info_running);
 							break;
 						case WARNING:
-							m_LabelIcon.setIcon(Resources.Icons.get("Plugin/Task/Info/Warning"));
+							m_LabelIcon.setIcon(Icon.task_info_warning);
 							break;
 						}
 						m_LabelIcon.setToolTipText("" + info);
@@ -1042,18 +1038,18 @@ public final class DoujinshiDBScanner extends Plugin
 				m_LabelTitle.setIcon(null);
 				add(m_LabelTitle);
 				m_LabelPreview = new JLabel();
-				m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+				m_LabelPreview.setIcon(Icon.task_preview_missing);
 				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
 				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
 				add(m_LabelPreview);
-				m_ButtonClose = new JButton(Resources.Icons.get("Plugin/Cancel"));
+				m_ButtonClose = new JButton(Icon.cancel);
 				m_ButtonClose.setSelected(true);
 				m_ButtonClose.addActionListener(this);
 				add(m_ButtonClose);
 				
 				m_ButtonOpenFolder = new JButton();
 				m_ButtonOpenFolder.setText("Open Folder");
-				m_ButtonOpenFolder.setIcon(Resources.Icons.get("Plugin/Task/Folder"));
+				m_ButtonOpenFolder.setIcon(Icon.task_folder);
 				m_ButtonOpenFolder.setSelected(false);
 				m_ButtonOpenFolder.setFocusable(false);
 				m_ButtonOpenFolder.addActionListener(this);
@@ -1065,7 +1061,7 @@ public final class DoujinshiDBScanner extends Plugin
 				add(m_ButtonOpenFolder);
 				m_ButtonOpenXML = new JButton();
 				m_ButtonOpenXML.setText("View Response");
-				m_ButtonOpenXML.setIcon(Resources.Icons.get("Plugin/Task/XML"));
+				m_ButtonOpenXML.setIcon(Icon.task_xml);
 				m_ButtonOpenXML.setSelected(false);
 				m_ButtonOpenXML.setFocusable(false);
 				m_ButtonOpenXML.addActionListener(this);
@@ -1077,7 +1073,7 @@ public final class DoujinshiDBScanner extends Plugin
 				add(m_ButtonOpenXML);
 				m_ButtonOpenBook = new JButton();
 				m_ButtonOpenBook.setText("Open Book");
-				m_ButtonOpenBook.setIcon(Resources.Icons.get("Plugin/Task/Book"));
+				m_ButtonOpenBook.setIcon(Icon.task_book);
 				m_ButtonOpenBook.setSelected(false);
 				m_ButtonOpenBook.setFocusable(false);
 				m_ButtonOpenBook.addActionListener(this);
@@ -1090,7 +1086,7 @@ public final class DoujinshiDBScanner extends Plugin
 				
 				m_ButtonRunAgain = new JButton();
 				m_ButtonRunAgain.setText("Re-run Step");
-				m_ButtonRunAgain.setIcon(Resources.Icons.get("Plugin/Task/Reset"));
+				m_ButtonRunAgain.setIcon(Icon.task_reset);
 				m_ButtonRunAgain.setSelected(false);
 				m_ButtonRunAgain.setFocusable(false);
 				m_ButtonRunAgain.addActionListener(this);
@@ -1102,7 +1098,7 @@ public final class DoujinshiDBScanner extends Plugin
 				add(m_ButtonRunAgain);
 				m_ButtonSkipDuplicate = new JButton();
 				m_ButtonSkipDuplicate.setText("Skip Duplicate");
-				m_ButtonSkipDuplicate.setIcon(Resources.Icons.get("Plugin/Task/Skip"));
+				m_ButtonSkipDuplicate.setIcon(Icon.task_skip);
 				m_ButtonSkipDuplicate.setSelected(false);
 				m_ButtonSkipDuplicate.setFocusable(false);
 				m_ButtonSkipDuplicate.addActionListener(this);
@@ -1114,7 +1110,7 @@ public final class DoujinshiDBScanner extends Plugin
 				add(m_ButtonSkipDuplicate);
 				m_ButtonImportBID = new JButton();
 				m_ButtonImportBID.setText("Import from mugimugi ID");
-				m_ButtonImportBID.setIcon(Resources.Icons.get("Plugin/Task/Import"));
+				m_ButtonImportBID.setIcon(Icon.task_import);
 				m_ButtonImportBID.setSelected(false);
 				m_ButtonImportBID.setFocusable(false);
 				m_ButtonImportBID.addActionListener(this);
@@ -1196,29 +1192,29 @@ public final class DoujinshiDBScanner extends Plugin
 				switch (m_Task.getInfo())
 				{
 				case COMPLETED:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Completed"));
+					m_LabelTitle.setIcon(Icon.task_info_completed);
 					break;
 				case ERROR:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Error"));
+					m_LabelTitle.setIcon(Icon.task_info_error);
 					break;
 				case IDLE:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Idle"));
+					m_LabelTitle.setIcon(Icon.task_info_idle);
 					break;
 				case PAUSED:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Paused"));
+					m_LabelTitle.setIcon(Icon.task_info_paused);
 					break;
 				case RUNNING:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Running"));
+					m_LabelTitle.setIcon(Icon.task_info_running);
 					break;
 				case WARNING:
-					m_LabelTitle.setIcon(Resources.Icons.get("Plugin/Task/Info/Warning"));
+					m_LabelTitle.setIcon(Icon.task_info_warning);
 					break;
 				}
 			}
 			
 			private void fireImageUpdated()
 			{
-				m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Loading"));
+				m_LabelPreview.setIcon(Icon.loading);
 				new SwingWorker<ImageIcon, Void>()
 				{
 					@Override
@@ -1237,7 +1233,7 @@ public final class DoujinshiDBScanner extends Plugin
 				        	icon = get();
 				        	m_LabelPreview.setIcon(icon);
 				        } catch (Exception e) {
-				        	m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+				        	m_LabelPreview.setIcon(Icon.task_preview_missing);
 				        }
 				    }
 				}.execute();
@@ -1356,7 +1352,7 @@ public final class DoujinshiDBScanner extends Plugin
 								});
 								if((m_Task.getMugimugiBid()).equals(id))
 								{
-									m_TabbedPaneImage.addTab("", Resources.Icons.get("Plugin/Search/Star"), button);
+									m_TabbedPaneImage.addTab("", Icon.task_searchquery_star, button);
 									selectedTab = m_TabbedPaneImage.getTabCount() - 1;
 								}
 								else
@@ -1594,7 +1590,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 				if(evt.getPropertyName().equals("task-image"))
 				{
-					m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Loading"));
+					m_LabelPreview.setIcon(Icon.loading);
 					new SwingWorker<ImageIcon, Void>()
 					{
 						@Override
@@ -1613,7 +1609,7 @@ public final class DoujinshiDBScanner extends Plugin
 					        	icon = get();
 					        	m_LabelPreview.setIcon(icon);
 					        } catch (Exception e) {
-					        	m_LabelPreview.setIcon(Resources.Icons.get("Plugin/Task/Preview/Missing"));
+					        	m_LabelPreview.setIcon(Icon.task_preview_missing);
 					        	doLayout();
 					        }
 					    }
@@ -1719,7 +1715,7 @@ public final class DoujinshiDBScanner extends Plugin
 				// Reset UI
 				while (m_TabbedPaneScanResult.getTabCount() > 0)
 					m_TabbedPaneScanResult.remove(0);
-				m_ButtonScanPreview.setIcon(Resources.Icons.get("Plugin/Settings/Preview"));
+				m_ButtonScanPreview.setIcon(Icon.task_preview_missing);
 				m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
 				m_ProgressBarScan.setString("Loading ...");
 				
@@ -1776,7 +1772,7 @@ public final class DoujinshiDBScanner extends Plugin
 								}
 							});
 							first_result = true;
-							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", Resources.Icons.get("Plugin/Search/Star"), button);
+							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", Icon.task_searchquery_star, button);
 						} else
 						{
 							JButton button;
@@ -1833,9 +1829,9 @@ public final class DoujinshiDBScanner extends Plugin
 			if(evt.getPropertyName().equals("taskmanager-info"))
 			{
 				if(TaskManager.isRunning())
-					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Pause"));
+					m_ButtonTaskManagerCtl.setIcon(Icon.task_pause);
 				else
-					m_ButtonTaskManagerCtl.setIcon(Resources.Icons.get("Plugin/Task/Resume"));
+					m_ButtonTaskManagerCtl.setIcon(Icon.task_resume);
 				return;
 			}
 			if(evt.getPropertyName().equals("api-info"))

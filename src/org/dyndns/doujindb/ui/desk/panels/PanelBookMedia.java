@@ -84,11 +84,11 @@ public class PanelBookMedia extends JPanel
 					{
 						try
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
+							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(true);
 							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
 							{
 								fc.setMultiSelectionEnabled(false);
 								fc.setFileSelectionMode(prev_option);
@@ -127,11 +127,11 @@ public class PanelBookMedia extends JPanel
 					{
 						try
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
+							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(false);
 							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
 							{
 								fc.setMultiSelectionEnabled(false);
 								fc.setFileSelectionMode(prev_option);
@@ -238,8 +238,8 @@ public class PanelBookMedia extends JPanel
 				bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 				panel.add(bottom);
 				try {
-					Core.UI.Desktop.showDialog(
-							(RootPaneContainer) getRootPane().getParent(),
+					UI.Desktop.showDialog(
+							(JRootPane) getRootPane(),
 							panel,
 							Icon.desktop_explorer_book_media_delete,
 							"Delete");
@@ -265,11 +265,11 @@ public class PanelBookMedia extends JPanel
 					{
 						try
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
+							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(true);
 							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
 							{
 								fc.setMultiSelectionEnabled(false);
 								fc.setFileSelectionMode(prev_option);
@@ -614,8 +614,8 @@ public class PanelBookMedia extends JPanel
 			Vector<String> errors = new Vector<String>();
 			try
 			{
-				Core.UI.Desktop.showDialog(
-						(RootPaneContainer) getRootPane().getParent(),
+				UI.Desktop.showDialog(
+						(JRootPane) getRootPane(),
 						comp,
 						Icon.desktop_explorer_book_media_download,
 						"Downloading ...");
@@ -707,8 +707,8 @@ public class PanelBookMedia extends JPanel
 				panel.add(centered, BorderLayout.SOUTH);
 				try
 				{
-					Core.UI.Desktop.showDialog(
-							(RootPaneContainer) getRootPane().getParent(),
+					UI.Desktop.showDialog(
+							(JRootPane) getRootPane(),
 							panel,
 							Icon.desktop_explorer_book_media_download,
 							"Downloading - Error");
@@ -836,8 +836,8 @@ public class PanelBookMedia extends JPanel
 			Vector<String> errors = new Vector<String>();
 			try
 			{
-				Core.UI.Desktop.showDialog(
-						(RootPaneContainer) getRootPane().getParent(),
+				UI.Desktop.showDialog(
+						(JRootPane) getRootPane(),
 						comp,
 						Icon.desktop_explorer_book_media_upload,
 						"Uploading ...");
@@ -898,8 +898,8 @@ public class PanelBookMedia extends JPanel
 				panel.add(centered, BorderLayout.SOUTH);
 				try
 				{
-					Core.UI.Desktop.showDialog(
-							(RootPaneContainer) getRootPane().getParent(),
+					UI.Desktop.showDialog(
+							(JRootPane) getRootPane(),
 							panel,
 							Icon.desktop_explorer_book_media_upload,
 							"Uploading - Error");
@@ -990,7 +990,7 @@ public class PanelBookMedia extends JPanel
 			try
 			{
 				//FIXME
-//				Core.UI.Desktop.showDialog(
+//				UI.Desktop.showDialog(
 //						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
 //						comp,
 //						Icon.desktop_explorer_book_media_package,

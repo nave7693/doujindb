@@ -49,8 +49,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JPopupMenu uiTrayPopup;
 	private JMenuItem uiTrayPopupExit;
 
-	private JFileChooser uiFileChooser = new JFileChooser();
-	
 	private PanelSettings uiPanelSettings;
 	private JButton uiPanelSettingsSave;
 	private JButton uiPanelSettingsLoad;
@@ -59,7 +57,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JScrollPane uiPanelPluginsScroll;
 	private JButton uiPanelPluginsReload;
 	
-	public DesktopEx Desktop;
 	private JButton uiPanelDesktopShow;
 	private JButton uiPanelDesktopSearch;
 	private JButton uiPanelDesktopAdd;
@@ -77,11 +74,13 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	public static final Icons Icon = new Icons();
 	public static final Font Font = loadFont();
+	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
-	public JFileChooser getFileChooser()
-	{
-		return uiFileChooser;
-	}
+	//Load system Theme first, then other UI components
+	public static final Theme Theme = loadTheme();
+	public static final DesktopEx Desktop = loadDesktop();
+	public static final JFileChooser FileChooser = loadFileChooser();
 	
 	public static Font loadFont()
 	{
@@ -91,13 +90,118 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
 	}
 	
-	public void showConfigurationWizard()
+	public static Theme loadTheme()
+	{
+		try
+		{
+			Theme theme = new Theme(
+				foreground,
+				background,
+				Font);
+		    MetalLookAndFeel.setCurrentTheme(theme);
+		    UIManager.setLookAndFeel(new MetalLookAndFeel());
+			UIManager.put("ComboBox.selectionBackground", background);
+			UIManager.put("InternalFrame.inactiveTitleForeground", foreground.darker());
+			UIManager.put("InternalFrame.activeTitleForeground", foreground);
+			UIManager.put("InternalFrame.inactiveTitleBackground", background.darker());
+			UIManager.put("InternalFrame.activeTitleBackground", background);
+			UIManager.put("InternalFrame.font", Font);
+			UIManager.put("InternalFrame.titleFont", Font);
+			UIManager.put("InternalFrame.iconifyIcon", Icon.jdesktop_iframe_iconify);
+			UIManager.put("InternalFrame.minimizeIcon", Icon.jdesktop_iframe_minimize);
+			UIManager.put("InternalFrame.maximizeIcon", Icon.jdesktop_iframe_maximize);
+			UIManager.put("InternalFrame.closeIcon", Icon.jdesktop_iframe_close);
+			UIManager.put("InternalFrame.border", javax.swing.BorderFactory.createEtchedBorder(0));
+			UIManager.put("Slider.horizontalThumbIcon", Icon.jslider_thumbicon);
+			UIManager.put("Desktop.background", new ColorUIResource(Color.BLACK));
+			UIManager.put("FileChooser.listFont", Font);
+			UIManager.put("FileChooser.detailsViewIcon", Icon.filechooser_detailsview);
+			UIManager.put("FileChooser.homeFolderIcon", Icon.filechooser_homefolder);
+			UIManager.put("FileChooser.listViewIcon", Icon.filechooser_listview);
+			UIManager.put("FileChooser.newFolderIcon", Icon.filechooser_newfolder);
+			UIManager.put("FileChooser.upFolderIcon", Icon.filechooser_upfolder);
+			UIManager.put("FileChooser.computerIcon", Icon.filechooser_computer);
+			UIManager.put("FileChooser.directoryIcon", Icon.filechooser_directory);
+			UIManager.put("FileChooser.fileIcon", Icon.filechooser_file);
+			UIManager.put("FileChooser.floppyDriveIcon", Icon.filechooser_floppydrive);
+			UIManager.put("FileChooser.hardDriveIcon", Icon.filechooser_harddrive);
+			UIManager.put("Tree.expandedIcon", Icon.jtree_node_collapse);
+			UIManager.put("Tree.collapsedIcon", Icon.jtree_node_expand);
+			UIManager.put("ToolTip.foreground", foreground);
+			UIManager.put("ToolTip.background", background);
+		    return theme;
+		} catch(Exception e) {
+			Logger.logError(TAG + e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	public static DesktopEx loadDesktop()
+	{
+		return new DesktopEx();
+	}
+	
+	public static JFileChooser loadFileChooser()
+	{
+		JFileChooser filechooser = new JFileChooser(Core.DOUJINDB_HOME);
+		filechooser.setFont(Font);
+		filechooser.setFileView(new javax.swing.filechooser.FileView()
+    	{
+    		private Hashtable<String,ImageIcon> bundleIcon;
+    		
+    		{
+    			bundleIcon = new Hashtable<String,ImageIcon>();
+    			bundleIcon.put("zip",  Icon.fileview_archive);
+    			bundleIcon.put("rar",  Icon.fileview_archive);
+    			bundleIcon.put("gz",   Icon.fileview_archive);
+    			bundleIcon.put("tar",  Icon.fileview_archive);
+    			bundleIcon.put("bz2",  Icon.fileview_archive);
+    			bundleIcon.put("xz",   Icon.fileview_archive);
+    			bundleIcon.put("cpio", Icon.fileview_archive);
+    			bundleIcon.put("jpg",  Icon.fileview_image);
+    			bundleIcon.put("jpeg", Icon.fileview_image);
+    			bundleIcon.put("gif",  Icon.fileview_image);
+    			bundleIcon.put("png",  Icon.fileview_image);
+    			bundleIcon.put("tiff", Icon.fileview_image);
+    			bundleIcon.put("txt",  Icon.fileview_text);
+    			bundleIcon.put("sql",  Icon.fileview_text);
+    			bundleIcon.put("db",   Icon.fileview_database);
+    			bundleIcon.put("csv",  Icon.fileview_database);
+    		}
+    		
+    		@Override
+    		public String getName(File file)
+    		{
+    			return super.getName(file);
+    		}
+
+    		@Override
+    		public Icon getIcon(File file)
+    		{
+    			String filename = file.getName();
+    			if(file.isDirectory())
+    				return (Icon)Icon.fileview_folder;
+    			String ext = (filename.lastIndexOf(".") == -1) ? "" : filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toLowerCase();
+    			if(bundleIcon.containsKey(ext))
+    	            return (Icon)bundleIcon.get(ext);
+    	        else
+    	        	return (Icon)Icon.fileview_default;
+    	        	// return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
+    		}
+
+    	});
+		filechooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    	filechooser.setMultiSelectionEnabled(true);
+		return filechooser;
+	}
+	
+	public static void showConfigurationWizard()
 	{
 		ConfigurationWizard firstRun = new ConfigurationWizard();
 		firstRun.setSize(300,300);
 		try {
-			Core.UI.Desktop.showDialog(
-					UI.this,
+			Desktop.showDialog(
+					Desktop.getRootPane(),
 					firstRun,
 					Icon.window_dialog_configwiz_icon,
 					"Configuration Wizard");
@@ -114,28 +218,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setIconImage(Icon.window_icon.getImage());
 		super.setAlwaysOnTop((Boolean) Configuration.configRead("org.dyndns.doujindb.ui.always_on_top"));
 		
-		final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-		final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
-		
 		super.getContentPane().setBackground(background);
 		Logger.logInfo(TAG + "basic user interface loaded.");
 			
-		try
-		{
-			Theme theme = new Theme(
-					foreground,
-					background,
-					Font);
-		    MetalLookAndFeel.setCurrentTheme(theme);
-		    UIManager.setLookAndFeel(new MetalLookAndFeel());
-		    SwingUtilities.updateComponentTreeUI(this);
-		}catch(Exception e)
-		{
-			Logger.logError(TAG + e.getMessage(), e);
-			return;
-		}
-		Logger.logInfo(TAG + "system theme loaded.");
-		
 		LoadingDialog loading = new LoadingDialog(super.getTitle());
 		
 	    JComponent glassPane = new JComponent()
@@ -172,90 +257,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.addWindowListener(this);
 		super.addComponentListener(this);
 		
-		{
-			UIManager.put("ComboBox.selectionBackground", background);
-			UIManager.put("InternalFrame.inactiveTitleForeground", foreground.darker());
-			UIManager.put("InternalFrame.activeTitleForeground", foreground);
-			UIManager.put("InternalFrame.inactiveTitleBackground", background.darker());
-			UIManager.put("InternalFrame.activeTitleBackground", background);
-			UIManager.put("InternalFrame.font",Font);
-			UIManager.put("InternalFrame.titleFont",Font);
-	    	UIManager.put("InternalFrame.iconifyIcon",Icon.jdesktop_iframe_iconify);
-	    	UIManager.put("InternalFrame.minimizeIcon",Icon.jdesktop_iframe_minimize);
-	    	UIManager.put("InternalFrame.maximizeIcon",Icon.jdesktop_iframe_maximize);
-	    	UIManager.put("InternalFrame.closeIcon",Icon.jdesktop_iframe_close);
-	    	UIManager.put("InternalFrame.border",javax.swing.BorderFactory.createEtchedBorder(0));
-	    	UIManager.put("Slider.horizontalThumbIcon",Icon.jslider_thumbicon);
-	    	UIManager.put("Desktop.background",new ColorUIResource(Color.BLACK));
-	    	UIManager.put("FileChooser.listFont",Font);
-	    	UIManager.put("FileChooser.detailsViewIcon",Icon.filechooser_detailsview);
-	        UIManager.put("FileChooser.homeFolderIcon",Icon.filechooser_homefolder);
-	        UIManager.put("FileChooser.listViewIcon",Icon.filechooser_listview);
-	        UIManager.put("FileChooser.newFolderIcon",Icon.filechooser_newfolder);
-	    	UIManager.put("FileChooser.upFolderIcon",Icon.filechooser_upfolder);
-	    	UIManager.put("FileChooser.computerIcon",Icon.filechooser_computer);
-	    	UIManager.put("FileChooser.directoryIcon",Icon.filechooser_directory);
-	    	UIManager.put("FileChooser.fileIcon",Icon.filechooser_file);
-	    	UIManager.put("FileChooser.floppyDriveIcon",Icon.filechooser_floppydrive);
-	    	UIManager.put("FileChooser.hardDriveIcon",Icon.filechooser_harddrive);
-	    	UIManager.put("Tree.expandedIcon",Icon.jtree_node_collapse);
-	    	UIManager.put("Tree.collapsedIcon",Icon.jtree_node_expand);
-	    	UIManager.put("ToolTip.foreground", foreground);
-	    	UIManager.put("ToolTip.background", background);
-	    	uiFileChooser = new JFileChooser(new File(System.getProperty("user.home")));
-	    	uiFileChooser.setFont(Font);
-	    	uiFileChooser.setFileView(new javax.swing.filechooser.FileView()
-	    	{
-	    		private Hashtable<String,ImageIcon> bundleIcon;
-	    		
-	    		{
-	    			bundleIcon = new Hashtable<String,ImageIcon>();
-	    			bundleIcon.put("zip",  Icon.fileview_archive);
-	    			bundleIcon.put("rar",  Icon.fileview_archive);
-	    			bundleIcon.put("gz",   Icon.fileview_archive);
-	    			bundleIcon.put("tar",  Icon.fileview_archive);
-	    			bundleIcon.put("bz2",  Icon.fileview_archive);
-	    			bundleIcon.put("xz",   Icon.fileview_archive);
-	    			bundleIcon.put("cpio", Icon.fileview_archive);
-	    			bundleIcon.put("jpg",  Icon.fileview_image);
-	    			bundleIcon.put("jpeg", Icon.fileview_image);
-	    			bundleIcon.put("gif",  Icon.fileview_image);
-	    			bundleIcon.put("png",  Icon.fileview_image);
-	    			bundleIcon.put("tiff", Icon.fileview_image);
-	    			bundleIcon.put("txt",  Icon.fileview_text);
-	    			bundleIcon.put("sql",  Icon.fileview_text);
-	    			bundleIcon.put("db",   Icon.fileview_database);
-	    			bundleIcon.put("csv",  Icon.fileview_database);
-	    		}
-	    		
-	    		@Override
-	    		public String getName(File file)
-	    		{
-	    			return super.getName(file);
-	    		}
-	
-	    		@Override
-	    		public Icon getIcon(File file)
-	    		{
-	    			String filename = file.getName();
-	    			if(file.isDirectory())
-	    				return (Icon)Icon.fileview_folder;
-	    			String ext = (filename.lastIndexOf(".") == -1) ? "" : filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toLowerCase();
-	    			if(bundleIcon.containsKey(ext))
-	    	            return (Icon)bundleIcon.get(ext);
-	    	        else
-	    	        	return (Icon)Icon.fileview_default;
-	    	        	// return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
-	    		}
-	
-	    	});
-	    	uiFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-	    	uiFileChooser.setMultiSelectionEnabled(true);
-	    }
-		
 		menuBar = new JMenuBar();
 		menuBar.setFont(Font);
-		
 		menuHelp = new JMenu("Help");
 		menuHelp.setIcon(Icon.menubar_help);
 		menuHelp.setMnemonic(KeyEvent.VK_H);
@@ -341,7 +344,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		m_ButtonConnectionCtl.setToolTipText("Connect");
 		m_ButtonConnectionCtl.setDisabledIcon(Icon.window_loading);
 		bogus.add(m_ButtonConnectionCtl);
-		Desktop = new DesktopEx();
 		bogus.add(Desktop);
 		uiPanelTabbed.addTab("Explorer", Icon.window_tab_explorer, bogus);
 		
@@ -559,8 +561,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				bottom.add(ok, BorderLayout.SOUTH);
 				panel.add(bottom);
 				try {
-					Core.UI.Desktop.showDialog(
-							UI.this,
+					Desktop.showDialog(
+							Desktop.getRootPane(),
 							panel,
 							Icon.menubar_help_about,
 							"About");
@@ -1561,11 +1563,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
+							JFileChooser fc = FileChooser;
 							fc.setMultiSelectionEnabled(false);
 							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							if(fc.showOpenDialog(Desktop) != JFileChooser.APPROVE_OPTION)
 							{
 								fc.setFileSelectionMode(prev_option);
 								return;

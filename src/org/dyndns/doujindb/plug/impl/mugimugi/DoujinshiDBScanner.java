@@ -618,11 +618,11 @@ public final class DoujinshiDBScanner extends Plugin
 			{
 				try 
 				{
-					JFileChooser fc = Core.UI.getFileChooser();
+					JFileChooser fc = UI.FileChooser;
 					int prev_option = fc.getFileSelectionMode();
 					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					fc.setMultiSelectionEnabled(true);
-					if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+					if(fc.showOpenDialog(PluginUI.this) != JFileChooser.APPROVE_OPTION)
 					{
 						fc.setFileSelectionMode(prev_option);
 						return;
@@ -1324,7 +1324,7 @@ public final class DoujinshiDBScanner extends Plugin
 												qid.ID = id;
 												RecordSet<Book> set = Core.Database.getBooks(qid);
 												if(set.size() == 1)
-													Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+													UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 												return null;
 											}
 										}.execute();
@@ -1544,7 +1544,7 @@ public final class DoujinshiDBScanner extends Plugin
 								qid.ID = bookid;
 								RecordSet<Book> set = Core.Database.getBooks(qid);
 								if(set.size() == 1)
-									Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 							}
 							return null;
 						}
@@ -1765,7 +1765,7 @@ public final class DoujinshiDBScanner extends Plugin
 											qid.ID = book_id;
 											RecordSet<Book> set = Core.Database.getBooks(qid);
 											if(set.size() == 1)
-												Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
 										}
 									}.execute();
@@ -1793,7 +1793,7 @@ public final class DoujinshiDBScanner extends Plugin
 											qid.ID = book_id;
 											RecordSet<Book> set = Core.Database.getBooks(qid);
 											if(set.size() == 1)
-												Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
 										}
 									}.execute();								}

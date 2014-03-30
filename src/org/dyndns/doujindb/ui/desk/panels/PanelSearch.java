@@ -402,7 +402,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}
@@ -707,7 +707,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}
@@ -1013,7 +1013,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}
@@ -1280,7 +1280,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}
@@ -1530,7 +1530,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}
@@ -1795,7 +1795,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
 										tableResults.rowAtPoint(me.getPoint())), 0);
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
 						}

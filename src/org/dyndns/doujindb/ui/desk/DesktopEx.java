@@ -17,6 +17,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
+import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.*;
 import org.dyndns.doujindb.util.ImageTool;
 
@@ -57,9 +58,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 					{
 						try
 						{
-							JFileChooser fc = Core.UI.getFileChooser();
+							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(false);
-							if(fc.showOpenDialog(Core.UI) != JFileChooser.APPROVE_OPTION)
+							if(fc.showOpenDialog(DesktopEx.this) != JFileChooser.APPROVE_OPTION)
 								return null;
 							File file = fc.getSelectedFile();
 							wallpaperImage = new ImageIcon(file.getAbsolutePath());
@@ -94,7 +95,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.showTrashWindow();
+					showTrashWindow();
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
@@ -114,7 +115,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public void actionPerformed(ActionEvent ae)
 			{
 				try {
-					Core.UI.Desktop.showToolsWindow();
+					showToolsWindow();
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
@@ -459,7 +460,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				catch (ClassCastException cce) { }
 	}
 	
-	public void showDialog(RootPaneContainer parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
+	public void showDialog(JRootPane parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
 	{
 		final JComponent glassPane = (JComponent) parent.getGlassPane();
 		if(glassPane.isVisible())
@@ -608,7 +609,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 
@@ -772,7 +773,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 
@@ -1043,7 +1044,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 
@@ -1207,7 +1208,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 
@@ -1343,7 +1344,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 
@@ -1485,7 +1486,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			if(getRecord().equals(rcd))
 			{
 				super.dispose();
-				Core.UI.Desktop.remove(this);
+				remove(this);
 			}
 		}
 

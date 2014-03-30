@@ -97,9 +97,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							@Override
 							protected Void doInBackground() throws Exception
 							{
-								JFileChooser fc = Core.UI.getFileChooser();
+								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
-								int result = fc.showOpenDialog(Core.UI);
+								int result = fc.showOpenDialog(PanelCircle.this);
 								if(result != JFileChooser.APPROVE_OPTION)
 									return null;
 								Image img = null;

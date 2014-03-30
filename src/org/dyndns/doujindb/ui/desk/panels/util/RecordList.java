@@ -160,22 +160,22 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						switch(m_Type)
 		                {
 		                case ARTIST:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 		                	break;
 		                case BOOK:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 		                	break;
 		                case CIRCLE:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 		                	break;
 		                case CONTENT:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 		                	break;
 		                case CONVENTION:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 		                	break;
 		                case PARODY:
-		                	Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
+		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 		                	break;
 		                default:
 		                	return;
@@ -298,7 +298,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 									protected void process(List<Book> chunks) {
 										for (Book book : chunks)
 										{
-											WindowEx window = Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+											WindowEx window = UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
 											window.setTitle("(Clone) " + window.getTitle());
 										}
 								    }

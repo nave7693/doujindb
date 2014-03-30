@@ -17,7 +17,6 @@ import org.dyndns.doujindb.ui.*;
 */
 public final class Core implements Runnable
 {
-	public static UI UI;
 	public static DataBase Database;
 	public static Repository Repository;
 	
@@ -76,7 +75,7 @@ public final class Core implements Runnable
 		Database = DataBase.getInstance();
 		
 		Logger.logInfo(TAG + "loading user interface ...");
-		UI = new UI();
+		new UI();
 		Logger.logInfo(TAG + "user interface loaded.");
 		
 		PluginManager.startAll();

@@ -77,7 +77,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 					{
 						@Override
 						public void actionPerformed(ActionEvent ae) {
-							Core.UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
 						}
 					});
 					publish(bookButton);

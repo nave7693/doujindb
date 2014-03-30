@@ -131,9 +131,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							@Override
 							protected Void doInBackground() throws Exception
 							{
-								JFileChooser fc = Core.UI.getFileChooser();
+								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
-								int result = fc.showOpenDialog(Core.UI);
+								int result = fc.showOpenDialog(PanelBook.this);
 								if(result != JFileChooser.APPROVE_OPTION)
 									return null;
 								Image img = null;

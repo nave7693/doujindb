@@ -8,13 +8,15 @@ import javax.swing.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.records.Book.Rating;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public class BookRatingEditor extends JPanel
 {
 	private JButton[] buttons = new JButton[5];
 	private Rating bookRating;
-	private final ImageIcon CHECKED = Core.Resources.Icons.get("Desktop/Explorer/Book/Rating/Checked");
-	private final ImageIcon UNCHECKED = Core.Resources.Icons.get("Desktop/Explorer/Book/Rating/Unchecked");
+	private final ImageIcon CHECKED = Icon.desktop_explorer_book_rating_checked;
+	private final ImageIcon UNCHECKED = Icon.desktop_explorer_book_rating_unchecked;
 	
 	public BookRatingEditor(Rating rating)
 	{

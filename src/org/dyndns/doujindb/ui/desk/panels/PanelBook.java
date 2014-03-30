@@ -42,6 +42,8 @@ import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 import org.dyndns.doujindb.util.ImageTool;
 import org.dyndns.doujindb.util.RepositoryIndexer;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public final class PanelBook extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
@@ -104,7 +106,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		textInfo = new JTextArea("");
 		textInfo.setFont(font);
 		scrollInfo = new JScrollPane(textInfo);
-		labelPreview = new JLabel(Core.Resources.Icons.get("Desktop/Explorer/Book/Cover"));
+		labelPreview = new JLabel(Icon.desktop_explorer_book_cover);
 		labelPreview.setName("no-preview");
 		labelPreview.addMouseListener(new MouseAdapter()
 		{
@@ -118,7 +120,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				
 	    		JPopupMenu popupMenu = new JPopupMenu();
 	    		
-	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("Desktop/Explorer/Book/Popup/Add"));
+	    		JMenuItem menuItemA = new JMenuItem("Add", Icon.desktop_explorer_book_popup_add);
 				menuItemA.addActionListener(new ActionListener()
 				{
 					@Override
@@ -181,7 +183,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									{
 										@Override
 										public void run() {
-											labelPreview.setIcon(Core.Resources.Icons.get("Desktop/Explorer/Book/Cover"));
+											labelPreview.setIcon(Icon.desktop_explorer_book_cover);
 											labelPreview.setName("no-preview");
 										}
 									});
@@ -195,7 +197,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				menuItemA.setName("add");
 				menuItemA.setActionCommand("add");
 
-				JMenuItem menuItemR = new JMenuItem("Remove", Core.Resources.Icons.get("Desktop/Explorer/Book/Popup/Remove"));
+				JMenuItem menuItemR = new JMenuItem("Remove", Icon.desktop_explorer_book_popup_remove);
 				menuItemR.addActionListener(new ActionListener()
 				{
 					@Override
@@ -221,7 +223,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							}
 							@Override
 							protected void done() {
-								labelPreview.setIcon(Core.Resources.Icons.get("Desktop/Explorer/Book/Cover"));
+								labelPreview.setIcon(Icon.desktop_explorer_book_cover);
 								labelPreview.setName("no-preview");
 						    }
 						}.execute();
@@ -337,17 +339,17 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		panelInfo.add(labelType);
 		panelInfo.add(comboType);
 		panelInfo.add(labelPreview);
-		tabLists.addTab("General", Core.Resources.Icons.get("Desktop/Explorer/Book/Info"), panelInfo);
+		tabLists.addTab("General", Icon.desktop_explorer_book_info, panelInfo);
 		editorArtists = new RecordArtistEditor(tokenBook);
-		tabLists.addTab("Artists", Core.Resources.Icons.get("Desktop/Explorer/Artist"), editorArtists);
+		tabLists.addTab("Artists", Icon.desktop_explorer_artist, editorArtists);
 		editorCircles = new RecordCircleEditor(tokenBook);
-		tabLists.addTab("Circles", Core.Resources.Icons.get("Desktop/Explorer/Circle"), editorCircles);
+		tabLists.addTab("Circles", Icon.desktop_explorer_circle, editorCircles);
 		editorContents = new RecordContentEditor(tokenBook);
-		tabLists.addTab("Contents", Core.Resources.Icons.get("Desktop/Explorer/Content"), editorContents);
+		tabLists.addTab("Contents", Icon.desktop_explorer_content, editorContents);
 		editorParodies = new RecordParodyEditor(tokenBook);
-		tabLists.addTab("Parodies", Core.Resources.Icons.get("Desktop/Explorer/Parody"), editorParodies);
+		tabLists.addTab("Parodies", Icon.desktop_explorer_parody, editorParodies);
 		mediaManager = new PanelBookMedia(tokenBook);
-		tabLists.addTab("Media", Core.Resources.Icons.get("Desktop/Explorer/Book/Media"), mediaManager);
+		tabLists.addTab("Media", Icon.desktop_explorer_book_media, mediaManager);
 		if(tokenBook.getID() == null)
 		{
 			labelPreview.setEnabled(false);

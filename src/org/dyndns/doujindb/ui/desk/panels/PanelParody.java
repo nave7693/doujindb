@@ -22,6 +22,8 @@ import org.dyndns.doujindb.ui.desk.panels.edit.*;
 import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public final class PanelParody extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
@@ -64,7 +66,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenParody);
-		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Icon.desktop_explorer_book, editorWorks);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList()
 		}));

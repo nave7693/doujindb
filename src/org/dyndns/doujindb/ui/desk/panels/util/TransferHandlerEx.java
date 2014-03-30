@@ -6,9 +6,10 @@ import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.*;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
+
+import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
 public final class TransferHandlerEx extends TransferHandler
@@ -58,12 +59,12 @@ public final class TransferHandlerEx extends TransferHandler
 	private static HashMap<Type, Image> icons;
 	{
 		icons = new HashMap<Type, Image>();
-		icons.put(Type.ARTIST, Core.Resources.Icons.get("Desktop/Explorer/Artist").getImage());
-		icons.put(Type.BOOK, Core.Resources.Icons.get("Desktop/Explorer/Book").getImage());
-		icons.put(Type.CIRCLE, Core.Resources.Icons.get("Desktop/Explorer/Circle").getImage());
-		icons.put(Type.CONTENT, Core.Resources.Icons.get("Desktop/Explorer/Content").getImage());
-		icons.put(Type.CONVENTION, Core.Resources.Icons.get("Desktop/Explorer/Convention").getImage());
-		icons.put(Type.PARODY, Core.Resources.Icons.get("Desktop/Explorer/Parody").getImage());
+		icons.put(Type.ARTIST, Icon.desktop_explorer_artist.getImage());
+		icons.put(Type.BOOK, Icon.desktop_explorer_book.getImage());
+		icons.put(Type.CIRCLE, Icon.desktop_explorer_circle.getImage());
+		icons.put(Type.CONTENT, Icon.desktop_explorer_content.getImage());
+		icons.put(Type.CONVENTION, Icon.desktop_explorer_convention.getImage());
+		icons.put(Type.PARODY, Icon.desktop_explorer_parody.getImage());
 	}
 	
 	public TransferHandlerEx(Type type)

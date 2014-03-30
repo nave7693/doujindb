@@ -21,7 +21,6 @@ public final class Icons
 	public final ImageIcon window_tab_explorer_statusbar_disconnect = null;
 	public final ImageIcon window_tab_explorer_statusbar_connected = null;
 	public final ImageIcon window_tab_explorer_statusbar_disconnected = null;
-//	public final ImageIcon window_tab_explorer_statusbar_connecting = null;
 	public final ImageIcon window_tab_logs = null;
 	public final ImageIcon window_tab_logs_message = null;
 	public final ImageIcon window_tab_logs_warning = null;
@@ -92,7 +91,8 @@ public final class Icons
 	public final ImageIcon desktop_explorer_book_cover = null;
 	public final ImageIcon desktop_explorer_book_popup_add = null;
 	public final ImageIcon desktop_explorer_book_popup_remove = null;
-//	public final ImageIcon desktop_explorer_book_media_repository = null;
+	public final ImageIcon desktop_explorer_book_media = null;
+	public final ImageIcon desktop_explorer_book_media_repository = null;
 	public final ImageIcon desktop_explorer_book_media_types_folder = null;
 	public final ImageIcon desktop_explorer_book_media_types_archive = null;
 	public final ImageIcon desktop_explorer_book_media_types_unknown = null;
@@ -163,6 +163,7 @@ public final class Icons
 				try {
 					field.setAccessible(true);
 					field.set(this, loadImage(iconPath));
+					Logger.logDebug(TAG + "loaded icon resource '" + iconPath + "'");
 					field.setAccessible(false);
 				} catch (IllegalArgumentException | IllegalAccessException iae) {
 					Logger.logFatal(TAG + "error loading resource icon '" + iconPath + "'", iae);

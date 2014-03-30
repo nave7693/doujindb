@@ -21,6 +21,8 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public final class RecordList<T extends Record> extends JPanel implements LayoutManager
 {
@@ -211,7 +213,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		    		if(selected.isEmpty())
 		    			return;
 		    		
-					JMenuItem menuItem = new JMenuItem("Remove", Core.Resources.Icons.get("Desktop/Explorer/Remove"));
+					JMenuItem menuItem = new JMenuItem("Remove", Icon.desktop_explorer_remove);
 					menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -250,7 +252,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 					m_PopupAction.add(menuItem);
 					if(selected.size() == 1 && selected.get(0) instanceof Book)
 					{
-						menuItem = new JMenuItem("Clone", Core.Resources.Icons.get("Desktop/Explorer/Clone"));
+						menuItem = new JMenuItem("Clone", Icon.desktop_explorer_clone);
 						menuItem.addActionListener(new ActionListener()
 						{
 							@Override

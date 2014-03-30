@@ -25,6 +25,8 @@ import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public abstract class PanelSearch<T extends Record> extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
@@ -439,7 +441,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -567,7 +569,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchArtist(q);
@@ -609,7 +611,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Artist"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_artist);
 			}
 		}
 	}
@@ -744,7 +746,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -894,7 +896,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchBook(q);
@@ -936,7 +938,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Book"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_book);
 			}
 		}
 	}
@@ -1050,7 +1052,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -1176,7 +1178,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchCircle(q);
@@ -1218,7 +1220,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Circle"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_circle);
 			}
 		}
 	}
@@ -1317,7 +1319,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -1426,7 +1428,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchContent(q);
@@ -1468,7 +1470,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Parody"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_parody);
 			}
 		}
 	}
@@ -1567,7 +1569,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -1676,7 +1678,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchConvention(q);
@@ -1718,7 +1720,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Convention"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_convention);
 			}
 		}
 	}
@@ -1832,7 +1834,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
-		    		JMenuItem menuItem = new JMenuItem("Delete", Core.Resources.Icons.get("Desktop/Explorer/Delete"));
+		    		JMenuItem menuItem = new JMenuItem("Delete", Icon.desktop_explorer_delete);
 		    		menuItem.addActionListener(new ActionListener()
 					{
 						@Override
@@ -1958,7 +1960,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				// UI feedback
 				m_ButtonSearch.setText("Cancel");
 				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Frame/Loading"));
+				m_Tab.setIconAt(m_Index, Icon.window_loading);
 				
 				// Run the Worker
 				m_Worker = new SearchParody(q);
@@ -2000,7 +2002,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
-				m_Tab.setIconAt(m_Index, Core.Resources.Icons.get("Desktop/Explorer/Parody"));
+				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_parody);
 			}
 		}
 	}
@@ -2019,7 +2021,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public DialogSearch(JComponent parent, String message, SwingWorker<?,?> worker)
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Trash"));
+			super.setFrameIcon(Icon.desktop_explorer_trash);
 			super.setTitle("Trash");
 			super.setMaximizable(false);
 			super.setIconifiable(false);

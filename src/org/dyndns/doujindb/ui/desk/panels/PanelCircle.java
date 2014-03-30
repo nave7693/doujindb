@@ -27,6 +27,8 @@ import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
 import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
 import org.dyndns.doujindb.util.ImageTool;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public final class PanelCircle extends JPanel implements DataBaseListener, LayoutManager, ActionListener
 {
@@ -68,7 +70,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		labelWeblink.setFont(font);
 		textWeblink = new JTextField("");
 		textWeblink.setFont(font);
-		labelBanner = new JLabel(Core.Resources.Icons.get("Desktop/Explorer/Circle/Banner"));
+		labelBanner = new JLabel(Icon.desktop_explorer_circle_banner);
 		labelBanner.setName("no-banner");
 		if(tokenCircle.getID() == null)
 			labelBanner.setEnabled(false);
@@ -84,7 +86,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				
 	    		JPopupMenu popupMenu = new JPopupMenu();
 	    		
-	    		JMenuItem menuItemA = new JMenuItem("Add", Core.Resources.Icons.get("Desktop/Explorer/Circle/Popup/Add"));
+	    		JMenuItem menuItemA = new JMenuItem("Add", Icon.desktop_explorer_circle_popup_add);
 				menuItemA.addActionListener(new ActionListener()
 				{
 					@Override
@@ -152,7 +154,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									{
 										@Override
 										public void run() {
-											labelBanner.setIcon(Core.Resources.Icons.get("Desktop/Explorer/Circle/Banner"));
+											labelBanner.setIcon(Icon.desktop_explorer_circle_banner);
 											labelBanner.setName("no-banner");
 										}
 									});
@@ -166,7 +168,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				menuItemA.setName("add");
 				menuItemA.setActionCommand("add");
 
-				JMenuItem menuItemR = new JMenuItem("Remove", Core.Resources.Icons.get("Desktop/Explorer/Circle/Popup/Remove"));
+				JMenuItem menuItemR = new JMenuItem("Remove", Icon.desktop_explorer_circle_popup_remove);
 				menuItemR.addActionListener(new ActionListener()
 				{
 					@Override
@@ -192,7 +194,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							}
 							@Override
 							protected void done() {
-								labelBanner.setIcon(Core.Resources.Icons.get("Desktop/Explorer/Circle/Banner"));
+								labelBanner.setIcon(Icon.desktop_explorer_circle_banner);
 								labelBanner.setName("no-banner");
 						    }
 						}.execute();
@@ -212,9 +214,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
 		editorWorks = new RecordBookEditor(tokenCircle);
-		tabLists.addTab("Works", Core.Resources.Icons.get("Desktop/Explorer/Book"), editorWorks);
+		tabLists.addTab("Works", Icon.desktop_explorer_book, editorWorks);
 		editorArtists = new RecordArtistEditor(tokenCircle);
-		tabLists.addTab("Artists", Core.Resources.Icons.get("Desktop/Explorer/Artist"), editorArtists);
+		tabLists.addTab("Artists", Icon.desktop_explorer_artist, editorArtists);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				editorWorks.getRecordList(),
 				editorArtists.getRecordList()

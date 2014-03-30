@@ -20,6 +20,8 @@ import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.desk.panels.*;
 import org.dyndns.doujindb.util.ImageTool;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public final class DesktopEx extends JDesktopPane implements DataBaseListener
 {
@@ -38,7 +40,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		setOpaque(false);
 		wallpaperImage = new ImageIcon(new File(Core.DOUJINDB_HOME,"doujindb.wallpaper").getAbsolutePath());
 		wallpaper = new JLabel(wallpaperImage);
-		buttonWallpaper = new JButton(Core.Resources.Icons.get("Desktop/Wallpaper/Import"));
+		buttonWallpaper = new JButton(Icon.desktop_wallpaper_import);
 		buttonWallpaper.setFocusable(false);
 		buttonWallpaper.setOpaque(false);
 		buttonWallpaper.setBackground(new Color(255,255,255,0));
@@ -80,8 +82,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}			
 		});
 		super.add(buttonWallpaper);
-		m_ButtonTrash = new JButton(Core.Resources.Icons.get("Desktop/Trash/Empty"));
-		m_ButtonTrash.setDisabledIcon(Core.Resources.Icons.get("Desktop/Trash/Disabled"));
+		m_ButtonTrash = new JButton(Icon.desktop_trash_empty);
+		m_ButtonTrash.setDisabledIcon(Icon.desktop_trash_disabled);
 		m_ButtonTrash.setToolTipText("Trash");
 		m_ButtonTrash.setFocusable(false);
 		m_ButtonTrash.setContentAreaFilled(false);
@@ -100,8 +102,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 		});
 		super.add(m_ButtonTrash);
-		buttonTools = new JButton(Core.Resources.Icons.get("Desktop/Tools/Enabled"));
-		buttonTools.setDisabledIcon(Core.Resources.Icons.get("Desktop/Tools/Disabled"));
+		buttonTools = new JButton(Icon.desktop_tools_enabled);
+		buttonTools.setDisabledIcon(Icon.desktop_tools_disabled);
 		buttonTools.setToolTipText("Tools");
 		buttonTools.setFocusable(false);
 		buttonTools.setContentAreaFilled(false);
@@ -511,9 +513,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	{
 		try {
 			if(Core.Database.getRecycled().size() > 0)
-				m_ButtonTrash.setIcon(Core.Resources.Icons.get("Desktop/Trash/Full"));
+				m_ButtonTrash.setIcon(Icon.desktop_trash_full);
 			else
-				m_ButtonTrash.setIcon(Core.Resources.Icons.get("Desktop/Trash/Empty"));
+				m_ButtonTrash.setIcon(Icon.desktop_trash_empty);
 		} catch (DataBaseException dbe) {
 			Logger.logError(dbe.getMessage(), dbe);
 			dbe.printStackTrace();
@@ -580,7 +582,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowArtistImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Artist"));
+			super.setFrameIcon(Icon.desktop_explorer_artist);
 			this.type = Type.WINDOW_ARTIST;
 			if(rcd == null)
 			{
@@ -744,7 +746,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowBookImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Book"));
+			super.setFrameIcon(Icon.desktop_explorer_book);
 			this.type = Type.WINDOW_BOOK;
 			if(rcd == null)
 			{
@@ -1015,7 +1017,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowCircleImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Circle"));
+			super.setFrameIcon(Icon.desktop_explorer_circle);
 			this.type = Type.WINDOW_CIRCLE;
 			if(rcd == null)
 			{
@@ -1179,7 +1181,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowContentImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Content"));
+			super.setFrameIcon(Icon.desktop_explorer_content);
 			this.type = Type.WINDOW_CONTENT;
 			if(rcd == null)
 			{
@@ -1315,7 +1317,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowConventionImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Convention"));
+			super.setFrameIcon(Icon.desktop_explorer_convention);
 			this.type = Type.WINDOW_CONVENTION;
 			if(rcd == null)
 			{
@@ -1457,7 +1459,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		WindowParodyImpl(Record rcd) throws DataBaseException
 		{
 			super();
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Parody"));
+			super.setFrameIcon(Icon.desktop_explorer_parody);
 			this.type = Type.WINDOW_PARODY;
 			if(rcd == null)
 			{
@@ -1595,29 +1597,29 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		{
 			super();
 			this.type = Type.WINDOW_SEARCH;
-			super.setFrameIcon(Core.Resources.Icons.get("Frame/Tab/Explorer/Search"));
+			super.setFrameIcon(Icon.window_tab_explorer_search);
 			super.setTitle("Search");
 			JTabbedPane pane = new JTabbedPane();
 			pane.setFocusable(false);
 			PanelSearch<?> subPane;
 			subPane = new org.dyndns.doujindb.ui.desk.panels.PanelSearch.IArtist(pane, 0);
 			listeners.add(subPane);
-			pane.addTab("Artist", Core.Resources.Icons.get("Desktop/Explorer/Artist"), subPane);
+			pane.addTab("Artist", Icon.desktop_explorer_artist, subPane);
 			subPane = new PanelSearch.IBook(pane, 1);
 			listeners.add(subPane);
-			pane.addTab("Book", Core.Resources.Icons.get("Desktop/Explorer/Book"), subPane);
+			pane.addTab("Book", Icon.desktop_explorer_book, subPane);
 			subPane = new PanelSearch.ICircle(pane, 2);
 			listeners.add(subPane);
-			pane.addTab("Circle", Core.Resources.Icons.get("Desktop/Explorer/Circle"), subPane);
+			pane.addTab("Circle", Icon.desktop_explorer_circle, subPane);
 			subPane = new PanelSearch.IConvention(pane, 3);
 			listeners.add(subPane);
-			pane.addTab("Convention", Core.Resources.Icons.get("Desktop/Explorer/Convention"), subPane);
+			pane.addTab("Convention", Icon.desktop_explorer_convention, subPane);
 			subPane = new PanelSearch.IContent(pane, 4);
 			listeners.add(subPane);
-			pane.addTab("Content", Core.Resources.Icons.get("Desktop/Explorer/Content"), subPane);
+			pane.addTab("Content", Icon.desktop_explorer_content, subPane);
 			subPane = new PanelSearch.IParody(pane, 5);
 			listeners.add(subPane);
-			pane.addTab("Parody", Core.Resources.Icons.get("Desktop/Explorer/Parody"), subPane);
+			pane.addTab("Parody", Icon.desktop_explorer_parody, subPane);
 			super.add(pane);
 			super.setVisible(true);
 		}
@@ -1629,7 +1631,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		{
 			super();
 			this.type = Type.WINDOW_TRASH;
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Trash"));
+			super.setFrameIcon(Icon.desktop_explorer_trash);
 			super.setTitle("Trash");
 			PanelTrash panel = new PanelTrash();
 			listeners.add(panel);
@@ -1644,7 +1646,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		{
 			super();
 			this.type = Type.WINDOW_TOOLS;
-			super.setFrameIcon(Core.Resources.Icons.get("Desktop/Explorer/Tools"));
+			super.setFrameIcon(Icon.desktop_explorer_tools);
 			super.setTitle("Tools");
 			//TODO org.dyndns.doujindb.util.RepositoryIndexer.rebuildIndexes();
 			super.setVisible(true);
@@ -1662,7 +1664,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				this.type = Type.WINDOW_PLUGIN;
 				this.plugin = plugin;
 			}			
-			super.setFrameIcon(Core.Resources.Icons.get("Frame/Tab/Plugins"));
+			super.setFrameIcon(Icon.window_tab_plugins);
 			super.setTitle(plugin.getName());
 			/**
 			 * Interface Plugin does not extends/implement DatabaseListener.

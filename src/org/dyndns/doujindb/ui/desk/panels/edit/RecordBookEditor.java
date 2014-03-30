@@ -21,6 +21,8 @@ import org.dyndns.doujindb.ui.desk.WindowEx;
 import org.dyndns.doujindb.ui.desk.panels.util.*;
 import org.dyndns.doujindb.util.ImageTool;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 @SuppressWarnings("serial")
 public class RecordBookEditor extends JPanel implements LayoutManager, ActionListener, DataBaseListener
 {
@@ -54,7 +56,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		    }
 		});
 		recordList = new RecordList<Book>(tokenIBook.getBooks(), Book.class);
-		toggleList = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Table/View/List"));
+		toggleList = new JButton(Icon.desktop_explorer_table_view_list);
 		toggleList.setToolTipText("Toggle List");
 		toggleList.addActionListener(this);
 		toggleList.setFocusable(false);
@@ -97,7 +99,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		}.execute();
 		scrollRecordPreview = new JScrollPane(recordPreview);
 		scrollRecordPreview.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		togglePreview = new JButton(Core.Resources.Icons.get("Desktop/Explorer/Table/View/Preview"));
+		togglePreview = new JButton(Icon.desktop_explorer_table_view_preview);
 		togglePreview.setToolTipText("Toggle Preview");
 		togglePreview.addActionListener(this);
 		togglePreview.setFocusable(false);

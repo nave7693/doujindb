@@ -9,7 +9,6 @@ import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.*;
-import org.dyndns.doujindb.ui.rc.*;
 
 /**  
 * Core.java - DoujinDB core.
@@ -18,7 +17,6 @@ import org.dyndns.doujindb.ui.rc.*;
 */
 public final class Core implements Runnable
 {
-	public static Resources Resources;
 	public static UI UI;
 	public static DataBase Database;
 	public static Repository Repository;
@@ -71,17 +69,6 @@ public final class Core implements Runnable
 		if(Configuration.configRead("org.dyndns.doujindb.dat.datastore").equals(Configuration.configRead("org.dyndns.doujindb.dat.temp")))
 			Logger.logWarning(TAG + "repository folder is set to the temporary system folder.");
 		Logger.logInfo(TAG + "repository loaded.");
-		
-		try
-		{
-			Logger.logInfo(TAG + "loading resources ...");
-			Resources = new Resources();
-		} catch (Exception e)
-		{
-			Logger.logFatal(e.getMessage(), e);
-			return;
-		}
-		Logger.logInfo(TAG + "resources loaded.");
 		
 		if(!((Boolean)Configuration.configRead("org.dyndns.doujindb.log.cayenne")))
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");

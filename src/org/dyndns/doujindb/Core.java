@@ -51,6 +51,7 @@ public final class Core implements Runnable
 			Logger.logInfo(TAG + "loading system configuration ...");
 			Configuration.configLoad();
 			Logger.logInfo(TAG + "system configuration loaded.");
+			Logger.enableDebug((boolean) Configuration.configRead("org.dyndns.doujindb.log.debug"));
 		} catch (ConfigurationException ce)
 		{
 			Logger.logError(TAG + "failed to load system configuration.", ce);

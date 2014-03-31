@@ -19,6 +19,8 @@ final class SystemLogger implements ILogger
 	
 	private PrintWriter stdout;
 	
+	private Boolean logDebug = false;
+	
 	public SystemLogger()
 	{
 		/**
@@ -55,6 +57,8 @@ final class SystemLogger implements ILogger
 			
 			private void processLog(LogEvent event)
 			{
+				if(event.getLevel().equals(Level.DEBUG) && !logDebug)
+					return;
 				stdout.printf("%s [%s] %s\r\n", sdf.format(new Date(event.getTime())),
 						event.getLevel(),
 						event.getMessage());
@@ -134,5 +138,10 @@ final class SystemLogger implements ILogger
 	@Override
 	public void logInfo(String message, Throwable err) {
 		log(new LogEvent(Level.INFO, message, err));
+	}
+
+	@Override
+	public void enableDebug(boolean logDebug) {
+		this.logDebug = logDebug;
 	}
 }

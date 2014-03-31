@@ -55,4 +55,8 @@ public final class Logger
 	public static void logInfo(String message, Throwable err) {
 		log(new LogEvent(Level.INFO, message, err));
 	}
+	
+	public static void enableDebug(boolean logDebug) {
+		instance.enableDebug(logDebug);
+	}
 }

@@ -18,6 +18,7 @@ interface ILogger
 	public abstract void logWarning(String message, Throwable err);
 	public abstract void logInfo(String message);
 	public abstract void logInfo(String message, Throwable err);
+	public abstract void enableDebug(boolean logDebug);
 	public abstract void loggerAttach(ILogger logger);
 	public abstract void loggerDetach(ILogger logger);
 	

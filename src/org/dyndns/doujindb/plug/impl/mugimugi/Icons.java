@@ -55,6 +55,7 @@ public final class Icons
 				try {
 					field.setAccessible(true);
 					field.set(this, loadImage(iconPath));
+					Logger.logDebug(TAG + "loaded icon resource '" + iconPath + "'");
 					field.setAccessible(false);
 				} catch (IllegalArgumentException | IllegalAccessException iae) {
 					Logger.logFatal(TAG + "error loading resource icon '" + iconPath + "'", iae);

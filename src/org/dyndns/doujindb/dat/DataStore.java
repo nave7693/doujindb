@@ -21,7 +21,7 @@ public final class DataStore
 		if(instance != null)
 			throw new DataStoreException("DataStore is already open.");
 		File localPath = new File(Configuration.configRead("org.dyndns.doujindb.dat.datastore").toString());
-		if(localPath.exists())
+		if(!localPath.exists())
 			throw new DataStoreException("DataStore mountpoint '" + localPath.getPath() + "' does not exists.");
 		instance = new LocalDataStore(localPath);
 	}

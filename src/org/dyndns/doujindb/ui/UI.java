@@ -26,6 +26,7 @@ import javax.swing.plaf.basic.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.event.*;
+import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
@@ -683,6 +684,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						try
 						{
 							Core.Database.disconnect();
+							DataStore.close();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
@@ -691,6 +693,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						{
 							Core.Database.connect();
 							Core.Database.doRollback();
+							DataStore.open();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}

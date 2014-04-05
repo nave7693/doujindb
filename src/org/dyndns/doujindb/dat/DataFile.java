@@ -2,7 +2,7 @@ package org.dyndns.doujindb.dat;
 
 import java.io.*;
 
-interface DataFile
+public interface DataFile
 {
 	public String getName() throws DataStoreException;
 	public String getPath() throws DataStoreException;

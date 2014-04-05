@@ -40,16 +40,22 @@ public final class DataStore
 	
 	public static DataFile getMeta(String bookId) throws DataStoreException
 	{
+		if(instance == null)
+			throw new DataStoreException("DataStore is closed.");
 		return instance.getMeta(bookId);
 	}
 	
 	public static DataFile getCover(String bookId) throws DataStoreException
 	{
+		if(instance == null)
+			throw new DataStoreException("DataStore is closed.");
 		return instance.getCover(bookId);
 	}
 	
 	public static DataFile getFile(String bookId) throws DataStoreException
 	{
+		if(instance == null)
+			throw new DataStoreException("DataStore is closed.");
 		return instance.getFile(bookId);
 	}
 }

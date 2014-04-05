@@ -223,7 +223,7 @@ public class PanelBookMedia extends JPanel
 										ds = ds.getFile(os[k].toString().substring(1));
 									else
 										ds = ds.getFile(os[k].toString());
-								ds.delete();
+								ds.delete(true);
 							} catch (Exception e) { e.printStackTrace(); }
 						} catch (Exception e) {
 							Logger.logError(e.getMessage(), e);

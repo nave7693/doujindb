@@ -16,6 +16,7 @@ public interface DataFile
 	public OutputStream getOutputStream() throws DataStoreException;	
 	public DataFile[] listFiles() throws DataStoreException;
 	public DataFile[] listFiles(String regexp) throws DataStoreException;
+	public DataFile getFile(String name) throws DataStoreException;
 	public void touch() throws DataStoreException;
 	public void mkdir() throws DataStoreException;
 	public void mkdirs() throws DataStoreException;

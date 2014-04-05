@@ -112,6 +112,19 @@ final class LocalDataStore implements IDataStore
 		}
 		
 		@Override
+		public DataFile getFile(String name) throws DataStoreException {
+			File newFile = new File(filePath, name);
+			/**
+			 * Try to prevent possible directory traversal attack
+			 * DataFile.getFile("../../../../../../../../../etc/passwd")
+			 * @see http://en.wikipedia.org/wiki/Directory_traversal_attack
+			 */
+			if(!newFile.getParentFile().equals(filePath))
+				throw new DataStoreException("Specified file name '" + name + "' is not valid.");
+			return new LocalDataFile(newFile);
+		}
+		
+		@Override
 		public DataFile[] listFiles() throws DataStoreException {
 			return listFiles(".*");
 		}

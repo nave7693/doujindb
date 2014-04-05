@@ -1,31 +1,26 @@
 package org.dyndns.doujindb.dat;
 
 import java.io.*;
-import java.util.Set;
 
-/**  
-* DataFile.java
-* @author  nozomu
-* @version 1.0
-*/
-public interface DataFile
+interface DataFile
 {
-	public String getName() throws RepositoryException;	
-	public String getPath() throws RepositoryException;	
-	public boolean isDirectory() throws RepositoryException;	
-	public boolean isFile() throws RepositoryException;	
-	public boolean canRead() throws RepositoryException;	
-	public boolean canWrite() throws RepositoryException;	
-	public long size() throws RepositoryException;	
-	public InputStream getInputStream() throws RepositoryException;	
-	public OutputStream getOutputStream() throws RepositoryException;	
-	public Set<DataFile> children() throws RepositoryException;	
-	public DataFile getParent() throws RepositoryException;	
-	public void touch() throws RepositoryException;	
-	public void mkdir() throws RepositoryException;	
-	public void mkdirs() throws RepositoryException;	
-	public DataFile child(String name) throws RepositoryException;	
-	public boolean exists() throws RepositoryException;	
-	public void delete() throws RepositoryException;
-	public int compareTo(DataFile ds) throws RepositoryException;
+	public String getName() throws DataStoreException;
+	public String getPath() throws DataStoreException;
+	public boolean isDirectory() throws DataStoreException;	
+	public boolean isFile() throws DataStoreException;
+	public boolean canRead() throws DataStoreException;
+	public boolean canWrite() throws DataStoreException;	
+	public long length() throws DataStoreException;
+	public String size() throws DataStoreException;
+	public InputStream getInputStream() throws DataStoreException;
+	public OutputStream getOutputStream() throws DataStoreException;	
+	public DataFile[] listFiles() throws DataStoreException;	
+//	public DataFile getParent() throws DataStoreException;
+	public void touch() throws DataStoreException;
+	public void mkdir() throws DataStoreException;
+//	public void mkdirs() throws DataStoreException;
+//	public DataFile child(String name) throws DataStoreException;
+	public boolean exists() throws DataStoreException;
+	public void delete() throws DataStoreException;
+	public int compareTo(DataFile dataFile) throws DataStoreException;
 }

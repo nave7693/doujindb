@@ -2,6 +2,8 @@ package org.dyndns.doujindb.dat;
 
 import java.io.*;
 
+import org.dyndns.doujindb.log.Logger;
+
 final class LocalDataStore implements IDataStore
 {
 	private final File rootPath;
@@ -10,7 +12,6 @@ final class LocalDataStore implements IDataStore
 	private static final String DATAFILE_META = ".xml";
 	private static final String DATAFILE_COVER = ".preview";
 	
-	@SuppressWarnings("unused")
 	private static final String TAG = "LocalDataStore : ";
 	
 	LocalDataStore(final File rootPath)
@@ -27,7 +28,24 @@ final class LocalDataStore implements IDataStore
 	@Override
 	public DataFile getCover(String bookId) throws DataStoreException
 	{
-		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_COVER));
+		if(LocalCache.isEnabled())
+			try {
+				File file = LocalCache.get(bookId);
+				if(file.exists())
+					return new LocalDataFile(file);
+				else
+					throw new IOException();
+			} catch (IOException ioe) {
+				File file = new File(new File(rootPath, bookId), DATAFILE_COVER);
+				try {
+					LocalCache.put(bookId, file);
+				} catch (Exception e) {
+					Logger.logError(TAG + "failed to add '" + bookId + "' to local cache.", e);
+				}
+				return new LocalDataFile(file);
+			}
+		else
+			return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_COVER));
 	}
 
 	@Override

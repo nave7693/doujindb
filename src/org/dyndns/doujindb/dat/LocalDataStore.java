@@ -136,6 +136,7 @@ final class LocalDataStore implements IDataStore
 		@Override
 		public void touch() throws DataStoreException {
 			try {
+				filePath.getParentFile().mkdirs();
 				filePath.createNewFile();
 			} catch (IOException ioe) {
 				throw new DataStoreException(ioe);

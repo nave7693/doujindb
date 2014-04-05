@@ -146,6 +146,11 @@ final class LocalDataStore implements IDataStore
 		public void mkdir() throws DataStoreException {
 			filePath.mkdir();
 		}
+		
+		@Override
+		public void mkdirs() throws DataStoreException {
+			filePath.mkdirs();
+		}
 
 		@Override
 		public boolean exists() throws DataStoreException {

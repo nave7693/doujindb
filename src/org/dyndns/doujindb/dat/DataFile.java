@@ -15,11 +15,9 @@ interface DataFile
 	public InputStream getInputStream() throws DataStoreException;
 	public OutputStream getOutputStream() throws DataStoreException;	
 	public DataFile[] listFiles() throws DataStoreException;	
-//	public DataFile getParent() throws DataStoreException;
 	public void touch() throws DataStoreException;
 	public void mkdir() throws DataStoreException;
-//	public void mkdirs() throws DataStoreException;
-//	public DataFile child(String name) throws DataStoreException;
+	public void mkdirs() throws DataStoreException;
 	public boolean exists() throws DataStoreException;
 	public void delete() throws DataStoreException;
 	public int compareTo(DataFile dataFile) throws DataStoreException;

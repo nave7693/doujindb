@@ -31,7 +31,7 @@ final class LocalDataStore implements IDataStore
 	}
 
 	@Override
-	public DataFile getData(String bookId) throws DataStoreException
+	public DataFile getFile(String bookId) throws DataStoreException
 	{
 		return new LocalDataFile(new File(rootPath, bookId));
 	}

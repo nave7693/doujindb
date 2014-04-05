@@ -40,7 +40,7 @@ public final class DataStore
 	
 	public static DataFile getMeta(String bookId) throws DataStoreException
 	{
-		return instance.getData(bookId);
+		return instance.getMeta(bookId);
 	}
 	
 	public static DataFile getCover(String bookId) throws DataStoreException
@@ -48,8 +48,8 @@ public final class DataStore
 		return instance.getCover(bookId);
 	}
 	
-	public static DataFile getData(String bookId) throws DataStoreException
+	public static DataFile getFile(String bookId) throws DataStoreException
 	{
-		return instance.getData(bookId);
+		return instance.getFile(bookId);
 	}
 }

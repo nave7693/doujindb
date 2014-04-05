@@ -110,9 +110,14 @@ final class LocalDataStore implements IDataStore
 				throw new DataStoreException(fnfe);
 			}
 		}
-
+		
 		@Override
 		public DataFile[] listFiles() throws DataStoreException {
+			return listFiles(".*");
+		}
+
+		@Override
+		public DataFile[] listFiles(final String regexp) throws DataStoreException {
 			java.util.Set<DataFile> files = new java.util.TreeSet<DataFile>();
 			for(File file : filePath.listFiles(new FilenameFilter()
 			{
@@ -124,6 +129,8 @@ final class LocalDataStore implements IDataStore
 						return false;
 					if(name.equals(DATAFILE_COVER))
 						return false;
+					if(name.matches(regexp))
+						return true;
 					return true;
 				}
 			}))

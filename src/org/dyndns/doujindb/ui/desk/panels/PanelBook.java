@@ -21,8 +21,7 @@ import javax.swing.border.*;
 import javax.swing.plaf.TabbedPaneUI;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.dat.DataFile;
-import org.dyndns.doujindb.dat.RepositoryException;
+import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
@@ -147,9 +146,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									return null;
 								try
 								{
-									DataFile ds = Core.Repository.child(tokenBook.getID());
+									DataFile ds = DataStore.getFile(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenBook.getID());
+									ds = DataStore.getCover(tokenBook.getID());
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -161,9 +160,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								}
 								try
 								{
-									DataFile ds = Core.Repository.child(tokenBook.getID());
+									DataFile ds = DataStore.getFile(tokenBook.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenBook.getID());
+									ds = DataStore.getCover(tokenBook.getID());
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -210,9 +209,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							{
 								try
 								{
-									DataFile df = Core.Repository.child(tokenBook.getID());
+									DataFile df = DataStore.getFile(tokenBook.getID());
 									df.mkdir();
-									df = Core.Repository.getPreview(tokenBook.getID());
+									df = DataStore.getCover(tokenBook.getID());
 									df.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
@@ -545,8 +544,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 					if(tokenBook.getID() != null)
 						try {
 							RepositoryIndexer.index(tokenBook);
-						} catch (RepositoryException re) {
-							re.printStackTrace();
+						} catch (DataStoreException dse) {
+							dse.printStackTrace();
 						}
 					if(Core.Database.isAutocommit())
 						Core.Database.doCommit();
@@ -608,9 +607,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				{
 					if(tokenBook.getID() == null)
 						return null;
-					DataFile ds = Core.Repository.child(tokenBook.getID());
+					DataFile ds = DataStore.getFile(tokenBook.getID());
 					ds.mkdir();
-					ds = Core.Repository.getPreview(tokenBook.getID());
+					ds = DataStore.getCover(tokenBook.getID());
 					if(ds.exists())
 					{
 						InputStream in = ds.getInputStream();

@@ -95,7 +95,7 @@ public class PanelBookMedia extends JPanel
 								return;
 							}
 							File files[] = fc.getSelectedFiles();
-							DataFile up_folder = Core.Repository.child(tokenBook.getID());
+							DataFile up_folder = DataStore.getFile(tokenBook.getID());
 							Thread uploader = new Uploader(up_folder, files);
 							uploader.start();
 							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) {}
@@ -141,7 +141,7 @@ public class PanelBookMedia extends JPanel
 							Set<DataFile> dss = new TreeSet<DataFile>();
 							{
 								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataFile root_ds = Core.Repository.child(tokenBook.getID());
+								DataFile root_ds = DataStore.getFile(tokenBook.getID());
 								for(TreePath path : paths)
 								try
 								{
@@ -150,7 +150,7 @@ public class PanelBookMedia extends JPanel
 									for(int i = 0;i < nodes.length;i++) {
 										sb.append(nodes[i].toString());
 									}
-									DataFile ds = root_ds.child(sb.toString());
+									DataFile ds = root_ds.getFile(sb.toString());
 									dss.add(ds);
 								} catch (Exception e) { e.printStackTrace(); }
 							}
@@ -212,7 +212,7 @@ public class PanelBookMedia extends JPanel
 						try
 						{
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataFile root_ds = Core.Repository.child(tokenBook.getID());
+							DataFile root_ds = DataStore.getFile(tokenBook.getID());
 							for(TreePath path : paths)
 							try
 							{
@@ -220,9 +220,9 @@ public class PanelBookMedia extends JPanel
 								DataFile ds = root_ds;
 								for(int k=1;k<os.length;k++)
 									if(os[k].toString().startsWith("/"))
-										ds = ds.child(os[k].toString().substring(1));
+										ds = ds.getFile(os[k].toString().substring(1));
 									else
-										ds = ds.child(os[k].toString());
+										ds = ds.getFile(os[k].toString());
 								ds.delete();
 							} catch (Exception e) { e.printStackTrace(); }
 						} catch (Exception e) {
@@ -356,7 +356,7 @@ public class PanelBookMedia extends JPanel
 				{
 					String root_id = "/";
 					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
-					buildTree(Core.Repository.child(tokenBook.getID()), root);
+					buildTree(DataStore.getFile(tokenBook.getID()), root);
 					treeMedia.clearSelection();
 					treeMedia.CheckBoxRenderer.clearSelection();
 					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
@@ -371,8 +371,8 @@ public class PanelBookMedia extends JPanel
 					});
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
-				} catch (RepositoryException re) {
-					Logger.logError(re.getMessage(), re);
+				} catch (DataStoreException dse) {
+					Logger.logError(dse.getMessage(), dse);
 				}
 			}
 		});
@@ -458,10 +458,10 @@ public class PanelBookMedia extends JPanel
 	}
 	}
 	
-	private void buildTree(DataFile dss, MutableTreeNode parent) throws RepositoryException, DataBaseException
+	private void buildTree(DataFile dss, MutableTreeNode parent) throws DataStoreException, DataBaseException
 	{
 		int k = 0; 
-		for(DataFile ds : dss.children())
+		for(DataFile ds : dss.listFiles())
 		{
 	        if(ds.isDirectory())
 	        {
@@ -477,25 +477,6 @@ public class PanelBookMedia extends JPanel
 	        k++;
 	    }
 	}
-	
-	/*private void buildTree(String path, MutableTreeNode parent)
-	{
-	     File root = new File(path);
-		 String fs[] = root.list();
-		 if(fs == null)
-			 return;
-		 for(int k=0;k<fs.length;k++){
-	         if(new File(path + File.separator + fs[k]).isDirectory())
-	         {
-		         DefaultMutableTreeNode sub = new DefaultMutableTreeNode(fs[k] + "/");
-		         parent.insert(sub, k);
-		         buildTree(path + File.separator + fs[k], sub);
-	         }else{
-		         DefaultMutableTreeNode sub = new DefaultMutableTreeNode(fs[k]);
-		         parent.insert(sub, k);
-	         }
-	     }
-	}*/
 	
 	private final class Downloader extends Thread
 	{
@@ -519,10 +500,10 @@ public class PanelBookMedia extends JPanel
 			this.dss = dss;
 		}
 		
-		private int count(DataFile ds_root) throws RepositoryException, DataBaseException
+		private int count(DataFile ds_root) throws DataStoreException, DataBaseException
 		{
 			int count = 0;
-			for(DataFile ds : ds_root.children())
+			for(DataFile ds : ds_root.listFiles())
 				if(ds.isDirectory())
 					count += count(ds);
 				else
@@ -538,7 +519,7 @@ public class PanelBookMedia extends JPanel
 			{
 				progress_overall_current++;
 				dst.mkdirs();
-				for(DataFile ds : dl.children())
+				for(DataFile ds : dl.listFiles())
 					download(ds);
 			}else
 			{
@@ -549,7 +530,7 @@ public class PanelBookMedia extends JPanel
 				byte[] buff = new byte[0x800];
 				int read;
 				progress_file_current = 0;
-				progress_file_max = dl.size();
+				progress_file_max = dl.length();
 				while((read = in.read(buff)) != -1)
 				{
 					out.write(buff, 0, read);		
@@ -661,7 +642,7 @@ public class PanelBookMedia extends JPanel
 				}
 			} catch (PropertyVetoException pve) {
 				Logger.logError(pve.getMessage(), pve);
-			} catch (RepositoryException re) {
+			} catch (DataStoreException re) {
 				Logger.logError(re.getMessage(), re);
 			} catch (DataBaseException dbe) {
 				Logger.logError(dbe.getMessage(), dbe);
@@ -752,7 +733,7 @@ public class PanelBookMedia extends JPanel
 		
 		private void upload(File up, DataFile path) throws IOException, Exception
 		{
-			DataFile dst = path.child(up.getName());
+			DataFile dst = path.getFile(up.getName());
 			label_file_current = up.getName();
 			if(up.isDirectory())
 			{
@@ -763,7 +744,6 @@ public class PanelBookMedia extends JPanel
 			}else
 			{
 				progress_overall_current++;
-				dst.getParent().mkdirs();
 				dst.touch();
 				OutputStream out = dst.getOutputStream();
 				InputStream in = new FileInputStream(up);
@@ -998,7 +978,7 @@ public class PanelBookMedia extends JPanel
 				progress_overall_max = 1;
 				{
 					File zip = new File(destdir, book + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
-					DataFile ds = Core.Repository.child(book.getID());
+					DataFile ds = DataStore.getFile(book.getID());
 					progress_file_max = count(ds);
 					progress_file_current = 0;
 					progressbar_overall.setString(book.toString());
@@ -1012,7 +992,7 @@ public class PanelBookMedia extends JPanel
 						metadata(book, zout);
 						zout.closeEntry();
 						;
-						zip("", ds.children(), zout);
+						zip("", ds.listFiles(), zout);
 						zout.close();
 					} catch (IOException ioe) {
 						zip.delete();
@@ -1028,10 +1008,10 @@ public class PanelBookMedia extends JPanel
 			window.dispose();
 		}
 		
-		private int count(DataFile ds_root) throws RepositoryException
+		private int count(DataFile ds_root) throws DataStoreException
 		{
 			int count = 0;
-			for(DataFile ds : ds_root.children())
+			for(DataFile ds : ds_root.listFiles())
 				if(ds.isDirectory())
 					count += count(ds);
 				else
@@ -1039,9 +1019,9 @@ public class PanelBookMedia extends JPanel
 			return count;
 		}
 		
-		private void zip(String base, Set<DataFile> dss, ZipOutputStream zout) throws IOException, Exception
+		private void zip(String base, DataFile[] files, ZipOutputStream zout) throws IOException, Exception
 		{
-			for(DataFile ds : dss)
+			for(DataFile ds : files)
 			{
 				if(ds.isDirectory())
 				{
@@ -1053,7 +1033,7 @@ public class PanelBookMedia extends JPanel
 					} catch (IOException ioe) {
 						Logger.logWarning(ioe.getMessage(), ioe);
 					}
-					zip(base + ds.getName() + "/", ds.children(), zout);
+					zip(base + ds.getName() + "/", ds.listFiles(), zout);
 				}else
 				{
 					if(ds.getName().equals(PACKAGE_PREVIEW))
@@ -1066,7 +1046,7 @@ public class PanelBookMedia extends JPanel
 					{
 						InputStream in = ds.getInputStream();
 						zout.putNextEntry(entry);
-						progress_bytes_max = ds.size();
+						progress_bytes_max = ds.length();
 						progress_bytes_current = 0;
 						while ((read = in.read(buff)) != -1)
 						{

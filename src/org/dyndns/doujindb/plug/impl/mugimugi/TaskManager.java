@@ -17,6 +17,8 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
+import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.query.QueryBook;
@@ -991,21 +993,20 @@ final class TaskManager
 		
 		for(File file : basepath.listFiles())
 			try {
-				copyFile(file, Core.Repository.child(task.getBook()));
-			} catch (DataBaseException | IOException e) {
+				copyFile(file, DataStore.getFile(task.getBook()));
+			} catch (DataBaseException | IOException | DataStoreException e) {
 				throw new TaskErrorException("Error copying file '" + file.getPath() + "' in the DataStore : " + e.getMessage());
 			}
 		try
 		{
-			DataFile df = Core.Repository.child(task.getBook());
-			df.mkdir();
-			df = Core.Repository.getPreview(task.getBook());
+			DataFile df = DataStore.getFile(task.getBook());
+			df = DataStore.getCover(task.getBook());
 			df.touch();
 			OutputStream out = df.getOutputStream();
 			BufferedImage image = ImageTool.read(reqFile);
 			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
 			out.close();
-		} catch (IOException e) {
+		} catch (IOException | DataStoreException e) {
 			throw new TaskErrorException("Error creating preview in the DataStore : " + e.getMessage());
 		}
 		
@@ -1021,8 +1022,8 @@ final class TaskManager
 		{
 			CacheManager.put(id, (BufferedImage) new ImageIcon(
 				ImageTool.read(
-					Core.Repository.getPreview(id).getInputStream())).getImage());
-		} catch (IOException | ClassCastException e) {
+						DataStore.getCover(id).getInputStream())).getImage());
+		} catch (IOException | ClassCastException | DataStoreException e) {
 			throw new TaskErrorException("Error adding Book to Cache : " + e.getMessage());
 		}
 		
@@ -1060,9 +1061,9 @@ final class TaskManager
 		return null;
 	}
 	
-	private static void copyFile(File file, DataFile df) throws IOException
+	private static void copyFile(File file, DataFile df) throws IOException, DataStoreException
 	{
-		DataFile dfChild = df.child(file.getName());
+		DataFile dfChild = df.getFile(file.getName());
 		if(file.isDirectory())
 		{
 			dfChild.mkdirs();
@@ -1070,7 +1071,6 @@ final class TaskManager
 				copyFile(f, dfChild);
 		}else
 		{
-			dfChild.getParent().mkdirs();
 			dfChild.touch();
 			OutputStream out = dfChild.getOutputStream();
 			InputStream in = new FileInputStream(file);

@@ -14,6 +14,7 @@ import javax.swing.plaf.TabbedPaneUI;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
+import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.event.*;
@@ -113,9 +114,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									return null;
 								try
 								{
-									DataFile ds = Core.Repository.child(tokenCircle.getID());
+									DataFile ds = DataStore.getFile(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID());
+									ds = DataStore.getCover(tokenCircle.getID());
 									ds.touch();
 									OutputStream out = ds.getOutputStream();
 									File in = fc.getSelectedFile();
@@ -132,9 +133,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								}
 								try
 								{
-									DataFile ds = Core.Repository.child(tokenCircle.getID());
+									DataFile ds = DataStore.getFile(tokenCircle.getID());
 									ds.mkdir();
-									ds = Core.Repository.getPreview(tokenCircle.getID());
+									ds = DataStore.getCover(tokenCircle.getID());
 									if(ds.exists())
 									{
 										InputStream in = ds.getInputStream();
@@ -181,9 +182,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							{
 								try
 								{
-									DataFile df = Core.Repository.child(tokenCircle.getID());
+									DataFile df = DataStore.getFile(tokenCircle.getID());
 									df.mkdir();
-									df = Core.Repository.getPreview(tokenCircle.getID());
+									df = DataStore.getCover(tokenCircle.getID());
 									df.delete();
 								} catch (NullPointerException npe) {
 								} catch (Exception e)
@@ -361,9 +362,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				{
 					if(tokenCircle.getID() == null)
 						return null;
-					DataFile ds = Core.Repository.child(tokenCircle.getID());
+					DataFile ds = DataStore.getFile(tokenCircle.getID());
 					ds.mkdir();
-					ds = Core.Repository.getPreview(tokenCircle.getID());
+					ds = DataStore.getCover(tokenCircle.getID());
 					if(ds.exists())
 					{
 						InputStream in = ds.getInputStream();

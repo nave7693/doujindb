@@ -7,7 +7,7 @@ import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.dat.RepositoryException;
+import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
@@ -15,21 +15,22 @@ import org.dyndns.doujindb.log.*;
 
 public final class RepositoryIndexer
 {
-	public static void index() throws RepositoryException
+	public static void index() throws DataStoreException
 	{
 		RepositoryIndexer.index(Core.Database.getBooks(null));
 	}
 	
-	public static void index(Iterable<Book> books) throws RepositoryException
+	public static void index(Iterable<Book> books) throws DataStoreException
 	{
 		for(Book book : books)
 			RepositoryIndexer.index(book);
 	}
 	
-	public static void index(Book book) throws RepositoryException
+	public static void index(Book book) throws DataStoreException
 	{
-		Core.Repository.getMetadata(book.getID()).getParent().mkdirs();
-		RepositoryIndexer.metadata(book, Core.Repository.getMetadata(book.getID()).getOutputStream());
+		DataFile meta = DataStore.getMeta(book.getID());
+		meta.touch();
+		RepositoryIndexer.metadata(book, meta.getOutputStream());
 	}
 	
 	private static void metadata(Book book, OutputStream out) throws DataBaseException

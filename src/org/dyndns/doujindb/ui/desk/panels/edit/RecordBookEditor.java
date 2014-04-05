@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.BookContainer;
@@ -72,7 +72,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 					JButton bookButton;
 					bookButton = new JButton(
 						new ImageIcon(
-							ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream())));
+							ImageTool.read(DataStore.getCover(book.getID()).getInputStream())));
 					bookButton.addActionListener(new ActionListener()
 					{
 						@Override

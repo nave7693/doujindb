@@ -28,6 +28,7 @@ import javax.swing.table.TableRowSorter;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.event.ConfigurationListener;
+import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
@@ -1260,7 +1261,7 @@ public final class DoujinshiDBScanner extends Plugin
 									// Load images from local DataStore
 									ImageIcon ii = new ImageIcon(
 										ImageTool.read(
-											Core.Repository.getPreview(id).getInputStream()));
+											DataStore.getCover(id).getInputStream()));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
 									data.put("imageicon", ii);
@@ -1651,7 +1652,7 @@ public final class DoujinshiDBScanner extends Plugin
 						if(CacheManager.contains(book.getID()) && !cache_overwrite)
 							continue;
 						
-						bi = ImageTool.read(Core.Repository.getPreview(book.getID()).getInputStream());
+						bi = ImageTool.read(DataStore.getCover(book.getID()).getInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
 						if((Boolean) Configuration.configRead(configBase + "cache_locally"))
@@ -1748,8 +1749,8 @@ public final class DoujinshiDBScanner extends Plugin
 						if(!first_result)
 						{
 							JButton button;
-							if(Core.Repository.getPreview(book_id).exists())
-								button = new JButton(new ImageIcon(ImageTool.read(Core.Repository.getPreview(book_id).getInputStream())));
+							if(DataStore.getCover(book_id).exists())
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getCover(book_id).getInputStream())));
 							else
 								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
 							button.addActionListener(new ActionListener()
@@ -1776,8 +1777,8 @@ public final class DoujinshiDBScanner extends Plugin
 						} else
 						{
 							JButton button;
-							if(Core.Repository.getPreview(book_id).exists())
-								button = new JButton(new ImageIcon(ImageTool.read(Core.Repository.getPreview(book_id).getInputStream())));
+							if(DataStore.getCover(book_id).exists())
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getCover(book_id).getInputStream())));
 							else
 								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
 							button.addActionListener(new ActionListener()

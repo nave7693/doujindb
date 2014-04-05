@@ -180,7 +180,34 @@ final class LocalDataStore implements IDataStore
 
 		@Override
 		public void delete() throws DataStoreException {
-			filePath.delete();
+			delete(false);
+		}
+		
+		@Override
+		public void delete(boolean recursive) throws DataStoreException {
+			if(filePath.equals(rootPath))
+				return;
+			if(isDirectory())
+			{
+				deleteRecursive(listFiles());
+				if(!filePath.delete())
+					filePath.deleteOnExit();
+			}
+			else	
+				if(!filePath.delete())
+					filePath.deleteOnExit();
+		}
+		
+		private void deleteRecursive(DataFile[] files) throws DataStoreException
+		{
+			for(DataFile file : files)
+				if(file.isDirectory())
+				{
+					deleteRecursive(file.listFiles());
+					file.delete();
+				}
+				else
+					file.delete();
 		}
 
 		@Override

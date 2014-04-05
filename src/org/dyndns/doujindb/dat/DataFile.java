@@ -22,4 +22,5 @@ public interface DataFile
 	public void mkdirs() throws DataStoreException;
 	public boolean exists() throws DataStoreException;
 	public void delete() throws DataStoreException;
+	public void delete(boolean recursive) throws DataStoreException;
 }

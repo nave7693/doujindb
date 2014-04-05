@@ -36,7 +36,7 @@ final class LocalDataStore implements IDataStore
 		return new LocalDataFile(new File(rootPath, bookId));
 	}
 	
-	private final class LocalDataFile implements DataFile
+	private final class LocalDataFile implements DataFile, Comparable<DataFile>
 	{
 		private final File filePath;
 		
@@ -184,7 +184,7 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public int compareTo(DataFile dataFile) throws DataStoreException {
+		public int compareTo(DataFile dataFile) {
 			return filePath.compareTo(((LocalDataFile)dataFile).filePath);
 		}
 		

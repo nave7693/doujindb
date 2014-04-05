@@ -34,6 +34,15 @@ public final class Core implements Runnable
 		return homedir;
 	}
 
+	static
+	{
+		/**
+		 * @see https://github.com/loli10K/doujindb/issues/2
+		 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=7173464
+		 */
+		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
+	}
+
 	@Override
 	public void run()
 	{

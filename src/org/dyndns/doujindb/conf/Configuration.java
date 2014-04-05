@@ -34,6 +34,8 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.dat.datastore",         "<html><body>The folder in which are stored all the media files.</body></html>", System.getProperty("java.io.tmpdir"));
 		configAdd("org.dyndns.doujindb.dat.file_extension",    "<html><body>Default file extension given to files when exporting media archives.</body></html>", ".zip");
 		configAdd("org.dyndns.doujindb.dat.temp",              "<html><body>Temporary folder used to store session media files.</body></html>", System.getProperty("java.io.tmpdir"));
+		configAdd("org.dyndns.doujindb.dat.keep_cache",        "<html><body>Keep a local cache of cover files.</body></html>", true);
+		configAdd("org.dyndns.doujindb.dat.cache_dir",         "<html><body>Local cover cache directory.</body></html>", System.getProperty("java.io.tmpdir"));
 //		configAdd("org.dyndns.doujindb.net.listen_port",       "<html><body>Network port used to accept incoming connections.</body></html>", 1099);
 //		configAdd("org.dyndns.doujindb.sys.check_updates",     "<html><body>Whether to check if program updates are available.</body></html>", false);
 		configAdd("org.dyndns.doujindb.log.debug",             "<html><body>Log debug messages.</body></html>", false);

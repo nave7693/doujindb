@@ -233,6 +233,16 @@ final class LocalDataStore implements IDataStore
 			return filePath.compareTo(((LocalDataFile)dataFile).filePath);
 		}
 		
+		@Override
+		public String toString() {
+			try {
+				return getPath();
+			} catch (DataStoreException dse) {
+				dse.printStackTrace();
+			}
+			return super.toString();
+		}
+		
 		private DataFile getParent()
 		{
 			if(!filePath.equals(rootPath))

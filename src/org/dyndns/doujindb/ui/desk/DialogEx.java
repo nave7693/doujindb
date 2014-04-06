@@ -2,7 +2,7 @@ package org.dyndns.doujindb.ui.desk;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicDesktopIconUI;
+import javax.swing.plaf.basic.*;
 
 @SuppressWarnings("serial")
 public final class DialogEx extends JInternalFrame implements LayoutManager
@@ -13,6 +13,7 @@ public final class DialogEx extends JInternalFrame implements LayoutManager
 	{
 		super("", true, true, true, true);
 		setLayout(this);
+		((BasicInternalFrameUI)getUI()).setNorthPane(null);
 		getDesktopIcon().setUI(new BasicDesktopIconUI()
 		{
 			protected void installComponents()

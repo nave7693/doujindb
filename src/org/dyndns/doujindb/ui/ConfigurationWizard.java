@@ -10,10 +10,9 @@ import javax.swing.*;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.ui.desk.DialogEx;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","unused"})
 final class ConfigurationWizard  extends JComponent implements Runnable, LayoutManager
 {
-	private Color color = Color.DARK_GRAY.darker();
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;
 	private JButton uiButtonPrev;
@@ -46,6 +45,10 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 	// STEP 4
 	private JLabel uiLabelFinish;
 	
+	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private static final Color linecolor = background.brighter();
+	
 	enum Step
 	{
 		WELCOME (1),
@@ -72,11 +75,11 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 	{
 		uiLabelHeader = new JLabel();
 		uiLabelHeader.setOpaque(true);
-		uiLabelHeader.setBackground(color);
+		uiLabelHeader.setBackground(background);
 		super.add(uiLabelHeader);
 		uiLabelHeaderImage = new JLabel(UI.Icon.window_dialog_configwiz_header);
 		uiLabelHeaderImage.setOpaque(true);
-		uiLabelHeaderImage.setBackground(color);
+		uiLabelHeaderImage.setBackground(background);
 		super.add(uiLabelHeaderImage);
 		uiLabelWelcome = new JLabel("<html>Welcome to DoujinDB.<br/>" +
 				"<br/>" +
@@ -115,7 +118,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 			uiCompDatabaseTest.setToolTipText("Test");
 			uiCompDatabaseTest.setMnemonic('T');
 			uiCompDatabaseTest.setBorderPainted(true);
-			uiCompDatabaseTest.setBorder(BorderFactory.createLineBorder(color));
+			uiCompDatabaseTest.setBorder(BorderFactory.createLineBorder(linecolor));
 			uiCompDatabaseTest.addActionListener(new ActionListener()
 			{
 				@Override
@@ -259,7 +262,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 			uiCompDatastoreTest.setToolTipText("Test");
 			uiCompDatastoreTest.setMnemonic('T');
 			uiCompDatastoreTest.setBorderPainted(true);
-			uiCompDatastoreTest.setBorder(BorderFactory.createLineBorder(color));
+			uiCompDatastoreTest.setBorder(BorderFactory.createLineBorder(linecolor));
 			uiCompDatastoreTest.addActionListener(new ActionListener()
 			{
 				@Override
@@ -360,7 +363,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 		super.add(uiLabelFinish);
 		uiBottomDivisor = new JLabel();
 		uiBottomDivisor.setOpaque(true);
-		uiBottomDivisor.setBackground(color);
+		uiBottomDivisor.setBackground(background);
 		super.add(uiBottomDivisor);
 		uiButtonNext = new JButton(UI.Icon.window_dialog_configwiz_next);
 		uiButtonNext.setBorder(null);
@@ -369,7 +372,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 		uiButtonNext.setToolTipText("Next");
 		uiButtonNext.setMnemonic('N');
 		uiButtonNext.setBorderPainted(true);
-		uiButtonNext.setBorder(BorderFactory.createLineBorder(color));
+		uiButtonNext.setBorder(BorderFactory.createLineBorder(linecolor));
 		uiButtonNext.addActionListener(new ActionListener()
 		{
 			@Override
@@ -387,7 +390,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 		uiButtonPrev.setToolTipText("Back");
 		uiButtonPrev.setMnemonic('B');
 		uiButtonPrev.setBorderPainted(true);
-		uiButtonPrev.setBorder(BorderFactory.createLineBorder(color));
+		uiButtonPrev.setBorder(BorderFactory.createLineBorder(linecolor));
 		uiButtonPrev.addActionListener(new ActionListener()
 		{
 			@Override
@@ -405,7 +408,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 		uiButtonFinish.setToolTipText("Finish");
 		uiButtonFinish.setMnemonic('F');
 		uiButtonFinish.setBorderPainted(true);
-		uiButtonFinish.setBorder(BorderFactory.createLineBorder(color));
+		uiButtonFinish.setBorder(BorderFactory.createLineBorder(linecolor));
 		uiButtonFinish.addActionListener(new ActionListener()
 		{
 			@Override
@@ -430,7 +433,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 		uiButtonCanc.setToolTipText("Cancel");
 		uiButtonCanc.setMnemonic('C');
 		uiButtonCanc.setBorderPainted(true);
-		uiButtonCanc.setBorder(BorderFactory.createLineBorder(color));
+		uiButtonCanc.setBorder(BorderFactory.createLineBorder(linecolor));
 		uiButtonCanc.addActionListener(new ActionListener()
 		{
 			@Override

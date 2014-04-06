@@ -88,4 +88,33 @@ public final class DataStore
 			Files.copy(srcPath.toPath(), dataFile.getOutputStream());
 		}
 	}
+	
+	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
+	{
+		if(contentsOnly)
+			for(DataFile file : srcPath.listFiles())
+				toFile(file, dstPath);
+		else
+			toFile(srcPath, dstPath);
+	}
+	
+	/**
+	 * Recursively transfer all data contained in srcPath directory into dstPath.
+	 * @param srcPath
+	 * @param dstPath
+	 * @throws DataStoreException
+	 * @throws IOException
+	 */
+	public static void toFile(DataFile srcPath, File dstPath) throws DataStoreException, IOException
+	{
+		File file = new File(dstPath, srcPath.getName());
+		if(srcPath.isDirectory())
+		{
+			file.mkdirs();
+			for(DataFile dataFile : srcPath.listFiles())
+				toFile(dataFile, file);
+		} else {
+			Files.copy(srcPath.getInputStream(), file.toPath());
+		}
+	}
 }

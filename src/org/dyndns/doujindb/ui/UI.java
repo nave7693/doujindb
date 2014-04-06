@@ -222,8 +222,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.getContentPane().setBackground(background);
 		Logger.logInfo(TAG + "basic user interface loaded.");
 			
-		LoadingDialog loading = new LoadingDialog(super.getTitle());
-		
 	    JComponent glassPane = new JComponent()
 	    {
 			@Override
@@ -428,8 +426,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setVisible(true);
 		
 		Configuration.addConfigurationListener(this);
-		
-		loading.dispose();
 	}
 
 	@Override
@@ -1747,89 +1743,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	}
 	
 	}
-	
-	@SuppressWarnings("serial")
-	private final class LoadingDialog extends JWindow implements Runnable,LayoutManager
-	{
 
-		private JPanel cpane;
-		private IProgressBar bar;
-		private JLabel title;
-		private JLabel status;
-		private Thread thread;
-		
-		private int size = 30;
-		private int direction = 1;
-
-		public LoadingDialog(String string_title)
-		{
-			super();
-			getRootPane().setBorder(BorderFactory.createLineBorder(new Color(75,75,75),1));
-			setBounds(0,0,75+2,25+2);
-			setAlwaysOnTop(true);
-			setVisible(true);
-			title = new JLabel(string_title);
-			add(title);
-			cpane=new JPanel();
-			cpane.setSize(145,55);
-			cpane.setLayout(null);
-			bar=new IProgressBar(0,1,100);
-			bar.setEnabled(true);
-			bar.setValue(24);
-			cpane.add(bar);
-			status=new JLabel("Loading...");
-			status.setHorizontalAlignment(JLabel.CENTER);
-			cpane.add(status);
-			add(cpane);
-			setLayout(this);
-			setSize(cpane.getWidth()+5,cpane.getHeight()+20);
-			validate();
-			repaint();
-			thread = new Thread(this, getClass().getCanonicalName());
-			thread.setPriority(Thread.MIN_PRIORITY);
-			thread.start();
-		}
-
-		public void addLayoutComponent(String name, Component comp){}
-		public void layoutContainer(Container parent)
-		{
-			cpane.setBounds(3,16,getWidth()-8,getHeight()-21);
-			status.setBounds(1,1,cpane.getWidth()-2,15);
-			bar.setBounds(1,20,cpane.getWidth()-2,15);
-			title.setBounds(2,2,getWidth()-17,13);
-		}
-		public Dimension minimumLayoutSize(Container parent){return null;}
-		public Dimension preferredLayoutSize(Container parent){return null;}
-		public void removeLayoutComponent(Component comp){}
-
-		@SuppressWarnings("static-access")
-		public void run()
-		{
-			while(isShowing())
-			{
-				bar.setValue(bar.getValue()+direction*5);
-				if(bar.getValue() == bar.getMaximum() || bar.getValue() == bar.getMinimum())
-					direction *= -1;
-				try { thread.sleep(100); } catch (InterruptedException e) {;}
-			}
-		}
-
-		private final class IProgressBar extends JProgressBar
-		{
-			public IProgressBar(int orient,int min,int max)
-			{
-				super(orient,min,max);
-			}
-			public void paint(Graphics g)
-			{
-				g.setColor(getBackground());
-				g.fillRect(0,0,getWidth(),getHeight());
-				g.setColor(getForeground());
-				g.fillRect(getValue(),2,size,getHeight()-3);
-			}
-		}
-	}
-	
 	@SuppressWarnings("serial")
 	private static final class ConfigurationWizard extends JComponent implements Runnable, LayoutManager
 	{

@@ -19,7 +19,6 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 	private JButton uiButtonFinish;
 	private JButton uiButtonCanc;
 	private JLabel uiLabelHeader;
-	private JLabel uiLabelHeaderImage;
 	// STEP 1
 	private JLabel uiLabelWelcome;
 	// STEP 2
@@ -73,14 +72,10 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 	
 	public ConfigurationWizard()
 	{
-		uiLabelHeader = new JLabel();
+		uiLabelHeader = new JLabel(UI.Icon.window_dialog_configwiz_header);
 		uiLabelHeader.setOpaque(true);
-		uiLabelHeader.setBackground(background);
+		uiLabelHeader.setBackground(Color.WHITE);
 		super.add(uiLabelHeader);
-		uiLabelHeaderImage = new JLabel(UI.Icon.window_dialog_configwiz_header);
-		uiLabelHeaderImage.setOpaque(true);
-		uiLabelHeaderImage.setBackground(background);
-		super.add(uiLabelHeaderImage);
 		uiLabelWelcome = new JLabel("<html>Welcome to DoujinDB.<br/>" +
 				"<br/>" +
 				"We couldn't find any configuration file, so either you deleted it or this is the first time you run DoujinDB.<br/>" +
@@ -466,8 +461,7 @@ final class ConfigurationWizard  extends JComponent implements Runnable, LayoutM
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		uiLabelHeader.setBounds(0,0,width-48,48);
-		uiLabelHeaderImage.setBounds(width-48,0,48,48);
+		uiLabelHeader.setBounds(0,0,width,48);
 		uiBottomDivisor.setBounds(5,height-30,width-10,1);
 		uiButtonNext.setBounds(width-80,height-25,75,20);
 		uiButtonFinish.setBounds(width-80,height-25,75,20);

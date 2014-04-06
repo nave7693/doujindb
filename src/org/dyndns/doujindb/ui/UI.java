@@ -114,7 +114,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			UIManager.put("InternalFrame.closeIcon", Icon.jdesktop_iframe_close);
 			UIManager.put("InternalFrame.border", javax.swing.BorderFactory.createEtchedBorder(0));
 			UIManager.put("Slider.horizontalThumbIcon", Icon.jslider_thumbicon);
-			UIManager.put("Desktop.background", new ColorUIResource(Color.BLACK));
+			UIManager.put("Desktop.background", background);
 			UIManager.put("FileChooser.listFont", Font);
 			UIManager.put("FileChooser.detailsViewIcon", Icon.filechooser_detailsview);
 			UIManager.put("FileChooser.homeFolderIcon", Icon.filechooser_homefolder);

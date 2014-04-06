@@ -71,9 +71,9 @@ final class LocalDataStore implements IDataStore
 		@Override
 		public String getPath() throws DataStoreException {
 			if(!filePath.equals(rootPath))
-				return DATAFILE_ROOTFS + getParent().getPath() + filePath.getName() + (isDirectory() ? "/" : "");
+				return getParent().getPath() + File.separator + filePath.getName();
 			else
-				return getName();
+				return DATAFILE_ROOTFS + getName();
 		}
 
 		@Override

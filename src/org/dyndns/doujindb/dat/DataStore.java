@@ -29,7 +29,7 @@ public final class DataStore
 	public static void close() throws DataStoreException
 	{
 		if(instance == null)
-			throw new DataStoreException("DataStore is already close.");
+			throw new DataStoreException("DataStore is already closed.");
 		instance = null;
 	}
 	

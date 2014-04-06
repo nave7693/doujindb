@@ -71,8 +71,8 @@ public final class DataStore
 	
 	/**
 	 * Recursively transfer all data contained in srcPath directory into dstPath.
-	 * @param bookId
-	 * @param basePath
+	 * @param srcPath
+	 * @param dstPath
 	 * @throws DataStoreException
 	 * @throws IOException
 	 */

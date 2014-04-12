@@ -143,4 +143,33 @@ public final class DataStore
 				set.add(file);
 		return set.toArray(new DataFile[] {});
 	}
+	
+	private static File[] listFiles(File parentPath, Set<File> set) throws DataStoreException, IOException
+	{
+		for(File file : parentPath.listFiles())
+			if(file.isDirectory())
+				listFiles(file, set);
+			else
+				set.add(file);
+		return set.toArray(new File[] {});
+	}
+	
+	public static long diskUsage(DataFile path) throws DataStoreException, IOException
+	{
+		long du = 0;
+		for(DataFile file : listFiles(path))
+			if(!file.isDirectory())
+				du += file.length();
+		return du;
+	}
+	
+	public static long diskUsage(File path) throws DataStoreException, IOException
+	{
+		long du = 0;
+		Set<File> set = new HashSet<File>();
+		for(File file : listFiles(path, set))
+			if(!file.isDirectory())
+				du += file.length();
+		return du;
+	}
 }

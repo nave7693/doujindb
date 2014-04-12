@@ -133,30 +133,17 @@ final class CacheManager
 		return cacheFile.lastModified();
 	}
 	
-	/**
-	 * Internal use only
-	 */
-	@SuppressWarnings("unused")
-	private static void dump() throws Exception
+	public static void dump()
 	{
-		File dump_folder = new File(DoujinshiDBScanner.PLUGIN_HOME, "imagesignature");
-		dump_folder.mkdirs();
+		File folder = new File(DoujinshiDBScanner.PLUGIN_HOME, "imagesignature");
+		folder.mkdirs();
 		for(String key : cacheData.keySet())
 		{
 			ImageSignature ims = cacheData.get(key);
-			File dump_entry = new File(dump_folder, key + ".png");
-			BufferedImage bi = new BufferedImage(256, 256, BufferedImage.TYPE_3BYTE_BGR);
-			Graphics2D g2D = bi.createGraphics();
-			for(int x=0;x<ims.pixelData.length;x++)
-				for(int y=0;y<ims.pixelData[0].length;y++)
-				{
-					int r = (ims.pixelData[x][y] & 0x00ff0000) >> 16;
-					int g = (ims.pixelData[x][y] & 0x0000ff00) >> 8;
-					int b =  ims.pixelData[x][y] & 0x000000ff;
-					g2D.setColor(new Color(r, g, b));
-					g2D.fillRect(x * ims.pixelDensity, y * ims.pixelDensity, ims.pixelDensity, ims.pixelDensity);
-				}
-			ImageTool.write(bi, dump_entry);
+			File file = new File(folder, key + ".png");
+			try {
+				ImageTool.write(ims.toImage(), file);
+			} catch (IOException ioe) { }
 		}
 	}
 	
@@ -164,7 +151,7 @@ final class CacheManager
 	{
 		private static final long serialVersionUID = 1L;
 		
-		private int pixelDensity= 16;
+		private int pixelDensity = 16;
 		private int[][] pixelData;
 		
 		private ImageSignature(BufferedImage bi)
@@ -196,6 +183,22 @@ final class CacheManager
 			long width = Math.min(pixelData.length, ims.pixelData.length);
 			long height = Math.min(pixelData[0].length, ims.pixelData[0].length);
 			return (100 - (diff * 100 / ((double)width * height * 0xff)));
+		}
+		
+		public BufferedImage toImage()
+		{
+			BufferedImage bi = new BufferedImage(pixelData.length * pixelDensity, pixelData[0].length * pixelDensity, BufferedImage.TYPE_3BYTE_BGR);
+			Graphics2D g2D = bi.createGraphics();
+			for(int x=0; x < pixelData.length; x++)
+				for(int y=0; y < pixelData[0].length; y++)
+				{
+					int r = (pixelData[x][y] & 0x00ff0000) >> 16;
+					int g = (pixelData[x][y] & 0x0000ff00) >> 8;
+					int b =  pixelData[x][y] & 0x000000ff;
+					g2D.setColor(new Color(r, g, b));
+					g2D.fillRect(x * pixelDensity, y * pixelDensity, pixelDensity, pixelDensity);
+				}
+			return bi;
 		}
 		
 		private static int colorAt(BufferedImage bi, int x, int y, int width, int height)

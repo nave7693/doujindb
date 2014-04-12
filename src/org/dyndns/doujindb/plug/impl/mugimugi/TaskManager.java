@@ -176,8 +176,8 @@ final class TaskManager
 			task.setBook(null);
 			task.setDuplicateList(null);
 			task.setMugimugiList(null);
-			task.setExec(TaskExec.NO_OPERATION);
-			task.setInfo(TaskInfo.IDLE);
+			task.setExec(Task.Exec.NO_OPERATION);
+			task.setInfo(Task.Info.IDLE);
 			task.setError(null);
 			task.setWarning(null);
 			task.setSelected(false);
@@ -231,13 +231,13 @@ final class TaskManager
 		}
 		
 		@Override
-		public void setExec(TaskExec exec) {
+		public void setExec(Task.Exec exec) {
 			super.setExec(exec);
 			pcs.firePropertyChange("task-exec", 0, 1);
 		}
 		
 		@Override
-		public void setInfo(TaskInfo info) {
+		public void setInfo(Task.Info info) {
 			super.setInfo(info);
 			pcs.firePropertyChange("task-info", 0, 1);
 		}
@@ -247,9 +247,9 @@ final class TaskManager
 			switch(this.getExec())
 			{
 				case NO_OPERATION:
-					if(this.getInfo() == TaskInfo.IDLE)
+					if(this.getInfo() == Task.Info.IDLE)
 						return 0;
-					else if (this.getInfo() == TaskInfo.COMPLETED)
+					else if (this.getInfo() == Task.Info.COMPLETED)
 						return 100;
 					break;
 				case CHECK_API:
@@ -280,16 +280,16 @@ final class TaskManager
 
 		@Override
 		public String getMessage() {
-			if(super.getInfo().equals(TaskInfo.ERROR))
+			if(super.getInfo().equals(Task.Info.ERROR))
 				return super.getError();
-			if(super.getInfo().equals(TaskInfo.WARNING))
+			if(super.getInfo().equals(Task.Info.WARNING))
 				return super.getWarning();
 			switch(this.getExec())
 			{
 				case NO_OPERATION:
-					if(this.getInfo() == TaskInfo.IDLE)
+					if(this.getInfo() == Task.Info.IDLE)
 						return "queue.wait()";
-					else if (this.getInfo() == TaskInfo.COMPLETED)
+					else if (this.getInfo() == Task.Info.COMPLETED)
 						return "status:done";
 					break;
 				case CHECK_API:
@@ -443,118 +443,118 @@ final class TaskManager
 				
 				// Get next queued Task
 				for(Task task : tasks())
-					if(task.getInfo() == TaskInfo.IDLE)
+					if(task.getInfo() == Task.Info.IDLE)
 					{
 						m_Task = task;
 						break;
 					}
-				if(m_Task == null || m_Task.getInfo() != TaskInfo.IDLE)
+				if(m_Task == null || m_Task.getInfo() != Task.Info.IDLE)
 				{
 					TaskManager.stop();
 					continue;
 				}
 				
-				m_Task.setInfo(TaskInfo.RUNNING);
+				m_Task.setInfo(Task.Info.RUNNING);
 				try {
-					if(m_Task.getExec() == TaskExec.NO_OPERATION)
+					if(m_Task.getExec() == Task.Exec.NO_OPERATION)
 						execApiCheck(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.CHECK_API)
+					if(m_Task.getExec() == Task.Exec.CHECK_API)
 						execImageScan(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.SCAN_IMAGE)
+					if(m_Task.getExec() == Task.Exec.SCAN_IMAGE)
 						execDuplicateCheck(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.CHECK_DUPLICATE)
+					if(m_Task.getExec() == Task.Exec.CHECK_DUPLICATE)
 						execImageUpload(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.UPLOAD_IMAGE)
+					if(m_Task.getExec() == Task.Exec.UPLOAD_IMAGE)
 						execXMLParse(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-//					if(m_Task.getExec() == TaskExec.PARSE_XML)
+//					if(m_Task.getExec() == Task.Exec.PARSE_XML)
 //						execBIDParse(m_Task);
 //					if(isPaused())
 //					{
-//						m_Task.setInfo(TaskInfo.IDLE);
+//						m_Task.setInfo(Task.Info.IDLE);
 //						continue;
 //					}
 					
-					if(m_Task.getExec() == TaskExec.PARSE_XML)
+					if(m_Task.getExec() == Task.Exec.PARSE_XML)
 						execSimilarityCheck(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.CHECK_SIMILARITY)
+					if(m_Task.getExec() == Task.Exec.CHECK_SIMILARITY)
 						execDatabaseInsert(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.SAVE_DATABASE)
+					if(m_Task.getExec() == Task.Exec.SAVE_DATABASE)
 						execDatastoreSave(m_Task);
 					if(isPaused())
 					{
-						m_Task.setInfo(TaskInfo.IDLE);
+						m_Task.setInfo(Task.Info.IDLE);
 						continue;
 					}
 					
-					if(m_Task.getExec() == TaskExec.SAVE_DATASTORE)
+					if(m_Task.getExec() == Task.Exec.SAVE_DATASTORE)
 						execCleanup(m_Task);
 				} catch (TaskWarningException twe) {
 					m_Task.setWarning(twe.getMessage());
-					m_Task.setInfo(TaskInfo.WARNING);
+					m_Task.setInfo(Task.Info.WARNING);
 					twe.printStackTrace();
 					continue;
 				} catch (TaskErrorException tee) {
 					m_Task.setError(tee.getMessage());
-					m_Task.setInfo(TaskInfo.ERROR);
+					m_Task.setInfo(Task.Info.ERROR);
 					tee.printStackTrace();
 					continue;
 				} catch (Exception e) {
 					m_Task.setError("[FATAL] " + e.getMessage()); // Overkill, not supposed to happen, but still ...
-					m_Task.setInfo(TaskInfo.ERROR);
+					m_Task.setInfo(Task.Info.ERROR);
 					e.printStackTrace();
 					continue;
 				}
-				m_Task.setExec(TaskExec.NO_OPERATION);
-				m_Task.setInfo(TaskInfo.COMPLETED);
+				m_Task.setExec(Task.Exec.NO_OPERATION);
+				m_Task.setInfo(Task.Info.COMPLETED);
 			}
 		}
 	}
 	
 	private static boolean execApiCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.CHECK_API);
+		task.setExec(Task.Exec.CHECK_API);
 		
 		if(!(DoujinshiDBScanner.APIKEY + "").matches("[0-9a-f]{20}"))
 		{
@@ -567,7 +567,7 @@ final class TaskManager
 	
 	private static boolean execImageScan(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.SCAN_IMAGE);
+		task.setExec(Task.Exec.SCAN_IMAGE);
 		
 		File coverFile;
 		File reqFile;
@@ -624,7 +624,7 @@ final class TaskManager
 	
 	private static boolean execDuplicateCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.CHECK_DUPLICATE);
+		task.setExec(Task.Exec.CHECK_DUPLICATE);
 		
 		File reqFile;
 		BufferedImage reqImage;
@@ -654,7 +654,7 @@ final class TaskManager
 	
 	private static boolean execImageUpload(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.UPLOAD_IMAGE);
+		task.setExec(Task.Exec.UPLOAD_IMAGE);
 		
 		URLConnection urlConnection;
 		File reqFile;
@@ -684,7 +684,7 @@ final class TaskManager
 	
 	private static boolean execXMLParse(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.PARSE_XML);
+		task.setExec(Task.Exec.PARSE_XML);
 		
 		File rspFile;
 		XMLParser.XML_List list;
@@ -726,7 +726,7 @@ final class TaskManager
 	
 	private static boolean execSimilarityCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.CHECK_SIMILARITY);
+		task.setExec(Task.Exec.CHECK_SIMILARITY);
 		
 		Set<Book> books = new HashSet<Book>();
 		QueryBook query;
@@ -800,7 +800,7 @@ final class TaskManager
 	
 	private static boolean execDatabaseInsert(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.SAVE_DATABASE);
+		task.setExec(Task.Exec.SAVE_DATABASE);
 		
 		Book book;
 		File rspFile;
@@ -1033,7 +1033,7 @@ final class TaskManager
 	
 	private static boolean execDatastoreSave(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.SAVE_DATASTORE);
+		task.setExec(Task.Exec.SAVE_DATASTORE);
 		
 		File basepath;
 		File reqFile;
@@ -1065,7 +1065,7 @@ final class TaskManager
 	
 	private static boolean execCleanup(Task task) throws TaskWarningException, TaskErrorException
 	{
-		task.setExec(TaskExec.CLEANUP_DATA);
+		task.setExec(Task.Exec.CLEANUP_DATA);
 		
 		String id = task.getBook();
 		try

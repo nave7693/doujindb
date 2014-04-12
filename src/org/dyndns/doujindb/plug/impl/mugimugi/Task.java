@@ -19,6 +19,29 @@ abstract class Task
 		this.path = path;
 	}
 	
+	enum Info {
+		IDLE,		// Yet to be started
+		RUNNING,	// Still running
+		WARNING,	// Completed with warning(s)
+		ERROR,		// Automatically stopped by error(s)
+		COMPLETED,	// Completed successfully
+		PAUSED		// Waiting for user input
+	}
+	
+	enum Exec {
+		NO_OPERATION,		// Slacking off
+		CHECK_API,			// Checks if API key is set/valid
+		CHECK_DUPLICATE,	// Checks if item is a duplicate entry (cover image)
+		CHECK_SIMILARITY,	// Checks if item has a similar entry (name)
+		SAVE_DATABASE,		// Insert data into the database
+		SAVE_DATASTORE,		// Save data files in the datastore
+		SCAN_IMAGE,			// Find/resize cover image to be uploaded
+		UPLOAD_IMAGE,		// Upload image to mugimugi API system
+		PARSE_XML,			// Parse returned XML data
+		PARSE_BID,			// Add data directly from a BookID (mugimugi)
+		CLEANUP_DATA		// Housekeeping
+	}
+	
 	@XmlAttribute(name="id")
 	private String id;
 	@XmlElement(name="path")
@@ -26,9 +49,9 @@ abstract class Task
 	@XmlElement(name="threshold")
 	private int threshold = DoujinshiDBScanner.THRESHOLD;
 	@XmlElement(name="info")
-	private TaskInfo info = TaskInfo.IDLE;
+	private Task.Info info = Task.Info.IDLE;
 	@XmlElement(name="exec")
-	private TaskExec exec = TaskExec.NO_OPERATION;
+	private Task.Exec exec = Task.Exec.NO_OPERATION;
 	
 	@XmlElement(name="error")
 	private String error;
@@ -66,19 +89,19 @@ abstract class Task
 		this.threshold = threshold;
 	}
 
-	public TaskInfo getInfo() {
+	public Task.Info getInfo() {
 		return info;
 	}
 
-	public void setInfo(TaskInfo info) {
+	public void setInfo(Task.Info info) {
 		this.info = info;
 	}
 
-	public TaskExec getExec() {
+	public Task.Exec getExec() {
 		return exec;
 	}
 
-	public void setExec(TaskExec exec) {
+	public void setExec(Task.Exec exec) {
 		this.exec = exec;
 	}
 

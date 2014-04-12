@@ -702,7 +702,7 @@ public final class DoujinshiDBScanner extends Plugin
 		private final class PanelTaskUI extends JTable implements PropertyChangeListener
 		{
 			private Class<?>[] m_Types = new Class[] {
-				TaskInfo.class,			// Task info
+				Task.Info.class,			// Task info
 				Integer.class,			// Task Progress
 				Boolean.class			// Selection
 			};
@@ -961,9 +961,9 @@ public final class DoujinshiDBScanner extends Plugin
 						m_ProgressBar.setBorderPainted(task.equals(m_PanelTask.m_Task) && m_SplitPane.getBottomComponent() != null);
 						return m_ProgressBar;
 					}
-					if(value instanceof TaskInfo)
+					if(value instanceof Task.Info)
 					{
-						TaskInfo info = (TaskInfo) value;
+						Task.Info info = (Task.Info) value;
 						switch (info)
 						{
 						case COMPLETED:
@@ -1250,7 +1250,7 @@ public final class DoujinshiDBScanner extends Plugin
 					@Override
 					protected Void doInBackground() throws Exception
 					{
-						if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) || m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
+						if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
 						{
 							for(String id : m_Task.getDuplicatelist())
 							{
@@ -1267,7 +1267,7 @@ public final class DoujinshiDBScanner extends Plugin
 								} catch (Exception e) { e.printStackTrace(); }
 							}
 						}
-						if(m_Task.getExec().equals(TaskExec.PARSE_XML))
+						if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
 						{
 							for(String id : m_Task.getMugimugiList())
 							{
@@ -1295,7 +1295,7 @@ public final class DoujinshiDBScanner extends Plugin
 							JButton button = new JButton(imageicon);
 							button.setActionCommand(id);
 							button.setFocusable(false);
-							if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) || m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
+							if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
 							{
 								// Open local Book
 								button.addActionListener(new ActionListener()
@@ -1319,7 +1319,7 @@ public final class DoujinshiDBScanner extends Plugin
 								});
 								m_TabbedPaneImage.addTab("", button);
 							}
-							if(m_Task.getExec().equals(TaskExec.PARSE_XML))
+							if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
 							{
 								// Open mugimugi Book
 								button.addActionListener(new ActionListener()
@@ -1397,7 +1397,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ButtonImportBID.setEnabled(false);
 					return;
 				}
-				if(m_Task.getInfo().equals(TaskInfo.COMPLETED))
+				if(m_Task.getInfo().equals(Task.Info.COMPLETED))
 				{
 					m_ButtonOpenFolder.setEnabled(true);
 					m_ButtonRunAgain.setEnabled(false);
@@ -1407,7 +1407,7 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ButtonImportBID.setEnabled(false);
 					return;
 				}
-				if(m_Task.getInfo().equals(TaskInfo.IDLE))
+				if(m_Task.getInfo().equals(Task.Info.IDLE))
 				{
 					m_ButtonOpenFolder.setEnabled(true);
 					m_ButtonRunAgain.setEnabled(false);
@@ -1417,20 +1417,20 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ButtonImportBID.setEnabled(false);
 					return;
 				}
-				if(m_Task.getInfo().equals(TaskInfo.WARNING))
+				if(m_Task.getInfo().equals(Task.Info.WARNING))
 				{
 					m_ButtonOpenFolder.setEnabled(true);
 					m_ButtonRunAgain.setEnabled(false);
 					m_ButtonOpenBook.setEnabled(false);
-					if(m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) ||
-						m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY))
+					if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) ||
+						m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
 					{
 						m_ButtonOpenXML.setEnabled(false);
 						m_ButtonSkipDuplicate.setEnabled(true);
 						m_ButtonImportBID.setEnabled(false);
 						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
 					}
-					if(m_Task.getExec().equals(TaskExec.PARSE_XML))
+					if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
 					{
 						m_ButtonOpenXML.setEnabled(true);
 						m_ButtonSkipDuplicate.setEnabled(false);
@@ -1439,15 +1439,15 @@ public final class DoujinshiDBScanner extends Plugin
 					}
 					return;
 				}
-				if(m_Task.getInfo().equals(TaskInfo.ERROR))
+				if(m_Task.getInfo().equals(Task.Info.ERROR))
 				{
 					m_ButtonOpenFolder.setEnabled(true);
 					m_ButtonRunAgain.setEnabled(true);
-					if(m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
-						m_Task.getExec().equals(TaskExec.PARSE_XML) ||
-						m_Task.getExec().equals(TaskExec.PARSE_BID) ||
-						m_Task.getExec().equals(TaskExec.SAVE_DATABASE) ||
-						m_Task.getExec().equals(TaskExec.SAVE_DATASTORE))
+					if(m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY) ||
+						m_Task.getExec().equals(Task.Exec.PARSE_XML) ||
+						m_Task.getExec().equals(Task.Exec.PARSE_BID) ||
+						m_Task.getExec().equals(Task.Exec.SAVE_DATABASE) ||
+						m_Task.getExec().equals(Task.Exec.SAVE_DATASTORE))
 						m_ButtonOpenXML.setEnabled(true);
 					m_ButtonOpenBook.setEnabled(false);
 					m_ButtonSkipDuplicate.setEnabled(false);
@@ -1541,12 +1541,12 @@ public final class DoujinshiDBScanner extends Plugin
 				if(ae.getSource() == m_ButtonImportBID)
 				{
 					m_Task.setMugimugiBid(m_ButtonImportBID.getActionCommand());
-					m_Task.setInfo(TaskInfo.IDLE);
+					m_Task.setInfo(Task.Info.IDLE);
 					return;
 				}
 				if(ae.getSource() == m_ButtonSkipDuplicate)
 				{
-					m_Task.setInfo(TaskInfo.IDLE);
+					m_Task.setInfo(Task.Info.IDLE);
 					return;
 				}
 			}
@@ -1567,10 +1567,10 @@ public final class DoujinshiDBScanner extends Plugin
 				if(evt.getPropertyName().equals("task-info"))
 				{
 					fireInfoUpdated();
-					if(m_Task.getInfo().equals(TaskInfo.WARNING) && (
-						m_Task.getExec().equals(TaskExec.CHECK_DUPLICATE) ||
-						m_Task.getExec().equals(TaskExec.CHECK_SIMILARITY) ||
-						m_Task.getExec().equals(TaskExec.PARSE_XML)))
+					if(m_Task.getInfo().equals(Task.Info.WARNING) && (
+						m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) ||
+						m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY) ||
+						m_Task.getExec().equals(Task.Exec.PARSE_XML)))
 						fireItemsUpdated();
 					doLayout();
 					return;

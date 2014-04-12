@@ -21,7 +21,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -34,7 +33,7 @@ import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unused"})
 public class PanelBookMedia extends JPanel
 {
 	private Book tokenBook;
@@ -46,13 +45,15 @@ public class PanelBookMedia extends JPanel
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
 	
-	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
 	protected static final Font font = UI.Font;
 	
+	private static final String TAG = "PanelBook.Media : ";
+	
 	public PanelBookMedia(Book book)
 	{
-		super();
 		tokenBook = book;
 		treeMedia = new MediaTree(null);
 		treeMediaScroll = new JScrollPane(treeMedia);
@@ -77,7 +78,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"$ActionPerformed$Upload")
+				new Thread("bookmedia-upload")
 				{
 					@Override
 					public void run()
@@ -120,7 +121,7 @@ public class PanelBookMedia extends JPanel
 			{
 				if(treeMedia.CheckBoxRenderer.getCheckedPaths().length < 1)
 					return;
-				new Thread(getClass().getName()+"$ActionPerformed$Download")
+				new Thread("bookmedia-download")
 				{
 					@Override
 					public void run()
@@ -258,7 +259,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				new Thread(getClass().getName()+"$ActionPerformed$Package")
+				new Thread("bookmedia-package")
 				{
 					@Override
 					public void run()
@@ -330,25 +331,12 @@ public class PanelBookMedia extends JPanel
 			     return parent.getPreferredSize();
 			}
 		});
-		new SwingWorker<Void, Object>() {
-			@Override
-			public Void doInBackground() {
-				loadData();
-				return null;
-			}
-		}.execute();
+		loadData();
 	}
 	
 	private void loadData()
 	{
-		try {
-			if(!Core.Database.getBooks(null).contains(tokenBook))
-				return;
-		} catch (DataBaseException dbe) {
-			Logger.logError(dbe.getMessage(), dbe);
-		}
 		final MutableTreeNode nodeRoot = new DefaultMutableTreeNode("/");
-		
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
@@ -370,79 +358,91 @@ public class PanelBookMedia extends JPanel
 		private MediaTreeRenderer renderer;
 		public CheckBoxTreeCellRendererEx CheckBoxRenderer;
 
-	public MediaTree(TreeNode root)
-	{
-		super(root);
-		super.setFocusable(false);
-		super.setFont(font);
-		super.setEditable(false);
-		super.setRootVisible(true);
-		super.setScrollsOnExpand(true);
-		renderer = new MediaTreeRenderer();
-		super.setCellRenderer(renderer);
-		CheckBoxRenderer = new CheckBoxTreeCellRendererEx(this, super.getCellRenderer()); 
-		super.setCellRenderer(CheckBoxRenderer);
-	}
+		public MediaTree(TreeNode root)
+		{
+			super(root);
+			super.setFocusable(false);
+			super.setFont(font);
+			super.setEditable(false);
+			super.setRootVisible(true);
+			super.setScrollsOnExpand(true);
+			renderer = new MediaTreeRenderer();
+			super.setCellRenderer(renderer);
+			CheckBoxRenderer = new CheckBoxTreeCellRendererEx(this, super.getCellRenderer());
+			super.setCellRenderer(CheckBoxRenderer);
+		}
 
-	private final class MediaTreeRenderer extends DefaultTreeCellRenderer
-	{
-		private Hashtable<String,Icon> renderIcon;
-
-	public MediaTreeRenderer()
-	{
-		renderIcon=new Hashtable<String,Icon>();
-	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
-	    renderIcon.put("/",Icon.desktop_explorer_book_media_repository);
-	    renderIcon.put("?",Icon.desktop_explorer_book_media_types_unknown);
-	    renderIcon.put("Folder",Icon.desktop_explorer_book_media_types_folder);
-	    renderIcon.put(".zip",Icon.desktop_explorer_book_media_types_archive);
-	}
-	private String getExtension(String file)
-	{
-		if(file.lastIndexOf(".") == -1)
-			return "";
-		return file.toLowerCase().substring(file.lastIndexOf("."));
-	}
-	public Component getTreeCellRendererComponent(
-			JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus){
-		super.getTreeCellRendererComponent(
-	    		tree,
-	        value,
-	        sel,
-	        expanded,
-	        leaf,
-	        row,
-	        hasFocus);
-	    setIcon((ImageIcon)renderIcon.get("?"));
-	    if(tree.getModel().getRoot()==value)
-	    {
-	    	setIcon((ImageIcon)renderIcon.get("/"));
-	    	try {
-				setText("datastore://" + tokenBook.getID());
-			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
+		private final class MediaTreeRenderer extends DefaultTreeCellRenderer
+		{
+			private Hashtable<String,ImageIcon> renderIcon;
+	
+			public MediaTreeRenderer()
+			{
+			    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
+			    renderIcon = new Hashtable<String,ImageIcon>();
+			    renderIcon.put(".zip",  Icon.fileview_archive);
+			    renderIcon.put(".rar",  Icon.fileview_archive);
+    			renderIcon.put(".gz",   Icon.fileview_archive);
+    			renderIcon.put(".tar",  Icon.fileview_archive);
+    			renderIcon.put(".bz2",  Icon.fileview_archive);
+    			renderIcon.put(".xz",   Icon.fileview_archive);
+    			renderIcon.put(".cpio", Icon.fileview_archive);
+    			renderIcon.put(".jpg",  Icon.fileview_image);
+    			renderIcon.put(".jpeg", Icon.fileview_image);
+    			renderIcon.put(".gif",  Icon.fileview_image);
+    			renderIcon.put(".png",  Icon.fileview_image);
+    			renderIcon.put(".tiff", Icon.fileview_image);
+    			renderIcon.put(".txt",  Icon.fileview_text);
+    			renderIcon.put(".sql",  Icon.fileview_text);
+    			renderIcon.put(".db",   Icon.fileview_database);
+    			renderIcon.put(".csv",  Icon.fileview_database);
 			}
-	    	return this;
-	    }
-	    if(value.toString().endsWith("/"))
-	    {
-	    	setIcon((ImageIcon)renderIcon.get("Folder"));
-	    	super.setText(super.getText().substring(0, super.getText().length()-1));
-	    	return this;
-	    }
-	    if(renderIcon.containsKey(getExtension(value.toString())))
-	    {
-	    	setIcon((ImageIcon)renderIcon.get(getExtension(value.toString())));
-	    }
-	    return this;
-	}
-	}
+			private String getExtension(String file)
+			{
+				if(file.lastIndexOf(".") == -1)
+					return "";
+				return file.toLowerCase().substring(file.lastIndexOf("."));
+			}
+			public Component getTreeCellRendererComponent(JTree tree,
+			    Object value,
+			    boolean sel,
+			    boolean expanded,
+			    boolean leaf,
+			    int row,
+			    boolean hasFocus)
+			{
+				super.getTreeCellRendererComponent(tree,
+			        value,
+			        sel,
+			        expanded,
+			        leaf,
+			        row,
+			        hasFocus);
+			    setIcon(Icon.desktop_explorer_book_media_types_unknown);
+			    if(tree.getModel().getRoot().equals(value)) {
+			    	setIcon(Icon.desktop_explorer_book_media_repository);
+			    	try {
+						try {
+							setText(DataStore.getFile(tokenBook.getID()).toString());
+						} catch (DataStoreException dse) {
+							setText("???");
+						}
+					} catch (DataBaseException dbe) {
+						Logger.logError(dbe.getMessage(), dbe);
+					}
+			    	return this;
+			    }
+			    if(value.toString().endsWith("/")) {
+			    	setIcon(Icon.desktop_explorer_book_media_types_folder);
+			    	super.setText(super.getText().substring(0, super.getText().length()-1));
+			    	return this;
+			    }
+			    if(renderIcon.containsKey(getExtension(value.toString()))) {
+			    	setIcon((ImageIcon)renderIcon.get(getExtension(value.toString())));
+			    }
+			    return this;
+			}
+		}
 	}
 	
 	private void filesWalk(DataFile file, MutableTreeNode parent) throws DataStoreException, DataBaseException
@@ -652,7 +652,7 @@ public class PanelBookMedia extends JPanel
 				JList<String> list = new JList<String>(errors);
 				list.setFont(font);
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(backgroundColor);
+				list.setSelectionForeground(background);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(font);
@@ -842,7 +842,7 @@ public class PanelBookMedia extends JPanel
 				JList<String> list = new JList<String>(errors);
 				list.setFont(font);
 				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(backgroundColor);
+				list.setSelectionForeground(background);
 				panel.add(new JScrollPane(list), BorderLayout.CENTER);
 				JButton ok = new JButton("Ok");
 				ok.setFont(font);

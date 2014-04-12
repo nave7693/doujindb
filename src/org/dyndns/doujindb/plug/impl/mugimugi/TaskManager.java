@@ -6,7 +6,9 @@ import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -32,17 +34,64 @@ final class TaskManager
 	private static Vector<Task> m_Tasks;
 	private static Worker m_Worker = new Worker();
 	
+	private static ConcurrentLinkedQueue<Long> downloadQueue = new ConcurrentLinkedQueue<Long>();
+	
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(m_Worker);
+	
+	private static final String TAG = "DoujinshiDBScanner.TaskManager : ";
 	
 	static {
 		m_Tasks = new Vector<Task>();
 		read();
 		
-		Thread thread = new Thread(m_Worker);
+		Thread thread;
+		
+		thread = new Thread(m_Worker);
 		thread.setName("plugin/doujinshidb-scanner/taskmanager-worker");
 		thread.setDaemon(true);
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
+		
+		thread = new Thread() {
+			@Override
+			public void run() {
+				long bookid = 0;
+				while(true) {
+					try {
+						Thread.sleep(1);
+						if(downloadQueue.isEmpty())
+							continue;
+						bookid = downloadQueue.peek();
+						download(bookid);
+						downloadQueue.poll();
+					} catch (IOException ioe) {
+						Logger.logWarning(TAG + "failed to download image of bookid '" + bookid + "'");
+					} catch (InterruptedException ie) { }
+				}
+			}
+			
+			private void download(long bookId) throws IOException {
+				File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, "B" + bookId + ".jpg");
+				if(file.exists())
+					return;
+				URL thumbURL = new URL(DoujinshiDBScanner.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bookId/(double)2000) + "/" + bookId + ".jpg");
+				Image i = new ImageIcon(thumbURL).getImage();
+				BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+				Graphics2D g2 = bi.createGraphics();
+				g2.drawImage(i, 0, 0, null);
+				g2.dispose();
+				ImageIO.write(bi, "JPG", file);
+			}
+		};
+		thread.setName("plugin/doujinshidb-scanner/taskmanager-downloader");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MIN_PRIORITY);
+		thread.start();
+	}
+	
+	public static synchronized void downloadImage(long bookId)
+	{
+		downloadQueue.offer(bookId);
 	}
 	
 	public static void write() {
@@ -656,6 +705,7 @@ final class TaskManager
 			for(XMLParser.XML_Book book : list.Books)
 			{
 				mugimugi_list.add(book.ID);
+				downloadImage(Long.valueOf(book.ID.substring(1)));
 				double result = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
 				if(result > bestResult)
 				{

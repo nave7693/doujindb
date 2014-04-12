@@ -73,8 +73,8 @@ public final class DoujinshiDBScanner extends Plugin
 	
 	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + UUID);
 
-	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
-	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
+	static final File PLUGIN_IMAGECACHE = new File(PLUGIN_HOME, "imagecache");
+	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, "query");
 	
 	private static SimpleDateFormat sdf;
 	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
@@ -1273,20 +1273,8 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								try
 								{
-									File imagetn= new File(DoujinshiDBScanner.PLUGIN_DATA, id + ".jpg");
-									if(!imagetn.exists())
-									{
-										// Load images from doujinshidb website
-										int bid = Integer.parseInt(id.substring(1));
-										URL thumbURL = new URL(DoujinshiDBScanner.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bid/(double)2000) + "/" + bid + ".jpg");
-										Image i = new ImageIcon(thumbURL).getImage();
-										BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
-										Graphics2D g2 = bi.createGraphics();
-										g2.drawImage(i, 0, 0, null);
-										g2.dispose();
-										ImageIO.write(bi, "JPG", imagetn);
-									}
-									ImageIcon ii = new ImageIcon(ImageIO.read(imagetn));
+									File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, id + ".jpg");
+									ImageIcon ii = new ImageIcon(ImageIO.read(file));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
 									data.put("imageicon", ii);
@@ -1893,7 +1881,7 @@ public final class DoujinshiDBScanner extends Plugin
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
 		PLUGIN_HOME.mkdirs();
-		PLUGIN_DATA.mkdirs();
+		PLUGIN_IMAGECACHE.mkdirs();
 		PLUGIN_QUERY.mkdirs();
 
 		CacheManager.read();

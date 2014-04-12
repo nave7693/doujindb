@@ -75,7 +75,6 @@ public final class DoujinshiDBScanner extends Plugin
 
 	static final File PLUGIN_DATA = new File(PLUGIN_HOME, ".data");
 	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, ".query");
-	static final File PLUGIN_CACHE = new File(PLUGIN_HOME, ".cache");
 	
 	private static SimpleDateFormat sdf;
 	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
@@ -87,7 +86,6 @@ public final class DoujinshiDBScanner extends Plugin
 		Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", "");
 		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
 		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
-		Configuration.configAdd(configBase + "cache_locally", "<html><body>Keep a local cache of Book covers.</body></html>", true);
 	}
 	
 	@Override
@@ -1655,12 +1653,6 @@ public final class DoujinshiDBScanner extends Plugin
 						bi = ImageTool.read(DataStore.getCover(book.getID()).getInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
-						if((Boolean) Configuration.configRead(configBase + "cache_locally"))
-						{
-							File out = new File(PLUGIN_CACHE, book.getID());
-							ImageTool.write(bi, out);
-						}
-						
 						CacheManager.put(book.getID(), bi);
 						
 						publish(m_ProgressBarCache.getValue()+1);
@@ -1752,7 +1744,7 @@ public final class DoujinshiDBScanner extends Plugin
 							if(DataStore.getCover(book_id).exists())
 								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getCover(book_id).getInputStream())));
 							else
-								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
+								button = new JButton(Icon.task_preview_missing);
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1780,7 +1772,7 @@ public final class DoujinshiDBScanner extends Plugin
 							if(DataStore.getCover(book_id).exists())
 								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getCover(book_id).getInputStream())));
 							else
-								button = new JButton(new ImageIcon(ImageTool.read(new File(PLUGIN_CACHE, book_id))));
+								button = new JButton(Icon.task_preview_missing);
 							button.addActionListener(new ActionListener()
 							{
 								@Override
@@ -1903,7 +1895,6 @@ public final class DoujinshiDBScanner extends Plugin
 		PLUGIN_HOME.mkdirs();
 		PLUGIN_DATA.mkdirs();
 		PLUGIN_QUERY.mkdirs();
-		PLUGIN_CACHE.mkdirs();
 
 		CacheManager.read();
 

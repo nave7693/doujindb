@@ -727,7 +727,7 @@ public final class DoujinshiDBScanner extends Plugin
 				super.setModel(m_TableModel);
 				super.setFont(font);
 				super.setColumnSelectionAllowed(false);
-				super.setRowSelectionAllowed(false);
+				super.setRowSelectionAllowed(true);
 				super.setCellSelectionEnabled(false);
 				super.getTableHeader().setReorderingAllowed(false);
 				super.getColumnModel().getColumn(0).setCellRenderer(m_TableRender);
@@ -757,6 +757,31 @@ public final class DoujinshiDBScanner extends Plugin
 						Task task = (Task) getValueAt(rowNumber, -1);
 						m_PanelTask.setTask(task);
 						m_SplitPane.setBottomComponent(m_PanelTask);
+					}
+				});
+
+				super.addMouseMotionListener(new MouseMotionAdapter()
+				{
+					private int BUTTON1 = MouseEvent.BUTTON1_DOWN_MASK;
+					private int BUTTON2 = MouseEvent.BUTTON2_DOWN_MASK;
+					private int BUTTON3 = MouseEvent.BUTTON3_DOWN_MASK;
+					
+					@Override
+					public void mouseDragged(MouseEvent me)
+					{
+						int rowNumber = rowAtPoint(me.getPoint());
+						int colNumber = columnAtPoint(me.getPoint());
+						
+						if(rowNumber == -1 || colNumber == getColumnCount() -1)
+							return;
+						Task task = (Task) getValueAt(rowNumber, -1);
+						if ((me.getModifiersEx() & (BUTTON1 | BUTTON2 | BUTTON3)) == BUTTON1) {
+							task.setSelected(true);
+						}
+						if ((me.getModifiersEx() & (BUTTON1 | BUTTON2 | BUTTON3)) == BUTTON3) {
+							task.setSelected(false);
+						}
+						dataChanged(rowNumber);
 					}
 				});
 				
@@ -840,7 +865,6 @@ public final class DoujinshiDBScanner extends Plugin
 				m_TableModel.fireTableDataChanged();
 			}
 			
-			@SuppressWarnings("unused")
 			public void dataChanged(int row) {
 				for(int idx = 0; idx < m_TableModel.getColumnCount(); idx++)
 					m_TableModel.fireTableCellUpdated(row, idx);

@@ -209,6 +209,8 @@ final class LocalDataStore implements IDataStore
 				return;
 			if(isDirectory())
 			{
+				if(!recursive)
+					return;
 				deleteRecursive(listFiles());
 				if(!filePath.delete())
 					filePath.deleteOnExit();

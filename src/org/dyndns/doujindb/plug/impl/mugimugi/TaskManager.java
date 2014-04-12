@@ -549,6 +549,15 @@ final class TaskManager
 		}
 	}
 	
+	private static String bytesToSize(long bytes)
+	{
+		int unit = 1024;
+	    if (bytes < unit) return bytes + " B";
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
+	
 	private static boolean execApiCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
 		task.setExec(Task.Exec.CHECK_API);
@@ -638,7 +647,19 @@ final class TaskManager
 			Set<String> duplicateList = new HashSet<String>();
 			duplicateList.add(searchResult);
 			task.setDuplicateList(duplicateList);
-			throw new TaskWarningException("Duplicate book detected");
+			
+			String higherRes = "";
+			try {
+				long bytesNew = DataStore.diskUsage(new File(task.getPath()));
+				for(String dupe : duplicateList)
+				{
+					long bytesBook = DataStore.diskUsage(DataStore.getFile(dupe));
+					if(bytesNew > bytesBook)
+						higherRes = " (may be higher resolution: "+bytesToSize(bytesNew)+"~"+bytesToSize(bytesBook)+")";
+				}
+			} catch (DataStoreException | IOException e) { }
+			
+			throw new TaskWarningException("Duplicate book detected" + higherRes);
 		}
 		
 		return true;

@@ -42,30 +42,30 @@ abstract class Task
 		CLEANUP_DATA		// Housekeeping
 	}
 	
-	@XmlAttribute(name="id")
+	@XmlAttribute(name="taskId")
 	private String id;
-	@XmlElement(name="path")
+	@XmlElement(name="taskPath")
 	private String path;
-	@XmlElement(name="threshold")
+	@XmlElement(name="searchThreshold")
 	private int threshold = DoujinshiDBScanner.THRESHOLD;
-	@XmlElement(name="info")
+	@XmlElement(name="taskInfo")
 	private Task.Info info = Task.Info.IDLE;
-	@XmlElement(name="exec")
+	@XmlElement(name="taskExec")
 	private Task.Exec exec = Task.Exec.NO_OPERATION;
 	
-	@XmlElement(name="error")
+	@XmlElement(name="messageError")
 	private String error;
-	@XmlElement(name="warning")
+	@XmlElement(name="messageWarning")
 	private String warning;
 	
-	@XmlElement(name="mugimugi_bid")
+	@XmlElement(name="mugimugiBId")
 	private String mugimugi_bid;
-	@XmlElement(name="book")
+	@XmlElement(name="taskBook")
 	private String book;
 	
-	@XmlElement(name="duplicate_list")
+	@XmlElement(name="duplicateList")
 	private Set<String> duplicate_list;
-	@XmlElement(name="mugimugi_list")
+	@XmlElement(name="mugimugiList")
 	private Set<String> mugimugi_list;
 
 	@Override

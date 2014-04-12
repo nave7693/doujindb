@@ -2,6 +2,7 @@ package org.dyndns.doujindb.dat;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.log.*;
@@ -116,5 +117,30 @@ public final class DataStore
 		} else {
 			Files.copy(srcPath.getInputStream(), file.toPath());
 		}
+	}
+	
+	/**
+	 * Recursively get all files into parentPath.
+	 * @param parentPath
+	 */
+	public static DataFile[] listFiles(DataFile parentPath) throws DataStoreException, IOException
+	{
+		Set<DataFile> set = new HashSet<DataFile>();
+		for(DataFile file : parentPath.listFiles())
+			if(file.isDirectory())
+				listFiles(file, set);
+			else
+				set.add(file);
+		return set.toArray(new DataFile[] {});
+	}
+	
+	private static DataFile[] listFiles(DataFile parentPath, Set<DataFile> set) throws DataStoreException, IOException
+	{
+		for(DataFile file : parentPath.listFiles())
+			if(file.isDirectory())
+				listFiles(file, set);
+			else
+				set.add(file);
+		return set.toArray(new DataFile[] {});
 	}
 }

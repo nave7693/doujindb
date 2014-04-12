@@ -1149,7 +1149,7 @@ public final class DoujinshiDBScanner extends Plugin
 					
 					@Override
 					protected Void doInBackground() throws Exception {
-						Thread.currentThread().setName("DoujinshiDBScanner/ClipboardMonitor");
+						Thread.currentThread().setName("plugin/doujinshidb-scanner/clipboard-monitor");
 						while(true)
 							try
 							{

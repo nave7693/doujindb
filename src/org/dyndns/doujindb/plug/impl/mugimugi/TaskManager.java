@@ -39,7 +39,7 @@ final class TaskManager
 		read();
 		
 		Thread thread = new Thread(m_Worker);
-		thread.setName("DoujinshiDBScanner/TaskManager/Worker");
+		thread.setName("plugin/doujinshidb-scanner/taskmanager-worker");
 		thread.setDaemon(true);
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
@@ -321,7 +321,7 @@ final class TaskManager
 		
 		private Worker()
 		{
-			m_PauseThread = new Thread("DoujinshiDBScanner/TaskManager/PauseCmdPoller")
+			m_PauseThread = new Thread("plugin/doujinshidb-scanner/taskmanager-cmdpoller")
 			{
 				@Override
 				public void run()

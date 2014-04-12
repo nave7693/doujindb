@@ -104,8 +104,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			UIManager.put("ComboBox.selectionBackground", background);
 			UIManager.put("InternalFrame.inactiveTitleForeground", foreground.darker());
 			UIManager.put("InternalFrame.activeTitleForeground", foreground);
-			UIManager.put("InternalFrame.inactiveTitleBackground", background.darker());
-			UIManager.put("InternalFrame.activeTitleBackground", background);
+			UIManager.put("InternalFrame.inactiveTitleBackground", background);
+			UIManager.put("InternalFrame.activeTitleBackground", background.brighter());
 			UIManager.put("InternalFrame.font", Font);
 			UIManager.put("InternalFrame.titleFont", Font);
 			UIManager.put("InternalFrame.iconifyIcon", Icon.jdesktop_iframe_iconify);

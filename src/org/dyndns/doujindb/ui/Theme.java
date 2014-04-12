@@ -41,17 +41,18 @@ public final class Theme extends DefaultMetalTheme
 	public Theme(Color color1, Color color2, Font font)
 	{
 		ColorUIResource black = new ColorUIResource(0,0,0);
+		ColorUIResource red = new ColorUIResource(255,0,0);
 		ColorUIResource colorui1 = new ColorUIResource(color1);
 		ColorUIResource colorui2 = new ColorUIResource(color2);
 		prim1 = colorui1;
 		prim2 = new ColorUIResource(color1.darker());
 		prim3 = new ColorUIResource(color1.darker().darker());
-		sec1 = colorui2;
-		sec2 = new ColorUIResource(color2.brighter());
-		sec3 = new ColorUIResource(color2.brighter());
+		sec1 = new ColorUIResource(color2.brighter());
+		sec2 = colorui2;
+		sec3 = colorui2;
 		win1 = colorui1;
 		win2 = colorui2;
-		win3 = new ColorUIResource(color2.brighter());
+		win3 = colorui2;
 		win4 = colorui1;
 		win5 = colorui1;
 		win6 = colorui2;

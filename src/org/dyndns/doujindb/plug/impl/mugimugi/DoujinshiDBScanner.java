@@ -155,6 +155,8 @@ public final class DoujinshiDBScanner extends Plugin
 		
 		private JButton m_ButtonAddTask;
 		private JButton m_ButtonTaskManagerCtl;
+		private JButton m_ButtonTaskDelete;
+		private JButton m_ButtonTaskReset;
 		private JCheckBox m_CheckboxSelection;
 		
 		private JSplitPane m_SplitPane;
@@ -341,6 +343,18 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ButtonTaskManagerCtl.setToolTipText("Resume Worker");
 			m_ButtonTaskManagerCtl.setFocusable(false);
 			bogus.add(m_ButtonTaskManagerCtl);
+			m_ButtonTaskDelete = new JButton(Icon.task_delete);
+			m_ButtonTaskDelete.addActionListener(this);
+			m_ButtonTaskDelete.setBorder(null);
+			m_ButtonTaskDelete.setToolTipText("Detele");
+			m_ButtonTaskDelete.setFocusable(false);
+			bogus.add(m_ButtonTaskDelete);
+			m_ButtonTaskReset = new JButton(Icon.task_reset);
+			m_ButtonTaskReset.addActionListener(this);
+			m_ButtonTaskReset.setBorder(null);
+			m_ButtonTaskReset.setToolTipText("Reset");
+			m_ButtonTaskReset.setFocusable(false);
+			bogus.add(m_ButtonTaskReset);
 			m_CheckboxSelection = new JCheckBox();
 			m_CheckboxSelection.setSelected(false);
 			m_CheckboxSelection.addActionListener(this);
@@ -522,6 +536,8 @@ public final class DoujinshiDBScanner extends Plugin
 			m_LabelCacheInfo.setBounds(5,25+270,width,50);
 			m_LabelMaxResults.setBounds(5,25+320,100,25);
 			m_SliderMaxResults.setBounds(105,25+320,100,25);
+			m_ButtonTaskDelete.setBounds(width-65,1,20,20);
+			m_ButtonTaskReset.setBounds(width-45,1,20,20);
 			m_CheckboxSelection.setBounds(width-25,1,20,20);
 			m_SplitPane.setBounds(1,21,width-5,height-45);
 			if(UserInfo != null)
@@ -672,6 +688,44 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 				return;
 			}
+			if(ae.getSource() == m_ButtonTaskDelete)
+			{
+				List<Task> selected = new Vector<Task>();
+				for(Task task : TaskManager.tasks()) {
+					if(task.isSelected() && !task.isRunning()) {
+						selected.add(task);
+					}
+				}
+				if(selected.isEmpty())
+					return;
+				for(Task task : selected)
+				{
+					// If details panel is open, close it
+					if(task.equals(m_PanelTask.m_Task))
+						m_SplitPane.setBottomComponent(null);
+					TaskManager.remove(task);
+				}
+				m_PanelTasks.dataChanged();
+			}
+			if(ae.getSource() == m_ButtonTaskReset)
+			{
+				List<Task> selected = new Vector<Task>();
+				for(Task task : TaskManager.tasks()) {
+					if(task.isSelected() && !task.isRunning()) {
+						selected.add(task);
+					}
+				}
+				if(selected.isEmpty())
+					return;
+				for(Task task : selected)
+				{
+					// If details panel is open, close it
+					if(task.equals(m_PanelTask.m_Task))
+						m_SplitPane.setBottomComponent(null);
+					TaskManager.reset(task);
+				}
+				m_PanelTasks.dataChanged();
+			}
 			if(ae.getSource() == m_CheckboxSelection)
 			{
 				for(Task task : TaskManager.tasks())
@@ -702,7 +756,7 @@ public final class DoujinshiDBScanner extends Plugin
 		private final class PanelTaskUI extends JTable implements PropertyChangeListener
 		{
 			private Class<?>[] m_Types = new Class[] {
-				Task.Info.class,			// Task info
+				Task.Info.class,		// Task info
 				Integer.class,			// Task Progress
 				Boolean.class			// Selection
 			};
@@ -711,8 +765,6 @@ public final class DoujinshiDBScanner extends Plugin
 			private TaskRenderer m_TableRender;
 			private TaskEditor m_TableEditor;
 			private TableRowSorter<DefaultTableModel> m_TableSorter;
-			
-			private JPopupMenu m_PopupAction;
 			
 			private PanelTaskUI()
 			{
@@ -783,79 +835,6 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 						dataChanged(rowNumber);
 					}
-				});
-				
-				m_PopupAction = new JPopupMenu();
-				super.addMouseListener(new MouseAdapter()
-				{
-					public void mousePressed(MouseEvent me)
-				    {
-						popup(me);
-				    }
-					public void mouseReleased(MouseEvent me)
-				    {
-						popup(me);
-				    }
-				    private void popup(MouseEvent me)
-				    {
-				    	if (me.isPopupTrigger())
-				    	{
-				    		// Reset PopupMenu
-				    		m_PopupAction.removeAll();
-				    		
-				    		final List<Task> selected = new Vector<Task>();
-				    		for(Task task : TaskManager.tasks())
-							{
-								if(task.isSelected() && !task.isRunning())
-								{
-									selected.add(task);
-								}
-							}
-				    		
-				    		// If no Task is selected don't show the PopupMenu
-				    		if(selected.isEmpty())
-				    			return;
-				    		
-							JMenuItem menuItem = new JMenuItem("Delete", Icon.task_delete);
-							menuItem.addActionListener(new ActionListener()
-							{
-								@Override
-								public void actionPerformed(ActionEvent ae)
-								{
-									for(Task task : selected)
-									{
-										// If details panel is open, close it
-										if(task.equals(m_PanelTask.m_Task))
-											m_SplitPane.setBottomComponent(null);
-										TaskManager.remove(task);
-									}
-									dataChanged();
-								}
-							});
-							menuItem.setName("delete");
-							menuItem.setActionCommand("delete");
-							m_PopupAction.add(menuItem);
-							menuItem = new JMenuItem("Reset", Icon.task_reset);
-							menuItem.addActionListener(new ActionListener()
-							{
-								@Override
-								public void actionPerformed(ActionEvent ae)
-								{
-									for(Task task : selected)
-									{
-										// If details panel is open, close it
-										if(task.equals(m_PanelTask.m_Task))
-											m_SplitPane.setBottomComponent(null);
-										TaskManager.reset(task);
-									}
-								}
-							});
-							menuItem.setName("reset");
-							menuItem.setActionCommand("reset");
-							m_PopupAction.add(menuItem);
-				            m_PopupAction.show(me.getComponent(), me.getX(), me.getY());
-				        }
-				    }
 				});
 				
 				TaskManager.registerListener(this);

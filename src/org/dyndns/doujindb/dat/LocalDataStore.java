@@ -149,6 +149,8 @@ final class LocalDataStore implements IDataStore
 
 		@Override
 		public DataFile[] listFiles(final String regexp) throws DataStoreException {
+			if(!filePath.exists())
+				return new DataFile[]{};
 			java.util.Set<DataFile> files = new java.util.TreeSet<DataFile>();
 			for(File file : filePath.listFiles(new FilenameFilter()
 			{

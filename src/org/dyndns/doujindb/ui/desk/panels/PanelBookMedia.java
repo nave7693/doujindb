@@ -347,35 +347,22 @@ public class PanelBookMedia extends JPanel
 		} catch (DataBaseException dbe) {
 			Logger.logError(dbe.getMessage(), dbe);
 		}
-		SwingUtilities.invokeLater(new Runnable()
-		{
+		final MutableTreeNode nodeRoot = new DefaultMutableTreeNode("/");
+		
+		new SwingWorker<Void, Void>() {
 			@Override
-			public void run()
-			{
-				try
-				{
-					String root_id = "/";
-					MutableTreeNode root = new DefaultMutableTreeNode(root_id);
-					buildTree(DataStore.getFile(tokenBook.getID()), root);
-					treeMedia.clearSelection();
-					treeMedia.CheckBoxRenderer.clearSelection();
-					DefaultTreeModel dtm = (DefaultTreeModel) treeMedia.getModel();
-					dtm.setRoot(root);
-					SwingUtilities.invokeLater(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							PanelBookMedia.super.validate();
-						}
-					});
-				} catch (DataBaseException dbe) {
-					Logger.logError(dbe.getMessage(), dbe);
-				} catch (DataStoreException dse) {
-					Logger.logError(dse.getMessage(), dse);
-				}
+			protected Void doInBackground() throws Exception {
+				filesWalk(DataStore.getFile(tokenBook.getID()), nodeRoot);
+				return null;
 			}
-		});
+			@Override
+			protected void done() {
+				treeMedia.clearSelection();
+				treeMedia.CheckBoxRenderer.clearSelection();
+				((DefaultTreeModel) treeMedia.getModel()).setRoot(nodeRoot);
+				PanelBookMedia.super.validate();
+			}
+		}.execute();
 	}
 	
 	private final class MediaTree extends JTree
@@ -458,23 +445,23 @@ public class PanelBookMedia extends JPanel
 	}
 	}
 	
-	private void buildTree(DataFile dss, MutableTreeNode parent) throws DataStoreException, DataBaseException
+	private void filesWalk(DataFile file, MutableTreeNode parent) throws DataStoreException, DataBaseException
 	{
-		int k = 0; 
-		for(DataFile ds : dss.listFiles())
+		int index = 0; 
+		for(DataFile df : file.listFiles())
 		{
-	        if(ds.isDirectory())
+	        if(df.isDirectory())
 	        {
-		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(ds.getName() + "/");
-		        parent.insert(sub, k);
-		        buildTree(ds, sub);
-	        }else{
-	        	if(ds.getName().startsWith("."))
+		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(df.getName() + "/");
+		        parent.insert(sub, index);
+		        filesWalk(df, sub);
+	        } else {
+	        	if(df.getName().startsWith("."))
 	        		continue;
-		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(ds.getName());
-		        parent.insert(sub, k);
+		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(df.getName());
+		        parent.insert(sub, index);
 	        }
-	        k++;
+	        index++;
 	    }
 	}
 	

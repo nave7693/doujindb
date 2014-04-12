@@ -1,52 +1,49 @@
 package org.dyndns.doujindb.plug.impl.mugimugi;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
+import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.dat.DataFile;
-import org.dyndns.doujindb.dat.DataStore;
-import org.dyndns.doujindb.dat.DataStoreException;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.RecordSet;
-import org.dyndns.doujindb.db.query.QueryBook;
+import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.util.ImageTool;
+import org.dyndns.doujindb.util.*;
 
 final class TaskManager
 {
-	private static Vector<Task> m_Tasks;
-	private static Worker m_Worker = new Worker();
+	private static Vector<Task> tasks = new Vector<Task>();
+	private static Worker worker = new Worker();
 	
-	private static ConcurrentLinkedQueue<Long> downloadQueue = new ConcurrentLinkedQueue<Long>();
+	private static ConcurrentLinkedQueue<Long> queue = new ConcurrentLinkedQueue<Long>();
 	
-	private static PropertyChangeSupport pcs = new PropertyChangeSupport(m_Worker);
+	private static PropertyChangeSupport pcs = new PropertyChangeSupport(tasks);
 	
 	private static final String TAG = "DoujinshiDBScanner.TaskManager : ";
 	
 	static {
-		m_Tasks = new Vector<Task>();
-		read();
+		loadTasks();
 		
 		Thread thread;
 		
-		thread = new Thread(m_Worker);
+		thread = new Thread(worker);
 		thread.setName("plugin/doujinshidb-scanner/taskmanager-worker");
 		thread.setDaemon(true);
 		thread.setPriority(Thread.MIN_PRIORITY);
@@ -59,18 +56,18 @@ final class TaskManager
 				while(true) {
 					try {
 						Thread.sleep(1);
-						if(downloadQueue.isEmpty())
+						if(queue.isEmpty())
 							continue;
-						bookid = downloadQueue.peek();
-						download(bookid);
-						downloadQueue.poll();
+						bookid = queue.peek();
+						fetch(bookid);
+						queue.poll();
 					} catch (IOException ioe) {
 						Logger.logWarning(TAG + "failed to download image of bookid '" + bookid + "'");
 					} catch (InterruptedException ie) { }
 				}
 			}
 			
-			private void download(long bookId) throws IOException {
+			private void fetch(long bookId) throws IOException {
 				File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, "B" + bookId + ".jpg");
 				if(file.exists())
 					return;
@@ -89,18 +86,18 @@ final class TaskManager
 		thread.start();
 	}
 	
-	public static synchronized void downloadImage(long bookId)
+	public static synchronized void fetchImage(long bookId)
 	{
-		downloadQueue.offer(bookId);
+		queue.offer(bookId);
 	}
 	
-	public static void write() {
+	public static void saveTasks() {
 		File file = new File(DoujinshiDBScanner.PLUGIN_HOME, "tasks.xml");
 		FileOutputStream out = null;
 		try
 		{
 			TaskSet set = new TaskSet();
-			set.tasks = m_Tasks;
+			set.tasks = tasks;
 			out = new FileOutputStream(file);
 			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 			Marshaller m = context.createMarshaller();
@@ -117,11 +114,11 @@ final class TaskManager
 		}
 	}
 	
-	public static void read()
+	public static void loadTasks()
 	{
-		synchronized(m_Tasks)
+		synchronized(tasks)
 		{
-			m_Tasks = new Vector<Task>();
+			tasks = new Vector<Task>();
 			
 			File file = new File(DoujinshiDBScanner.PLUGIN_HOME, "tasks.xml");
 			FileInputStream in = null;
@@ -131,7 +128,7 @@ final class TaskManager
 				JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 				Unmarshaller um = context.createUnmarshaller();
 				TaskSet set = (TaskSet) um.unmarshal(in);
-				m_Tasks = set.tasks;
+				tasks = set.tasks;
 			} catch (NullPointerException npe) {
 				npe.printStackTrace();
 			} catch (JAXBException jaxbe) {
@@ -145,31 +142,31 @@ final class TaskManager
 	}
 	
 	public static int size() {
-		return m_Tasks.size();
+		return tasks.size();
 	}
 	
 	public static void add(File workpath) {
-		synchronized(m_Tasks)
+		synchronized(tasks)
 		{
 			// Get unique ID
-			String id = java.util.UUID.randomUUID().toString();
-			while(m_Tasks.contains(id))
-				id = java.util.UUID.randomUUID().toString();
+			String uuid = java.util.UUID.randomUUID().toString();
+			while(tasks.contains(uuid))
+				uuid = java.util.UUID.randomUUID().toString();
 			//
-			Task task = new TaskImpl(id, workpath);
-			m_Tasks.add(task);
+			Task task = new TaskImpl(uuid, workpath);
+			tasks.add(task);
 		}
 	}
 	
 	public static void remove(Task task) {
-		synchronized(m_Tasks)
+		synchronized(tasks)
 		{
-			m_Tasks.remove(task);
+			tasks.remove(task);
 		}
 	}
 	
 	public static void reset(Task task) {
-		synchronized(m_Tasks)
+		synchronized(tasks)
 		{
 			if(!contains(task))
 				return;
@@ -186,26 +183,26 @@ final class TaskManager
 	}
 	
 	public static boolean contains(Task task) {
-		return m_Tasks.contains(task);
+		return tasks.contains(task);
 	}
 	
 	public static boolean contains(String taskid) {
-		return m_Tasks.contains(taskid);
+		return tasks.contains(taskid);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static Iterable<Task> tasks() {
-		return (Iterable<Task>) m_Tasks.clone();
+		return (Iterable<Task>) tasks.clone();
 	}
 	
 	public static Task get(int index) {
-		return m_Tasks.get(index);
+		return tasks.get(index);
 	}
 	
 	public static Task getRunning() {
 		if(!isRunning())
 			return null;
-		return m_Worker.m_Task;
+		return worker.m_Task;
 	}
 	
 	public static void registerListener(PropertyChangeListener listener) {
@@ -320,8 +317,8 @@ final class TaskManager
 
 		@Override
 		public boolean isRunning() {
-			if(!m_Worker.isPaused())
-				return this.equals(m_Worker.m_Task);
+			if(!worker.isPaused())
+				return this.equals(worker.m_Task);
 			return false;
 		}
 	}
@@ -337,9 +334,9 @@ final class TaskManager
 	
 	public static void start()
 	{
-		if(m_Worker.isPaused())
+		if(worker.isPaused())
 		{
-			m_Worker.resume();
+			worker.resume();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
 			Logger.logInfo("Worker started");
 		}
@@ -347,9 +344,9 @@ final class TaskManager
 	
 	public static void stop()
 	{
-		if(!m_Worker.isPaused())
+		if(!worker.isPaused())
 		{
-			m_Worker.pause();
+			worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
 			Logger.logInfo("Worker stopped");
 		}
@@ -357,7 +354,7 @@ final class TaskManager
 	
 	public static boolean isRunning()
 	{
-		return !m_Worker.isPaused();
+		return !worker.isPaused();
 	}
 	
 	private static final class Worker implements Runnable
@@ -574,19 +571,17 @@ final class TaskManager
 		BufferedImage coverImage;
 		BufferedImage resizedImage;
 		
-		coverFile= findFile(task.getPath());
-		if(coverFile == null)
-		{
-			throw new TaskErrorException("Cover Image not found");
+		coverFile = findFile(task.getPath());
+		if(coverFile == null) {
+			throw new TaskErrorException("Cover image not found");
 		}
 		try {
 			coverImage = ImageTool.read(coverFile);
 		} catch (IllegalArgumentException | IOException e) {
-			throw new TaskErrorException("Could not read Image file '" + coverFile.getPath()+ "' : " + e.getMessage());
+			throw new TaskErrorException("Could not read image file '" + coverFile.getPath()+ "' : " + e.getMessage());
 		}
-		if(coverImage == null)
-		{
-			throw new TaskErrorException("Cover Image not found");
+		if(coverImage == null) {
+			throw new TaskErrorException("Cover image not found");
 		}
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		{
@@ -606,16 +601,15 @@ final class TaskManager
 				resizedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
 				resizedImage = ImageTool.getScaledInstance(dest, 256, 256, true);
 			} catch (Exception e) {
-				throw new TaskErrorException("Could not resize Image file '" + coverFile.getPath()+ "' : " + e.getMessage());
-			}else
-			{
+				throw new TaskErrorException("Could not resize image file '" + coverFile.getPath()+ "' : " + e.getMessage());
+			} else {
 				resizedImage = dest;
 			}
 			try {
 				ImageTool.write(resizedImage, reqFile);
 				pcs.firePropertyChange("task-image", 0, 1);
 			} catch (Exception e) {
-				throw new TaskErrorException("Could not write Image file '" + coverFile.getPath()+ "' : " + e.getMessage());
+				throw new TaskErrorException("Could not write image file '" + coverFile.getPath()+ "' : " + e.getMessage());
 			}
 		}
 		
@@ -634,19 +628,17 @@ final class TaskManager
 		try {
 			reqImage = ImageTool.read(reqFile);
 		} catch (IllegalArgumentException | IOException e) {
-			throw new TaskErrorException("Could not read Image file '" + reqFile.getPath()+ "' : " + e.getMessage());
+			throw new TaskErrorException("Could not read image file '" + reqFile.getPath()+ "' : " + e.getMessage());
 		}
-		if(reqImage == null)
-		{
-			throw new TaskErrorException("Cover Image not found");
+		if(reqImage == null) {
+			throw new TaskErrorException("Cover image not found");
 		}
 		searchResult = CacheManager.search(reqImage);
-		if(searchResult != null)
-		{
+		if(searchResult != null) {
 			Set<String> duplicateList = new HashSet<String>();
 			duplicateList.add(searchResult);
 			task.setDuplicateList(duplicateList);
-			throw new TaskWarningException("Duplicate Book detected");
+			throw new TaskWarningException("Duplicate book detected");
 		}
 		
 		return true;
@@ -669,14 +661,12 @@ final class TaskManager
 					"img", reqFile
 				});
 			rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
-			FileOutputStream rspOut = new FileOutputStream(rspFile);
-			copyStream(rspIn, rspOut);
+			Files.copy(rspIn, rspFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			rspIn.close();
-			rspOut.close();
 		} catch (MalformedURLException murle) {
-			throw new TaskErrorException("Error uploading Image : " + murle.getMessage());
+			throw new TaskErrorException("Error uploading image : " + murle.getMessage());
 		} catch (IOException ioe) {
-			throw new TaskErrorException("Error uploading Image : " + ioe.getMessage());
+			throw new TaskErrorException("Error uploading image : " + ioe.getMessage());
 		}
 		
 		return true;
@@ -690,11 +680,9 @@ final class TaskManager
 		XMLParser.XML_List list;
 		
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
-		try
-		{
+		try {
 			list = XMLParser.readList(new FileInputStream(rspFile));
-			if(list.ERROR != null)
-			{
+			if(list.ERROR != null) {
 				throw new TaskErrorException("Server returned : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 			}
 			DoujinshiDBScanner.UserInfo = (list.USER == null ? DoujinshiDBScanner.UserInfo : list.USER);
@@ -702,13 +690,11 @@ final class TaskManager
 			
 			double bestResult = 0;
 			Set<String> mugimugi_list = new HashSet<String>();
-			for(XMLParser.XML_Book book : list.Books)
-			{
+			for(XMLParser.XML_Book book : list.Books) {
 				mugimugi_list.add(book.ID);
-				downloadImage(Long.valueOf(book.ID.substring(1)));
+				fetchImage(Long.valueOf(book.ID.substring(1)));
 				double result = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
-				if(result > bestResult)
-				{
+				if(result > bestResult) {
 					bestResult = result;
 					task.setMugimugiBid(book.ID);
 				}
@@ -716,7 +702,7 @@ final class TaskManager
 			task.setMugimugiList(mugimugi_list);
 			
 			if(task.getThreshold() > bestResult)
-				throw new TaskWarningException("No query matched the Threshold (" + DoujinshiDBScanner.THRESHOLD + ")");
+				throw new TaskWarningException("No query matched the threshold (" + DoujinshiDBScanner.THRESHOLD + ")");
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException("Error parsing XML : " + e.getMessage());
 		}
@@ -735,19 +721,15 @@ final class TaskManager
 		XMLParser.XML_Book book = null;
 		
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
-		try
-		{
+		try {
 			list = XMLParser.readList(new FileInputStream(rspFile));
-			for(XMLParser.XML_Book _book : list.Books)
-			{
-				if(_book.ID.equals(task.getMugimugiBid()))
-				{
+			for(XMLParser.XML_Book _book : list.Books) {
+				if(_book.ID.equals(task.getMugimugiBid())) {
 					book = _book;
 					break;
 				}
 			}
-			if(book == null)
-			{
+			if(book == null) {
 				URLConnection urlc;
 				try {
 					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
@@ -760,37 +742,31 @@ final class TaskManager
 			if(book == null)
 				throw new TaskErrorException("Error parsing XML : Book '" + task.getMugimugiBid() + "' was not found in Response file '" + task.getId() + ".xml'");
 			
-			if(!book.NAME_JP.equals(""))
-			{
+			if(!book.NAME_JP.equals("")) {
 				query = new QueryBook();
 				query.JapaneseName = book.NAME_JP;
 				for(Book b : Core.Database.getBooks(query))
 					books.add(b);
 			}
-			if(!book.NAME_EN.equals(""))
-			{
+			if(!book.NAME_EN.equals("")) {
 				query = new QueryBook();
 				query.TranslatedName = book.NAME_EN;
 				for(Book b : Core.Database.getBooks(query))
 					books.add(b);
 			}
-			if(!book.NAME_R.equals(""))
-			{
+			if(!book.NAME_R.equals("")) {
 				query = new QueryBook();
 				query.RomajiName = book.NAME_R;
 				for(Book b : Core.Database.getBooks(query))
 					books.add(b);
 			}
-			
-			if(!books.isEmpty())
-			{
+			if(!books.isEmpty()) {
 				Set<String> duplicateList = new HashSet<String>();
 				for(Book _book : books)
 					duplicateList.add(_book.getID());
 				task.setDuplicateList(duplicateList);
-				throw new TaskWarningException("Possible duplicate Book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
+				throw new TaskWarningException("Possible duplicate book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
 			}
-
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
 		}
@@ -808,19 +784,15 @@ final class TaskManager
 		XMLParser.XML_Book xmlbook = null;
 		
 		rspFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".xml");
-		try
-		{
+		try {
 			list = XMLParser.readList(new FileInputStream(rspFile));
-			for(XMLParser.XML_Book _book : list.Books)
-			{
-				if(_book.ID.equals(task.getMugimugiBid()))
-				{
+			for(XMLParser.XML_Book _book : list.Books) {
+				if(_book.ID.equals(task.getMugimugiBid())) {
 					xmlbook = _book;
 					break;
 				}
 			}
-			if(xmlbook == null)
-			{
+			if(xmlbook == null) {
 				URLConnection urlc;
 				try {
 					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
@@ -855,12 +827,9 @@ final class TaskManager
 			Map<String, Artist> artists_added = new HashMap<String, Artist>();
 			Map<String, Circle> circles_added = new HashMap<String, Circle>();
 			
-			for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items)
-			{
-				try
-				{
-					switch(xmlitem.TYPE)
-					{
+			for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items) {
+				try {
+					switch(xmlitem.TYPE) {
 					case type:
 						for(Book.Type type : Book.Type.values())
 							if(type.toString().equals(xmlitem.NAME_JP))
@@ -987,8 +956,7 @@ final class TaskManager
 			
 			DoujinshiDBScanner.Context.doCommit();
 			
-			if(artists_added.size() > 0 && circles_added.size() > 0)
-			{
+			if(artists_added.size() > 0 && circles_added.size() > 0) {
 				String[] ckeys = (String[]) circles_added.keySet().toArray(new String[0]);
 				String[] akeys = (String[]) artists_added.keySet().toArray(new String[0]);
 				String ids = ckeys[0];
@@ -1003,10 +971,8 @@ final class TaskManager
 				Document doc = builder.parse(in0);
 				XPathFactory xmlfactory = XPathFactory.newInstance();
 				XPath xpath = xmlfactory.newXPath();
-				for(String cid : ckeys)
-				{
-					for(String aid : akeys)
-					{
+				for(String cid : ckeys) {
+					for(String aid : akeys) {
 						XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
 						Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
 						if(node != null)
@@ -1041,17 +1007,13 @@ final class TaskManager
 		basepath = new File(task.getPath());
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		
-		for(File file : basepath.listFiles())
-			try {
-				copyFile(file, DataStore.getFile(task.getBook()));
-			} catch (DataBaseException | IOException | DataStoreException e) {
-				throw new TaskErrorException("Error copying file '" + file.getPath() + "' in the DataStore : " + e.getMessage());
-			}
-		try
-		{
-			DataFile df = DataStore.getFile(task.getBook());
-			df = DataStore.getCover(task.getBook());
-			df.touch();
+		try {
+			DataStore.fromFile(basepath, DataStore.getFile(task.getBook()), true);
+		} catch (DataBaseException | IOException | DataStoreException e) {
+			throw new TaskErrorException("Error copying '" + basepath + "' in  DataStore : " + e.getMessage());
+		}
+		try {
+			DataFile df = DataStore.getCover(task.getBook());
 			OutputStream out = df.getOutputStream();
 			BufferedImage image = ImageTool.read(reqFile);
 			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
@@ -1068,13 +1030,12 @@ final class TaskManager
 		task.setExec(Task.Exec.CLEANUP_DATA);
 		
 		String id = task.getBook();
-		try
-		{
+		try {
 			CacheManager.put(id, (BufferedImage) new ImageIcon(
 				ImageTool.read(
 						DataStore.getCover(id).getInputStream())).getImage());
 		} catch (IOException | ClassCastException | DataStoreException e) {
-			throw new TaskErrorException("Error adding Book to Cache : " + e.getMessage());
+			throw new TaskErrorException("Error adding book to cache : " + e.getMessage());
 		}
 		
 		return true;
@@ -1109,34 +1070,5 @@ final class TaskManager
 			else
 				return findFile(file);
 		return null;
-	}
-	
-	private static void copyFile(File file, DataFile df) throws IOException, DataStoreException
-	{
-		DataFile dfChild = df.getFile(file.getName());
-		if(file.isDirectory())
-		{
-			dfChild.mkdirs();
-			for(File f : file.listFiles())
-				copyFile(f, dfChild);
-		}else
-		{
-			dfChild.touch();
-			OutputStream out = dfChild.getOutputStream();
-			InputStream in = new FileInputStream(file);
-			copyStream(in, out);
-			in.close();
-			out.close();
-		}
-	}
-	
-	private static void copyStream(InputStream in, OutputStream out) throws IOException
-	{
-		byte[] buff = new byte[0x800];
-		int read;
-		while((read = in.read(buff)) != -1)
-		{
-			out.write(buff, 0, read);
-		}
 	}
 }

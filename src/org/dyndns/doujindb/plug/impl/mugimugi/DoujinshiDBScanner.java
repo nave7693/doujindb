@@ -1886,7 +1886,7 @@ public final class DoujinshiDBScanner extends Plugin
 
 		CacheManager.read();
 
-		TaskManager.read();
+		TaskManager.loadTasks();
 		
 		m_UI = new PluginUI();
 	}
@@ -1894,7 +1894,7 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void shutdown() throws TaskErrorException
 	{
-		TaskManager.write();
+		TaskManager.saveTasks();
 
 		CacheManager.write();
 	}

@@ -153,7 +153,7 @@ public final class DoujinshiDBScanner extends Plugin
 		private JTextField m_TextApiImageQueryCount;
 		private JCheckBox m_CheckboxApiResizeImage;
 		
-		private JButton m_ButtonAddTask;
+		private JButton m_ButtonTaskAdd;
 		private JButton m_ButtonTaskManagerCtl;
 		private JButton m_ButtonTaskDelete;
 		private JButton m_ButtonTaskReset;
@@ -332,11 +332,11 @@ public final class DoujinshiDBScanner extends Plugin
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
-			m_ButtonAddTask = new JButton(Icon.add);
-			m_ButtonAddTask.addActionListener(this);
-			m_ButtonAddTask.setBorder(null);
-			m_ButtonAddTask.setFocusable(false);
-			bogus.add(m_ButtonAddTask);
+			m_ButtonTaskAdd = new JButton(Icon.add);
+			m_ButtonTaskAdd.addActionListener(this);
+			m_ButtonTaskAdd.setBorder(null);
+			m_ButtonTaskAdd.setFocusable(false);
+			bogus.add(m_ButtonTaskAdd);
 			m_ButtonTaskManagerCtl = new JButton(Icon.task_resume);
 			m_ButtonTaskManagerCtl.addActionListener(this);
 			m_ButtonTaskManagerCtl.setBorder(null);
@@ -521,7 +521,7 @@ public final class DoujinshiDBScanner extends Plugin
 			m_LabelApiImageQueryCount.setBounds(5,25+100,120,15);
 			m_TextApiImageQueryCount.setBounds(125,25+100,width-130,15);
 			m_CheckboxApiResizeImage.setBounds(5,25+120,width,45);
-			m_ButtonAddTask.setBounds(1,1,20,20);
+			m_ButtonTaskAdd.setBounds(1,1,20,20);
 			m_ButtonTaskManagerCtl.setBounds(21,1,20,20);
 			if(!m_BuilderRunning)
 			{
@@ -629,7 +629,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}.execute();
 				return;
 			}
-			if(ae.getSource() == m_ButtonAddTask)
+			if(ae.getSource() == m_ButtonTaskAdd)
 			{
 				try 
 				{

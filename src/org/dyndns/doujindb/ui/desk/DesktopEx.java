@@ -35,6 +35,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private Vector<JButton> buttonPlugins;
 	
+	private static final String TAG = "DesktopEx : ";
+	
 	public DesktopEx()
 	{
 		super();
@@ -512,15 +514,27 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private void loadData()
 	{
-		try {
-			if(Core.Database.getRecycled().size() > 0)
-				m_ButtonTrash.setIcon(Icon.desktop_trash_full);
-			else
-				m_ButtonTrash.setIcon(Icon.desktop_trash_empty);
-		} catch (DataBaseException dbe) {
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
-		}
+		new SwingWorker<Void, Object>()
+		{
+			boolean isEmpty = true;
+			@Override
+			public Void doInBackground()
+			{
+				try {
+					isEmpty = Core.Database.getRecycled().size() < 1;
+				} catch (DataBaseException dbe) {
+					Logger.logError(TAG + "error while loading data.", dbe);
+				}
+				return null;
+			}
+			@Override
+			protected void done() {
+				if(isEmpty)
+					m_ButtonTrash.setIcon(Icon.desktop_trash_empty);
+				else
+					m_ButtonTrash.setIcon(Icon.desktop_trash_full);
+			}
+		}.execute();
 	}
 
 	@Override

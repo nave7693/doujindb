@@ -22,13 +22,13 @@ import org.apache.cayenne.conn.PoolManager;
 import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.exp.*;
 import org.apache.cayenne.query.SelectQuery;
-
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.log.Logger;
 
 /**  
 * DataBase.java - DoujinDB database instance implementation.
@@ -53,6 +53,8 @@ public final class DataBaseImpl extends DataBase
 	
 	private List<DataBaseListener> listeners = new Vector<DataBaseListener>();
 	private ConcurrentLinkedQueue<DataBaseEvent> queue = new ConcurrentLinkedQueue<DataBaseEvent>();
+	
+	private static final String TAG = "DataBaseImpl : ";
 	
 	{
 		List<Expression> list;
@@ -249,15 +251,15 @@ public final class DataBaseImpl extends DataBase
 		ExecutorService executor = Executors.newCachedThreadPool();
 		Callable<Connection> task = new Callable<Connection>()
 		{
-		   public Connection call()
-		   {
-		      try {
-				return _ds.getConnection();
-			} catch (SQLException sqle) {
-				//sqle.printStackTrace();
-				return null;
+			public Connection call()
+			{
+				try {
+					return _ds.getConnection();
+				} catch (SQLException sqle) {
+					Logger.logError(TAG + "Cannot initialize connection", sqle);
+					return null;
+				}
 			}
-		   }
 		};
 		Future<Connection> future = executor.submit(task);
 		try
@@ -286,8 +288,7 @@ public final class DataBaseImpl extends DataBase
 			DataBaseContext db = new DataBaseContextImpl(context.createChildContext());
 			contexts.put(ID, db);
 			return db;
-		}else
-		{
+		} else {
 			return contexts.get(ID);
 		}
 	}

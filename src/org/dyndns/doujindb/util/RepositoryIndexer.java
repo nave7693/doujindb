@@ -6,7 +6,6 @@ import java.util.*;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
@@ -17,7 +16,7 @@ public final class RepositoryIndexer
 {
 	public static void index() throws DataStoreException
 	{
-		RepositoryIndexer.index(Core.Database.getBooks(null));
+		RepositoryIndexer.index(DataBase.getBooks(null));
 	}
 	
 	public static void index(Iterable<Book> books) throws DataStoreException

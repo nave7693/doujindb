@@ -10,12 +10,9 @@ import java.util.TooManyListenersException;
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.panels.edit.*;
@@ -157,7 +154,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		try
 		{
 			if(tokenParody.getID() == null)
-				tokenParody = Core.Database.doInsert(Parody.class);
+				tokenParody = DataBase.doInsert(Parody.class);
 			tokenParody.setJapaneseName(textJapaneseName.getText());
 			tokenParody.setTranslatedName(textTranslatedName.getText());
 			tokenParody.setRomajiName(textRomajiName.getText());
@@ -172,8 +169,8 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 				new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					return null;
 				}
 				@Override

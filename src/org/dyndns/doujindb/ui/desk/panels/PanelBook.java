@@ -20,10 +20,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.TabbedPaneUI;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -494,7 +492,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		try
 		{
 			if(tokenBook.getID() == null)
-				tokenBook = Core.Database.doInsert(Book.class);
+				tokenBook = DataBase.doInsert(Book.class);
 			else
 				{
 					labelPreview.setEnabled(true);
@@ -547,8 +545,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 						} catch (DataStoreException dse) {
 							dse.printStackTrace();
 						}
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					if(tokenBook.getID() != null)
 					{
 						labelPreview.setEnabled(true);
@@ -583,7 +581,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				for(Type tokenType : Type.values())
 					comboType.addItem(tokenType);
 				comboType.setSelectedItem(tokenBook.getType());
-				Iterator<Convention> i = Core.Database.getConventions(null).iterator();
+				Iterator<Convention> i = DataBase.getConventions(null).iterator();
 				TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
 				{
 					@Override

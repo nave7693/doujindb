@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
 import java.util.*;
 
@@ -6,7 +6,6 @@ import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.query.SelectQuery;
 
-import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 

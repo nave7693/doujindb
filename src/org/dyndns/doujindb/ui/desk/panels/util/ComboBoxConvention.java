@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryConvention;
 import org.dyndns.doujindb.db.records.Convention;
 
@@ -96,7 +96,7 @@ public final class ComboBoxConvention extends JComboBox<Convention>
 		    DefaultComboBoxModel<Convention> mdl = new DefaultComboBoxModel<Convention>();
 		    QueryConvention qc = new QueryConvention();
 		    qc.TagName = text + "%";
-		    for(Convention e : Core.Database.getConventions(qc)) {
+		    for(Convention e : DataBase.getConventions(qc)) {
 		        if(e.getTagName().startsWith(text)) mdl.addElement(e);
 		    }
 		    return mdl;

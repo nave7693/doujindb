@@ -15,7 +15,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -478,8 +477,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									if(DataBase.isAutocommit())
+										DataBase.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -588,7 +587,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Artist> result = Core.Database.getArtists((QueryArtist) query);
+				RecordSet<Artist> result = DataBase.getArtists((QueryArtist) query);
 				for(Artist o : result)
 				{
 					publish(o);
@@ -783,8 +782,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 									}
 									try
 									{
-										if(Core.Database.isAutocommit())
-											Core.Database.doCommit();
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
 									} catch (DataBaseException dbe)
 									{
 										Logger.logError(dbe.getMessage(), dbe);
@@ -915,7 +914,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Book> result = Core.Database.getBooks((QueryBook) query);
+				RecordSet<Book> result = DataBase.getBooks((QueryBook) query);
 				for(Book o : result)
 				{
 					publish(o);
@@ -1087,8 +1086,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									if(DataBase.isAutocommit())
+										DataBase.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1197,7 +1196,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Circle> result = Core.Database.getCircles((QueryCircle) query);
+				RecordSet<Circle> result = DataBase.getCircles((QueryCircle) query);
 				for(Circle o : result)
 				{
 					publish(o);
@@ -1354,8 +1353,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									if(DataBase.isAutocommit())
+										DataBase.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1447,7 +1446,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Content> result = Core.Database.getContents((QueryContent) query);
+				RecordSet<Content> result = DataBase.getContents((QueryContent) query);
 				for(Content o : result)
 				{
 					publish(o);
@@ -1604,8 +1603,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									if(DataBase.isAutocommit())
+										DataBase.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1697,7 +1696,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Convention> result = Core.Database.getConventions((QueryConvention) query);
+				RecordSet<Convention> result = DataBase.getConventions((QueryConvention) query);
 				for(Convention o : result)
 				{
 					publish(o);
@@ -1869,8 +1868,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											Logger.logError(dbe.getMessage(), dbe);
 										}
 									}
-									if(Core.Database.isAutocommit())
-										Core.Database.doCommit();
+									if(DataBase.isAutocommit())
+										DataBase.doCommit();
 									publish(selected);
 									return null;
 								}
@@ -1979,7 +1978,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			
 			@Override
 			protected Void doInBackground() {
-				RecordSet<Parody> result = Core.Database.getParodies((QueryParody) query);
+				RecordSet<Parody> result = DataBase.getParodies((QueryParody) query);
 				for(Parody o : result)
 				{
 					publish(o);

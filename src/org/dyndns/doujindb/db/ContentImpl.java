@@ -1,10 +1,8 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
 import java.io.*;
 import java.util.*;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
@@ -29,7 +27,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		if(getTagName().equals(tagName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setTagName(tagName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("tag_name"));
+		DataBase._recordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
@@ -44,7 +42,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setInfo(info);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("info"));
+		DataBase._recordUpdated(this, UpdateData.property("info"));
 	}
 	
 	@Override
@@ -80,10 +78,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 			return;
 		((org.dyndns.doujindb.db.cayenne.Content)ref).addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
-		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
+		DataBase._recordUpdated(this, UpdateData.link(book));
+		DataBase._recordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -91,10 +89,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	{
 		((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
+		DataBase._recordUpdated(this, UpdateData.unlink(book));
+		DataBase._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -102,11 +100,9 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	{
 		if(getAliases().contains(alias))
 			return;
-		org.dyndns.doujindb.db.cayenne.ContentAlias object = ((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ContentAlias.class);
+		org.dyndns.doujindb.db.cayenne.ContentAlias object = DataBase.newContentAlias();
 		object.setTagName(alias);
-		((org.dyndns.doujindb.db.cayenne.Content)ref).addToAliases(
-				object
-		);
+		((org.dyndns.doujindb.db.cayenne.Content)ref).addToAliases(object);
 	}
 
 	@Override
@@ -122,7 +118,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 				if(a.getTagName().equals(alias))
 				{
 					((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(a);
-					((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(a);
+					DataBase.deleteObject(a);
 				}
 			}
 		}
@@ -142,14 +138,14 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(true);
-		((DataBaseImpl)Core.Database)._recordRecycled(this);
+		DataBase._recordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(false);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		DataBase._recordRestored(this);
 	}
 
 	@Override

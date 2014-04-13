@@ -13,9 +13,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
@@ -266,7 +264,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 										for(T record : selected)
 										{
 											Book book = (Book) record;
-											Book clone = Core.Database.doInsert(Book.class);
+											Book clone = DataBase.doInsert(Book.class);
 											clone.setJapaneseName(book.getJapaneseName());
 											clone.setTranslatedName(book.getTranslatedName());
 											clone.setRomajiName(book.getRomajiName());
@@ -288,8 +286,8 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 												clone.addContent(c);
 											for(Parody p : book.getParodies())
 												clone.addParody(p);
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											if(DataBase.isAutocommit())
+												DataBase.doCommit();
 											publish(clone);
 										}
 										return null;

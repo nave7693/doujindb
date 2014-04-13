@@ -14,10 +14,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.*;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.Configuration;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
@@ -119,8 +117,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 					public void run()
 					{
 						((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
-						if(Core.Database.isAutocommit())
-							Core.Database.doCommit();
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
 					}
 				});
 				textAlias.setText("");
@@ -158,8 +156,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 						textAlias.setText(item);
 						tokenConvention.removeAlias(item);
 						((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
-						if(Core.Database.isAutocommit())
-							Core.Database.doCommit();
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
 					} catch (DataBaseException dbe) {
 						Logger.logError(dbe.getMessage(), dbe);
 						dbe.printStackTrace();
@@ -216,8 +214,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 										public void run()
 										{
 											((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											if(DataBase.isAutocommit())
+												DataBase.doCommit();
 										}
 									});
 								}
@@ -350,7 +348,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 		try
 		{
 			if(tokenConvention.getID() == null)
-				tokenConvention = Core.Database.doInsert(Convention.class);
+				tokenConvention = DataBase.doInsert(Convention.class);
 			tokenConvention.setTagName(textTagName.getText());
 			tokenConvention.setWeblink(textWeblink.getText());
 			tokenConvention.setInfo(textInfo.getText());
@@ -370,8 +368,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 			new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					return null;
 				}
 				@Override

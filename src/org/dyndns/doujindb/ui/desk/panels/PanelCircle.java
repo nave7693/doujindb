@@ -12,11 +12,9 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -310,7 +308,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		try
 		{
 			if(tokenCircle.getID() == null)
-				tokenCircle = Core.Database.doInsert(Circle.class);
+				tokenCircle = DataBase.doInsert(Circle.class);
 			tokenCircle.setJapaneseName(textJapaneseName.getText());
 			tokenCircle.setTranslatedName(textTranslatedName.getText());
 			tokenCircle.setRomajiName(textRomajiName.getText());
@@ -331,8 +329,8 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 			new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					return null;
 				}
 				@Override

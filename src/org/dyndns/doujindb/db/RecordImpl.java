@@ -1,11 +1,8 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
 import java.io.Serializable;
 
 import org.apache.cayenne.CayenneDataObject;
-
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
 
 @SuppressWarnings("serial")
 abstract class RecordImpl implements Record, Serializable, Comparable<Record>

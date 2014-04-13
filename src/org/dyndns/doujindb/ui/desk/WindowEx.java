@@ -6,7 +6,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 
@@ -93,7 +92,7 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
 		setGlassPane(glassPane);
 	    
-	    Core.Database.addDataBaseListener(this);
+	    DataBase.addDataBaseListener(this);
 	}
 	
 	@Override
@@ -110,7 +109,7 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 		{
 			@Override
 			public void run() {
-				Core.Database.removeDataBaseListener(window);
+				DataBase.removeDataBaseListener(window);
 			}
 		}.start();
 	}

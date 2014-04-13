@@ -436,7 +436,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			height = parent.getHeight();
 		m_ButtonConnectionCtl.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
 		m_LabelConnectionStatus.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
-		if(Core.Database.isConnected())
+		if(DataBase.isConnected())
 		{
 			uiPanelDesktopShow.setBounds(1,1,20,20);
 			uiPanelDesktopSearch.setBounds(21,1,20,20);
@@ -676,10 +676,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				protected Void doInBackground() throws Exception
 				{
-					if(Core.Database.isConnected()) {
+					if(DataBase.isConnected()) {
 						try {
 							Logger.logInfo(TAG + "disconnecting from DataBase ...");
-							Core.Database.disconnect();
+							DataBase.disconnect();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
@@ -692,8 +692,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					} else {
 						try {
 							Logger.logInfo(TAG + "connecting to DataBase ...");
-							Core.Database.connect();
-							Core.Database.doRollback();
+							DataBase.connect();
+							DataBase.doRollback();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
@@ -709,9 +709,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				protected void done()
 				{
-					if(Core.Database.isConnected()) {
+					if(DataBase.isConnected()) {
 						m_ButtonConnectionCtl.setIcon(Icon.window_tab_explorer_statusbar_disconnect);
-						m_LabelConnectionStatus.setText("Connected to " + Core.Database.getConnection() + ".");
+						m_LabelConnectionStatus.setText("Connected to " + DataBase.getConnection() + ".");
 					} else {
 						m_ButtonConnectionCtl.setIcon(Icon.window_tab_explorer_statusbar_connect);
 						m_LabelConnectionStatus.setText("Disconnected.");

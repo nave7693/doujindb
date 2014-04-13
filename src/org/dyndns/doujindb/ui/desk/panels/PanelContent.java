@@ -14,10 +14,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.*;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.Configuration;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
@@ -113,8 +111,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 					public void run()
 					{
 						((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
-						if(Core.Database.isAutocommit())
-							Core.Database.doCommit();
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
 					}
 				});
 				textAlias.setText("");
@@ -152,8 +150,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 						textAlias.setText(item);
 						tokenContent.removeAlias(item);
 						((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
-						if(Core.Database.isAutocommit())
-							Core.Database.doCommit();
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
 					} catch (DataBaseException dbe) {
 						Logger.logError(dbe.getMessage(), dbe);
 						dbe.printStackTrace();
@@ -210,8 +208,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 										public void run()
 										{
 											((DefaultListModel<String>)listAlias.getModel()).removeElement(item);
-											if(Core.Database.isAutocommit())
-												Core.Database.doCommit();
+											if(DataBase.isAutocommit())
+												DataBase.doCommit();
 										}
 									});
 								}
@@ -340,7 +338,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		try
 		{
 			if(tokenContent.getID() == null)
-				tokenContent = Core.Database.doInsert(Content.class);
+				tokenContent = DataBase.doInsert(Content.class);
 			tokenContent.setTagName(textTagName.getText());
 			tokenContent.setInfo(textInfo.getText());
 			for(String a : tokenContent.getAliases())
@@ -359,8 +357,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					return null;
 				}
 				@Override

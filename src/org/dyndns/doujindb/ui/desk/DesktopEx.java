@@ -135,13 +135,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				m_ButtonTrash.setBounds(5,5,32,32);
 				buttonTools.setBounds(5+32,5,32,32);
-				m_ButtonTrash.setEnabled(Core.Database.isConnected());
-				buttonTools.setEnabled(Core.Database.isConnected());
+				m_ButtonTrash.setEnabled(DataBase.isConnected());
+				buttonTools.setEnabled(DataBase.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
 					plugin.setBounds(5,5 + 40 + spacing,32,32);
-					plugin.setEnabled(Core.Database.isConnected());
+					plugin.setEnabled(DataBase.isConnected());
 					spacing += 40;
 				}					
 				buttonWallpaper.setBounds(width-20,1,20,20);
@@ -202,7 +202,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			buttonPlugins.add(buttonPlugin);
 		}
 		
-		Core.Database.addDataBaseListener(this);
+		DataBase.addDataBaseListener(this);
 	}
 	
 	@Deprecated
@@ -521,7 +521,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			public Void doInBackground()
 			{
 				try {
-					isEmpty = Core.Database.getRecycled().size() < 1;
+					isEmpty = DataBase.getRecycled().size() < 1;
 				} catch (DataBaseException dbe) {
 					Logger.logError(TAG + "error while loading data.", dbe);
 				}

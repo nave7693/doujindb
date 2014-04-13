@@ -8,9 +8,7 @@ import java.util.TooManyListenersException;
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
@@ -158,7 +156,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		try
 		{
 			if(tokenArtist.getID() == null)
-				tokenArtist = Core.Database.doInsert(Artist.class);
+				tokenArtist = DataBase.doInsert(Artist.class);
 			tokenArtist.setJapaneseName(textJapaneseName.getText());
 			tokenArtist.setTranslatedName(textTranslatedName.getText());
 			tokenArtist.setRomajiName(textRomajiName.getText());
@@ -179,8 +177,8 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 			new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(Core.Database.isAutocommit())
-						Core.Database.doCommit();
+					if(DataBase.isAutocommit())
+						DataBase.doCommit();
 					return null;
 				}
 				@Override

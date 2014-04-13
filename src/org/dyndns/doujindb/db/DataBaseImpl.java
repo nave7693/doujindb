@@ -1,14 +1,9 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.reflect.*;
+import java.sql.*;
 
-import javax.sql.DataSource;
-import javax.swing.SwingWorker;
+import javax.sql.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -23,19 +18,19 @@ import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.exp.*;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.conf.Configuration;
-import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.cayenne.ContentAlias;
+import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
-import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.Logger;
 
 /**  
-* DataBase.java - DoujinDB database instance implementation.
+* DataBaseImpl.java - DoujinDB database instance implementation.
 * @author  nozomu
 * @version 1.0
 */
-public final class DataBaseImpl extends DataBase
+final class DataBaseImpl extends IDataBase
 {
 	private DataDomain domain;
 	private DataNode node;
@@ -50,9 +45,6 @@ public final class DataBaseImpl extends DataBase
 	private static SelectQuery queryConvention;
 	private static SelectQuery queryContent;
 	private static SelectQuery queryParody;
-	
-	private List<DataBaseListener> listeners = new Vector<DataBaseListener>();
-	private ConcurrentLinkedQueue<DataBaseEvent> queue = new ConcurrentLinkedQueue<DataBaseEvent>();
 	
 	private static final String TAG = "DataBaseImpl : ";
 	
@@ -166,82 +158,6 @@ public final class DataBaseImpl extends DataBase
 		context = domain.createDataContext();
 
 		contexts = new Hashtable<String, DataBaseContext>();
-		
-		new SwingWorker<Void, DataBaseEvent>()
-		{
-			@Override
-			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("DataBase/EventPoller");
-				while(true)
-				{
-					try
-					{
-						Thread.sleep(1);
-						if(queue.isEmpty())
-							continue;
-						publish(queue.poll());
-					} catch (Exception e) {
-						e.printStackTrace();
-					} catch (Error e) {
-						e.printStackTrace();
-						break;
-					}
-				}
-				return null;
-			}
-			@Override
-			protected void process(List<DataBaseEvent> events)
-			{
-				for(DataBaseEvent evt : events)
-					try
-					{
-						synchronized(listeners)
-						{
-							switch(evt.type)
-							{
-								case RECORD_ADDED:
-									for(DataBaseListener dbl : listeners)
-										dbl.recordAdded(evt.record);
-									break;
-								case RECORD_DELETED:
-									for(DataBaseListener dbl : listeners)
-										dbl.recordDeleted(evt.record);
-									break;
-								case RECORD_UPDATED:
-									for(DataBaseListener dbl : listeners)
-										dbl.recordUpdated(evt.record, evt.data);
-									break;
-								case RECORD_RECYCLED:
-									for(DataBaseListener dbl : listeners)
-										dbl.recordRecycled(evt.record);
-									break;
-								case RECORD_RESTORED:
-									for(DataBaseListener dbl : listeners)
-										dbl.recordRestored(evt.record);
-									break;
-								case DATABASE_CONNECTED:
-									for(DataBaseListener dbl : listeners)
-										dbl.databaseConnected();
-									break;
-								case DATABASE_DISCONNECTED:
-									for(DataBaseListener dbl : listeners)
-										dbl.databaseDisconnected();
-									break;
-								case DATABASE_COMMIT:
-									for(DataBaseListener dbl : listeners)
-										dbl.databaseCommit();
-									break;
-								case DATABASE_ROLLBACK:
-									for(DataBaseListener dbl : listeners)
-										dbl.databaseRollback();
-									break;
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-			}
-		}.execute();
 	}
 	
 	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
@@ -293,40 +209,66 @@ public final class DataBaseImpl extends DataBase
 		}
 	}
 	
-	private synchronized Artist newArtist() throws DataBaseException
+	@Override
+	protected synchronized Artist newArtist() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Artist o = context.newObject(org.dyndns.doujindb.db.cayenne.Artist.class);
 		return new ArtistImpl(o);
 	}
 
-	private synchronized Book newBook() throws DataBaseException
+	@Override
+	protected synchronized Book newBook() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Book o = context.newObject(org.dyndns.doujindb.db.cayenne.Book.class);
 		return new BookImpl(o);
 	}
 
-	private synchronized Circle newCircle() throws DataBaseException
+	@Override
+	protected synchronized Circle newCircle() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Circle o = context.newObject(org.dyndns.doujindb.db.cayenne.Circle.class);
 		return new CircleImpl(o);
 	}
 
-	private synchronized Content newContent() throws DataBaseException
+	@Override
+	protected synchronized Content newContent() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Content o = context.newObject(org.dyndns.doujindb.db.cayenne.Content.class);
 		return new ContentImpl(o);
 	}
+	
+	@Override
+	protected synchronized ContentAlias newContentAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.ContentAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.ContentAlias.class);
+		return o;
+	}
 
-	private synchronized Convention newConvention() throws DataBaseException
+	@Override
+	protected synchronized Convention newConvention() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Convention o = context.newObject(org.dyndns.doujindb.db.cayenne.Convention.class);
 		return new ConventionImpl(o);
 	}
+	
+	@Override
+	protected synchronized ConventionAlias newConventionAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.ConventionAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.ConventionAlias.class);
+		return o;
+	}
 
-	private synchronized Parody newParody() throws DataBaseException
+	@Override
+	protected synchronized Parody newParody() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Parody o = context.newObject(org.dyndns.doujindb.db.cayenne.Parody.class);
 		return new ParodyImpl(o);
+	}
+	
+	@Override
+	protected synchronized void deleteObject(Object o) throws DataBaseException
+	{
+		context.deleteObject(o);
 	}
 	
 	@Override
@@ -334,7 +276,7 @@ public final class DataBaseImpl extends DataBase
 	{
 		context.commitChanges();
 		
-		this._databaseCommit();
+		DataBase._databaseCommit();
 	}
 
 	@Override
@@ -342,7 +284,7 @@ public final class DataBaseImpl extends DataBase
 	{
 		context.rollbackChanges();
 		
-		this._databaseRollback();
+		DataBase._databaseRollback();
 	}
 	
 	@Override
@@ -350,7 +292,7 @@ public final class DataBaseImpl extends DataBase
 	{
 		context.deleteObject(((RecordImpl)record).ref);
 		
-		this._recordDeleted(record);
+		DataBase._recordDeleted(record);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -570,37 +512,37 @@ public final class DataBaseImpl extends DataBase
 		if(clazz == Artist.class)
 		{
 			T record = (T) newArtist();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Book.class)
 		{
 			T record = (T) newBook();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Circle.class)
 		{
 			T record = (T) newCircle();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Content.class)
 		{
 			T record = (T) newContent();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Convention.class)
 		{
 			T record = (T) newConvention();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Parody.class)
 		{
 			T record = (T) newParody();
-			this._recordAdded((Record)record);
+			DataBase._recordAdded((Record)record);
 			return record;
 		}
 		throw new DataBaseException("Invalid record class '" + clazz + "' specified.");
@@ -694,7 +636,7 @@ public final class DataBaseImpl extends DataBase
 			throw new DataBaseException(e);
 		}
 		
-		this._databaseConnected();
+		DataBase._databaseConnected();
 	}
 	
 	@Override
@@ -702,7 +644,7 @@ public final class DataBaseImpl extends DataBase
 	{
 		node.setDataSource(null);
 		
-		this._databaseDisconnected();
+		DataBase._databaseDisconnected();
 	}
 	
 	@Override
@@ -762,103 +704,5 @@ public final class DataBaseImpl extends DataBase
 				iae.printStackTrace();
 			}
 		return map;
-	}
-
-	@Override
-	public void addDataBaseListener(DataBaseListener dbl)
-	{
-		synchronized(listeners) {
-			if(!listeners.contains(dbl))
-				listeners.add(dbl);
-		}
-	}
-
-	@Override
-	public void removeDataBaseListener(DataBaseListener dbl)
-	{
-		synchronized(listeners) { listeners.remove(dbl); }
-	}
-	
-	private static final class DataBaseEvent
-	{
-		private enum Type
-		{
-			RECORD_ADDED,
-			RECORD_DELETED,
-			RECORD_UPDATED,
-			RECORD_RECYCLED,
-			RECORD_RESTORED,
-			DATABASE_CONNECTED,
-			DATABASE_DISCONNECTED,
-			DATABASE_COMMIT,
-			DATABASE_ROLLBACK
-		}
-		
-		private Type type;
-		private Record record;
-		private UpdateData data;
-		
-		private DataBaseEvent(Type type)
-		{
-			this(type, null);
-		}
-		
-		private DataBaseEvent(Type type, Record record)
-		{
-			this.type = type;
-			this.record = record;
-		}
-		
-		private DataBaseEvent(Type type, Record record, UpdateData data)
-		{
-			this.type = type;
-			this.record = record;
-			this.data = data;
-		}
-	}
-	
-	private void _recordAdded(Record rcd)
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, rcd));
-	}
-
-	private void _recordDeleted(Record rcd)
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
-	}
-
-	void _recordUpdated(Record rcd, UpdateData info)
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd, info));
-	}
-	
-	void _recordRecycled(Record rcd)
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, rcd));
-	}
-
-	void _recordRestored(Record rcd)
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, rcd));
-	}
-
-	private void _databaseConnected()
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_CONNECTED));
-	}
-
-	private void _databaseDisconnected()
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_DISCONNECTED));
-	}
-
-	private void _databaseCommit()
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_COMMIT));
-	}
-
-	private void _databaseRollback()
-	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
 	}
 }

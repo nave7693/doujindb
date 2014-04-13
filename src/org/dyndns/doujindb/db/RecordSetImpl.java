@@ -1,11 +1,7 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
 import java.io.Serializable;
 import java.util.*;
-
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
 
 @SuppressWarnings("serial")
 final class RecordSetImpl<T extends Record> implements RecordSet<T>, Serializable

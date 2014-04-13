@@ -9,7 +9,6 @@ import javax.swing.event.*;
 import java.beans.*;
 import java.util.Vector;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
@@ -186,8 +185,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(parody);
 							}
-							if(Core.Database.isAutocommit())
-								Core.Database.doCommit();
+							if(DataBase.isAutocommit())
+								DataBase.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
 							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
@@ -298,7 +297,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								artist.removeAll();
-								Core.Database.doDelete(artist);
+								DataBase.doDelete(artist);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(artist);
 							}
@@ -307,7 +306,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								book.removeAll();
-								Core.Database.doDelete(book);
+								DataBase.doDelete(book);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(book);
 							}
@@ -316,7 +315,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								circle.removeAll();
-								Core.Database.doDelete(circle);
+								DataBase.doDelete(circle);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(circle);
 							}
@@ -325,7 +324,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								content.removeAll();
-								Core.Database.doDelete(content);
+								DataBase.doDelete(content);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(content);
 							}
@@ -334,7 +333,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								convention.removeAll();
-								Core.Database.doDelete(convention);
+								DataBase.doDelete(convention);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(convention);
 							}
@@ -343,12 +342,12 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								parody.removeAll();
-								Core.Database.doDelete(parody);
+								DataBase.doDelete(parody);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(parody);
 							}
-							if(Core.Database.isAutocommit())
-								Core.Database.doCommit();
+							if(DataBase.isAutocommit())
+								DataBase.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
 							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
@@ -459,7 +458,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								artist.removeAll();
-								Core.Database.doDelete(artist);
+								DataBase.doDelete(artist);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(artist);
 							}
@@ -468,7 +467,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								book.removeAll();
-								Core.Database.doDelete(book);
+								DataBase.doDelete(book);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(book);
 							}
@@ -477,7 +476,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								circle.removeAll();
-								Core.Database.doDelete(circle);
+								DataBase.doDelete(circle);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(circle);
 							}
@@ -486,7 +485,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								content.removeAll();
-								Core.Database.doDelete(content);
+								DataBase.doDelete(content);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(content);
 							}
@@ -495,7 +494,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								convention.removeAll();
-								Core.Database.doDelete(convention);
+								DataBase.doDelete(convention);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(convention);
 							}
@@ -504,12 +503,12 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 								if(super.isCancelled())
 									break;
 								parody.removeAll();
-								Core.Database.doDelete(parody);
+								DataBase.doDelete(parody);
 								super.setProgress(100 * ++cProcessed / cSelected);
 								publish(parody);
 							}
-							if(Core.Database.isAutocommit())
-								Core.Database.doCommit();
+							if(DataBase.isAutocommit())
+								DataBase.doCommit();
 						} catch(ArrayIndexOutOfBoundsException aioobe) {
 							Logger.logError(aioobe.getMessage(), aioobe);
 							aioobe.printStackTrace();
@@ -651,7 +650,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			{
 				try
 				{
-					for(Record record : Core.Database.getRecycled())
+					for(Record record : DataBase.getRecycled())
 					{
 						if(record instanceof Artist)
 						{
@@ -921,7 +920,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			public Void doInBackground()
 			{
 				try {
-					count = Core.Database.getRecycled().size();
+					count = DataBase.getRecycled().size();
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();

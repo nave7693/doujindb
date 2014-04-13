@@ -1,10 +1,8 @@
-package org.dyndns.doujindb.db.impl;
+package org.dyndns.doujindb.db;
 
 import java.io.*;
 import java.util.*;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
@@ -29,7 +27,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getTagName().equals(tagName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setTagName(tagName);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("tag_name"));
+		DataBase._recordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
@@ -44,7 +42,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setInfo(info);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("info"));
+		DataBase._recordUpdated(this, UpdateData.property("info"));
 	}	
 	
 	@Override
@@ -59,7 +57,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setWeblink(weblink);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.property("weblink"));
+		DataBase._recordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -95,10 +93,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.link(book));
-		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.link(this));
+		DataBase._recordUpdated(this, UpdateData.link(book));
+		DataBase._recordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -106,10 +104,10 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
-			((org.dyndns.doujindb.db.impl.BookImpl)book).ref
+			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		((DataBaseImpl)Core.Database)._recordUpdated(this, UpdateData.unlink(book));
-		((DataBaseImpl)Core.Database)._recordUpdated(book, UpdateData.unlink(this));
+		DataBase._recordUpdated(this, UpdateData.unlink(book));
+		DataBase._recordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -117,11 +115,9 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	{
 		if(getAliases().contains(alias))
 			return;
-		org.dyndns.doujindb.db.cayenne.ConventionAlias object = ((DataBaseImpl)DataBaseImpl.getInstance()).context.newObject(org.dyndns.doujindb.db.cayenne.ConventionAlias.class);
+		org.dyndns.doujindb.db.cayenne.ConventionAlias object = DataBase.newConventionAlias();
 		object.setTagName(alias);
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToAliases(
-				object
-		);
+		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToAliases(object);
 	}
 
 	@Override
@@ -137,7 +133,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 				if(a.getTagName().equals(alias))
 				{
 					((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(a);
-					((DataBaseImpl)DataBaseImpl.getInstance()).context.deleteObject(a);
+					DataBase.deleteObject(a);
 				}
 			}
 		}
@@ -157,14 +153,14 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(true);
-		((DataBaseImpl)Core.Database)._recordRecycled(this);
+		DataBase._recordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(false);
-		((DataBaseImpl)Core.Database)._recordRestored(this);
+		DataBase._recordRestored(this);
 	}
 
 	@Override

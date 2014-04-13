@@ -1312,7 +1312,7 @@ public final class DoujinshiDBScanner extends Plugin
 											{
 												QueryBook qid = new QueryBook();
 												qid.ID = id;
-												RecordSet<Book> set = Core.Database.getBooks(qid);
+												RecordSet<Book> set = DataBase.getBooks(qid);
 												if(set.size() == 1)
 													UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 												return null;
@@ -1532,7 +1532,7 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								QueryBook qid = new QueryBook();
 								qid.ID = bookid;
-								RecordSet<Book> set = Core.Database.getBooks(qid);
+								RecordSet<Book> set = DataBase.getBooks(qid);
 								if(set.size() == 1)
 									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 							}
@@ -1747,7 +1747,7 @@ public final class DoujinshiDBScanner extends Plugin
 										{
 											QueryBook qid = new QueryBook();
 											qid.ID = book_id;
-											RecordSet<Book> set = Core.Database.getBooks(qid);
+											RecordSet<Book> set = DataBase.getBooks(qid);
 											if(set.size() == 1)
 												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
@@ -1775,7 +1775,7 @@ public final class DoujinshiDBScanner extends Plugin
 										{
 											QueryBook qid = new QueryBook();
 											qid.ID = book_id;
-											RecordSet<Book> set = Core.Database.getBooks(qid);
+											RecordSet<Book> set = DataBase.getBooks(qid);
 											if(set.size() == 1)
 												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 											return null;
@@ -1874,7 +1874,7 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void startup() throws TaskErrorException
 	{
-		Context = Core.Database.getContext(UUID);
+		Context = DataBase.getContext(UUID);
 		
 		APIKEY = (String) Configuration.configRead(configBase + "apikey");
 		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");

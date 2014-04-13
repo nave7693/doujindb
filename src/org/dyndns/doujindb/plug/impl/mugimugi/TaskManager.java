@@ -18,7 +18,6 @@ import javax.xml.xpath.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.*;
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
@@ -766,19 +765,19 @@ final class TaskManager
 			if(!book.NAME_JP.equals("")) {
 				query = new QueryBook();
 				query.JapaneseName = book.NAME_JP;
-				for(Book b : Core.Database.getBooks(query))
+				for(Book b : DataBase.getBooks(query))
 					books.add(b);
 			}
 			if(!book.NAME_EN.equals("")) {
 				query = new QueryBook();
 				query.TranslatedName = book.NAME_EN;
-				for(Book b : Core.Database.getBooks(query))
+				for(Book b : DataBase.getBooks(query))
 					books.add(b);
 			}
 			if(!book.NAME_R.equals("")) {
 				query = new QueryBook();
 				query.RomajiName = book.NAME_R;
-				for(Book b : Core.Database.getBooks(query))
+				for(Book b : DataBase.getBooks(query))
 					books.add(b);
 			}
 			if(!books.isEmpty()) {

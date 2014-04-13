@@ -914,20 +914,31 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	
 	private void loadData()
 	{
-		long count;
-		try {
-			count = Core.Database.getRecycled().size();
-			m_LabelCount.setText((count==1)?("Item : 1"):("Items : "+count));
-		} catch (DataBaseException dbe) {
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
-		}
-		m_LabelListArtist.setText("Artists (" + (m_ListArtist.getSelectedIndices().length) + "/" + m_ListArtist.getModel().getSize() + ")");
-		m_LabelListBook.setText("Books (" + (m_ListBook.getSelectedIndices().length) + "/" + m_ListBook.getModel().getSize() + ")");
-		m_LabelListCircle.setText("Circles (" + (m_ListCircle.getSelectedIndices().length) + "/" + m_ListCircle.getModel().getSize() + ")");
-		m_LabelListConvention.setText("Conventions (" + (m_ListConvention.getSelectedIndices().length) + "/" + m_ListConvention.getModel().getSize() + ")");
-		m_LabelListContent.setText("Contents (" + (m_ListContent.getSelectedIndices().length) + "/" + m_ListContent.getModel().getSize() + ")");
-		m_LabelListParody.setText("Parodies (" + (m_ListParody.getSelectedIndices().length) + "/" + m_ListParody.getModel().getSize() + ")");
+		new SwingWorker<Void, Object>()
+		{
+			long count = 0;
+			@Override
+			public Void doInBackground()
+			{
+				try {
+					count = Core.Database.getRecycled().size();
+				} catch (DataBaseException dbe) {
+					Logger.logError(dbe.getMessage(), dbe);
+					dbe.printStackTrace();
+				}
+				return null;
+			}
+			@Override
+			protected void done() {
+				m_LabelCount.setText((count==1)?("Item : 1"):("Items : "+count));
+				m_LabelListArtist.setText("Artists (" + (m_ListArtist.getSelectedIndices().length) + "/" + m_ListArtist.getModel().getSize() + ")");
+				m_LabelListBook.setText("Books (" + (m_ListBook.getSelectedIndices().length) + "/" + m_ListBook.getModel().getSize() + ")");
+				m_LabelListCircle.setText("Circles (" + (m_ListCircle.getSelectedIndices().length) + "/" + m_ListCircle.getModel().getSize() + ")");
+				m_LabelListConvention.setText("Conventions (" + (m_ListConvention.getSelectedIndices().length) + "/" + m_ListConvention.getModel().getSize() + ")");
+				m_LabelListContent.setText("Contents (" + (m_ListContent.getSelectedIndices().length) + "/" + m_ListContent.getModel().getSize() + ")");
+				m_LabelListParody.setText("Parodies (" + (m_ListParody.getSelectedIndices().length) + "/" + m_ListParody.getModel().getSize() + ")");
+			}
+		}.execute();
 	}
 	
 	private final class DynamicPanel extends JPanel implements LayoutManager, ActionListener

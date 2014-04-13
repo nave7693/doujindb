@@ -676,23 +676,32 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				protected Void doInBackground() throws Exception
 				{
-					if(Core.Database.isConnected())
-					{
-						try
-						{
+					if(Core.Database.isConnected()) {
+						try {
+							Logger.logInfo(TAG + "disconnecting from DataBase ...");
 							Core.Database.disconnect();
-							DataStore.close();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
 						}
+						try {
+							Logger.logInfo(TAG + "closing DataStore ...");
+							DataStore.close();
+						} catch (DataStoreException dse) {
+							Logger.logError(TAG + dse.getMessage(), dse);
+						}
 					} else {
-						try
-						{
+						try {
+							Logger.logInfo(TAG + "connecting to DataBase ...");
 							Core.Database.connect();
 							Core.Database.doRollback();
-							DataStore.open();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
+						}
+						try {
+							Logger.logInfo(TAG + "opening DataStore ...");
+							DataStore.open();
+						} catch (DataStoreException dse) {
+							Logger.logError(TAG + dse.getMessage(), dse);
 						}
 					}
 					return null;
@@ -700,13 +709,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				@Override
 				protected void done()
 				{
-					if(Core.Database.isConnected())
-					{
+					if(Core.Database.isConnected()) {
 						m_ButtonConnectionCtl.setIcon(Icon.window_tab_explorer_statusbar_disconnect);
 						m_LabelConnectionStatus.setText("Connected to " + Core.Database.getConnection() + ".");
 					} else {
 						m_ButtonConnectionCtl.setIcon(Icon.window_tab_explorer_statusbar_connect);
-						m_LabelConnectionStatus.setText("Disonnected.");
+						m_LabelConnectionStatus.setText("Disconnected.");
 					}
 					m_ButtonConnectionCtl.setEnabled(true);
 					Desktop.revalidate();

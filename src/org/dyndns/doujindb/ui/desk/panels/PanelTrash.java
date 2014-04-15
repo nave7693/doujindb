@@ -5,25 +5,33 @@ import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableRowSorter;
 
 import java.beans.*;
 import java.util.Vector;
 
-import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class PanelTrash extends JPanel implements DataBaseListener, LayoutManager, ListSelectionListener
+public final class PanelTrash extends JPanel implements DataBaseListener, LayoutManager
 {
-	@SuppressWarnings("unused")
-	private WindowEx m_ParentWindow;
+	private JTabbedPane m_TabbedPane;
+	private Vector<TrashTab<?>> m_Tabs;
+	private TrashTab<Artist> m_TabArtist;
+	private TrashTab<Book> m_TabBook;
+	private TrashTab<Circle> m_TabCircle;
+	private TrashTab<Convention> m_TabConvention;
+	private TrashTab<Content> m_TabContent;
+	private TrashTab<Parody> m_TabParody;
 	
 	private JSplitPane m_SplitPane;
 	private JLabel m_LabelInfo;
@@ -33,27 +41,10 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	private JButton m_ButtonDelete;
 	private JButton m_ButtonEmpty;
 	
-	private DynamicPanel m_PanelFrame[] = new DynamicPanel[6];
-	private JScrollPane m_ScrollPaneBase;
-	private JPanel m_PanelBase;
-	private JList<Artist> m_ListArtist;
-	private JLabel m_LabelListArtist;
-	private JList<Circle> m_ListCircle;
-	private JLabel m_LabelListCircle;
-	private JList<Book> m_ListBook;
-	private JLabel m_LabelListBook;
-	private JList<Convention> m_ListConvention;
-	private JLabel m_LabelListConvention;
-	private JList<Content> m_ListContent;
-	private JLabel m_LabelListContent;
-	private JList<Parody> m_ListParody;
-	private JLabel m_LabelListParody;
+	private static DialogTrash m_PopupDialog = null;
 	
-	private DialogTrash m_PopupDialog = null;
+	private static final Font font = UI.Font;
 	
-	protected static final Font font = UI.Font;
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public PanelTrash()
 	{
 		super();
@@ -82,147 +73,95 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				if(m_ListArtist.getSelectedIndices().length == 0 &&
-					m_ListBook.getSelectedIndices().length == 0 &&
-					m_ListCircle.getSelectedIndices().length == 0 &&
-					m_ListContent.getSelectedIndices().length == 0 &&
-					m_ListConvention.getSelectedIndices().length == 0 &&
-					m_ListParody.getSelectedIndices().length == 0)
-				return;
+				int selectedCount = 0;
+				for(TrashTab<?> tab : m_Tabs)
+					selectedCount += tab.m_Table.getSelectedRowCount();
+				if(selectedCount == 0)
+					return;
 				
-				m_PopupDialog = new DialogTrash("<html>" +
+				m_PopupDialog = new DialogTrash(PanelTrash.this,
+					"Restore",
+					"<html>" +
 					"<body>" +
-					"Restore selected items from the Trash?<br/>" +
+					"Restore selected items?<br/>" +
 					"</body>" +
-					"</html>", new SwingWorker<Void,Record>()
+					"</html>", new SwingWorker<Void,Iterable<Record>>()
 				{
-					private DefaultListModel mArtist = (DefaultListModel) m_ListArtist.getModel();
-					private DefaultListModel mBook = (DefaultListModel) m_ListBook.getModel();
-					private DefaultListModel mCircle = (DefaultListModel) m_ListCircle.getModel();
-					private DefaultListModel mContent = (DefaultListModel) m_ListContent.getModel();
-					private DefaultListModel mConvention = (DefaultListModel) m_ListConvention.getModel();
-					private DefaultListModel mParody = (DefaultListModel) m_ListParody.getModel();
-								
 					@Override
-					protected Void doInBackground() throws Exception
-					{
-						try
-						{
-							int cSelected, cProcessed;
-							Vector<Artist> artists = new Vector<Artist>();
-							Vector<Book> books = new Vector<Book>();
-							Vector<Circle> circles = new Vector<Circle>();
-							Vector<Content> contents = new Vector<Content>();
-							Vector<Convention> conventions = new Vector<Convention>();
-							Vector<Parody> parodies = new Vector<Parody>();
-							
-							for(int index : m_ListArtist.getSelectedIndices())
-								artists.add(m_ListArtist.getModel().getElementAt(index));
-							for(int index : m_ListBook.getSelectedIndices())
-								books.add(m_ListBook.getModel().getElementAt(index));
-							for(int index : m_ListCircle.getSelectedIndices())
-								circles.add(m_ListCircle.getModel().getElementAt(index));
-							for(int index : m_ListContent.getSelectedIndices())
-								contents.add(m_ListContent.getModel().getElementAt(index));
-							for(int index : m_ListConvention.getSelectedIndices())
-								conventions.add(m_ListConvention.getModel().getElementAt(index));
-							for(int index : m_ListParody.getSelectedIndices())
-								parodies.add(m_ListParody.getModel().getElementAt(index));
-							
-							cProcessed = 0;
-							cSelected = artists.size() +
-								books.size() +
-								circles.size() +
-								contents.size() +
-								conventions.size() +
-								parodies.size();
-							
-							for(Artist artist : artists)
-							{
-								if(super.isCancelled())
-									break;
-								artist.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(artist);
+					protected Void doInBackground() throws Exception {
+						int selectedCount = 0,
+							processedCount = 0;
+						Vector<Record> selected = new Vector<Record>();
+						
+						for(TrashTab<?> tab : m_Tabs)
+							selectedCount += tab.m_Table.getSelectedRowCount();
+						
+						for(TrashTab<?> tab : m_Tabs)
+							for(int index : tab.m_Table.getSelectedRows()) {
+								try {
+									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+									o.doRestore();
+									super.setProgress(100 * ++processedCount / selectedCount);
+									selected.add(o);
+								} catch (DataBaseException dbe) {
+									Logger.logError(dbe.getMessage(), dbe);
+								}
 							}
-							for(Book book : books)
-							{
-								if(super.isCancelled())
-									break;
-								book.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(book);
-							}
-							for(Circle circle : circles)
-							{
-								if(super.isCancelled())
-									break;
-								circle.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(circle);
-							}
-							for(Content content : contents)
-							{
-								if(super.isCancelled())
-									break;
-								content.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(content);
-							}
-							for(Convention convention : conventions)
-							{
-								if(super.isCancelled())
-									break;
-								convention.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(convention);
-							}
-							for(Parody parody : parodies)
-							{
-								if(super.isCancelled())
-									break;
-								parody.doRestore();
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(parody);
-							}
+						
+						try {
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
-						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Logger.logError(aioobe.getMessage(), aioobe);
-							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
-							dbe.printStackTrace();
 						} catch (Exception e) {
 							Logger.logError(e.getMessage(), e);
-							e.printStackTrace();
 						}
+						
+						publish(selected);
+						
 						return null;
 					}
 					@Override
-					protected void process(java.util.List<Record> data)
-					{
-						for(final Record r : data)
-						{
-							if(r instanceof Artist)
-								mArtist.removeElement(r);
-							if(r instanceof Book)
-								mBook.removeElement(r);
-							if(r instanceof Circle)
-								mCircle.removeElement(r);
-							if(r instanceof Content)
-								mContent.removeElement(r);
-							if(r instanceof Convention)
-								mConvention.removeElement(r);
-							if(r instanceof Parody)
-								mParody.removeElement(r);
-						}
+					protected void process(java.util.List<Iterable<Record>> data) {
+						for(Iterable<Record> records : data)
+							for(Record record : records) {
+								if(record instanceof Artist) {
+									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+									continue;
+								}
+								if(record instanceof Book) {
+									removeFromTable(m_TabBook.m_TableModel, (Book) record);
+									continue;
+								}
+								if(record instanceof Circle) {
+									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+									continue;
+								}
+								if(record instanceof Convention) {
+									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+									continue;
+								}
+								if(record instanceof Content) {
+									removeFromTable(m_TabContent.m_TableModel, (Content) record);
+									continue;
+								}
+								if(record instanceof Parody) {
+									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+									continue;
+								}
+							}
 					}
 					@Override
-					protected void done()
-					{
-						loadData();
+					protected void done() {
 						m_PopupDialog.dispose();
+				    }
+					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+						for(int index=0; index<model.getRowCount(); index++)
+							if((model.getValueAt(index, 0)).equals(record)) {
+								model.removeRow(index);
+								break;
+							}
+						model.fireTableDataChanged();
 					}
 				});
 			}			
@@ -236,154 +175,107 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				if(m_ListArtist.getSelectedIndices().length == 0 &&
-					m_ListBook.getSelectedIndices().length == 0 &&
-					m_ListCircle.getSelectedIndices().length == 0 &&
-					m_ListContent.getSelectedIndices().length == 0 &&
-					m_ListConvention.getSelectedIndices().length == 0 &&
-					m_ListParody.getSelectedIndices().length == 0)
-				return;
+				int selectedCount = 0;
+				for(TrashTab<?> tab : m_Tabs)
+					selectedCount += tab.m_Table.getSelectedRowCount();
+				if(selectedCount == 0)
+					return;
 				
-				m_PopupDialog = new DialogTrash("<html>" +
+				m_PopupDialog = new DialogTrash(PanelTrash.this,
+					"Delete",
+					"<html>" +
 					"<body>" +
-					"Delete selected items from the Trash?<br/>" +
-					"<i>(This cannot be undone)</i>" +
+					"Delete selected items?<br/>" +
 					"</body>" +
-					"</html>", new SwingWorker<Void,Record>()
+					"</html>", new SwingWorker<Void,Iterable<Record>>()
 				{
-					private DefaultListModel mArtist = (DefaultListModel) m_ListArtist.getModel();
-					private DefaultListModel mBook = (DefaultListModel) m_ListBook.getModel();
-					private DefaultListModel mCircle = (DefaultListModel) m_ListCircle.getModel();
-					private DefaultListModel mContent = (DefaultListModel) m_ListContent.getModel();
-					private DefaultListModel mConvention = (DefaultListModel) m_ListConvention.getModel();
-					private DefaultListModel mParody = (DefaultListModel) m_ListParody.getModel();
-							
 					@Override
-					protected Void doInBackground() throws Exception
-					{
-						try
-						{
-							int cSelected, cProcessed;
-							Vector<Artist> artists = new Vector<Artist>();
-							Vector<Book> books = new Vector<Book>();
-							Vector<Circle> circles = new Vector<Circle>();
-							Vector<Content> contents = new Vector<Content>();
-							Vector<Convention> conventions = new Vector<Convention>();
-							Vector<Parody> parodies = new Vector<Parody>();
-							
-							for(int index : m_ListArtist.getSelectedIndices())
-								artists.add(m_ListArtist.getModel().getElementAt(index));
-							for(int index : m_ListBook.getSelectedIndices())
-								books.add(m_ListBook.getModel().getElementAt(index));
-							for(int index : m_ListCircle.getSelectedIndices())
-								circles.add(m_ListCircle.getModel().getElementAt(index));
-							for(int index : m_ListContent.getSelectedIndices())
-								contents.add(m_ListContent.getModel().getElementAt(index));
-							for(int index : m_ListConvention.getSelectedIndices())
-								conventions.add(m_ListConvention.getModel().getElementAt(index));
-							for(int index : m_ListParody.getSelectedIndices())
-								parodies.add(m_ListParody.getModel().getElementAt(index));
-							
-							cProcessed = 0;
-							cSelected = artists.size() +
-								books.size() +
-								circles.size() +
-								contents.size() +
-								conventions.size() +
-								parodies.size();
-							
-							for(Artist artist : artists)
-							{
-								if(super.isCancelled())
-									break;
-								artist.removeAll();
-								DataBase.doDelete(artist);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(artist);
+					protected Void doInBackground() throws Exception {
+						int selectedCount = 0,
+							processedCount = 0;
+						Vector<Record> selected = new Vector<Record>();
+						
+						for(TrashTab<?> tab : m_Tabs)
+							selectedCount += tab.m_Table.getSelectedRowCount();
+						
+						for(TrashTab<?> tab : m_Tabs)
+							for(int index : tab.m_Table.getSelectedRows()) {
+								try {
+									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+									if(o instanceof Artist)
+										((Artist)o).removeAll();
+									if(o instanceof Book)
+										((Book)o).removeAll();
+									if(o instanceof Circle)
+										((Circle)o).removeAll();
+									if(o instanceof Convention)
+										((Convention)o).removeAll();
+									if(o instanceof Content)
+										((Content)o).removeAll();
+									if(o instanceof Parody)
+										((Parody)o).removeAll();
+									DataBase.doDelete(o);
+									super.setProgress(100 * ++processedCount / selectedCount);
+									selected.add(o);
+								} catch (DataBaseException dbe) {
+									Logger.logError(dbe.getMessage(), dbe);
+								}
 							}
-							for(Book book : books)
-							{
-								if(super.isCancelled())
-									break;
-								book.removeAll();
-								DataBase.doDelete(book);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(book);
-							}
-							for(Circle circle : circles)
-							{
-								if(super.isCancelled())
-									break;
-								circle.removeAll();
-								DataBase.doDelete(circle);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(circle);
-							}
-							for(Content content : contents)
-							{
-								if(super.isCancelled())
-									break;
-								content.removeAll();
-								DataBase.doDelete(content);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(content);
-							}
-							for(Convention convention : conventions)
-							{
-								if(super.isCancelled())
-									break;
-								convention.removeAll();
-								DataBase.doDelete(convention);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(convention);
-							}
-							for(Parody parody : parodies)
-							{
-								if(super.isCancelled())
-									break;
-								parody.removeAll();
-								DataBase.doDelete(parody);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(parody);
-							}
+						
+						try {
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
-						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Logger.logError(aioobe.getMessage(), aioobe);
-							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
-							dbe.printStackTrace();
 						} catch (Exception e) {
 							Logger.logError(e.getMessage(), e);
-							e.printStackTrace();
 						}
+						
+						publish(selected);
+						
 						return null;
 					}
 					@Override
-					protected void process(java.util.List<Record> data)
-					{
-						for(final Record r : data)
-						{
-							if(r instanceof Artist)
-								mArtist.removeElement(r);
-							if(r instanceof Book)
-								mBook.removeElement(r);
-							if(r instanceof Circle)
-								mCircle.removeElement(r);
-							if(r instanceof Content)
-								mContent.removeElement(r);
-							if(r instanceof Convention)
-								mConvention.removeElement(r);
-							if(r instanceof Parody)
-								mParody.removeElement(r);
-						}
+					protected void process(java.util.List<Iterable<Record>> data) {
+						for(Iterable<Record> records : data)
+							for(Record record : records) {
+								if(record instanceof Artist) {
+									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+									continue;
+								}
+								if(record instanceof Book) {
+									removeFromTable(m_TabBook.m_TableModel, (Book) record);
+									continue;
+								}
+								if(record instanceof Circle) {
+									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+									continue;
+								}
+								if(record instanceof Convention) {
+									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+									continue;
+								}
+								if(record instanceof Content) {
+									removeFromTable(m_TabContent.m_TableModel, (Content) record);
+									continue;
+								}
+								if(record instanceof Parody) {
+									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+									continue;
+								}
+							}
 					}
 					@Override
-					protected void done()
-					{
-						loadData();
+					protected void done() {
 						m_PopupDialog.dispose();
+				    }
+					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+						for(int index=0; index<model.getRowCount(); index++)
+							if((model.getValueAt(index, 0)).equals(record)) {
+								model.removeRow(index);
+								break;
+							}
+						model.fireTableDataChanged();
 					}
 				});
 			}			
@@ -397,493 +289,222 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				if(m_ListArtist.getModel().getSize() +
-					m_ListBook.getModel().getSize() +
-					m_ListCircle.getModel().getSize() +
-					m_ListContent.getModel().getSize() +
-					m_ListConvention.getModel().getSize() +
-					m_ListParody.getModel().getSize() == 0)
-				return;
-				
-				m_PopupDialog = new DialogTrash("<html>" +
+				m_PopupDialog = new DialogTrash(PanelTrash.this,
+					"Empty",
+					"<html>" +
 					"<body>" +
-					"Empty all of the items from the Trash?<br/>" +
-					"<i>(This cannot be undone)</i>" +
+					"Empty all of the items from the trash?<br/>" +
 					"</body>" +
-					"</html>", new SwingWorker<Void,Record>()
+					"</html>", new SwingWorker<Void,Iterable<Record>>()
 				{
-					private DefaultListModel mArtist = (DefaultListModel) m_ListArtist.getModel();
-					private DefaultListModel mBook = (DefaultListModel) m_ListBook.getModel();
-					private DefaultListModel mCircle = (DefaultListModel) m_ListCircle.getModel();
-					private DefaultListModel mContent = (DefaultListModel) m_ListContent.getModel();
-					private DefaultListModel mConvention = (DefaultListModel) m_ListConvention.getModel();
-					private DefaultListModel mParody = (DefaultListModel) m_ListParody.getModel();
-								
 					@Override
-					protected Void doInBackground() throws Exception
-					{
-						try
+					protected Void doInBackground() throws Exception {
+						int selectedCount = 0,
+							processedCount = 0;
+						Vector<Record> selected = new Vector<Record>();
+						
+						for(TrashTab<?> tab : m_Tabs)
 						{
-							int cSelected, cProcessed;
-							Vector<Artist> artists = new Vector<Artist>();
-							Vector<Book> books = new Vector<Book>();
-							Vector<Circle> circles = new Vector<Circle>();
-							Vector<Content> contents = new Vector<Content>();
-							Vector<Convention> conventions = new Vector<Convention>();
-							Vector<Parody> parodies = new Vector<Parody>();
-							
-							for(int i=0;i<m_ListArtist.getModel().getSize();i++)
-								artists.add(m_ListArtist.getModel().getElementAt(i));
-							for(int i=0;i<m_ListBook.getModel().getSize();i++)
-								books.add(m_ListBook.getModel().getElementAt(i));
-							for(int i=0;i<m_ListCircle.getModel().getSize();i++)
-								circles.add(m_ListCircle.getModel().getElementAt(i));
-							for(int i=0;i<m_ListContent.getModel().getSize();i++)
-								contents.add(m_ListContent.getModel().getElementAt(i));
-							for(int i=0;i<m_ListConvention.getModel().getSize();i++)
-								conventions.add(m_ListConvention.getModel().getElementAt(i));
-							for(int i=0;i<m_ListParody.getModel().getSize();i++)
-								parodies.add(m_ListParody.getModel().getElementAt(i));
-							
-							cProcessed = 0;
-							cSelected = artists.size() +
-								books.size() +
-								circles.size() +
-								contents.size() +
-								conventions.size() +
-								parodies.size();
-							
-							for(Artist artist : artists)
-							{
-								if(super.isCancelled())
-									break;
-								artist.removeAll();
-								DataBase.doDelete(artist);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(artist);
+							tab.m_Table.selectAll();
+							selectedCount += tab.m_Table.getSelectedRowCount();
+						}
+						
+						for(TrashTab<?> tab : m_Tabs)
+							for(int index : tab.m_Table.getSelectedRows()) {
+								try {
+									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+									if(o instanceof Artist)
+										((Artist)o).removeAll();
+									if(o instanceof Book)
+										((Book)o).removeAll();
+									if(o instanceof Circle)
+										((Circle)o).removeAll();
+									if(o instanceof Convention)
+										((Convention)o).removeAll();
+									if(o instanceof Content)
+										((Content)o).removeAll();
+									if(o instanceof Parody)
+										((Parody)o).removeAll();
+									DataBase.doDelete(o);
+									super.setProgress(100 * ++processedCount / selectedCount);
+									selected.add(o);
+								} catch (DataBaseException dbe) {
+									Logger.logError(dbe.getMessage(), dbe);
+								}
 							}
-							for(Book book : books)
-							{
-								if(super.isCancelled())
-									break;
-								book.removeAll();
-								DataBase.doDelete(book);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(book);
-							}
-							for(Circle circle : circles)
-							{
-								if(super.isCancelled())
-									break;
-								circle.removeAll();
-								DataBase.doDelete(circle);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(circle);
-							}
-							for(Content content : contents)
-							{
-								if(super.isCancelled())
-									break;
-								content.removeAll();
-								DataBase.doDelete(content);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(content);
-							}
-							for(Convention convention : conventions)
-							{
-								if(super.isCancelled())
-									break;
-								convention.removeAll();
-								DataBase.doDelete(convention);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(convention);
-							}
-							for(Parody parody : parodies)
-							{
-								if(super.isCancelled())
-									break;
-								parody.removeAll();
-								DataBase.doDelete(parody);
-								super.setProgress(100 * ++cProcessed / cSelected);
-								publish(parody);
-							}
+						
+						try {
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
-						} catch(ArrayIndexOutOfBoundsException aioobe) {
-							Logger.logError(aioobe.getMessage(), aioobe);
-							aioobe.printStackTrace();
 						} catch (DataBaseException dbe) {
 							Logger.logError(dbe.getMessage(), dbe);
-							dbe.printStackTrace();
 						} catch (Exception e) {
 							Logger.logError(e.getMessage(), e);
-							e.printStackTrace();
 						}
+						
+						publish(selected);
+						
 						return null;
 					}
 					@Override
-					protected void process(java.util.List<Record> data)
-					{
-						for(final Record r : data)
-						{
-							if(r instanceof Artist)
-								mArtist.removeElement(r);
-							if(r instanceof Book)
-								mBook.removeElement(r);
-							if(r instanceof Circle)
-								mCircle.removeElement(r);
-							if(r instanceof Content)
-								mContent.removeElement(r);
-							if(r instanceof Convention)
-								mConvention.removeElement(r);
-							if(r instanceof Parody)
-								mParody.removeElement(r);
-						}
+					protected void process(java.util.List<Iterable<Record>> data) {
+						for(Iterable<Record> records : data)
+							for(Record record : records) {
+								if(record instanceof Artist) {
+									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+									continue;
+								}
+								if(record instanceof Book) {
+									removeFromTable(m_TabBook.m_TableModel, (Book) record);
+									continue;
+								}
+								if(record instanceof Circle) {
+									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+									continue;
+								}
+								if(record instanceof Convention) {
+									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+									continue;
+								}
+								if(record instanceof Content) {
+									removeFromTable(m_TabContent.m_TableModel, (Content) record);
+									continue;
+								}
+								if(record instanceof Parody) {
+									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+									continue;
+								}
+							}
 					}
 					@Override
-					protected void done()
-					{
-						loadData();
+					protected void done() {
 						m_PopupDialog.dispose();
+				    }
+					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+						for(int index=0; index<model.getRowCount(); index++)
+							if((model.getValueAt(index, 0)).equals(record)) {
+								model.removeRow(index);
+								break;
+							}
+						model.fireTableDataChanged();
 					}
 				});
 			}			
 		});
 		panel1.add(m_ButtonEmpty);
-		JSplitPane splitListA = new JSplitPane();
-		JSplitPane splitListB = new JSplitPane();
-		JSplitPane splitListC = new JSplitPane();
-		JSplitPane splitListE = new JSplitPane();
-		JSplitPane splitListT = new JSplitPane();
-		JSplitPane splitListP = new JSplitPane();
-		final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-		final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
-		{
-			m_ListArtist = new JList<Artist>();
-			m_ListArtist.setModel(new DefaultListModel());
-			m_ListArtist.setBackground(background);
-			m_ListArtist.setForeground(foreground);
-			m_ListArtist.setSelectionBackground(foreground);
-			m_ListArtist.setSelectionForeground(background);
-			m_ListArtist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListA.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListA.setBottomComponent(new JScrollPane(m_ListArtist));
-			splitListA.setDividerSize(0);
-			splitListA.setEnabled(false);	
-		}
-		{
-			m_ListBook = new JList<Book>();
-			m_ListBook.setModel(new DefaultListModel());
-			m_ListBook.setBackground(background);
-			m_ListBook.setForeground(foreground);
-			m_ListBook.setSelectionBackground(foreground);
-			m_ListBook.setSelectionForeground(background);
-			m_ListBook.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListB.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListB.setBottomComponent(new JScrollPane(m_ListBook));
-			splitListB.setDividerSize(0);
-			splitListB.setEnabled(false);	
-		}
-		{
-			m_ListCircle = new JList<Circle>();
-			m_ListCircle.setModel(new DefaultListModel());
-			m_ListCircle.setBackground(background);
-			m_ListCircle.setForeground(foreground);
-			m_ListCircle.setSelectionBackground(foreground);
-			m_ListCircle.setSelectionForeground(background);
-			m_ListCircle.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListC.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListC.setBottomComponent(new JScrollPane(m_ListCircle));
-			splitListC.setDividerSize(0);
-			splitListC.setEnabled(false);	
-		}
-		{
-			m_ListConvention = new JList<Convention>();
-			m_ListConvention.setModel(new DefaultListModel());
-			m_ListConvention.setBackground(background);
-			m_ListConvention.setForeground(foreground);
-			m_ListConvention.setSelectionBackground(foreground);
-			m_ListConvention.setSelectionForeground(background);
-			m_ListConvention.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListE.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListE.setBottomComponent(new JScrollPane(m_ListConvention));
-			splitListE.setDividerSize(0);
-			splitListE.setEnabled(false);	
-		}
-		{
-			m_ListContent = new JList<Content>();
-			m_ListContent.setModel(new DefaultListModel());
-			m_ListContent.setBackground(background);
-			m_ListContent.setForeground(foreground);
-			m_ListContent.setSelectionBackground(foreground);
-			m_ListContent.setSelectionForeground(background);
-			m_ListContent.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListT.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListT.setBottomComponent(new JScrollPane(m_ListContent));
-			splitListT.setDividerSize(0);
-			splitListT.setEnabled(false);	
-		}
-		{
-			m_ListParody = new JList<Parody>();
-			m_ListParody.setModel(new DefaultListModel());
-			m_ListParody.setBackground(background);
-			m_ListParody.setForeground(foreground);
-			m_ListParody.setSelectionBackground(foreground);
-			m_ListParody.setSelectionForeground(background);
-			m_ListParody.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			splitListP.setOrientation(JSplitPane.VERTICAL_SPLIT);
-			splitListP.setBottomComponent(new JScrollPane(m_ListParody));
-			splitListP.setDividerSize(0);
-			splitListP.setEnabled(false);	
-		}
+		
+		m_TabbedPane = new JTabbedPane();
+		m_TabbedPane.setFocusable(false);
+		m_Tabs = new Vector<TrashTab<?>>();
+		
+		m_TabArtist = new IArtist(m_TabbedPane, 0);
+		m_Tabs.add(m_TabArtist);
+		m_TabbedPane.insertTab("Artist", Icon.desktop_explorer_artist, m_TabArtist, "", 0);
+		m_TabBook = new IBook(m_TabbedPane, 1);
+		m_Tabs.add(m_TabBook);
+		m_TabbedPane.insertTab("Book", Icon.desktop_explorer_book, m_TabBook, "", 1);
+		m_TabCircle = new ICircle(m_TabbedPane, 2);
+		m_Tabs.add(m_TabCircle);
+		m_TabbedPane.insertTab("Circle", Icon.desktop_explorer_circle, m_TabCircle, "", 2);
+		m_TabConvention = new IConvention(m_TabbedPane, 3);
+		m_Tabs.add(m_TabConvention);
+		m_TabbedPane.insertTab("Convention", Icon.desktop_explorer_convention, m_TabConvention, "", 3);
+		m_TabContent = new IContent(m_TabbedPane, 4);
+		m_Tabs.add(m_TabContent);
+		m_TabbedPane.insertTab("Content", Icon.desktop_explorer_content, m_TabContent, "", 4);
+		m_TabParody = new IParody(m_TabbedPane, 5);
+		m_Tabs.add(m_TabParody);
+		m_TabbedPane.insertTab("Parody", Icon.desktop_explorer_parody, m_TabParody, "", 5);
+		
+		m_SplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, m_TabbedPane);
+		m_SplitPane.setDividerSize(1);
+		m_SplitPane.setEnabled(false);
+		m_SplitPane.doLayout();
+		super.add(m_SplitPane);
+
+		loadData();
 		new SwingWorker<Void,Record>()
 		{
-			private DefaultListModel mArtist = (DefaultListModel) m_ListArtist.getModel();
-			private DefaultListModel mBook = (DefaultListModel) m_ListBook.getModel();
-			private DefaultListModel mCircle = (DefaultListModel) m_ListCircle.getModel();
-			private DefaultListModel mContent = (DefaultListModel) m_ListContent.getModel();
-			private DefaultListModel mConvention = (DefaultListModel) m_ListConvention.getModel();
-			private DefaultListModel mParody = (DefaultListModel) m_ListParody.getModel();
-			
 			@Override
-			protected Void doInBackground() throws Exception
-			{
-				try
-				{
-					for(Record record : DataBase.getRecycled())
-					{
-						if(record instanceof Artist)
-						{
+			protected Void doInBackground() throws Exception {
+				// Clean
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						for(TrashTab<?> tab : m_Tabs)
+							tab.m_TableModel.setNumRows(0);
+					}
+				});
+				// Fill
+				try {
+					for(Record record : DataBase.getRecycled()) {
+						if(record instanceof Artist) {
 							publish(record);
 							continue;
 						}
-						if(record instanceof Book)
-						{
+						if(record instanceof Book) {
 							publish(record);
 							continue;
 						}
-						if(record instanceof Circle)
-						{
+						if(record instanceof Circle) {
 							publish(record);
 							continue;
 						}
-						if(record instanceof Convention)
-						{
+						if(record instanceof Convention) {
 							publish(record);
 							continue;
 						}
-						if(record instanceof Content)
-						{
+						if(record instanceof Content) {
 							publish(record);
 							continue;
 						}
-						if(record instanceof Parody)
-						{
+						if(record instanceof Parody) {
 							publish(record);
 							continue;
 						}
 					}
 				} catch(ArrayIndexOutOfBoundsException aioobe) {
 					Logger.logError(aioobe.getMessage(), aioobe);
-					aioobe.printStackTrace();
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
-					dbe.printStackTrace();
 				} catch (Exception e) {
 					Logger.logError(e.getMessage(), e);
-					e.printStackTrace();
 				}
 				return null;
 			}
 			@Override
-			protected void process(java.util.List<Record> data)
+			protected void process(java.util.List<Record> records)
 			{
-				for(final Record r : data)
+				for(final Record record : records)
 				{
-					if(r instanceof Artist)
-						mArtist.addElement(r);
-					if(r instanceof Book)
-						mBook.addElement(r);
-					if(r instanceof Circle)
-						mCircle.addElement(r);
-					if(r instanceof Content)
-						mContent.addElement(r);
-					if(r instanceof Convention)
-						mConvention.addElement(r);
-					if(r instanceof Parody)
-						mParody.addElement(r);
+					if(record instanceof Artist)
+						m_TabArtist.m_TableModel.addRecord((Artist)record);
+					if(record instanceof Book)
+						m_TabBook.m_TableModel.addRecord((Book)record);
+					if(record instanceof Circle)
+						m_TabCircle.m_TableModel.addRecord((Circle)record);
+					if(record instanceof Convention)
+						m_TabConvention.m_TableModel.addRecord((Convention)record);
+					if(record instanceof Content)
+						m_TabContent.m_TableModel.addRecord((Content)record);
+					if(record instanceof Parody)
+						m_TabParody.m_TableModel.addRecord((Parody)record);
 				}
 			}
 			@Override
 			protected void done()
 			{
-				loadData();
+				for(TrashTab<?> tab : m_Tabs)
+					tab.loadData();
 			}
 		}.execute();
-		m_PanelBase = new JPanel();
-		m_PanelBase.setLayout(new LayoutManager()
-		{
-			@Override
-			public void layoutContainer(Container parent)
-			{
-				int width = parent.getWidth();
-				int posy = 0;
-				m_PanelFrame[0].setBounds(0, posy, width, m_PanelFrame[0].getHeight());
-				posy += m_PanelFrame[0].getHeight();
-				m_PanelFrame[1].setBounds(0, posy, width, m_PanelFrame[1].getHeight());
-				posy += m_PanelFrame[1].getHeight();
-				m_PanelFrame[2].setBounds(0, posy, width, m_PanelFrame[2].getHeight());
-				posy += m_PanelFrame[2].getHeight();
-				m_PanelFrame[3].setBounds(0, posy, width, m_PanelFrame[3].getHeight());
-				posy += m_PanelFrame[3].getHeight();
-				m_PanelFrame[4].setBounds(0, posy, width, m_PanelFrame[4].getHeight());
-				posy += m_PanelFrame[4].getHeight();
-				m_PanelFrame[5].setBounds(0, posy, width, m_PanelFrame[5].getHeight());
-				m_PanelBase.setPreferredSize(new Dimension(250,
-					m_PanelFrame[0].getHeight() +
-					m_PanelFrame[1].getHeight() +
-					m_PanelFrame[2].getHeight() +
-					m_PanelFrame[3].getHeight() +
-					m_PanelFrame[4].getHeight() +
-					m_PanelFrame[5].getHeight()));
-				m_ScrollPaneBase.doLayout();
-			}
-			@Override
-			public void addLayoutComponent(String key,Component c) {}
-			@Override
-			public void removeLayoutComponent(Component c) {}
-			@Override
-			public Dimension minimumLayoutSize(Container parent)
-			{
-			     return parent.getMinimumSize();
-			}
-			@Override
-			public Dimension preferredLayoutSize(Container parent)
-			{
-			     return new Dimension(250,
-			    	m_PanelFrame[0].getHeight() +
-					m_PanelFrame[1].getHeight() +
-					m_PanelFrame[2].getHeight() +
-					m_PanelFrame[3].getHeight() +
-					m_PanelFrame[4].getHeight() +
-					m_PanelFrame[5].getHeight());
-			}
-		});
-		m_LabelListArtist = new JLabel("Artists", Icon.desktop_explorer_artist, JLabel.LEFT);
-		m_PanelFrame[0] = new DynamicPanel(m_LabelListArtist, splitListA, m_PanelBase);
-		m_LabelListBook = new JLabel("Books", Icon.desktop_explorer_book, JLabel.LEFT);
-		m_PanelFrame[1] = new DynamicPanel(m_LabelListBook, splitListB, m_PanelBase);
-		m_LabelListCircle = new JLabel("Circles", Icon.desktop_explorer_circle, JLabel.LEFT);
-		m_PanelFrame[2] = new DynamicPanel(m_LabelListCircle, splitListC, m_PanelBase);
-		m_LabelListConvention = new JLabel("Conventions", Icon.desktop_explorer_convention, JLabel.LEFT);
-		m_PanelFrame[3] = new DynamicPanel(m_LabelListConvention, splitListE, m_PanelBase);
-		m_LabelListContent = new JLabel("Contents", Icon.desktop_explorer_content, JLabel.LEFT);
-		m_PanelFrame[4] = new DynamicPanel(m_LabelListContent, splitListT, m_PanelBase);
-		m_LabelListParody = new JLabel("Parodies", Icon.desktop_explorer_parody, JLabel.LEFT);
-		m_PanelFrame[5] = new DynamicPanel(m_LabelListParody, splitListP, m_PanelBase);
-		for(DynamicPanel panel : m_PanelFrame)
-			m_PanelBase.add(panel);
-		m_ScrollPaneBase = new JScrollPane(m_PanelBase);
-		m_SplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, m_ScrollPaneBase);
-		m_SplitPane.setDividerSize(1);
-		m_SplitPane.setEnabled(false);
-		super.add(m_SplitPane);
-		;
-		m_PanelBase.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent me)
-			{
-				checkPopup(me);
-			}
-			@Override
-			public void mousePressed(MouseEvent me) {
-				checkPopup(me);
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent me) {
-				checkPopup(me);
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent me) {
-				checkPopup(me);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent me) {
-				checkPopup(me);
-			}
-			private void checkPopup(MouseEvent me)
-			{
-				if(!me.isPopupTrigger())
-					return;
-				
-				JPopupMenu popupMenu = new JPopupMenu();
-	    		JMenuItem menuItem;
-	    		menuItem = new JMenuItem("Select All", Icon.window_trash_selectall);
-	    		menuItem.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae)
-					{
-						m_ListArtist.setSelectionInterval(0, m_ListArtist.getModel().getSize() - 1);
-						m_ListBook.setSelectionInterval(0, m_ListBook.getModel().getSize() - 1);
-						m_ListCircle.setSelectionInterval(0, m_ListCircle.getModel().getSize() - 1);
-						m_ListContent.setSelectionInterval(0, m_ListContent.getModel().getSize() - 1);
-						m_ListConvention.setSelectionInterval(0, m_ListConvention.getModel().getSize() - 1);
-						m_ListParody.setSelectionInterval(0, m_ListParody.getModel().getSize() - 1);
-						loadData();
-					}
-				});
-	    		menuItem.setName("select-all");
-				menuItem.setActionCommand("select-all");
-				popupMenu.add(menuItem);
-				menuItem = new JMenuItem("Deselect All", Icon.window_trash_deselectall);
-	    		menuItem.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae)
-					{
-						m_ListArtist.clearSelection();
-						m_ListBook.clearSelection();
-						m_ListCircle.clearSelection();
-						m_ListContent.clearSelection();
-						m_ListConvention.clearSelection();
-						m_ListParody.clearSelection();
-						loadData();
-					}
-				});
-	    		menuItem.setName("deselect-all");
-				menuItem.setActionCommand("deselect-all");
-				popupMenu.add(menuItem);
-				popupMenu.show(me.getComponent(), me.getX(), me.getY());
-			}
-		});
-		;
-		m_ListArtist.addListSelectionListener(this);
-		m_ListBook.addListSelectionListener(this);
-		m_ListCircle.addListSelectionListener(this);
-		m_ListConvention.addListSelectionListener(this);
-		m_ListContent.addListSelectionListener(this);
-		m_ListParody.addListSelectionListener(this);
-		;
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				m_SplitPane.revalidate();
-				loadData();
-			}
-		});
 	}
 	
 	@Override
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-		height = parent.getHeight();
+			height = parent.getHeight();
 		m_LabelInfo.setBounds(0,0,130,20);
 		m_LabelCount.setBounds(2,22,125,55);
 		m_LabelTask.setBounds(0,75+5,130,20);
@@ -915,12 +536,12 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	{
 		new SwingWorker<Void, Object>()
 		{
-			long count = 0;
+			long recycledCount = 0;
 			@Override
 			public Void doInBackground()
 			{
 				try {
-					count = DataBase.getRecycled().size();
+					recycledCount = DataBase.getRecycled().size();
 				} catch (DataBaseException dbe) {
 					Logger.logError(dbe.getMessage(), dbe);
 					dbe.printStackTrace();
@@ -929,102 +550,14 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			}
 			@Override
 			protected void done() {
-				m_LabelCount.setText((count==1)?("Item : 1"):("Items : "+count));
-				m_LabelListArtist.setText("Artists (" + (m_ListArtist.getSelectedIndices().length) + "/" + m_ListArtist.getModel().getSize() + ")");
-				m_LabelListBook.setText("Books (" + (m_ListBook.getSelectedIndices().length) + "/" + m_ListBook.getModel().getSize() + ")");
-				m_LabelListCircle.setText("Circles (" + (m_ListCircle.getSelectedIndices().length) + "/" + m_ListCircle.getModel().getSize() + ")");
-				m_LabelListConvention.setText("Conventions (" + (m_ListConvention.getSelectedIndices().length) + "/" + m_ListConvention.getModel().getSize() + ")");
-				m_LabelListContent.setText("Contents (" + (m_ListContent.getSelectedIndices().length) + "/" + m_ListContent.getModel().getSize() + ")");
-				m_LabelListParody.setText("Parodies (" + (m_ListParody.getSelectedIndices().length) + "/" + m_ListParody.getModel().getSize() + ")");
+				m_LabelCount.setText(recycledCount == 1 ? "Item : 1" : "Items : " + recycledCount);
 			}
 		}.execute();
-	}
-	
-	private final class DynamicPanel extends JPanel implements LayoutManager, ActionListener
-	{
-		private JLabel m_LabelTitle;
-		private Component m_BodyComponent;
-		private JButton m_ButtonToggle;
-		private Component m_ParentComponent;
-		
-		private int STATUS;
-		private final int STATUS_MINIMIZED = 0x1;
-		private final int STATUS_MAXIMIZED = 0x2;
-		
-		private ImageIcon ICON_CHECKED = Icon.jpanel_togglebutton_checked;
-		private ImageIcon ICON_UNCHECKED = Icon.jpanel_togglebutton_unchecked;
-		
-		public DynamicPanel(JLabel title, Component body, Component parent)
-		{
-			super();
-			setLayout(this);
-			STATUS = STATUS_MINIMIZED;
-			setSize(100, 21);
-			setMinimumSize(new Dimension(100, 21));
-			setPreferredSize(new Dimension(250, 250));
-			setMaximumSize(new Dimension(1280, 250));
-			m_ParentComponent = parent;
-			m_LabelTitle = title;
-			add(m_LabelTitle);
-			m_BodyComponent = body;
-			add(m_BodyComponent);
-			m_ButtonToggle = new JButton(ICON_CHECKED);
-			m_ButtonToggle.setSelected(true);
-			m_ButtonToggle.addActionListener(this);
-			add(m_ButtonToggle);
-		}
-
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-			height = parent.getHeight();
-			m_ButtonToggle.setBounds(width - 20, 0, 20, 20);
-			m_LabelTitle.setBounds(0, 0, width - 20, 20);
-			m_BodyComponent.setBounds(0, 20, width, height - 20);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-		    return new Dimension(0, 20);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-		    return new Dimension(250, 250);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent ae)
-		{
-			if(STATUS == STATUS_MAXIMIZED)
-			{
-				STATUS = STATUS_MINIMIZED;
-				m_ButtonToggle.setIcon(ICON_CHECKED);
-				setSize(new Dimension(getWidth(), (int)getMinimumSize().getHeight()));
-				m_ParentComponent.doLayout();
-				m_ParentComponent.validate();
-			} else {
-				STATUS = STATUS_MAXIMIZED;
-				m_ButtonToggle.setIcon(ICON_UNCHECKED);
-				setSize(new Dimension(getWidth(), (int)getMaximumSize().getHeight()));
-				m_ParentComponent.doLayout();
-				m_ParentComponent.validate();
-			}
-		}
 	}
 
 	private final class DialogTrash extends JInternalFrame implements LayoutManager
 	{
-		private JComponent m_GlassPane = (JComponent) ((RootPaneContainer) PanelTrash.this.getRootPane().getParent()).getGlassPane();
+		private JComponent m_GlassPane;
 		private JComponent m_Component;
 		private JLabel m_LabelMessage;
 		private JButton m_ButtonOk;
@@ -1033,11 +566,11 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		
 		private SwingWorker<?,?> m_Worker;
 		
-		public DialogTrash(String message, SwingWorker<?,?> worker)
+		public DialogTrash(JComponent parent, String title, String message, SwingWorker<?,?> worker)
 		{
 			super();
 			super.setFrameIcon(Icon.desktop_explorer_trash);
-			super.setTitle("Trash");
+			super.setTitle(title);
 			super.setMaximizable(false);
 			super.setIconifiable(false);
 			super.setResizable(false);
@@ -1059,6 +592,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				}
 			});
 			
+			m_GlassPane = (JComponent) ((RootPaneContainer) parent.getRootPane().getParent()).getGlassPane();
+			
 			m_Worker = worker;
 			m_Worker.addPropertyChangeListener(new PropertyChangeListener() {
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -1074,9 +609,9 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			m_Component.setLayout(new GridLayout(3, 1));
 			m_LabelMessage = new JLabel(message);
 			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_LabelMessage.setFont(font);
 			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
 			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
+			m_LabelMessage.setFont(font);
 			m_Component.add(m_LabelMessage);
 			
 			m_ProgressBar = new JProgressBar();
@@ -1178,64 +713,84 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	}
 	
 	@Override
-	public void recordAdded(Record rcd) {}
+	public void recordAdded(Record record) {}
 	
 	@Override
-	public void recordDeleted(Record rcd) { }
+	public void recordDeleted(Record record) { }
 	
 	@Override
-	public void recordUpdated(Record rcd, UpdateData data) { }
+	public void recordUpdated(Record record, UpdateData data) { }
 	
-	@SuppressWarnings({"unchecked","rawtypes"})
 	@Override
-	public void recordRecycled(Record rcd)
+	public void recordRecycled(Record record)
 	{
-		if(rcd instanceof Artist)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListArtist.getModel();
-			model.add(0, rcd);
-			loadData();
+		loadData();
+		if(record instanceof Artist) {
+			m_TabArtist.m_TableModel.addRecord((Artist)record);
+			m_TabArtist.loadData();
 			return;
 		}
-		if(rcd instanceof Book)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListBook.getModel();
-			model.add(0, rcd);
-			loadData();
+		if(record instanceof Book) {
+			m_TabBook.m_TableModel.addRecord((Book)record);
+			m_TabBook.loadData();
 			return;
 		}
-		if(rcd instanceof Circle)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListCircle.getModel();
-			model.add(0, rcd);
-			loadData();
+		if(record instanceof Circle) {
+			m_TabCircle.m_TableModel.addRecord((Circle)record);
+			m_TabCircle.loadData();
 			return;
 		}
-		if(rcd instanceof Content)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListContent.getModel();
-			model.add(0, rcd);
-			loadData();
+		if(record instanceof Content) {
+			m_TabContent.m_TableModel.addRecord((Content)record);
+			m_TabContent.loadData();
 			return;
 		}
-		if(rcd instanceof Convention)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListConvention.getModel();
-			model.add(0, rcd);
-			loadData();
+		if(record instanceof Convention) {
+			m_TabConvention.m_TableModel.addRecord((Convention)record);
+			m_TabConvention.loadData();
 			return;
 		}
-		if(rcd instanceof Parody)
-		{
-			DefaultListModel model = (DefaultListModel)m_ListParody.getModel();
-			model.add(0, rcd);
-			loadData();
+		if(record instanceof Parody) {
+			m_TabParody.m_TableModel.addRecord((Parody)record);
+			m_TabParody.loadData();
 			return;
 		}
 	}
 
 	@Override
-	public void recordRestored(Record rcd) { }
+	public void recordRestored(Record record) {
+		loadData();
+		if(record instanceof Artist) {
+			m_TabArtist.m_TableModel.removeRecord((Artist)record);
+			m_TabArtist.loadData();
+			return;
+		}
+		if(record instanceof Book) {
+			m_TabBook.m_TableModel.removeRecord((Book)record);
+			m_TabBook.loadData();
+			return;
+		}
+		if(record instanceof Circle) {
+			m_TabCircle.m_TableModel.removeRecord((Circle)record);
+			m_TabCircle.loadData();
+			return;
+		}
+		if(record instanceof Content) {
+			m_TabContent.m_TableModel.removeRecord((Content)record);
+			m_TabContent.loadData();
+			return;
+		}
+		if(record instanceof Convention) {
+			m_TabConvention.m_TableModel.removeRecord((Convention)record);
+			m_TabConvention.loadData();
+			return;
+		}
+		if(record instanceof Parody) {
+			m_TabParody.m_TableModel.removeRecord((Parody)record);
+			m_TabParody.loadData();
+			return;
+		}
+	}
 	
 	@Override
 	public void databaseConnected() { }
@@ -1248,7 +803,388 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	
 	@Override
 	public void databaseRollback() { }
+	
+	private static abstract class TrashTab<T extends Record> extends JPanel implements LayoutManager
+	{
+		protected JTabbedPane m_Tab;
+		protected int m_Index;
+		
+		protected JTable m_Table = new JTable();
+		protected JScrollPane m_Scroll = new JScrollPane(m_Table);
+		protected RecordTableModel<T> m_TableModel;
+		protected RecordTableRenderer m_TableRenderer;
+		protected RecordTableEditor m_TableEditor;
+		protected TableRowSorter<DefaultTableModel> m_TableSorter;
+		
+		protected String m_Name = "";
+		
+		private TrashTab(JTabbedPane tab, int index, RecordTableModel<T> model)
+		{
+			super.setLayout(this);
+			m_Tab = tab;
+			m_Index = index;
+			m_TableModel = model;
+			m_Table.setModel(m_TableModel);
+			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
+			m_Table.setRowSorter(m_TableSorter);
+			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
+			m_TableEditor = new RecordTableEditor();
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int i = 1; i < m_Table.getColumnModel().getColumnCount(); i++)
+			{
+				m_Table.getColumnModel().getColumn(i).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(i).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(i).setResizable(true);
+			}
+			super.add(m_Scroll);
+			m_Table.addMouseListener(new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent me)
+				{
+					checkPopup(me);
+				}
+				@Override
+				public void mousePressed(MouseEvent me) {
+					checkPopup(me);
+				}
+	
+				@Override
+				public void mouseReleased(MouseEvent me) {
+					checkPopup(me);
+				}
+	
+				@Override
+				public void mouseEntered(MouseEvent me) {
+					checkPopup(me);
+				}
+	
+				@Override
+				public void mouseExited(MouseEvent me) {
+					checkPopup(me);
+				}
+				private void checkPopup(MouseEvent me)
+				{
+					if(!me.isPopupTrigger())
+						return;
+					
+					JPopupMenu popupMenu = new JPopupMenu();
+		    		JMenuItem menuItem;
+		    		menuItem = new JMenuItem("Select All", Icon.window_trash_selectall);
+		    		menuItem.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae)
+						{
+							m_Table.selectAll();
+							loadData();
+						}
+					});
+		    		menuItem.setName("select-all");
+					menuItem.setActionCommand("select-all");
+					popupMenu.add(menuItem);
+					menuItem = new JMenuItem("Deselect All", Icon.window_trash_deselectall);
+		    		menuItem.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae)
+						{
+							m_Table.clearSelection();
+							loadData();
+						}
+					});
+		    		menuItem.setName("deselect-all");
+					menuItem.setActionCommand("deselect-all");
+					popupMenu.add(menuItem);
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+				}
+			});
+			m_Table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			ListSelectionModel selectionModel = m_Table.getSelectionModel();
+			selectionModel.addListSelectionListener(new ListSelectionListener() {
+				public void valueChanged(ListSelectionEvent lse) {
+					loadData();
+				}
+			});
+		}
+		
+		protected void loadData()
+		{
+			if(m_Table.getRowCount() > 0)
+				m_Tab.setTitleAt(m_Index, m_Name + " (" + m_Table.getSelectedRowCount() + "/" + m_Table.getRowCount() + ")");
+			else
+				m_Tab.setTitleAt(m_Index, m_Name);
+		}
+		
+		static final class RecordTableRenderer extends DefaultTableCellRenderer
+		{
+			private Color background;
+			private Color foreground;
+			
+			public RecordTableRenderer(Color background, Color foreground)
+			{
+			    this.background = background;
+			    this.foreground = foreground;
+			}
+		
+			public Component getTableCellRendererComponent(
+			    JTable table,
+			    Object value,
+			    boolean isSelected,
+			    boolean hasFocus,
+			    int row,
+			    int column)
+			{
+			    super.getTableCellRendererComponent(
+			        table,
+			        value,
+			        isSelected,
+			        hasFocus,
+			        row,
+			        column);
+			    super.setBorder(null);
+			    if(isSelected)
+				{
+					setBackground(foreground);
+					setForeground(background);
+				}else{
+					setBackground(background);
+					setForeground(foreground);
+				}
+			    return this;
+			}
+		}
+		
+		static abstract class RecordTableModel<R extends Record> extends DefaultTableModel
+		{
+			private static final class IArtist extends RecordTableModel<Artist>
+			{
+				private IArtist()
+				{
+					addColumn("");
+					addColumn("Japanese");
+					addColumn("Translated");
+					addColumn("Romaji");
+				}
+				
+				@Override
+				public void addRecord(Artist a)
+				{
+					super.addRow(new Object[]{a,
+						a.getJapaneseName(),
+						a.getTranslatedName(),
+						a.getRomajiName()});
+				}
+			}
+			private static final class IBook extends RecordTableModel<Book>
+			{
+				private IBook()
+				{
+					addColumn("");
+					addColumn("Japanese");
+					addColumn("Translated");
+					addColumn("Romaji");
+				}
+				
+				@Override
+				public void addRecord(Book b)
+				{
+					super.addRow(new Object[]{b,
+						b.getJapaneseName(),
+						b.getTranslatedName(),
+						b.getRomajiName()});
+				}
+			}
+			private static final class ICircle extends RecordTableModel<Circle>
+			{
+				private ICircle()
+				{
+					addColumn("");
+					addColumn("Japanese");
+					addColumn("Translated");
+					addColumn("Romaji");
+				}
+				
+				@Override
+				public void addRecord(Circle c)
+				{
+					super.addRow(new Object[]{c,
+						c.getJapaneseName(),
+						c.getTranslatedName(),
+						c.getRomajiName()});
+				}
+			}
+			private static final class IContent extends RecordTableModel<Content>
+			{
+				private IContent()
+				{
+					addColumn("");
+					addColumn("Tag Name");
+					addColumn("Information");
+				}
+				
+				@Override
+				public void addRecord(Content t)
+				{
+					super.addRow(new Object[]{t,
+						t.getTagName(),
+						t.getInfo()});
+				}
+			}
+			private static final class IConvention extends RecordTableModel<Convention>
+			{
+				private IConvention()
+				{
+					addColumn("");
+					addColumn("Tag Name");
+					addColumn("Information");
+				}
+				
+				@Override
+				public void addRecord(Convention e)
+				{
+					super.addRow(new Object[]{e,
+						e.getTagName(),
+						e.getInfo()});
+				}
+			}
+			private static final class IParody extends RecordTableModel<Parody>
+			{
+				private IParody()
+				{
+					addColumn("");
+					addColumn("Japanese");
+					addColumn("Translated");
+					addColumn("Romaji");
+				}
+				
+				public void addRecord(Parody p)
+				{
+					super.addRow(new Object[]{p,
+						p.getJapaneseName(),
+						p.getTranslatedName(),
+						p.getRomajiName()});
+				}
+			}
+			
+			public abstract void addRecord(R record);
+			
+			public void removeRecord(R record)
+			{
+				for(int index = 0; index > super.getRowCount(); index++)
+					if(super.getValueAt(index, 0).equals(record))
+						super.removeRow(index);
+			}
+		}
+		
+		static final class RecordTableEditor extends AbstractCellEditor implements TableCellEditor
+		{
+			public RecordTableEditor()
+			{
+				super();
+			}
+		
+			public Object getCellEditorValue()
+			{
+				return 0;
+			}
 
-	@Override
-	public void valueChanged(ListSelectionEvent lse) { }
+			public Component getTableCellEditorComponent(
+			    JTable table,
+			    Object value,
+			    boolean isSelected,
+			    int row,
+			    int column)
+				{
+				    super.cancelCellEditing();
+				    return null;
+				}
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			m_Scroll.setBounds(0, 0, parent.getWidth(), parent.getHeight());
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) {}
+		
+		@Override
+		public void removeLayoutComponent(Component c) {}
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(150, 150);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+		     return new Dimension(350, 350);
+		}
+	}
+	
+	public static final class IArtist extends TrashTab<Artist>
+	{
+		private IArtist(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.IArtist());
+			m_Name = "Artist";
+		}
+	}
+	
+	public static final class IBook extends TrashTab<Book>
+	{
+		private IBook(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.IBook());
+			m_Name = "Book";
+		}
+	}
+	
+	public static final class ICircle extends TrashTab<Circle>
+	{
+		private ICircle(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.ICircle());
+			m_Name = "Circle";
+		}
+	}
+	
+	public static final class IConvention extends TrashTab<Convention>
+	{
+		private IConvention(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.IConvention());
+			m_Name = "Convention";
+		}
+	}
+	
+	public static final class IContent extends TrashTab<Content>
+	{
+		private IContent(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.IContent());
+			m_Name = "Content";
+		}
+	}
+	
+	public static final class IParody extends TrashTab<Parody>
+	{
+		private IParody(JTabbedPane tab, int index)
+		{
+			super(tab, index, new RecordTableModel.IParody());
+			m_Name = "Parody";
+		}
+	}
 }

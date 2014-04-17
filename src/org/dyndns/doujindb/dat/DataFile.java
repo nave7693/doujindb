@@ -23,4 +23,5 @@ public interface DataFile
 	public boolean exists() throws DataStoreException;
 	public void delete() throws DataStoreException;
 	public void delete(boolean recursive) throws DataStoreException;
+	public void browse() throws DataStoreException;
 }

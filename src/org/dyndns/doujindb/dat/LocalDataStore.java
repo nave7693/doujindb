@@ -254,5 +254,15 @@ final class LocalDataStore implements IDataStore
 			else
 				return new LocalDataFile(filePath);
 		}
+
+		@Override
+		public void browse() throws DataStoreException
+		{
+			try {
+				java.awt.Desktop.getDesktop().browse(filePath.toURI());
+			} catch (IOException ioe) {
+				throw new DataStoreException(ioe);
+			}
+		}
 	}
 }

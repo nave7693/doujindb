@@ -778,9 +778,6 @@ public final class DoujinshiDBScanner extends Plugin
 				super.setRowSorter(m_TableSorter);
 				super.setModel(m_TableModel);
 				super.setFont(font);
-				super.setColumnSelectionAllowed(false);
-				super.setRowSelectionAllowed(true);
-				super.setCellSelectionEnabled(false);
 				super.getTableHeader().setReorderingAllowed(false);
 				super.getColumnModel().getColumn(0).setCellRenderer(m_TableRender);
 				super.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
@@ -799,13 +796,16 @@ public final class DoujinshiDBScanner extends Plugin
 				super.getColumnModel().getColumn(2).setWidth(20);
 				super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 				
-				super.addMouseListener(new MouseAdapter()
+				super.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				super.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 				{
 					@Override
-					public void mouseClicked(MouseEvent me) {
-						if(me.getClickCount() != 2)
+					public void valueChanged(ListSelectionEvent lse) {
+						if(lse.getValueIsAdjusting())
 							return;
-						int rowNumber = rowAtPoint(me.getPoint());
+						int rowNumber = getSelectedRow();
+						if(rowNumber == -1)
+							return;
 						Task task = (Task) getValueAt(rowNumber, -1);
 						m_PanelTask.setTask(task);
 						m_SplitPane.setBottomComponent(m_PanelTask);
@@ -927,6 +927,9 @@ public final class DoujinshiDBScanner extends Plugin
 				private JLabel m_LabelIcon;
 				private JCheckBox m_CheckBox;
 				
+				private Color foreground;
+				private Color background;
+				
 				public TaskRenderer()
 				{
 				    super();
@@ -938,11 +941,13 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ProgressBar.setValue(0);
 					m_ProgressBar.setStringPainted(true);
 					m_ProgressBar.setString("");
-					m_ProgressBar.setBorder(BorderFactory.createLineBorder(m_ProgressBar.getForeground()));
 					
 					m_LabelIcon = new JLabel();
 					
 					m_CheckBox = new JCheckBox();
+					
+					foreground = m_ProgressBar.getForeground();
+					background = m_ProgressBar.getBackground();
 				}
 			
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -961,7 +966,13 @@ public final class DoujinshiDBScanner extends Plugin
 						Task task = (Task) getValueAt(row, -1);
 						m_ProgressBar.setValue(task.getProgress());
 						m_ProgressBar.setString(task.getMessage());
-						m_ProgressBar.setBorderPainted(task.equals(m_PanelTask.m_Task) && m_SplitPane.getBottomComponent() != null);
+						if(!isSelected) {
+							m_ProgressBar.setBackground(background);
+							m_ProgressBar.setForeground(foreground);
+						} else {
+							m_ProgressBar.setBackground(foreground);
+							m_ProgressBar.setForeground(background);
+						}
 						return m_ProgressBar;
 					}
 					if(value instanceof Task.Info)
@@ -1483,6 +1494,7 @@ public final class DoujinshiDBScanner extends Plugin
 				if(ae.getSource() == m_ButtonClose)
 				{
 					m_SplitPane.setBottomComponent(null);
+					m_PanelTasks.clearSelection();
 					return;
 				}
 				if(ae.getSource() == m_ButtonOpenFolder)

@@ -20,6 +20,7 @@ import java.util.regex.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -929,6 +930,8 @@ public final class DoujinshiDBScanner extends Plugin
 				
 				private Color foreground;
 				private Color background;
+				private Color foregroundString;
+				private Color backgroundString;
 				
 				public TaskRenderer()
 				{
@@ -941,13 +944,18 @@ public final class DoujinshiDBScanner extends Plugin
 					m_ProgressBar.setValue(0);
 					m_ProgressBar.setStringPainted(true);
 					m_ProgressBar.setString("");
+					foreground = m_ProgressBar.getForeground();
+					background = m_ProgressBar.getBackground();
+					foregroundString = foreground;
+					backgroundString = background;
+					m_ProgressBar.setUI(new BasicProgressBarUI() {
+						protected Color getSelectionBackground() { return backgroundString; }
+						protected Color getSelectionForeground() { return foregroundString; }
+					});
 					
 					m_LabelIcon = new JLabel();
 					
 					m_CheckBox = new JCheckBox();
-					
-					foreground = m_ProgressBar.getForeground();
-					background = m_ProgressBar.getBackground();
 				}
 			
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -969,9 +977,13 @@ public final class DoujinshiDBScanner extends Plugin
 						if(!isSelected) {
 							m_ProgressBar.setBackground(background);
 							m_ProgressBar.setForeground(foreground);
+							foregroundString = background;
+							backgroundString = foreground;
 						} else {
 							m_ProgressBar.setBackground(foreground);
 							m_ProgressBar.setForeground(background);
+							foregroundString = foreground;
+							backgroundString = background;
 						}
 						return m_ProgressBar;
 					}

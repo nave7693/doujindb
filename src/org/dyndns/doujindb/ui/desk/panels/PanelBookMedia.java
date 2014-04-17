@@ -42,6 +42,7 @@ public class PanelBookMedia extends JPanel
 	private JButton buttonDownload;
 	private JButton buttonDelete;
 	private JButton buttonPackage;
+	private JButton buttonBrowse;
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
 	
@@ -290,6 +291,23 @@ public class PanelBookMedia extends JPanel
 			}
 		});
 		add(buttonPackage);
+		buttonBrowse = new JButton(Icon.desktop_explorer_book_media_browse);
+		buttonBrowse.setFocusable(false);
+		buttonBrowse.setToolTipText("Browse");
+		buttonBrowse.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					DataStore.getFile(tokenBook.getID()).browse();
+				} catch (DataBaseException dbe) {
+					Logger.logError(TAG + "cannot browse Book '" + tokenBook + "'", dbe);
+				} catch (DataStoreException dse) {
+					Logger.logError(TAG + "cannot browse Book '" + tokenBook + "'", dse);
+				}
+			}
+		});
+		add(buttonBrowse);
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -302,6 +320,7 @@ public class PanelBookMedia extends JPanel
 				buttonDownload.setBounds(width-40,1,20,20);
 				buttonDelete.setBounds(width-60,1,20,20);
 				buttonPackage.setBounds(width-80,1,20,20);
+				buttonBrowse.setBounds(width-100,1,20,20);
 				treeMediaScroll.setBounds(1,21,width-2,height-25);
 				
 				buttonReload.setEnabled(!tokenBook.isRecycled());
@@ -309,6 +328,7 @@ public class PanelBookMedia extends JPanel
 				buttonDownload.setEnabled(!tokenBook.isRecycled());
 				buttonDelete.setEnabled(!tokenBook.isRecycled());
 				buttonPackage.setEnabled(!tokenBook.isRecycled());
+				buttonBrowse.setEnabled(!tokenBook.isRecycled());
 				treeMedia.setEnabled(!tokenBook.isRecycled());
 				treeMediaScroll.setEnabled(!tokenBook.isRecycled());
 			}

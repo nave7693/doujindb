@@ -650,11 +650,16 @@ final class TaskManager
 			String higherRes = "";
 			try {
 				long bytesNew = DataStore.diskUsage(new File(task.getPath()));
-				for(String dupe : duplicateList)
-				{
+				long pagesNew = DataStore.listFiles(new File(task.getPath())).length;
+				BufferedImage biNew = javax.imageio.ImageIO.read(new FileInputStream(findFile(new File(task.getPath()))));
+				String resNew = biNew.getWidth() + "x" + biNew.getHeight();
+				for(String dupe : duplicateList) {
 					long bytesBook = DataStore.diskUsage(DataStore.getFile(dupe));
+					long pagesBook = DataStore.listFiles(DataStore.getFile(dupe)).length;
+					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getFile(dupe)).getInputStream());
+					String resBook = biBook.getWidth() + "x" + biBook.getHeight();
 					if(bytesNew > bytesBook)
-						higherRes = " (may be higher resolution: "+bytesToSize(bytesNew)+"~"+bytesToSize(bytesBook)+")";
+						higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
 				}
 			} catch (DataStoreException | IOException e) { }
 			
@@ -1085,6 +1090,29 @@ final class TaskManager
 			}
 		});				
 		for(File file : files)
+			if(file.isFile())
+				return file;
+			else
+				return findFile(file);
+		return null;
+	}
+	
+	private static DataFile findFile(DataFile base) throws DataStoreException
+	{
+		DataFile[] files = base.listFiles();
+		Arrays.sort(files, new Comparator<DataFile>()
+		{
+			@Override
+			public int compare(DataFile f1, DataFile f2)
+			{
+				try {
+					return f1.getName().compareTo(f2.getName());
+				} catch (DataStoreException dse) {
+					return 0;
+				}
+			}
+		});				
+		for(DataFile file : files)
 			if(file.isFile())
 				return file;
 			else

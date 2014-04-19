@@ -38,6 +38,7 @@ public class PanelBookMedia extends JPanel
 {
 	private Book tokenBook;
 	private JButton buttonReload;
+	private JLabel labelDiskUsage;
 	private JButton buttonUpload;
 	private JButton buttonDownload;
 	private JButton buttonDelete;
@@ -71,6 +72,8 @@ public class PanelBookMedia extends JPanel
 			}			
 		});
 		add(buttonReload);
+		labelDiskUsage = new JLabel();
+		add(labelDiskUsage);
 		buttonUpload = new JButton(Icon.desktop_explorer_book_media_upload);
 		buttonUpload.setFocusable(false);
 		buttonUpload.setToolTipText("Upload");
@@ -316,6 +319,7 @@ public class PanelBookMedia extends JPanel
 				int width = parent.getWidth(),
 					height = parent.getHeight();
 				buttonReload.setBounds(1,1,20,20);
+				labelDiskUsage.setBounds(21,1,width-20*6,20);
 				buttonUpload.setBounds(width-20,1,20,20);
 				buttonDownload.setBounds(width-40,1,20,20);
 				buttonDelete.setBounds(width-60,1,20,20);
@@ -365,12 +369,24 @@ public class PanelBookMedia extends JPanel
 			}
 			@Override
 			protected void done() {
+				try {
+					labelDiskUsage.setText(bytesToSize(DataStore.diskUsage(DataStore.getFile(tokenBook.getID()))));
+				} catch (Exception e) { }
 				treeMedia.clearSelection();
 				treeMedia.CheckBoxRenderer.clearSelection();
 				((DefaultTreeModel) treeMedia.getModel()).setRoot(nodeRoot);
 				PanelBookMedia.super.validate();
 			}
 		}.execute();
+	}
+	
+	private static String bytesToSize(long bytes)
+	{
+		int unit = 1024;
+	    if (bytes < unit) return bytes + " B";
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 	
 	private final class MediaTree extends JTree

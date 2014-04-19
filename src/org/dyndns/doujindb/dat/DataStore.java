@@ -160,6 +160,23 @@ public final class DataStore
 		return set.toArray(new DataFile[] {});
 	}
 	
+	/**
+	 * Recursively get all files into parentPath.
+	 * @param parentPath
+	 */
+	public static File[] listFiles(File parentPath) throws DataStoreException, IOException
+	{
+		checkOpen();
+		
+		Set<File> set = new HashSet<File>();
+		for(File file : parentPath.listFiles())
+			if(file.isDirectory())
+				listFiles(file, set);
+			else
+				set.add(file);
+		return set.toArray(new File[] {});
+	}
+	
 	private static File[] listFiles(File parentPath, Set<File> set) throws DataStoreException, IOException
 	{
 		for(File file : parentPath.listFiles())

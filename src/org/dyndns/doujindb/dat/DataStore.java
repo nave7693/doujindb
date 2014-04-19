@@ -40,29 +40,37 @@ public final class DataStore
 		return instance != null;
 	}
 	
+	static void checkOpen() throws DataStoreException
+	{
+		if(!isOpen())
+			throw new DataStoreException("DataStore is closed.");
+	}
+	
 	public static DataFile getMeta(String bookId) throws DataStoreException
 	{
-		if(instance == null)
-			throw new DataStoreException("DataStore is closed.");
+		checkOpen();
+		
 		return instance.getMeta(bookId);
 	}
 	
 	public static DataFile getCover(String bookId) throws DataStoreException
 	{
-		if(instance == null)
-			throw new DataStoreException("DataStore is closed.");
+		checkOpen();
+		
 		return instance.getCover(bookId);
 	}
 	
 	public static DataFile getFile(String bookId) throws DataStoreException
 	{
-		if(instance == null)
-			throw new DataStoreException("DataStore is closed.");
+		checkOpen();
+		
 		return instance.getFile(bookId);
 	}
 	
 	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		if(contentsOnly)
 			for(File file : srcPath.listFiles())
 				fromFile(file, dstPath);
@@ -79,6 +87,8 @@ public final class DataStore
 	 */
 	public static void fromFile(File srcPath, DataFile dstPath) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		DataFile dataFile = dstPath.getFile(srcPath.getName());
 		if(srcPath.isDirectory())
 		{
@@ -92,6 +102,8 @@ public final class DataStore
 	
 	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		if(contentsOnly)
 			for(DataFile file : srcPath.listFiles())
 				toFile(file, dstPath);
@@ -108,6 +120,8 @@ public final class DataStore
 	 */
 	public static void toFile(DataFile srcPath, File dstPath) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		File file = new File(dstPath, srcPath.getName());
 		if(srcPath.isDirectory())
 		{
@@ -125,6 +139,8 @@ public final class DataStore
 	 */
 	public static DataFile[] listFiles(DataFile parentPath) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		Set<DataFile> set = new HashSet<DataFile>();
 		for(DataFile file : parentPath.listFiles())
 			if(file.isDirectory())
@@ -156,6 +172,8 @@ public final class DataStore
 	
 	public static long diskUsage(DataFile path) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		long du = 0;
 		for(DataFile file : listFiles(path))
 			if(!file.isDirectory())
@@ -165,6 +183,8 @@ public final class DataStore
 	
 	public static long diskUsage(File path) throws DataStoreException, IOException
 	{
+		checkOpen();
+		
 		long du = 0;
 		Set<File> set = new HashSet<File>();
 		for(File file : listFiles(path, set))

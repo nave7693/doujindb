@@ -22,12 +22,16 @@ final class LocalDataStore implements IDataStore
 	@Override
 	public DataFile getMeta(String bookId) throws DataStoreException
 	{
+		DataStore.checkOpen();
+		
 		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_META));
 	}
 
 	@Override
 	public DataFile getCover(String bookId) throws DataStoreException
 	{
+		DataStore.checkOpen();
+		
 		if(LocalCache.isEnabled())
 			try {
 				File file = LocalCache.get(bookId);
@@ -51,6 +55,8 @@ final class LocalDataStore implements IDataStore
 	@Override
 	public DataFile getFile(String bookId) throws DataStoreException
 	{
+		DataStore.checkOpen();
+		
 		return new LocalDataFile(new File(rootPath, bookId));
 	}
 	
@@ -64,12 +70,18 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public String getName() throws DataStoreException {
+		public String getName() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.getName();
 		}
 
 		@Override
-		public String getPath() throws DataStoreException {
+		public String getPath() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			if(!filePath.equals(rootPath))
 				return getParent().getPath() + File.separator + filePath.getName();
 			else
@@ -77,27 +89,42 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public boolean isDirectory() throws DataStoreException {
+		public boolean isDirectory() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.isDirectory();
 		}
 
 		@Override
-		public boolean isFile() throws DataStoreException {
+		public boolean isFile() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.isFile();
 		}
 
 		@Override
-		public boolean canRead() throws DataStoreException {
+		public boolean canRead() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.canRead();
 		}
 
 		@Override
-		public boolean canWrite() throws DataStoreException {
+		public boolean canWrite() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.canWrite();
 		}
 
 		@Override
-		public String size() throws DataStoreException {
+		public String size() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			long bytes = length();
 			int unit = 1024;
 		    if (bytes < unit) return bytes + " B";
@@ -107,12 +134,18 @@ final class LocalDataStore implements IDataStore
 		}
 		
 		@Override
-		public long length() throws DataStoreException {
+		public long length() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.length();
 		}
 
 		@Override
-		public InputStream getInputStream() throws DataStoreException {
+		public InputStream getInputStream() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			try {
 				return new FileInputStream(filePath);
 			} catch (FileNotFoundException fnfe) {
@@ -121,7 +154,10 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws DataStoreException {
+		public OutputStream getOutputStream() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			try {
 				return new FileOutputStream(filePath);
 			} catch (FileNotFoundException fnfe) {
@@ -130,7 +166,10 @@ final class LocalDataStore implements IDataStore
 		}
 		
 		@Override
-		public DataFile getFile(String name) throws DataStoreException {
+		public DataFile getFile(String name) throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			File newFile = new File(filePath, name);
 			/**
 			 * Try to prevent possible directory traversal attack
@@ -143,12 +182,18 @@ final class LocalDataStore implements IDataStore
 		}
 		
 		@Override
-		public DataFile[] listFiles() throws DataStoreException {
+		public DataFile[] listFiles() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return listFiles(".*");
 		}
 
 		@Override
-		public DataFile[] listFiles(final String regexp) throws DataStoreException {
+		public DataFile[] listFiles(final String regexp) throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			if(!filePath.exists())
 				return new DataFile[]{};
 			java.util.Set<DataFile> files = new java.util.TreeSet<DataFile>();
@@ -174,7 +219,10 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public void touch() throws DataStoreException {
+		public void touch() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			try {
 				filePath.getParentFile().mkdirs();
 				filePath.createNewFile();
@@ -184,27 +232,42 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public void mkdir() throws DataStoreException {
+		public void mkdir() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			filePath.mkdir();
 		}
 		
 		@Override
-		public void mkdirs() throws DataStoreException {
+		public void mkdirs() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			filePath.mkdirs();
 		}
 
 		@Override
-		public boolean exists() throws DataStoreException {
+		public boolean exists() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			return filePath.exists();
 		}
 
 		@Override
-		public void delete() throws DataStoreException {
+		public void delete() throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			delete(false);
 		}
 		
 		@Override
-		public void delete(boolean recursive) throws DataStoreException {
+		public void delete(boolean recursive) throws DataStoreException
+		{
+			DataStore.checkOpen();
+			
 			if(filePath.equals(rootPath))
 				return;
 			if(isDirectory())
@@ -258,6 +321,8 @@ final class LocalDataStore implements IDataStore
 		@Override
 		public void browse() throws DataStoreException
 		{
+			DataStore.checkOpen();
+			
 			try {
 				java.awt.Desktop.getDesktop().browse(filePath.toURI());
 			} catch (IOException ioe) {

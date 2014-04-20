@@ -647,6 +647,15 @@ final class TaskManager
 			duplicateList.add(searchResult);
 			task.setDuplicateList(duplicateList);
 			
+			String japanLang = "";
+			try {
+				for(String dupe : duplicateList) {
+					if(DataStore.getFile(dupe).getFile("@japanese").exists())
+						continue;
+					japanLang = " (missing japanese language)";
+				}
+			} catch (DataStoreException dse) { }
+			
 			String higherRes = "";
 			try {
 				long bytesNew = DataStore.diskUsage(new File(task.getPath()));
@@ -663,7 +672,7 @@ final class TaskManager
 				}
 			} catch (DataStoreException | IOException e) { }
 			
-			throw new TaskWarningException("Duplicate book detected" + higherRes);
+			throw new TaskWarningException("Duplicate book detected" + japanLang + " " + higherRes);
 		}
 		
 		return true;

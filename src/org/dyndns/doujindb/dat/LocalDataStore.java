@@ -1,7 +1,11 @@
 package org.dyndns.doujindb.dat;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.log.Logger;
 
 final class LocalDataStore implements IDataStore
@@ -12,6 +16,7 @@ final class LocalDataStore implements IDataStore
 	private static final String DATAFILE_META = ".xml";
 	private static final String DATAFILE_COVER = ".preview";
 	
+	@SuppressWarnings("unused")
 	private static final String TAG = "LocalDataStore : ";
 	
 	LocalDataStore(final File rootPath)
@@ -32,24 +37,7 @@ final class LocalDataStore implements IDataStore
 	{
 		DataStore.checkOpen();
 		
-		if(LocalCache.isEnabled())
-			try {
-				File file = LocalCache.get(bookId);
-				if(file.exists())
-					return new LocalDataFile(file);
-				else
-					throw new IOException();
-			} catch (IOException ioe) {
-				File file = new File(new File(rootPath, bookId), DATAFILE_COVER);
-				try {
-					LocalCache.put(bookId, file);
-				} catch (Exception e) {
-					Logger.logError(TAG + "failed to add '" + bookId + "' to local cache.", e);
-				}
-				return new LocalDataFile(file);
-			}
-		else
-			return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_COVER));
+		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_COVER), bookId);
 	}
 
 	@Override
@@ -63,10 +51,22 @@ final class LocalDataStore implements IDataStore
 	private final class LocalDataFile implements DataFile, Comparable<DataFile>
 	{
 		private final File filePath;
+		private final String cacheId;
 		
 		public LocalDataFile(final File filePath)
 		{
+			this(filePath, null);
+		}
+		
+		public LocalDataFile(final File filePath, final String cacheId)
+		{
 			this.filePath = filePath;
+			this.cacheId = cacheId;
+		}
+		
+		private boolean isCacheable()
+		{
+			return cacheId != null;
 		}
 
 		@Override
@@ -146,11 +146,26 @@ final class LocalDataStore implements IDataStore
 		{
 			DataStore.checkOpen();
 			
-			try {
-				return new FileInputStream(filePath);
-			} catch (FileNotFoundException fnfe) {
-				throw new DataStoreException(fnfe);
-			}
+			if(LocalCache.isEnabled() && this.isCacheable())
+				try {
+					File file = LocalCache.get(cacheId);
+					if(file.exists())
+						return new FileInputStream(file);
+					else
+						throw new IOException();
+				} catch (IOException ioe) {
+					try {
+						return new FileInputStream(filePath);
+					} catch (FileNotFoundException fnfe) {
+						throw new DataStoreException(fnfe);
+					}
+				}
+			else
+				try {
+					return new FileInputStream(filePath);
+				} catch (FileNotFoundException fnfe) {
+					throw new DataStoreException(fnfe);
+				}
 		}
 
 		@Override
@@ -158,11 +173,24 @@ final class LocalDataStore implements IDataStore
 		{
 			DataStore.checkOpen();
 			
-			try {
-				return new FileOutputStream(filePath);
-			} catch (FileNotFoundException fnfe) {
-				throw new DataStoreException(fnfe);
-			}
+			if(LocalCache.isEnabled() && this.isCacheable())
+				try {
+					return new FileOutputStream(filePath) {
+						@Override
+						public void close() throws IOException {
+							super.close();
+							LocalCache.put(cacheId, filePath);
+						}
+					};
+				} catch (FileNotFoundException fnfe) {
+					throw new DataStoreException(fnfe);
+				}
+			else
+				try {
+					return new FileOutputStream(filePath);
+				} catch (FileNotFoundException fnfe) {
+					throw new DataStoreException(fnfe);
+				}
 		}
 		
 		@Override
@@ -281,6 +309,9 @@ final class LocalDataStore implements IDataStore
 			else	
 				if(!filePath.delete())
 					filePath.deleteOnExit();
+			
+			if(LocalCache.isEnabled() && this.isCacheable())
+				LocalCache.purge(cacheId);
 		}
 		
 		private void deleteRecursive(DataFile[] files) throws DataStoreException
@@ -328,6 +359,82 @@ final class LocalDataStore implements IDataStore
 			} catch (IOException ioe) {
 				throw new DataStoreException(ioe);
 			}
+		}
+	}
+	
+	private static final class LocalCache
+	{
+		private static File cachePath = new File((String) Configuration.configRead("org.dyndns.doujindb.dat.cache_dir"));
+		private static boolean cacheEnabled = (Boolean) Configuration.configRead("org.dyndns.doujindb.dat.keep_cache");
+		
+		private static ConcurrentLinkedQueue<CachePair<File>> queue = new ConcurrentLinkedQueue<CachePair<File>>();
+		
+		private static final String TAG = "LocalCache : ";
+		
+		private static final class CachePair<T>
+		{
+			private final String id;
+			private final T object;
+			
+			private CachePair(String id, T object)
+			{
+				this.id = id;
+				this.object = object;
+			}
+		}
+		
+		static
+		{
+			new Thread() {
+				@Override
+				public void run() {
+					super.setName("datastore-cacheupdater");
+					while(true) {
+						try {
+							Thread.sleep(1);
+							if(queue.isEmpty())
+								continue;
+							update(queue.poll());
+						} catch (Exception e) {
+							e.printStackTrace();
+						} catch (Error e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				private void update(CachePair<File> pair) {
+					try {
+						Files.copy(pair.object.toPath(), new File(cachePath, pair.id).toPath(), StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException ioe) {
+						Logger.logError(TAG + "failed to put '" + pair.id + "' in local cache", ioe);
+					}
+				}
+			}.start();
+		}
+		
+		public static boolean isEnabled()
+		{
+			return cacheEnabled;
+		}
+		
+		public static File get(String cacheId)
+		{
+			Logger.logDebug(TAG + "fetching '" + cacheId + "' from local cache");
+			return new File(cachePath, cacheId);
+		}
+		
+		public static void put(String cacheId, File file)
+		{
+			Logger.logDebug(TAG + "putting '" + cacheId + "' in local cache");
+			queue.offer(new CachePair<File>(cacheId, file));
+		}
+		
+		public static void purge(String cacheId)
+		{
+			Logger.logDebug(TAG + "purging '" + cacheId + "' from local cache");
+			File cached = new File(cachePath, cacheId);
+			if(!cached.delete())
+				cached.deleteOnExit();
 		}
 	}
 }

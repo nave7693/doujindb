@@ -33,7 +33,7 @@ final class LocalDataStore implements IDataStore
 	}
 
 	@Override
-	public DataFile getCover(String bookId) throws DataStoreException
+	public DataFile getThumbnail(String bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		

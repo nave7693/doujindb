@@ -143,7 +143,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									return null;
 								try {
 									DataStore.getFile(tokenBook.getID()).mkdirs();
-									DataFile cover = DataStore.getCover(tokenBook.getID());
+									DataFile cover = DataStore.getThumbnail(tokenBook.getID());
 									OutputStream out = cover.getOutputStream();
 									ImageTool.write(image = ImageTool.getScaledInstance(image, 256, 256, true), out);
 									
@@ -190,7 +190,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							protected Void doInBackground() throws Exception
 							{
 								try {
-									DataFile cover = DataStore.getCover(tokenBook.getID());
+									DataFile cover = DataStore.getThumbnail(tokenBook.getID());
 									cover.delete();
 								} catch (DataStoreException dse) {
 									Logger.logError(dse.getMessage(), dse);
@@ -584,7 +584,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				{
 					if(tokenBook.getID() == null)
 						return null;
-					DataFile cover = DataStore.getCover(tokenBook.getID());
+					DataFile cover = DataStore.getThumbnail(tokenBook.getID());
 					InputStream in = cover.getInputStream();
 					labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelPreview.setName("preview");

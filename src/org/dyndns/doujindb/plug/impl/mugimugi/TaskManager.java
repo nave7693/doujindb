@@ -1047,7 +1047,7 @@ final class TaskManager
 			throw new TaskErrorException("Error copying '" + basepath + "' in  DataStore : " + e.getMessage());
 		}
 		try {
-			DataFile df = DataStore.getCover(task.getBook());
+			DataFile df = DataStore.getThumbnail(task.getBook());
 			OutputStream out = df.getOutputStream();
 			BufferedImage image = ImageTool.read(reqFile);
 			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
@@ -1067,7 +1067,7 @@ final class TaskManager
 		try {
 			CacheManager.put(id, (BufferedImage) new ImageIcon(
 				ImageTool.read(
-						DataStore.getCover(id).getInputStream())).getImage());
+						DataStore.getThumbnail(id).getInputStream())).getImage());
 		} catch (IOException | ClassCastException | DataStoreException e) {
 			throw new TaskErrorException("Error adding book to cache : " + e.getMessage());
 		}

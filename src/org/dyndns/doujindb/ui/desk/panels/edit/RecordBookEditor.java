@@ -72,7 +72,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 					JButton bookButton;
 					bookButton = new JButton(
 						new ImageIcon(
-							ImageTool.read(DataStore.getCover(book.getID()).getInputStream())));
+							ImageTool.read(DataStore.getThumbnail(book.getID()).getInputStream())));
 					bookButton.addActionListener(new ActionListener()
 					{
 						@Override

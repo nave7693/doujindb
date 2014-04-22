@@ -114,7 +114,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								BufferedImage resized_image = new BufferedImage(200, 40, BufferedImage.TYPE_INT_ARGB);
 								try {
 									DataStore.getFile(tokenCircle.getID()).mkdirs();
-									DataFile banner = DataStore.getCover(tokenCircle.getID());
+									DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
 									OutputStream out = banner.getOutputStream();
 									Graphics2D graphics2D = resized_image.createGraphics();
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -165,7 +165,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							protected Void doInBackground() throws Exception
 							{
 								try {
-									DataFile banner = DataStore.getCover(tokenCircle.getID());
+									DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
 									banner.delete();
 								} catch (DataStoreException dse) {
 									Logger.logError(dse.getMessage(), dse);
@@ -341,7 +341,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				{
 					if(tokenCircle.getID() == null)
 						return null;
-					DataFile banner = DataStore.getCover(tokenCircle.getID());
+					DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
 					InputStream in = banner.getInputStream();
 					labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelBanner.setName("banner");

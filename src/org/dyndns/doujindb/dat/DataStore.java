@@ -53,11 +53,11 @@ public final class DataStore
 		return instance.getMeta(bookId);
 	}
 	
-	public static DataFile getCover(String bookId) throws DataStoreException
+	public static DataFile getThumbnail(String bookId) throws DataStoreException
 	{
 		checkOpen();
 		
-		return instance.getCover(bookId);
+		return instance.getThumbnail(bookId);
 	}
 	
 	public static DataFile getFile(String bookId) throws DataStoreException

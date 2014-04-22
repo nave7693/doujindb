@@ -6,7 +6,6 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -80,6 +79,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	
 	protected static final Font font = UI.Font;
 	
+	private static final String TAG = "PanelBook : ";
+	
 	public PanelBook(Book token) throws DataBaseException
 	{
 		tokenBook = token;		
@@ -130,52 +131,36 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							{
 								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
-								int result = fc.showOpenDialog(PanelBook.this);
-								if(result != JFileChooser.APPROVE_OPTION)
+								if(fc.showOpenDialog(PanelBook.this) != JFileChooser.APPROVE_OPTION)
 									return null;
-								Image img = null;
-								try
-								{
-									img = ImageTool.read(fc.getSelectedFile());
+								BufferedImage image = null;
+								try {
+									image = ImageTool.read(fc.getSelectedFile());
 								} catch (IOException ioe) {
 									Logger.logError(ioe.getMessage(), ioe);
 								}
-								if(img == null)
+								if(image == null)
 									return null;
-								try
-								{
-									DataFile ds = DataStore.getFile(tokenBook.getID());
-									ds.mkdir();
-									ds = DataStore.getCover(tokenBook.getID());
-									ds.touch();
-									OutputStream out = ds.getOutputStream();
-									File in = fc.getSelectedFile();
-									BufferedImage image = ImageTool.read(in);
-									ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
+								try {
+									DataStore.getFile(tokenBook.getID()).mkdirs();
+									DataFile cover = DataStore.getCover(tokenBook.getID());
+									OutputStream out = cover.getOutputStream();
+									ImageTool.write(image = ImageTool.getScaledInstance(image, 256, 256, true), out);
+									
+									final ImageIcon ii = new ImageIcon(image);
+									SwingUtilities.invokeLater(new Runnable()
+									{
+										@Override
+										public void run() {
+											labelPreview.setIcon(ii);
+											labelPreview.setName("preview");
+										}
+									});
+									
 									out.close();
 								} catch (Exception e) {
 									Logger.logError(e.getMessage(), e);
-								}
-								try
-								{
-									DataFile ds = DataStore.getFile(tokenBook.getID());
-									ds.mkdir();
-									ds = DataStore.getCover(tokenBook.getID());
-									if(ds.exists())
-									{
-										InputStream in = ds.getInputStream();
-										final ImageIcon ii = new ImageIcon(ImageTool.read(in));
-										SwingUtilities.invokeLater(new Runnable()
-										{
-											@Override
-											public void run() {
-												labelPreview.setIcon(ii);
-												labelPreview.setName("preview");
-											}
-										});
-										in.close();
-									}
-								} catch (NullPointerException | IOException | DataBaseException e) {
+									
 									SwingUtilities.invokeLater(new Runnable()
 									{
 										@Override
@@ -184,7 +169,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 											labelPreview.setName("no-preview");
 										}
 									});
-									e.printStackTrace();
 								}
 								return null;
 							}
@@ -205,16 +189,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							@Override
 							protected Void doInBackground() throws Exception
 							{
-								try
-								{
-									DataFile df = DataStore.getFile(tokenBook.getID());
-									df.mkdir();
-									df = DataStore.getCover(tokenBook.getID());
-									df.delete();
-								} catch (NullPointerException npe) {
-								} catch (Exception e)
-								{
-									Logger.logError(e.getMessage(), e);
+								try {
+									DataFile cover = DataStore.getCover(tokenBook.getID());
+									cover.delete();
+								} catch (DataStoreException dse) {
+									Logger.logError(dse.getMessage(), dse);
 								}
 								return null;
 							}
@@ -605,18 +584,15 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				{
 					if(tokenBook.getID() == null)
 						return null;
-					DataFile ds = DataStore.getFile(tokenBook.getID());
-					ds.mkdir();
-					ds = DataStore.getCover(tokenBook.getID());
-					if(ds.exists())
-					{
-						InputStream in = ds.getInputStream();
-						labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
-						labelPreview.setName("preview");
-						in.close();
-					}
+					DataFile cover = DataStore.getCover(tokenBook.getID());
+					InputStream in = cover.getInputStream();
+					labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
+					labelPreview.setName("preview");
+					in.close();
 				} catch (NullPointerException npe) {
 					npe.printStackTrace();
+				} catch (DataStoreException dse) {
+					Logger.logWarning(TAG + "error loading cover image : " + dse.getMessage());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

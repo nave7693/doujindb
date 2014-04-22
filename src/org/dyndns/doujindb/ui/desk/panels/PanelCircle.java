@@ -14,6 +14,7 @@ import javax.swing.plaf.TabbedPaneUI;
 
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
@@ -48,6 +49,8 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
+	
+	private static final String TAG = "PanelCircle : ";
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{
@@ -98,57 +101,41 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							{
 								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
-								int result = fc.showOpenDialog(PanelCircle.this);
-								if(result != JFileChooser.APPROVE_OPTION)
+								if(fc.showOpenDialog(PanelCircle.this) != JFileChooser.APPROVE_OPTION)
 									return null;
-								Image img = null;
-								try
-								{
-									img = ImageTool.read(fc.getSelectedFile());
+								BufferedImage image = null;
+								try {
+									image = ImageTool.read(fc.getSelectedFile());
 								} catch (IOException ioe) {
 									Logger.logError(ioe.getMessage(), ioe);
 								}
-								if(img == null)
+								if(image == null)
 									return null;
-								try
-								{
-									DataFile ds = DataStore.getFile(tokenCircle.getID());
-									ds.mkdir();
-									ds = DataStore.getCover(tokenCircle.getID());
-									ds.touch();
-									OutputStream out = ds.getOutputStream();
-									File in = fc.getSelectedFile();
-									BufferedImage image = ImageTool.read(in);
-									BufferedImage im = new BufferedImage(200, 40, BufferedImage.TYPE_INT_ARGB);
-									Graphics2D graphics2D = im.createGraphics();
+								BufferedImage resized_image = new BufferedImage(200, 40, BufferedImage.TYPE_INT_ARGB);
+								try {
+									DataStore.getFile(tokenCircle.getID()).mkdirs();
+									DataFile banner = DataStore.getCover(tokenCircle.getID());
+									OutputStream out = banner.getOutputStream();
+									Graphics2D graphics2D = resized_image.createGraphics();
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 									graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 									graphics2D.drawImage(image, 0, 0, null);
-									ImageTool.write(im, out);
+									ImageTool.write(resized_image, out);
+									
+									final ImageIcon ii = new ImageIcon(resized_image);
+									SwingUtilities.invokeLater(new Runnable()
+									{
+										@Override
+										public void run() {
+											labelBanner.setIcon(ii);
+											labelBanner.setName("banner");
+										}
+									});
+									
 									out.close();
 								} catch (Exception e) {
 									Logger.logError(e.getMessage(), e);
-								}
-								try
-								{
-									DataFile ds = DataStore.getFile(tokenCircle.getID());
-									ds.mkdir();
-									ds = DataStore.getCover(tokenCircle.getID());
-									if(ds.exists())
-									{
-										InputStream in = ds.getInputStream();
-										final ImageIcon ii = new ImageIcon(ImageTool.read(in));
-										SwingUtilities.invokeLater(new Runnable()
-										{
-											@Override
-											public void run() {
-												labelBanner.setIcon(ii);
-												labelBanner.setName("banner");
-											}
-										});
-										in.close();
-									}
-								} catch (NullPointerException | IOException | DataBaseException e) {
+									
 									SwingUtilities.invokeLater(new Runnable()
 									{
 										@Override
@@ -157,7 +144,6 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 											labelBanner.setName("no-banner");
 										}
 									});
-									e.printStackTrace();
 								}
 								return null;
 							}
@@ -178,16 +164,11 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							@Override
 							protected Void doInBackground() throws Exception
 							{
-								try
-								{
-									DataFile df = DataStore.getFile(tokenCircle.getID());
-									df.mkdir();
-									df = DataStore.getCover(tokenCircle.getID());
-									df.delete();
-								} catch (NullPointerException npe) {
-								} catch (Exception e)
-								{
-									Logger.logError(e.getMessage(), e);
+								try {
+									DataFile banner = DataStore.getCover(tokenCircle.getID());
+									banner.delete();
+								} catch (DataStoreException dse) {
+									Logger.logError(dse.getMessage(), dse);
 								}
 								return null;
 							}
@@ -360,18 +341,15 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				{
 					if(tokenCircle.getID() == null)
 						return null;
-					DataFile ds = DataStore.getFile(tokenCircle.getID());
-					ds.mkdir();
-					ds = DataStore.getCover(tokenCircle.getID());
-					if(ds.exists())
-					{
-						InputStream in = ds.getInputStream();
-						labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
-						labelBanner.setName("banner");
-						in.close();
-					}
+					DataFile banner = DataStore.getCover(tokenCircle.getID());
+					InputStream in = banner.getInputStream();
+					labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
+					labelBanner.setName("banner");
+					in.close();
 				} catch (NullPointerException npe) {
 					npe.printStackTrace();
+				} catch (DataStoreException dse) {
+					Logger.logWarning(TAG + "error loading banner image : " + dse.getMessage());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

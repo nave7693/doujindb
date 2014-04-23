@@ -157,6 +157,7 @@ public final class DoujinshiDBScanner extends Plugin
 		
 		private JButton m_ButtonTaskAdd;
 		private JButton m_ButtonTaskManagerCtl;
+		private JLabel m_LabelTasks;
 		private JButton m_ButtonTaskDelete;
 		private JButton m_ButtonTaskReset;
 		private JCheckBox m_CheckboxSelection;
@@ -345,6 +346,9 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ButtonTaskManagerCtl.setToolTipText("Resume Worker");
 			m_ButtonTaskManagerCtl.setFocusable(false);
 			bogus.add(m_ButtonTaskManagerCtl);
+			m_LabelTasks = new JLabel("");
+			m_LabelTasks.setText("Tasks : " + TaskManager.size());
+			bogus.add(m_LabelTasks);
 			m_ButtonTaskDelete = new JButton(Icon.task_delete);
 			m_ButtonTaskDelete.addActionListener(this);
 			m_ButtonTaskDelete.setBorder(null);
@@ -525,6 +529,7 @@ public final class DoujinshiDBScanner extends Plugin
 			m_CheckboxApiResizeImage.setBounds(5,25+120,width,45);
 			m_ButtonTaskAdd.setBounds(1,1,20,20);
 			m_ButtonTaskManagerCtl.setBounds(21,1,20,20);
+			m_LabelTasks.setBounds(41,1,width-125,20);
 			if(!m_BuilderRunning)
 			{
 				m_ButtonCacheBuild.setBounds(5,25+200,20,20);
@@ -1839,6 +1844,7 @@ public final class DoujinshiDBScanner extends Plugin
 		public void propertyChange(PropertyChangeEvent evt) {
 			if(evt.getPropertyName().equals("taskmanager-info"))
 			{
+				m_LabelTasks.setText("Tasks : " + TaskManager.size());
 				if(TaskManager.isRunning())
 					m_ButtonTaskManagerCtl.setIcon(Icon.task_pause);
 				else

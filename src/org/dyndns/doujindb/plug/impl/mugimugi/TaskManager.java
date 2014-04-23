@@ -138,6 +138,7 @@ final class TaskManager
 				try { in.close(); } catch (Exception e) { }
 			}
 		}
+		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
 	public static int size() {
@@ -155,6 +156,7 @@ final class TaskManager
 			Task task = new TaskImpl(uuid, workpath);
 			tasks.add(task);
 		}
+		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
 	public static void remove(Task task) {
@@ -162,6 +164,7 @@ final class TaskManager
 		{
 			tasks.remove(task);
 		}
+		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
 	public static void reset(Task task) {

@@ -516,12 +516,61 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	{
 		new SwingWorker<Void, Object>()
 		{
-			boolean isEmpty = true;
+			private boolean isEmpty = true;
+			private String toolTip = "";
 			@Override
 			public Void doInBackground()
 			{
 				try {
-					isEmpty = DataBase.getRecycled().size() < 1;
+					RecordSet<Record> recycled = DataBase.getRecycled();
+					long countArtist = 0;
+					long countBook = 0;
+					long countCircle = 0;
+					long countConvention = 0;
+					long countContent = 0;
+					long countParody = 0;
+					
+					isEmpty = recycled.size() < 1;
+					for(Record r : recycled) {
+						if(r instanceof Artist) {
+							countArtist++;
+							continue;
+						}
+						if(r instanceof Book) {
+							countBook++;
+							continue;
+						}
+						if(r instanceof Circle) {
+							countCircle++;
+							continue;
+						}
+						if(r instanceof Convention) {
+							countConvention++;
+							continue;
+						}
+						if(r instanceof Content) {
+							countContent++;
+							continue;
+						}
+						if(r instanceof Parody) {
+							countParody++;
+							continue;
+						}
+					}
+					toolTip = "<html><body>";
+					if(countArtist > 0)
+						toolTip += "Artist : " + countArtist + "<br/>";
+					if(countBook> 0)
+						toolTip += "Book : " + countBook + "<br/>";
+					if(countCircle > 0)
+						toolTip += "Circle : " + countCircle + "<br/>";
+					if(countConvention > 0)
+						toolTip += "Convention : " + countConvention + "<br/>";
+					if(countContent > 0)
+						toolTip += "Content : " + countContent + "<br/>";
+					if(countParody > 0)
+						toolTip += "Parody : " + countParody + "<br/>";
+					toolTip += "</body></html>";
 				} catch (DataBaseException dbe) {
 					Logger.logError(TAG + "error while loading data.", dbe);
 				}
@@ -529,10 +578,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 			@Override
 			protected void done() {
-				if(isEmpty)
+				if(isEmpty) {
+					m_ButtonTrash.setToolTipText("Trash");
 					m_ButtonTrash.setIcon(Icon.desktop_trash_empty);
-				else
+				} else {
+					m_ButtonTrash.setToolTipText(toolTip);
 					m_ButtonTrash.setIcon(Icon.desktop_trash_full);
+				}
 			}
 		}.execute();
 	}

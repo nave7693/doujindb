@@ -149,15 +149,14 @@ final class LocalDataStore implements IDataStore
 			if(LocalCache.isEnabled() && this.isCacheable())
 				try {
 					File file = LocalCache.get(cacheId);
-					if(file.exists())
-						return new FileInputStream(file);
-					else
-						throw new IOException();
-				} catch (IOException ioe) {
+					return new FileInputStream(file);
+				} catch (FileNotFoundException fnfe) {
 					try {
-						return new FileInputStream(filePath);
-					} catch (FileNotFoundException fnfe) {
-						throw new DataStoreException(fnfe);
+						FileInputStream stream = new FileInputStream(filePath);
+						LocalCache.put(cacheId, filePath);
+						return stream;
+					} catch (FileNotFoundException fnfe2) {
+						throw new DataStoreException(fnfe2);
 					}
 				}
 			else
@@ -417,10 +416,13 @@ final class LocalDataStore implements IDataStore
 			return cacheEnabled;
 		}
 		
-		public static File get(String cacheId)
+		public static File get(String cacheId) throws FileNotFoundException
 		{
+			File cached =  new File(cachePath, cacheId);
+			if(!cached.exists())
+				throw new FileNotFoundException();
 			Logger.logDebug(TAG + "fetching '" + cacheId + "' from local cache");
-			return new File(cachePath, cacheId);
+			return cached;
 		}
 		
 		public static void put(String cacheId, File file)

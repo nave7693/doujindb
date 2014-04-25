@@ -148,7 +148,8 @@ public final class ImageSearch extends Plugin
 			m_SliderThreshold.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent ce) {
-					m_LabelThreshold.setText("Threshold : " + m_SliderThreshold.getValue());
+					fThreshold = m_SliderThreshold.getValue();
+					m_LabelThreshold.setText("Threshold : " + fThreshold);
 				}				
 			});
 			bogus.add(m_SliderThreshold);
@@ -162,7 +163,8 @@ public final class ImageSearch extends Plugin
 			m_SliderMaxResults.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent ce) {
-					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
+					fMaxResults = m_SliderMaxResults.getValue();
+					m_LabelMaxResults.setText("Max Results : " + fMaxResults);
 				}				
 			});
 			bogus.add(m_SliderMaxResults);
@@ -176,7 +178,8 @@ public final class ImageSearch extends Plugin
 			m_SliderScaling.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent ce) {
-					m_LabelScaling.setText("Scaling : " + m_SliderScaling.getValue());
+					fImageScaling = m_SliderScaling.getValue();
+					m_LabelScaling.setText("Scaling : " + fImageScaling);
 				}				
 			});
 			bogus.add(m_SliderScaling);

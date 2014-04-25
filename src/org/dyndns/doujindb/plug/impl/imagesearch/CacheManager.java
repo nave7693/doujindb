@@ -139,7 +139,7 @@ final class CacheManager
 	private static final class ImageSignature implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
-		private int fDensity = 16;
+		private final int fDensity = ImageSearch.fImageScaling;
 		private int[][] fData;
 		
 		private ImageSignature(BufferedImage bi) {

@@ -106,7 +106,8 @@ public final class PluginManager
 			}
 		}
 		for(String pluginName : new String[]{
-				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner"
+				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
+				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
 			})
 			try {
 				Logger.logInfo(TAG + "found '" + pluginName + "'.");

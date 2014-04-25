@@ -77,22 +77,7 @@ final class CacheManager
 	}
 	
 	public static String search(BufferedImage bi) {
-		String result = null;
-		double diffMin = 0;
-		
-		ImageSignature ims = new ImageSignature(
-			ImageTool.getScaledInstance(bi, 256, 256, true));
-		
-		for(String key : keys()) {
-			ImageSignature value = get(key);
-			double diff = ims.diff(value);
-			if(diff >= ImageSearch.fThreshold)
-				if(diff > diffMin) {
-					diffMin = diff;
-					result = key;
-				}
-		}
-		return result;
+		return search(bi, 1).firstEntry().getValue();
 	}
 	
 	public static TreeMap<Double, String> search(BufferedImage bi, int count) {

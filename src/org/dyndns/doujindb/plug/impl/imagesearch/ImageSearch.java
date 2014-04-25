@@ -172,7 +172,7 @@ public final class ImageSearch extends Plugin
 			m_LabelScaling.setText("Scaling : " + fImageScaling);
 			m_LabelScaling.setFont(fFont);
 			bogus.add(m_LabelScaling);
-			m_SliderScaling = new JSlider(1, 25);
+			m_SliderScaling = new JSlider(5, 25);
 			m_SliderScaling.setValue(fImageScaling);
 			m_SliderScaling.setFont(fFont);
 			m_SliderScaling.addChangeListener(new ChangeListener() {

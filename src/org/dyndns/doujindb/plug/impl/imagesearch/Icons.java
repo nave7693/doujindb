@@ -15,6 +15,9 @@ public final class Icons
     public final ImageIcon search_preview = null;
     public final ImageIcon search_star = null;
     public final ImageIcon search_missing = null;
+    public final ImageIcon worker_start = null;
+    public final ImageIcon worker_pause = null;
+    public final ImageIcon worker_stop = null;
     
 	private static final String TAG = "Icons : ";
 	

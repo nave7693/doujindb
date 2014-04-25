@@ -180,6 +180,34 @@ public final class ImageSearch extends Plugin
 				}				
 			});
 			bogus.add(m_SliderScaling);
+			m_CheckboxCacheOverwrite = new JCheckBox();
+			m_CheckboxCacheOverwrite.setSelected(false);
+			m_CheckboxCacheOverwrite.setFocusable(false);
+			m_CheckboxCacheOverwrite.setText("Overwrite existing entries");
+			bogus.add(m_CheckboxCacheOverwrite);
+			m_ButtonCacheBuild = new JButton(fIcons.worker_start);
+			m_ButtonCacheBuild.addActionListener(this);
+			m_ButtonCacheBuild.setBorder(null);
+			m_ButtonCacheBuild.setFocusable(false);
+			bogus.add(m_ButtonCacheBuild);
+			m_ButtonCacheCancel = new JButton(fIcons.worker_stop);
+			m_ButtonCacheCancel.addActionListener(this);
+			m_ButtonCacheCancel.setBorder(null);
+			m_ButtonCacheCancel.setFocusable(false);
+			bogus.add(m_ButtonCacheCancel);
+			m_ProgressBarCache = new JProgressBar();
+			m_ProgressBarCache.setFont(fFont);
+			m_ProgressBarCache.setMaximum(100);
+			m_ProgressBarCache.setMinimum(1);
+			m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
+			m_ProgressBarCache.setStringPainted(true);
+			m_ProgressBarCache.setString("");
+			bogus.add(m_ProgressBarCache);
+			m_LabelCacheInfo = new JLabel("<html><body>cache-size : " + CacheManager.size() + "<br/>" +
+					"last-build : " + fSDF.format(CacheManager.timestamp()) + "</body></html>");
+			m_LabelCacheInfo.setFont(fFont);
+			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
+			bogus.add(m_LabelCacheInfo);
 			m_TabbedPane.addTab("Settings", fIcons.settings, m_TabSettings = bogus);
 
 			bogus = new JPanel();
@@ -259,6 +287,17 @@ public final class ImageSearch extends Plugin
 			m_SliderMaxResults.setBounds(5+(width-10)/2,25,(width-10)/2,20);
 			m_LabelScaling.setBounds(5,45,(width-10)/2,20);
 			m_SliderScaling.setBounds(5+(width-10)/2,45,(width-10)/2,20);
+			if(!m_BuilderRunning)
+			{
+				m_ButtonCacheBuild.setBounds(5,75,20,20);
+				m_ButtonCacheCancel.setBounds(0,0,0,0);
+			} else {
+				m_ButtonCacheBuild.setBounds(0,0,0,0);
+				m_ButtonCacheCancel.setBounds(5,75,20,20);
+			}
+			m_ProgressBarCache.setBounds(30,75,width-40,20);
+			m_CheckboxCacheOverwrite.setBounds(5,95,width-10,20);
+			m_LabelCacheInfo.setBounds(5,115,width,50);
 			m_ButtonScanPreview.setBounds(5,5,180,256);
 			m_TabbedPaneScanResult.setBounds(190,5,width-190,height-10);
 		}
@@ -280,7 +319,21 @@ public final class ImageSearch extends Plugin
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent ae) { }
+		public void actionPerformed(ActionEvent ae) {
+			if(ae.getSource() == m_ButtonCacheBuild)
+			{
+				if(m_BuilderRunning)
+					return;
+				m_WorkerBuilder = new TaskBuilder();
+				m_WorkerBuilder.execute();
+				return;
+			}
+			if(ae.getSource() == m_ButtonCacheCancel)
+			{
+				m_WorkerBuilder.cancel(true);
+				return;
+			}
+		}
 		
 		private final class TaskBuilder extends SwingWorker<Void, Integer> {
 			@Override

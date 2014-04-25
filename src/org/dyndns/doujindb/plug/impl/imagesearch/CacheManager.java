@@ -10,20 +10,20 @@ import org.dyndns.doujindb.util.ImageTool;
 @SuppressWarnings("unchecked")
 final class CacheManager
 {
-	private static Map<String, ImageSignature> cacheData;
-	private static File cacheFile = ImageSearch.PLUGIN_IMAGEINDEX;
+	private static Map<String, ImageSignature> fCacheData;
+	private static File fCacheFile = ImageSearch.PLUGIN_IMAGEINDEX;
 	
-	static {
-		cacheData = new TreeMap<String, ImageSignature>();
+	static
+	{
+		fCacheData = new TreeMap<String, ImageSignature>();
 		read();
 	}
 	
 	public static void write() {
-		try
-		{
+		try {
 			ObjectOutputStream oos = new ObjectOutputStream(
-					new FileOutputStream(cacheFile));
-			oos.writeObject(cacheData);
+					new FileOutputStream(fCacheFile));
+			oos.writeObject(fCacheData);
 			oos.flush();
 			oos.close();
 		} catch (IOException ioe) {
@@ -31,96 +31,87 @@ final class CacheManager
 		}
 	}
 	
-	public static void read()
-	{
-		synchronized(cacheData)
-		{
+	public static void read() {
+		synchronized(fCacheData) {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(
-						new FileInputStream(cacheFile));
-				cacheData = (TreeMap<String, ImageSignature>) ois.readObject();
+						new FileInputStream(fCacheFile));
+				fCacheData = (TreeMap<String, ImageSignature>) ois.readObject();
 				ois.close();
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			} catch (ClassNotFoundException cnfe) {
 				cnfe.printStackTrace();
 			}
-			if(cacheData == null)
-				cacheData = new TreeMap<String, ImageSignature>();
+			if(fCacheData == null)
+				fCacheData = new TreeMap<String, ImageSignature>();
 		}
 	}
 	
 	public static long size() {
-		return cacheData.size();
+		return fCacheData.size();
 	}
 
 	public static Set<String> keys() {
-		return cacheData.keySet();
+		return fCacheData.keySet();
 	}
 
 	public static void put(String id, BufferedImage bi) {
-		synchronized(cacheData)
-		{
-			cacheData.put(id, new ImageSignature(bi));
+		synchronized(fCacheData) {
+			fCacheData.put(id, new ImageSignature(bi));
 		}
 	}
 	
 	public static void remove(String id) {
-		synchronized(cacheData)
-		{
-			cacheData.remove(id);
+		synchronized(fCacheData) {
+			fCacheData.remove(id);
 		}
 	}
 	
 	public static ImageSignature get(String id) {
-		return cacheData.get(id);
+		return fCacheData.get(id);
 	}
 
 	public static boolean contains(String id) {
-		return cacheData.containsKey(id);
+		return fCacheData.containsKey(id);
 	}
 	
-	public static String search(BufferedImage bi)
-	{
+	public static String search(BufferedImage bi) {
 		String result = null;
-		double diff_min = 0;
+		double diffMin = 0;
+		
 		ImageSignature ims = new ImageSignature(
 			ImageTool.getScaledInstance(bi, 256, 256, true));
 		
-		for(String key : keys())
-		{
+		for(String key : keys()) {
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
-			if(diff >= ImageSearch.THRESHOLD)
-				if(diff > diff_min)
-				{
-					diff_min = diff;
+			if(diff >= ImageSearch.fThreshold)
+				if(diff > diffMin) {
+					diffMin = diff;
 					result = key;
 				}
 		}
 		return result;
 	}
 	
-	public static TreeMap<Double, String> search(BufferedImage bi, int count)
-	{
-		TreeMap<Double, String> result = new TreeMap<Double, String>(new Comparator<Double>()
-		{
+	public static TreeMap<Double, String> search(BufferedImage bi, int count) {
+		int diffMin = 0;
+		TreeMap<Double, String> result = new TreeMap<Double, String>(new Comparator<Double>() {
 			@Override
 			public int compare(Double a, Double b)
 			{
 				return b.compareTo(a);
 			}
 		});
-		int diff_min = 0;
+
 		ImageSignature ims = new ImageSignature(
 			ImageTool.getScaledInstance(bi, 256, 256, true));
 		
-		for(String key : keys())
-		{
+		for(String key : keys()) {
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
-			if(diff > diff_min)
-			{
+			if(diff > diffMin) {
 				if(result.size() >= count)
 					result.remove(result.lastKey());
 				result.put(diff, key);
@@ -130,16 +121,14 @@ final class CacheManager
 	}
 	
 	public static long timestamp() {
-		return cacheFile.lastModified();
+		return fCacheFile.lastModified();
 	}
 	
-	public static void dump()
-	{
-		File folder = new File(ImageSearch.PLUGIN_HOME, "imagesignature");
+	public static void dump() {
+		File folder = new File(ImageSearch.PLUGIN_HOME, "imageindex");
 		folder.mkdirs();
-		for(String key : cacheData.keySet())
-		{
-			ImageSignature ims = cacheData.get(key);
+		for(String key : fCacheData.keySet()) {
+			ImageSignature ims = fCacheData.get(key);
 			File file = new File(folder, key + ".png");
 			try {
 				ImageTool.write(ims.toImage(), file);
@@ -147,67 +136,59 @@ final class CacheManager
 		}
 	}
 	
-	private static final class ImageSignature implements Serializable
-	{
+	private static final class ImageSignature implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
-		private int pixelDensity = 16;
-		private int[][] pixelData;
+		private int fDensity = 16;
+		private int[][] fData;
 		
-		private ImageSignature(BufferedImage bi)
-		{
-			pixelData = new int[bi.getWidth()/pixelDensity][bi.getHeight()/pixelDensity];
-			for (int x = 0; x < pixelData.length; x++)
-				for (int y = 0; y < pixelData[0].length; y++)
-					pixelData[x][y] = colorAt(bi, x * pixelDensity, y * pixelDensity, pixelDensity, pixelDensity);
+		private ImageSignature(BufferedImage bi) {
+			fData = new int[bi.getWidth()/fDensity][bi.getHeight()/fDensity];
+			for (int x = 0; x < fData.length; x++)
+				for (int y = 0; y < fData[0].length; y++)
+					fData[x][y] = colorAt(bi, x * fDensity, y * fDensity, fDensity, fDensity);
 		}
 		
-		public double diff(ImageSignature ims)
-		{
+		public double diff(ImageSignature ims) {
 			double diff = 0;
-			for (int x = 0; x < Math.min(pixelData.length, ims.pixelData.length); x++)
-				for (int y = 0; y < Math.min(pixelData[0].length, ims.pixelData[0].length); y++)
-				{
-					int r1 = (pixelData[x][y] & 0x00ff0000) >> 16;
-					int g1 = (pixelData[x][y] & 0x0000ff00) >> 8;
-					int b1 =  pixelData[x][y] & 0x000000ff;
-					int r2 = (ims.pixelData[x][y] & 0x00ff0000) >> 16;
-					int g2 = (ims.pixelData[x][y] & 0x0000ff00) >> 8;
-					int b2 =  ims.pixelData[x][y] & 0x000000ff;
+			for (int x = 0; x < Math.min(fData.length, ims.fData.length); x++)
+				for (int y = 0; y < Math.min(fData[0].length, ims.fData[0].length); y++) {
+					int r1 = (fData[x][y] & 0x00ff0000) >> 16;
+					int g1 = (fData[x][y] & 0x0000ff00) >> 8;
+					int b1 =  fData[x][y] & 0x000000ff;
+					int r2 = (ims.fData[x][y] & 0x00ff0000) >> 16;
+					int g2 = (ims.fData[x][y] & 0x0000ff00) >> 8;
+					int b2 =  ims.fData[x][y] & 0x000000ff;
 					double _diff = Math.sqrt(
 							Math.pow(r1 - r2, 2) +
 							Math.pow(g1 - g2, 2) +
 							Math.pow(b1 - b2, 2));
 					diff += _diff;
 				}
-			long width = Math.min(pixelData.length, ims.pixelData.length);
-			long height = Math.min(pixelData[0].length, ims.pixelData[0].length);
+			long width = Math.min(fData.length, ims.fData.length);
+			long height = Math.min(fData[0].length, ims.fData[0].length);
 			return (100 - (diff * 100 / ((double)width * height * 0xff)));
 		}
 		
-		public BufferedImage toImage()
-		{
-			BufferedImage bi = new BufferedImage(pixelData.length * pixelDensity, pixelData[0].length * pixelDensity, BufferedImage.TYPE_3BYTE_BGR);
+		public BufferedImage toImage() {
+			BufferedImage bi = new BufferedImage(fData.length * fDensity, fData[0].length * fDensity, BufferedImage.TYPE_3BYTE_BGR);
 			Graphics2D g2D = bi.createGraphics();
-			for(int x=0; x < pixelData.length; x++)
-				for(int y=0; y < pixelData[0].length; y++)
-				{
-					int r = (pixelData[x][y] & 0x00ff0000) >> 16;
-					int g = (pixelData[x][y] & 0x0000ff00) >> 8;
-					int b =  pixelData[x][y] & 0x000000ff;
+			for(int x=0; x < fData.length; x++)
+				for(int y=0; y < fData[0].length; y++) {
+					int r = (fData[x][y] & 0x00ff0000) >> 16;
+					int g = (fData[x][y] & 0x0000ff00) >> 8;
+					int b =  fData[x][y] & 0x000000ff;
 					g2D.setColor(new Color(r, g, b));
-					g2D.fillRect(x * pixelDensity, y * pixelDensity, pixelDensity, pixelDensity);
+					g2D.fillRect(x * fDensity, y * fDensity, fDensity, fDensity);
 				}
 			return bi;
 		}
 		
-		private static int colorAt(BufferedImage bi, int x, int y, int width, int height)
-		{
+		private static int colorAt(BufferedImage bi, int x, int y, int width, int height) {
 			long r=0, g=0, b=0;
 			long length = 0;
 			for(int k=0;k<width;k++)
-				for(int i=0;i<height;i++)
-				{
+				for(int i=0;i<height;i++) {
 					int color = bi.getRGB(x+i, y+k);
 					r += (color & 0x00ff0000) >> 16;
 					g += (color & 0x0000ff00) >> 8;

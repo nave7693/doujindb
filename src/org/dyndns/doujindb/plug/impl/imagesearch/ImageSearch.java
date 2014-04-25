@@ -31,79 +31,77 @@ import org.dyndns.doujindb.util.ImageTool;
 
 public final class ImageSearch extends Plugin
 {
-	private static final String UUID = "{b8dba99a-8320-4ea4-8891-7fd78555d4fe}";
-	private static final String Author = "loli10K";
-	private static final String Version = "1.0";
-	private static final String Weblink = "https://github.com/loli10K";
-	private static final String Name = "Image Search";
-	private static final String Description = "Search through then whole DataStore for matching cover images.";
+	private static final String fUUID = "{b8dba99a-8320-4ea4-8891-7fd78555d4fe}";
+	private static final String fAuthor = "loli10K";
+	private static final String fVersion = "1.0";
+	private static final String fWeblink = "https://github.com/loli10K";
+	private static final String fName = "Image Search";
+	private static final String fDescription = "Search through then whole DataStore for matching cover images.";
+	private static JComponent fUI;
 	
-	static int THRESHOLD = 75;
-	static int MAX_RESULT = 25;
-	static int IMAGE_SCALING = 16;
+	static int fThreshold = 75;
+	static int fMaxResults = 25;
+	static int fImageScaling = 16;
 	
-	static DataBaseContext Context;
+	static DataBaseContext fContext;
 	
-	private static JComponent m_UI;
-	
-	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + UUID);
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + fUUID);
 	static final File PLUGIN_IMAGEINDEX = new File(PLUGIN_HOME, "imageindex.ser");
 	
-	private static SimpleDateFormat sdf;
-	private static String configBase = "org.dyndns.doujindb.plugin.imagesearch.";
-	private static Font font;
-	private static Icons Icon = new Icons();
+	private static SimpleDateFormat fSDF;
+	private static String fConfigBase = "org.dyndns.doujindb.plugin.imagesearch.";
+	private static Font fFont;
+	private static Icons fIcons = new Icons();
 	
 	static
 	{
-		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
-		Configuration.configAdd(configBase + "max_result", "<html><body>Max results returned by a single image search.</body></html>", 25);
-		Configuration.configAdd(configBase + "image_scaling", "<html><body>Scaling factor of cover image in index file.</body></html>", 16);
+		Configuration.configAdd(fConfigBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
+		Configuration.configAdd(fConfigBase + "max_result", "<html><body>Max results returned by a single image search.</body></html>", 25);
+		Configuration.configAdd(fConfigBase + "image_scaling", "<html><body>Scaling factor of cover image in index file.</body></html>", 16);
 	}
 	
 	@Override
 	public String getUUID() {
-		return UUID;
+		return fUUID;
 	}
 	
 	@Override
 	public Icon getIcon() {
-		return Icon.icon;
+		return fIcons.icon;
 	}
 	
 	@Override
 	public String getName() {
-		return Name;
+		return fName;
 	}
 	
 	@Override
 	public String getDescription() {
-		return Description;
+		return fDescription;
 	}
 	
 	@Override
 	public String getVersion() {
-		return Version;
+		return fVersion;
 	}
 	
 	@Override
 	public String getAuthor() {
-		return Author;
+		return fAuthor;
 	}
 	
 	@Override
 	public String getWeblink() {
-		return Weblink;
+		return fWeblink;
 	}
 	
 	@Override
 	public JComponent getUI() {
-		return m_UI;
+		return fUI;
 	}
 	
 	@SuppressWarnings("serial")
-	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, ConfigurationListener
-	{
+	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, ConfigurationListener {
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
 		private JPanel m_TabSettings;
@@ -129,12 +127,11 @@ public final class ImageSearch extends Plugin
 		private SwingWorker<Void, Integer> m_WorkerBuilder = new TaskBuilder();
 		private boolean m_BuilderRunning = false;
 		
-		public PluginUI()
-		{
+		public PluginUI() {
 			super();
 			setLayout(this);
 			m_TabbedPane = new JTabbedPane();
-			m_TabbedPane.setFont(font = UI.Font);
+			m_TabbedPane.setFont(fFont = UI.Font);
 			m_TabbedPane.setFocusable(false);
 			
 			JPanel bogus;
@@ -142,70 +139,61 @@ public final class ImageSearch extends Plugin
 			bogus = new JPanel();
 			bogus.setLayout(null);
 			m_LabelThreshold = new JLabel();
-			m_LabelThreshold.setText("Threshold : " + THRESHOLD);
-			m_LabelThreshold.setFont(font);
+			m_LabelThreshold.setText("Threshold : " + fThreshold);
+			m_LabelThreshold.setFont(fFont);
 			bogus.add(m_LabelThreshold);
 			m_SliderThreshold = new JSlider(1, 100);
-			m_SliderThreshold.setValue(THRESHOLD);
-			m_SliderThreshold.setFont(font);
-			m_SliderThreshold.addChangeListener(new ChangeListener()
-			{
+			m_SliderThreshold.setValue(fThreshold);
+			m_SliderThreshold.setFont(fFont);
+			m_SliderThreshold.addChangeListener(new ChangeListener() {
 				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
+				public void stateChanged(ChangeEvent ce) {
 					m_LabelThreshold.setText("Threshold : " + m_SliderThreshold.getValue());
 				}				
 			});
 			bogus.add(m_SliderThreshold);
 			m_LabelMaxResults = new JLabel();
-			m_LabelMaxResults.setText("Max Results : " + MAX_RESULT);
-			m_LabelMaxResults.setFont(font);
+			m_LabelMaxResults.setText("Max Results : " + fMaxResults);
+			m_LabelMaxResults.setFont(fFont);
 			bogus.add(m_LabelMaxResults);
 			m_SliderMaxResults = new JSlider(1, 25);
-			m_SliderMaxResults.setValue(MAX_RESULT);
-			m_SliderMaxResults.setFont(font);
-			m_SliderMaxResults.addChangeListener(new ChangeListener()
-			{
+			m_SliderMaxResults.setValue(fMaxResults);
+			m_SliderMaxResults.setFont(fFont);
+			m_SliderMaxResults.addChangeListener(new ChangeListener() {
 				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
+				public void stateChanged(ChangeEvent ce) {
 					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
 				}				
 			});
 			bogus.add(m_SliderMaxResults);
 			m_LabelScaling = new JLabel();
-			m_LabelScaling.setText("Scaling : " + IMAGE_SCALING);
-			m_LabelScaling.setFont(font);
+			m_LabelScaling.setText("Scaling : " + fImageScaling);
+			m_LabelScaling.setFont(fFont);
 			bogus.add(m_LabelScaling);
 			m_SliderScaling = new JSlider(1, 25);
-			m_SliderScaling.setValue(IMAGE_SCALING);
-			m_SliderScaling.setFont(font);
-			m_SliderScaling.addChangeListener(new ChangeListener()
-			{
+			m_SliderScaling.setValue(fImageScaling);
+			m_SliderScaling.setFont(fFont);
+			m_SliderScaling.addChangeListener(new ChangeListener() {
 				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
+				public void stateChanged(ChangeEvent ce) {
 					m_LabelScaling.setText("Scaling : " + m_SliderScaling.getValue());
 				}				
 			});
 			bogus.add(m_SliderScaling);
-			m_TabbedPane.addTab("Settings", Icon.settings, m_TabSettings = bogus);
+			m_TabbedPane.addTab("Settings", fIcons.settings, m_TabSettings = bogus);
 
 			bogus = new JPanel();
 			bogus.setLayout(null);
 			m_ButtonScanPreview = new JButton();
-			m_ButtonScanPreview.setIcon(Icon.search_preview);
+			m_ButtonScanPreview.setIcon(fIcons.search_preview);
 			m_ButtonScanPreview.addActionListener(this);
 			m_ButtonScanPreview.setBorder(null);
 			m_ButtonScanPreview.setOpaque(false);
-			m_ButtonScanPreview.setDropTarget(new DropTarget()
-			{
+			m_ButtonScanPreview.setDropTarget(new DropTarget() {
 				@Override
-				public synchronized void dragOver(DropTargetDragEvent dtde)
-				{
+				public synchronized void dragOver(DropTargetDragEvent dtde) {
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						if(m_ScannerRunning)
-						{
+						if(m_ScannerRunning) {
 							dtde.rejectDrag();
 							return;
 						}
@@ -217,14 +205,11 @@ public final class ImageSearch extends Plugin
 				
 				@SuppressWarnings("unchecked")
 				@Override
-				public synchronized void drop(DropTargetDropEvent dtde)
-				{
+				public synchronized void drop(DropTargetDropEvent dtde) {
 					Transferable transferable = dtde.getTransferable();
-	                if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
-	                {
+	                if(dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 	                    dtde.acceptDrop(dtde.getDropAction());
-	                    try
-	                    {
+	                    try {
 	                    	final List<File> transferData = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
 	                        if (transferData != null && transferData.size() == 1)
 	                        {
@@ -252,11 +237,11 @@ public final class ImageSearch extends Plugin
 			});
 			bogus.add(m_ButtonScanPreview);
 			m_TabbedPaneScanResult = new JTabbedPane();
-			m_TabbedPaneScanResult.setFont(font);
+			m_TabbedPaneScanResult.setFont(fFont);
 			m_TabbedPaneScanResult.setFocusable(false);
 			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
 			bogus.add(m_TabbedPaneScanResult);
-			m_TabbedPane.addTab("Search", Icon.search, m_TabSearch = bogus);
+			m_TabbedPane.addTab("Search", fIcons.search, m_TabSearch = bogus);
 			
 			super.add(m_TabbedPane);
 			
@@ -264,8 +249,7 @@ public final class ImageSearch extends Plugin
 		}
 		
 		@Override
-		public void layoutContainer(Container parent)
-		{
+		public void layoutContainer(Container parent) {
 			int width = parent.getWidth(),
 				height = parent.getHeight();
 			m_TabbedPane.setBounds(0,0,width,height);
@@ -278,29 +262,27 @@ public final class ImageSearch extends Plugin
 			m_ButtonScanPreview.setBounds(5,5,180,256);
 			m_TabbedPaneScanResult.setBounds(190,5,width-190,height-10);
 		}
+		
 		@Override
-		public void addLayoutComponent(String key,Component c){}
+		public void addLayoutComponent(String key,Component c) { }
+		
 		@Override
-		public void removeLayoutComponent(Component c){}
+		public void removeLayoutComponent(Component c) { }
+		
 		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
+		public Dimension minimumLayoutSize(Container parent) {
 			return new Dimension(350,350);
-		}
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(350,350);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent ae)
-		{
-
 		}
 		
-		private final class TaskBuilder extends SwingWorker<Void, Integer>
-		{
+		@Override
+		public Dimension preferredLayoutSize(Container parent) {
+			return new Dimension(350,350);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent ae) { }
+		
+		private final class TaskBuilder extends SwingWorker<Void, Integer> {
 			@Override
 			protected Void doInBackground() throws Exception {
 				m_BuilderRunning = true;
@@ -312,7 +294,7 @@ public final class ImageSearch extends Plugin
 				
 				// Init data
 				boolean cache_overwrite = m_CheckboxCacheOverwrite.isSelected();
-				RecordSet<Book> books = Context.getBooks(null);
+				RecordSet<Book> books = fContext.getBooks(null);
 				
 				m_ProgressBarCache.setMaximum(books.size());
 				if(cache_overwrite)
@@ -346,7 +328,7 @@ public final class ImageSearch extends Plugin
 				
 				// Cache build completed
 				m_LabelCacheInfo.setText("<html><body>cache-size : " + CacheManager.size() + "<br/>" +
-						"last-build : " + sdf.format(CacheManager.timestamp()) + "</body></html>");
+						"last-build : " + fSDF.format(CacheManager.timestamp()) + "</body></html>");
 				
 				return null;
 			}
@@ -371,25 +353,22 @@ public final class ImageSearch extends Plugin
 			}
 		}
 
-		private final class TaskScanner extends SwingWorker<Void, Integer>
-		{
+		private final class TaskScanner extends SwingWorker<Void, Integer> {
 			final private File file;
 			
-			private TaskScanner(final File file)
-			{
+			private TaskScanner(final File file) {
 				this.file = file;
 			}
 			
 			@Override
-			protected Void doInBackground() throws Exception
-			{
+			protected Void doInBackground() throws Exception {
 				m_ScannerRunning = true;
 				PluginUI.this.doLayout();
 				
 				// Reset UI
 				while (m_TabbedPaneScanResult.getTabCount() > 0)
 					m_TabbedPaneScanResult.remove(0);
-				m_ButtonScanPreview.setIcon(Icon.search_missing);
+				m_ButtonScanPreview.setIcon(fIcons.search_missing);
 				
 				// Init data
 				int max_results = m_SliderMaxResults.getValue();
@@ -423,7 +402,7 @@ public final class ImageSearch extends Plugin
 							try {
 								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).getInputStream())));
 							} catch (DataStoreException dse) {
-								button = new JButton(Icon.search_missing);
+								button = new JButton(fIcons.search_missing);
 							}
 							button.addActionListener(new ActionListener()
 							{
@@ -445,14 +424,14 @@ public final class ImageSearch extends Plugin
 								}
 							});
 							first_result = true;
-							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", Icon.search_star, button);
+							m_TabbedPaneScanResult.addTab(String.format("%3.2f", index) + "%", fIcons.search_star, button);
 						} else
 						{
 							JButton button;
 							try {
 								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).getInputStream())));
 							} catch (DataStoreException dse) {
-								button = new JButton(Icon.search_missing);
+								button = new JButton(fIcons.search_missing);
 							}
 							button.addActionListener(new ActionListener()
 							{
@@ -503,26 +482,24 @@ public final class ImageSearch extends Plugin
 		public void configDeleted(String key) { }
 
 		@Override
-		public void configUpdated(final String key)
-		{
-			SwingUtilities.invokeLater(new Runnable()
-			{
+		public void configUpdated(final String key) {
+			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run()
 				{
-					if(key.equals(configBase + "threshold"))
+					if(key.equals(fConfigBase + "threshold"))
 					{
 						if(m_SliderThreshold.getValue() != (Integer) Configuration.configRead(key))
 							m_SliderThreshold.setValue((Integer) Configuration.configRead(key));
 						return;
 					}
-					if(key.equals(configBase + "max_result"))
+					if(key.equals(fConfigBase + "max_result"))
 					{
 						if(m_SliderMaxResults.getValue() != (Integer) Configuration.configRead(key))
 							m_SliderMaxResults.setValue((Integer) Configuration.configRead(key));
 						return;
 					}
-					if(key.equals(configBase + "image_scaling"))
+					if(key.equals(fConfigBase + "image_scaling"))
 					{
 						if(m_SliderScaling.getValue() != (Integer) Configuration.configRead(key))
 							m_SliderScaling.setValue((Integer) Configuration.configRead(key));
@@ -543,27 +520,25 @@ public final class ImageSearch extends Plugin
 	protected void uninstall() { }
 	
 	@Override
-	protected void startup()
-	{
-		Context = DataBase.getContext(UUID);
+	protected void startup() {
+		fContext = DataBase.getContext(fUUID);
 		
-		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
-		MAX_RESULT = (Integer) Configuration.configRead(configBase + "max_result");
-		IMAGE_SCALING = (Integer) Configuration.configRead(configBase + "image_scaling");
+		fThreshold = (Integer) Configuration.configRead(fConfigBase + "threshold");
+		fMaxResults = (Integer) Configuration.configRead(fConfigBase + "max_result");
+		fImageScaling = (Integer) Configuration.configRead(fConfigBase + "image_scaling");
 		
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		fSDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		fSDF.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
 		PLUGIN_HOME.mkdirs();
 
 		CacheManager.read();
 
-		m_UI = new PluginUI();
+		fUI = new PluginUI();
 	}
 	
 	@Override
-	protected void shutdown()
-	{
+	protected void shutdown() {
 		CacheManager.write();
 	}
 }

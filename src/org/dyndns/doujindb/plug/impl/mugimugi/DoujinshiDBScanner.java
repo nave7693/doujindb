@@ -177,7 +177,6 @@ public final class DoujinshiDBScanner extends Plugin
 		private JSlider m_SliderMaxResults;
 		private JButton m_ButtonScanPreview;
 		private JTabbedPane m_TabbedPaneScanResult;
-		private JProgressBar m_ProgressBarScan;
 		private JButton m_ButtonScanCancel;
 		
 		private SwingWorker<Void, Integer> m_WorkerScanner = new TaskScanner(null);
@@ -316,21 +315,6 @@ public final class DoujinshiDBScanner extends Plugin
 			m_LabelCacheInfo.setFont(font);
 			m_LabelCacheInfo.setVerticalAlignment(JLabel.TOP);
 			bogus.add(m_LabelCacheInfo);
-			m_LabelMaxResults = new JLabel("Max Results : " + 10);
-			m_LabelMaxResults.setFont(font);
-			bogus.add(m_LabelMaxResults);
-			m_SliderMaxResults = new JSlider(1, 25);
-			m_SliderMaxResults.setValue(10);
-			m_SliderMaxResults.setFont(font);
-			m_SliderMaxResults.addChangeListener(new ChangeListener()
-			{
-				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
-					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
-				}				
-			});
-			bogus.add(m_SliderMaxResults);
 			m_TabbedPane.addTab("Settings", Icon.settings, m_TabSettings = bogus);
 			
 			bogus = new JPanel();
@@ -438,57 +422,26 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 			});
 			bogus.add(m_ButtonScanPreview);
+			m_LabelMaxResults = new JLabel("Max Results : " + 10);
+			m_LabelMaxResults.setFont(font);
+			bogus.add(m_LabelMaxResults);
+			m_SliderMaxResults = new JSlider(1, 25);
+			m_SliderMaxResults.setValue(10);
+			m_SliderMaxResults.setFont(font);
+			m_SliderMaxResults.addChangeListener(new ChangeListener()
+			{
+				@Override
+				public void stateChanged(ChangeEvent ce)
+				{
+					m_LabelMaxResults.setText("Max Results : " + m_SliderMaxResults.getValue());
+				}				
+			});
+			bogus.add(m_SliderMaxResults);
 			m_TabbedPaneScanResult = new JTabbedPane();
 			m_TabbedPaneScanResult.setFont(font);
 			m_TabbedPaneScanResult.setFocusable(false);
 			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
 			bogus.add(m_TabbedPaneScanResult);
-			//FIXME DiujinshiDB Plugin image scanner task should be cancellable
-//			m_ProgressBarScan = new JProgressBar();
-			m_ProgressBarScan = new JProgressBar()
-			{
-				private int size = 30;
-				private int direction = 1;
-				{
-					new SwingWorker<Void,Void>()
-					{
-						@Override
-						public Void doInBackground()
-						{
-							while(true)
-							{
-								try
-								{
-									Thread.sleep(100);
-									publish();
-								} catch (InterruptedException ie) { ; }
-								
-							}
-						}
-						@Override
-						public void process(java.util.List<Void> chunks)
-						{
-							setValue(getValue()+direction*5);
-							if(getValue() == getMaximum() || getValue() == getMinimum())
-								direction *= -1;
-						}
-					}.execute();
-				}
-				public void paint(Graphics g)
-				{
-					g.setColor(getBackground());
-					g.fillRect(0,0,getWidth(),getHeight());
-					g.setColor(getForeground());
-					g.fillRect(getValue(),2,size,getHeight()-3);
-				}
-			};
-			m_ProgressBarScan.setFont(font);
-			m_ProgressBarScan.setMaximum(100);
-			m_ProgressBarScan.setMinimum(1);
-			m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
-			m_ProgressBarScan.setStringPainted(true);
-			m_ProgressBarScan.setString("");
-			bogus.add(m_ProgressBarScan);
 			m_ButtonScanCancel = new JButton();
 			m_ButtonScanCancel.setText("Cancel");
 			m_ButtonScanCancel.setIcon(Icon.cancel);
@@ -541,8 +494,6 @@ public final class DoujinshiDBScanner extends Plugin
 			m_ProgressBarCache.setBounds(5,25+220,width-15,20);
 			m_CheckboxCacheOverwrite.setBounds(5,25+240,width-15,20);
 			m_LabelCacheInfo.setBounds(5,25+270,width,50);
-			m_LabelMaxResults.setBounds(5,25+320,100,25);
-			m_SliderMaxResults.setBounds(105,25+320,100,25);
 			m_ButtonTaskDelete.setBounds(width-65,1,20,20);
 			m_ButtonTaskReset.setBounds(width-45,1,20,20);
 			m_CheckboxSelection.setBounds(width-25,1,20,20);
@@ -561,6 +512,8 @@ public final class DoujinshiDBScanner extends Plugin
 				m_TextApiImageQueryCount.setText("");
 			}
 			m_ButtonScanPreview.setBounds(5,5,180,256);
+			m_LabelMaxResults.setBounds(5,5+256,180,25);
+			m_SliderMaxResults.setBounds(5,25+256,180,25);
 			//FIXME DiujinshiDB Plugin image scanner task should be cancellable
 //			if(m_ScannerRunning)
 //			{
@@ -572,10 +525,6 @@ public final class DoujinshiDBScanner extends Plugin
 //				m_ProgressBarScan.setBounds(0,0,0,0);
 //				m_ButtonScanCancel.setBounds(0,0,0,0);
 //			}
-			if(m_ScannerRunning)
-				m_ProgressBarScan.setBounds(5,265,180,20);
-			else
-				m_ProgressBarScan.setBounds(0,0,0,0);
 			m_ButtonScanCancel.setBounds(0,0,0,0);
 			m_TabbedPaneScanResult.setBounds(190,5,width-190,height-10);
 		}
@@ -1730,8 +1679,6 @@ public final class DoujinshiDBScanner extends Plugin
 				while (m_TabbedPaneScanResult.getTabCount() > 0)
 					m_TabbedPaneScanResult.remove(0);
 				m_ButtonScanPreview.setIcon(Icon.task_preview_missing);
-				m_ProgressBarScan.setValue(m_ProgressBarScan.getMinimum());
-				m_ProgressBarScan.setString("Loading ...");
 				
 				// Init data
 				int max_results = m_SliderMaxResults.getValue();
@@ -1818,8 +1765,6 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 					}
 					
-					m_ProgressBarScan.setValue(m_ProgressBarScan.getMaximum());
-					m_ProgressBarScan.setString("Completed");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

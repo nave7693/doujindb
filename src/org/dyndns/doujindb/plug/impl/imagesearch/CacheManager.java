@@ -8,7 +8,7 @@ import java.awt.image.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 @SuppressWarnings("unchecked")
-final class CacheManager
+public final class CacheManager
 {
 	private static Map<String, ImageSignature> fCacheData;
 	private static File fCacheFile = ImageSearch.PLUGIN_IMAGEINDEX;

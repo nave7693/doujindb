@@ -24,6 +24,7 @@ import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
+import org.dyndns.doujindb.plug.impl.imagesearch.CacheManager;
 import org.dyndns.doujindb.util.*;
 
 final class TaskManager

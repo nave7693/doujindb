@@ -81,7 +81,6 @@ final class CacheManager
 	}
 	
 	public static TreeMap<Double, String> search(BufferedImage bi, int count) {
-		double diffMin = 0;
 		TreeMap<Double, String> result = new TreeMap<Double, String>(new Comparator<Double>() {
 			@Override
 			public int compare(Double a, Double b)
@@ -96,8 +95,8 @@ final class CacheManager
 		for(String key : keys()) {
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
-			if(diff > diffMin) {
-				if(result.size() > count)
+			if(diff > ImageSearch.fThreshold) {
+				if(result.size() >= count)
 				{
 					result.put(diff, key);
 					result.remove(result.lastKey());

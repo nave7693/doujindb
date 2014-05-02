@@ -77,7 +77,11 @@ public final class CacheManager
 	}
 	
 	public static String search(BufferedImage bi) {
-		return search(bi, 1).firstEntry().getValue();
+		TreeMap<Double, String> result = search(bi, 1);
+		if(result.isEmpty())
+			return null;
+		else
+			return result.firstEntry().getValue();
 	}
 	
 	public static TreeMap<Double, String> search(BufferedImage bi, int count) {

@@ -164,7 +164,7 @@ final class DataBaseImpl extends IDataBase
 	{
 		final DataSource _ds = ds;
 		final int _timeout = timeout;
-		ExecutorService executor = Executors.newCachedThreadPool();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Callable<Connection> task = new Callable<Connection>()
 		{
 			public Connection call()

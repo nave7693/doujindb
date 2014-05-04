@@ -1083,12 +1083,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private class Editor extends JPanel implements LayoutManager
 	{
-		private JButton close;
-		private JLabel title;
-		private JLabel description;
+		private JButton fButtonClose;
+		private JLabel fLabelTitle;
+		private JLabel fLabelDescription;
 		private JComponent panel;
-		private JButton editApply;
-		private JButton editDiscard;
+		private JButton fButtonApply;
+		private JButton fButtonDiscard;
 		
 		private String key;
 		private Object value;
@@ -1097,18 +1097,23 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		public Editor(final String key)
 		{
 			super();
-			setLayout(this);
 			this.key = key;
 			this.value = Configuration.configRead(this.key);
-			title = new JLabel(this.key.substring(this.key.lastIndexOf('.')+1), Icon.window_tab_settings_tree_value, JLabel.LEFT);
-			title.setFont(Font);
-			add(title);
-			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Configuration.configInfo(this.key) + "</body></html>");
-			description.setVerticalAlignment(JLabel.TOP);
-			description.setFont(Font);
-			add(description);
-			close = new JButton(Icon.window_tab_settings_editor_close);
-			close.addActionListener(new ActionListener()
+			setLayout(this);
+			fLabelTitle = new JLabel(this.key.substring(this.key.lastIndexOf('.') + 1), Icon.window_tab_settings_tree_value, JLabel.LEFT);
+			fLabelTitle.setFont(Font);
+			add(fLabelTitle);
+			fLabelDescription = new JLabel("<html>" + 
+				"<body>" + 
+				"<b>Type</b> : " + value.getClass().getCanonicalName() + "<br/>" + 
+				"<b>Description</b> : " + Configuration.configInfo(this.key) + 
+				"</body>" + 
+				"</html>");
+			fLabelDescription.setVerticalAlignment(JLabel.TOP);
+			fLabelDescription.setFont(Font);
+			add(fLabelDescription);
+			fButtonClose = new JButton(Icon.window_tab_settings_editor_close);
+			fButtonClose.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
@@ -1117,11 +1122,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					tree.setSelectionRow(0);
 				}
 			});
-			close.setBorder(null);
-			close.setFocusable(false);
-			add(close);
-			editApply = new JButton("Apply", Icon.window_tab_settings_editor_apply);
-			editApply.addActionListener(new ActionListener()
+			fButtonClose.setBorder(null);
+			fButtonClose.setFocusable(false);
+			add(fButtonClose);
+			fButtonApply = new JButton("Apply", Icon.window_tab_settings_editor_apply);
+			fButtonApply.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
@@ -1129,11 +1134,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					Configuration.configWrite(key, valueNew);
 				}
 			});
-			editApply.setFont(Font);
-			editApply.setFocusable(false);
-			add(editApply);
-			editDiscard = new JButton("Discard", Icon.window_tab_settings_editor_discard);
-			editDiscard.addActionListener(new ActionListener()
+			fButtonApply.setFont(Font);
+			fButtonApply.setFocusable(false);
+			add(fButtonApply);
+			fButtonDiscard = new JButton("Discard", Icon.window_tab_settings_editor_discard);
+			fButtonDiscard.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
@@ -1142,9 +1147,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					tree.setSelectionRow(0);
 				}
 			});
-			editDiscard.setFont(Font);
-			editDiscard.setFocusable(false);
-			add(editDiscard);
+			fButtonDiscard.setFont(Font);
+			fButtonDiscard.setFocusable(false);
+			add(fButtonDiscard);
 			panel = new JPanel();
 			{
 				valueNew = null;
@@ -1615,12 +1620,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		{
 			int width = comp.getWidth(),
 				height = comp.getHeight();
-			title.setBounds(1, 1, width - 21, 20);
-			close.setBounds(width - 21, 1, 20, 20);
-			description.setBounds(1, 21, width - 2, 75);
+			fLabelTitle.setBounds(1, 1, width - 21, 20);
+			fButtonClose.setBounds(width - 21, 1, 20, 20);
+			fLabelDescription.setBounds(1, 21, width - 2, 75);
 			panel.setBounds(1, 100, width - 2, height - 100 - 65);
-			editApply.setBounds((width - 125) / 2, height - 60, 125, 20);
-			editDiscard.setBounds((width - 125) / 2, height - 40, 125, 20);
+			fButtonApply.setBounds((width - 125) / 2, height - 60, 125, 20);
+			fButtonDiscard.setBounds((width - 125) / 2, height - 40, 125, 20);
 		}
 		@Override
 		public Dimension minimumLayoutSize(Container comp) {

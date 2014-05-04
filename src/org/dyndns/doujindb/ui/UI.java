@@ -765,8 +765,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
     @SuppressWarnings("serial")
 	private final class PanelPlugins extends JTable
 	{
-		private Renderer TableRender;
-		private Editor TableEditor;
+		private TableCellRenderer TableRender;
+		private TableCellEditor TableEditor;
 		private DefaultTableModel TableModel;
 		private TableRowSorter<DefaultTableModel> TableSorter;
 
@@ -822,9 +822,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		private final class Renderer extends DefaultTableCellRenderer
 		{
-		    private Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
-			private Color foregroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-		
 			public Renderer()
 			{
 			    super();
@@ -853,7 +850,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				    }
 				    super.setText(value.toString());
 			        super.setIcon(null);
-			        super.setForeground(foregroundColor);
+			        super.setForeground(foreground);
 			        
 			        return this;
 				} catch (ArrayIndexOutOfBoundsException aioobe) {
@@ -890,16 +887,18 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private static final class PanelSettings extends JSplitPane
 	{
 		private JTree tree;
-		private TreeRenderer render;
+		private TreeCellRenderer render;
 		private DefaultTreeModel model = new DefaultTreeModel(null);
 		
-		public static final int TYPE_BOOLEAN = 0x0000;
-		public static final int TYPE_INTEGER = 0x0001;
-		public static final int TYPE_STRING = 0x0002;
-		public static final int TYPE_COLOR = 0x0003;
-		public static final int TYPE_FONT = 0x0004;
-		public static final int TYPE_FILE = 0x0005;
-		public static final int TYPE_UNKNOWN = 0xffff;
+		private static enum Type {
+			BOOLEAN,
+			NUMBER,
+			STRING,
+			COLOR,
+			FONT,
+			FILE,
+			UNKNOWN
+		}
 
 	public PanelSettings()
 	{
@@ -926,11 +925,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	            for(Object o : path_objects)
 	            	key += o + ".";
 	            key = "org.dyndns.doujindb." + key.substring(0, key.length() - 1).substring("org.dyndns.doujindb.".length());
-	            ValueEditor editor = new ValueEditor(key);
+	            Editor editor = new Editor(key);
 	            setRightComponent(editor);
 	    	}
 	    });
-		render = new TreeRenderer();
+		render = new Renderer();
 		tree.setCellRenderer(render);
 		super.setResizeWeight(1);
 		super.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -1003,7 +1002,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		private Object value;
 		private String name;
-		private int type;
+		private Type type;
 		
 		public NodeValue(Object value)
 		{
@@ -1013,21 +1012,21 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		{
 			this.value = value;
 			this.name = name;
-			this.type = TYPE_UNKNOWN;
+			this.type = Type.UNKNOWN;
 			if(value instanceof Boolean)
-				type = TYPE_BOOLEAN;
+				type = Type.BOOLEAN;
 			if(value instanceof Integer)
-				type = TYPE_INTEGER;
+				type = Type.NUMBER;
 			if(value instanceof String)
-				type = TYPE_STRING;
+				type = Type.STRING;
 			if(value instanceof Color)
-				type = TYPE_COLOR;
+				type = Type.COLOR;
 			if(value instanceof Font)
-				type = TYPE_FONT;
+				type = Type.FONT;
 			if(value instanceof File)
-				type = TYPE_FILE;
+				type = Type.FILE;
 		}
-		public int getType() {
+		public Type getType() {
 			return type;
 		}
 		public Object getValue() {
@@ -1048,46 +1047,41 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		}
 	}
 
-	private final class TreeRenderer extends DefaultTreeCellRenderer
+	private final class Renderer extends DefaultTreeCellRenderer
 	{
-		private Hashtable<String,Icon> renderIcon;
-
-	public TreeRenderer()
-	{
-		renderIcon=new Hashtable<String,Icon>();
-	    setBackgroundSelectionColor(MetalLookAndFeel.getWindowBackground());
-	    renderIcon.put("Directory",Icon.window_tab_settings_tree_directory);
-	    renderIcon.put("Value",Icon.window_tab_settings_tree_value);
-	}
-
-	public Component getTreeCellRendererComponent(
-		JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus)
-	{
-		super.getTreeCellRendererComponent(
-	    	tree,
-	        value,
-	        sel,
-	        expanded,
-	        leaf,
-	        row,
-	        hasFocus);
-		NodeValue node = (NodeValue) ((DefaultMutableTreeNode)value).getUserObject();
-		if(node.getValue() == null)
-			setIcon((ImageIcon)renderIcon.get("Directory"));
-		else
-			setIcon((ImageIcon)renderIcon.get("Value"));
-		setText(node.getName());
-	    return this;
-	}
+		public Renderer()
+		{
+		    setBackgroundSelectionColor(background);
+		}
+	
+		public Component getTreeCellRendererComponent(
+			JTree tree,
+		    Object value,
+		    boolean sel,
+		    boolean expanded,
+		    boolean leaf,
+		    int row,
+		    boolean hasFocus)
+		{
+			super.getTreeCellRendererComponent(
+                tree,
+		        value,
+		        sel,
+		        expanded,
+		        leaf,
+		        row,
+		        hasFocus);
+			NodeValue node = (NodeValue)((DefaultMutableTreeNode)value).getUserObject();
+			if(node.getValue() == null)
+				setIcon((ImageIcon)Icon.window_tab_settings_tree_directory);
+			else
+				setIcon((ImageIcon)Icon.window_tab_settings_tree_value);
+			setText(node.getName());
+		    return this;
+		}
 	}
 	
-	private class ValueEditor extends JPanel implements LayoutManager
+	private class Editor extends JPanel implements LayoutManager
 	{
 		private JButton close;
 		private JLabel title;
@@ -1100,16 +1094,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		private Object value;
 		private Object valueNew;
 		
-		public ValueEditor(String key2)
+		public Editor(final String key)
 		{
 			super();
 			setLayout(this);
-			this.key = key2;
-			this.value = Configuration.configRead(key);
-			title = new JLabel(key.substring(key.lastIndexOf('.')+1), Icon.window_tab_settings_tree_value, JLabel.LEFT);
+			this.key = key;
+			this.value = Configuration.configRead(this.key);
+			title = new JLabel(this.key.substring(this.key.lastIndexOf('.')+1), Icon.window_tab_settings_tree_value, JLabel.LEFT);
 			title.setFont(Font);
 			add(title);
-			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Configuration.configInfo(key) + "</body></html>");
+			description = new JLabel("<html><body><b>Type</b> : " + value.getClass().getCanonicalName() + "<br/><b>Description</b> : " + Configuration.configInfo(this.key) + "</body></html>");
 			description.setVerticalAlignment(JLabel.TOP);
 			description.setFont(Font);
 			add(description);

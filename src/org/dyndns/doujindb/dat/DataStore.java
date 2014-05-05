@@ -13,14 +13,10 @@ public final class DataStore
 	
 	private static final String TAG = "DataStore : ";
 	
-	static
-	{
-		Logger.logInfo(TAG + "initializing.");
-	}
-	
 	public static void open() throws DataStoreException
 	{
-		if(instance != null)
+		Logger.logDebug(TAG + "call open()");
+		if(isOpen())
 			throw new DataStoreException("DataStore is already open.");
 		File localPath = new File(Configuration.configRead("org.dyndns.doujindb.dat.datastore").toString());
 		if(!localPath.exists())
@@ -30,7 +26,8 @@ public final class DataStore
 
 	public static void close() throws DataStoreException
 	{
-		if(instance == null)
+		Logger.logDebug(TAG + "call close()");
+		if(!isOpen())
 			throw new DataStoreException("DataStore is already closed.");
 		instance = null;
 	}
@@ -48,29 +45,29 @@ public final class DataStore
 	
 	public static DataFile getMeta(String bookId) throws DataStoreException
 	{
+		Logger.logDebug(TAG + "call getMeta(" + bookId + ")");
 		checkOpen();
-		
 		return instance.getMeta(bookId);
 	}
 	
 	public static DataFile getThumbnail(String bookId) throws DataStoreException
 	{
+		Logger.logDebug(TAG + "call getThumbnail(" + bookId + ")");
 		checkOpen();
-		
 		return instance.getThumbnail(bookId);
 	}
 	
 	public static DataFile getFile(String bookId) throws DataStoreException
 	{
+		Logger.logDebug(TAG + "call getFile(" + bookId + ")");
 		checkOpen();
-		
 		return instance.getFile(bookId);
 	}
 	
 	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call fromFile(" + srcPath + "," + dstPath + "," + contentsOnly + ")");
 		checkOpen();
-		
 		if(contentsOnly)
 			for(File file : srcPath.listFiles())
 				fromFile(file, dstPath);
@@ -87,8 +84,8 @@ public final class DataStore
 	 */
 	public static void fromFile(File srcPath, DataFile dstPath) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call fromFile(" + srcPath + "," + dstPath + ")");
 		checkOpen();
-		
 		DataFile dataFile = dstPath.getFile(srcPath.getName());
 		if(srcPath.isDirectory())
 		{
@@ -102,8 +99,8 @@ public final class DataStore
 	
 	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call toFile(" + srcPath + "," + dstPath + "," + contentsOnly + ")");
 		checkOpen();
-		
 		if(contentsOnly)
 			for(DataFile file : srcPath.listFiles())
 				toFile(file, dstPath);
@@ -120,8 +117,8 @@ public final class DataStore
 	 */
 	public static void toFile(DataFile srcPath, File dstPath) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call toFile(" + srcPath + "," + dstPath + ")");
 		checkOpen();
-		
 		File file = new File(dstPath, srcPath.getName());
 		if(srcPath.isDirectory())
 		{
@@ -139,8 +136,8 @@ public final class DataStore
 	 */
 	public static DataFile[] listFiles(DataFile parentPath) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call listFiles(" + parentPath + ")");
 		checkOpen();
-		
 		Set<DataFile> set = new HashSet<DataFile>();
 		for(DataFile file : parentPath.listFiles())
 			if(file.isDirectory())
@@ -166,8 +163,8 @@ public final class DataStore
 	 */
 	public static File[] listFiles(File parentPath) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call listFiles(" + parentPath + ")");
 		checkOpen();
-		
 		Set<File> set = new HashSet<File>();
 		for(File file : parentPath.listFiles())
 			if(file.isDirectory())
@@ -189,8 +186,8 @@ public final class DataStore
 	
 	public static long diskUsage(DataFile path) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call diskUsage(" + path + ")");
 		checkOpen();
-		
 		long du = 0;
 		for(DataFile file : listFiles(path))
 			if(!file.isDirectory())
@@ -200,8 +197,8 @@ public final class DataStore
 	
 	public static long diskUsage(File path) throws DataStoreException, IOException
 	{
+		Logger.logDebug(TAG + "call diskUsage(" + path + ")");
 		checkOpen();
-		
 		long du = 0;
 		Set<File> set = new HashSet<File>();
 		for(File file : listFiles(path, set))

@@ -914,17 +914,21 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    {
 	    	public void valueChanged(TreeSelectionEvent e)
 	    	{
-	    		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-	            if (node == null) return;
-	            Object nodeInfo = node.getUserObject();
-	            NodeValue value = (NodeValue) nodeInfo;
-	    		if(value.getValue() == null)
-	    				return;
-	            Object path_objects[] = node.getUserObjectPath();
-	            String key = "";
-	            for(Object o : path_objects)
-	            	key += o + ".";
-	            key = "org.dyndns.doujindb." + key.substring(0, key.length() - 1).substring("org.dyndns.doujindb.".length());
+	    		DefaultMutableTreeNode dmtnode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+	    		// Return if no TreeNode is selected
+	            if(dmtnode == null)
+	            	return;
+	            // Return if it's a 'directory' TreeNode
+	            if(!dmtnode.isLeaf())
+	            	return;
+	            // Calculate configuration key based on TreeNodes path
+				Object paths[] = dmtnode.getUserObjectPath();
+				String key = "";
+				for(Object path : paths)
+				    key += path + ".";
+				// Remove leading '.' character
+				key = key.substring(0, key.length() - 1);
+				// Refresh editor component
 	            Editor editor = new Editor(key);
 	            setRightComponent(editor);
 	    	}
@@ -943,7 +947,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	public void reload()
 	{
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new NodeValue(null, "org.dyndns.doujindb"));
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("org.dyndns.doujindb");
 		for(String key : Configuration.keys())
 		{
 			if(key.startsWith("org.dyndns.doujindb."))
@@ -962,88 +966,28 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private void addNode(DefaultMutableTreeNode node, String key)
 	{
-		String key2;
-		DefaultMutableTreeNode node2 = node;
 		if(key.indexOf(".") != -1)
 		{
-			_l00p:
-			{
-				key2 = key.substring(0, key.indexOf("."));
-				key = key.substring(key.indexOf(".") + 1);
-				@SuppressWarnings("unchecked")
-				Enumeration<DefaultMutableTreeNode> e = node.children();
-				while(e.hasMoreElements())
-				{
-					DefaultMutableTreeNode node3 = e.nextElement();
-					NodeValue value = (NodeValue) node3.getUserObject();
-					if(key2.equals(value.getName()))
-					{
-						addNode(node3, key);
-						break _l00p;
-					}
-				}
-				node2 = new DefaultMutableTreeNode(new NodeValue(null, key2));
-				((DefaultMutableTreeNode)node).add(node2);
-				addNode(node2, key);
-			}
-		}else
-		{
-			Object path_objects[] = node.getUserObjectPath();
-			String path = "";
-			for(Object o : path_objects)
-				path += o + ".";
-			path = "org.dyndns.doujindb." + path.substring(0, path.length() - 1).substring("org.dyndns.doujindb.".length());
-			node2 = new DefaultMutableTreeNode(new NodeValue(Configuration.configRead(path + "." + key), key));
-			((DefaultMutableTreeNode)node).add(node2);
-		}
-	}
-	
-	private final class NodeValue
-	{
-		private Object value;
-		private String name;
-		private Type type;
-		
-		public NodeValue(Object value)
-		{
-			this(value, value.toString());
-		}
-		public NodeValue(Object value, String name)
-		{
-			this.value = value;
-			this.name = name;
-			this.type = Type.UNKNOWN;
-			if(value instanceof Boolean)
-				type = Type.BOOLEAN;
-			if(value instanceof Integer)
-				type = Type.NUMBER;
-			if(value instanceof String)
-				type = Type.STRING;
-			if(value instanceof Color)
-				type = Type.COLOR;
-			if(value instanceof Font)
-				type = Type.FONT;
-			if(value instanceof File)
-				type = Type.FILE;
-		}
-		public Type getType() {
-			return type;
-		}
-		public Object getValue() {
-			return value;
-		}
-		public void setValue(Object value) {
-			this.value = value;
-		}
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		@Override
-		public String toString() {
-			return name;
+		    loop:
+		    {
+				String subkey = key.substring(0, key.indexOf("."));
+		        key = key.substring(key.indexOf(".") + 1);
+		        Enumeration<?> e = node.children();
+		        while(e.hasMoreElements())
+		        {
+			       DefaultMutableTreeNode subnode = (DefaultMutableTreeNode) e.nextElement();
+			       if(subkey.equals(subnode.getUserObject()))
+			       {
+			          addNode(subnode, key);
+			          break loop;
+			       }
+		        }
+		        DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(subkey);
+		        node.add(dmtn);
+		        addNode(dmtn, key);
+		     }
+		} else {
+			node.add(new DefaultMutableTreeNode(key));
 		}
 	}
 
@@ -1071,12 +1015,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		        leaf,
 		        row,
 		        hasFocus);
-			NodeValue node = (NodeValue)((DefaultMutableTreeNode)value).getUserObject();
-			if(node.getValue() == null)
+			if(!((DefaultMutableTreeNode)value).isLeaf())
 				setIcon((ImageIcon)Icon.window_tab_settings_tree_directory);
 			else
 				setIcon((ImageIcon)Icon.window_tab_settings_tree_value);
-			setText(node.getName());
 		    return this;
 		}
 	}
@@ -1157,7 +1099,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					boolean bool = ((Boolean)value).booleanValue();
 					valueNew = new Boolean(bool);
-					final JCheckBox field = new JCheckBox((bool)?"True":"False");
+					final JCheckBox field = new JCheckBox((bool) ? "True" : "False");
 					field.setSelected(bool);
 					field.setFocusable(false);
 					field.setFont(Font);
@@ -1167,7 +1109,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						public void stateChanged(ChangeEvent ce)
 						{
 							boolean bool = field.isSelected();
-							field.setText((bool)?"True":"False");
+							field.setText((bool) ? "True" : "False");
 							valueNew = new Boolean(bool);
 						}
 					});
@@ -1176,7 +1118,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					{
 
 						@Override
-						public void addLayoutComponent(String name, Component comp) {}
+						public void addLayoutComponent(String name, Component comp) { }
 						@Override
 						public void layoutContainer(Container comp)
 						{
@@ -1184,11 +1126,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 							field.setBounds(35, 5, width - 30, 20);
 						}
 						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public void removeLayoutComponent(Component comp) {}
+						public void removeLayoutComponent(Component comp) { }
 						
 					});
 				}
@@ -1220,9 +1162,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 					panel.add(field);
 					panel.setLayout(new LayoutManager()
 					{
-
 						@Override
-						public void addLayoutComponent(String name, Component comp) {}
+						public void addLayoutComponent(String name, Component comp) { }
 						@Override
 						public void layoutContainer(Container comp)
 						{
@@ -1230,11 +1171,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 							field.setBounds(45, 5, width - 90, 20);
 						}
 						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public void removeLayoutComponent(Component comp) {}
+						public void removeLayoutComponent(Component comp) { }
 						
 					});
 				}
@@ -1271,11 +1212,11 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 							field.setBounds(15, 5, width - 30, 20);
 						}
 						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
 						@Override
-						public void removeLayoutComponent(Component comp) {}
+						public void removeLayoutComponent(Component comp) { }
 						
 					});
 				}

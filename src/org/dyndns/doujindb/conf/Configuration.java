@@ -24,7 +24,7 @@ public final class Configuration
 
 	static
 	{
-		Logger.logInfo(TAG + "initializing.");
+		Logger.logInfo(TAG + "initializing ...");
 		configAdd("org.dyndns.doujindb.ui.font",               "<html><body>Default JCK font.<br/>Used to render Japanese/Chinese/Korean strings.</body></html>", new Font("Dialog.plain", Font.PLAIN, 11));
 		configAdd("org.dyndns.doujindb.ui.font_size",          "<html><body>Default font size.</body></html>", 11);
 		configAdd("org.dyndns.doujindb.ui.always_on_top",      "<html><body>Whether the user interface should be always painted on top of other windows.</html>", false);
@@ -51,11 +51,13 @@ public final class Configuration
 
 	public static Object configRead(String key) throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configRead(" + key + ")");
 		return instance.configRead(key);
 	}
 
 	public static void configWrite(String key, Object value) throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configWrite(" + key + "," + value + ")");
 		instance.configWrite(key, value);
 		for(ConfigurationListener cl : listeners)
 			cl.configUpdated(key);
@@ -63,6 +65,7 @@ public final class Configuration
 
 	public static void configAdd(String key, String info, Object value) throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configAdd(" + key + "," + info + "," + value + ")");
 		instance.configAdd(key, info, value);
 		for(ConfigurationListener cl : listeners)
 			cl.configAdded(key);
@@ -70,6 +73,7 @@ public final class Configuration
 
 	public static void configRemove(String key) throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configRemove(" + key + ")");
 		for(ConfigurationListener cl : listeners)
 			cl.configDeleted(key);
 		instance.configRemove(key);
@@ -77,41 +81,49 @@ public final class Configuration
 
 	public static boolean configExists(String key)
 	{
+		Logger.logDebug(TAG + "call configExists(" + key + ")");
 		return instance.configExists(key);
 	}
 	
 	public static String configInfo(String key)
 	{
+		Logger.logDebug(TAG + "call configInfo(" + key + ")");
 		return instance.configInfo(key);
 	}
 
 	public static Iterable<String> keys()
 	{
+		Logger.logDebug(TAG + "call keys()");
 		return instance.keys();
 	}
 
 	public static Iterable<Object> values()
 	{
+		Logger.logDebug(TAG + "call values()");
 		return instance.values();
 	}
 
 	public static void configLoad() throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configLoad()");
 		instance.configLoad();
 	}
 
 	public static void configSave() throws ConfigurationException
 	{
+		Logger.logDebug(TAG + "call configSave()");
 		instance.configSave();
 	}
 	
 	public static void addConfigurationListener(ConfigurationListener cl)
 	{
+		Logger.logDebug(TAG + "call addConfigurationListener(" + cl + ")");
 		listeners.add(cl);
 	}
 	
 	public static void removeConfigurationListener(ConfigurationListener cl)
 	{
+		Logger.logDebug(TAG + "call removeConfigurationListener(" + cl + ")");
 		listeners.remove(cl);
 	}
 }

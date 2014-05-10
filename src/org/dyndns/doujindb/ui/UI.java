@@ -284,12 +284,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelDesktopShow.addActionListener(this);
 		uiPanelDesktopShow.setBorder(null);
 		uiPanelDesktopShow.setFocusable(false);
+		uiPanelDesktopShow.setEnabled(false);
 		uiPanelDesktopShow.setToolTipText("Show Desktop");
 		bogus.add(uiPanelDesktopShow);
 		uiPanelDesktopSearch = new JButton(Icon.window_tab_explorer_search);
 		uiPanelDesktopSearch.addActionListener(this);
 		uiPanelDesktopSearch.setBorder(null);
 		uiPanelDesktopSearch.setFocusable(false);
+		uiPanelDesktopSearch.setEnabled(false);
 		uiPanelDesktopSearch.setToolTipText("Search");
 		bogus.add(uiPanelDesktopSearch);
 		uiPanelDesktopAdd = new JButton(Icon.window_tab_explorer_add)
@@ -304,6 +306,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		};
 		uiPanelDesktopAdd.setBorder(null);
 		uiPanelDesktopAdd.setFocusable(false);
+		uiPanelDesktopAdd.setEnabled(false);
 		uiPanelDesktopAdd.setToolTipText("Add Item");
 		uiPanelDesktopAddPopup = new JPopupMenu();
 		JMenuItem itm0 = new JMenuItem("Artist",Icon.desktop_explorer_artist);
@@ -427,6 +430,22 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setVisible(true);
 		
 		Configuration.addConfigurationListener(this);
+		
+		DataBase.addDataBaseListener(new DataBaseAdapter()
+		{
+			@Override
+			public void databaseConnected() {
+				uiPanelDesktopShow.setEnabled(true);
+				uiPanelDesktopSearch.setEnabled(true);
+				uiPanelDesktopAdd.setEnabled(true);
+			}
+			@Override
+			public void databaseDisconnected() {
+				uiPanelDesktopShow.setEnabled(false);
+				uiPanelDesktopSearch.setEnabled(false);
+				uiPanelDesktopAdd.setEnabled(false);
+			}
+		});
 	}
 
 	@Override
@@ -436,18 +455,20 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			height = parent.getHeight();
 		m_ButtonConnectionCtl.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
 		m_LabelConnectionStatus.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
-		if(DataBase.isConnected())
-		{
+		if(uiPanelDesktopShow.isEnabled())
 			uiPanelDesktopShow.setBounds(1,1,20,20);
-			uiPanelDesktopSearch.setBounds(21,1,20,20);
-			uiPanelDesktopAdd.setBounds(41,1,20,20);
-		}
 		else
-		{
 			uiPanelDesktopShow.setBounds(-1,-1,0,0);
+		
+		if(uiPanelDesktopSearch.isEnabled())
+			uiPanelDesktopSearch.setBounds(21,1,20,20);
+		else
 			uiPanelDesktopSearch.setBounds(-1,-1,0,0);
+		
+		if(uiPanelDesktopAdd.isEnabled())
+			uiPanelDesktopAdd.setBounds(41,1,20,20);
+		else
 			uiPanelDesktopAdd.setBounds(-1,-1,0,0);
-		}
 		Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
 		uiPanelSettingsLoad.setBounds(1,1,20,20);
 		uiPanelSettingsSave.setBounds(21,1,20,20);

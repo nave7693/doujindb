@@ -89,6 +89,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		m_ButtonTrash.setDisabledIcon(Icon.desktop_trash_disabled);
 		m_ButtonTrash.setToolTipText("Trash");
 		m_ButtonTrash.setFocusable(false);
+		m_ButtonTrash.setEnabled(false);
 		m_ButtonTrash.setContentAreaFilled(false);
 		m_ButtonTrash.setBorder(null);
 		m_ButtonTrash.addActionListener(new ActionListener()
@@ -109,6 +110,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		buttonTools.setDisabledIcon(Icon.desktop_tools_disabled);
 		buttonTools.setToolTipText("Tools");
 		buttonTools.setFocusable(false);
+		buttonTools.setEnabled(false);
 		buttonTools.setContentAreaFilled(false);
 		buttonTools.setBorder(null);
 		buttonTools.addActionListener(new ActionListener()
@@ -135,13 +137,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				m_ButtonTrash.setBounds(5,5,32,32);
 				buttonTools.setBounds(5+32,5,32,32);
-				m_ButtonTrash.setEnabled(DataBase.isConnected());
-				buttonTools.setEnabled(DataBase.isConnected());
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
 					plugin.setBounds(5,5 + 40 + spacing,32,32);
-					plugin.setEnabled(DataBase.isConnected());
 					spacing += 40;
 				}					
 				buttonWallpaper.setBounds(width-20,1,20,20);
@@ -175,6 +174,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 					"<b>Weblink</b> : " + plug.getWeblink() + 
 					"</body></html>");
 			buttonPlugin.setFocusable(false);
+			buttonPlugin.setEnabled(false);
 			buttonPlugin.setContentAreaFilled(false);
 			buttonPlugin.setBorder(null);
 			buttonPlugin.addActionListener(new ActionListener()
@@ -601,12 +601,20 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	@Override
 	public void databaseConnected()
 	{
+		m_ButtonTrash.setEnabled(true);
+		buttonTools.setEnabled(true);
+		for(JButton plugin : buttonPlugins)
+			plugin.setEnabled(true);
 		loadData();
 	}
 
 	@Override
 	public void databaseDisconnected()
 	{
+		m_ButtonTrash.setEnabled(false);
+		buttonTools.setEnabled(false);
+		for(JButton plugin : buttonPlugins)
+			plugin.setEnabled(false);
 		new SwingWorker<Void, Object>()
 		{
 			@Override

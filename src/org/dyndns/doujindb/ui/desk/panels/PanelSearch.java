@@ -960,6 +960,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private final class SearchBook extends SearchWorker<Book>
 		{
 			private HashMap<Book, JButton> previews = new HashMap<Book, JButton>();
+			private ActionListener listener = new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					QueryBook query = new QueryBook();
+					query.ID = ae.getActionCommand();
+					RecordSet<Book> result = DataBase.getBooks(query);
+					UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, result.iterator().next());
+				}
+			};
 			
 			private SearchBook(Query<Book> query)
 			{
@@ -975,13 +985,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					bookButton = new JButton(
 						new ImageIcon(
 							ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
-					bookButton.addActionListener(new ActionListener()
-					{
-						@Override
-						public void actionPerformed(ActionEvent ae) {
-							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, o);
-						}
-					});
+					bookButton.setActionCommand(o.getID());
+					bookButton.addActionListener(listener);
 					previews.put(o, bookButton);
 					publish(o);
 					if(super.isCancelled())

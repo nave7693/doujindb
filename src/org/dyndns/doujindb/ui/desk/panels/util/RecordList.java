@@ -389,8 +389,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 			this.filterRegex = regex;
 			tableModel.fireTableDataChanged();
 			return true;
-		} catch (PatternSyntaxException | NullPointerException e)
-		{
+		} catch (PatternSyntaxException | NullPointerException e) {
 			return false;
 		}
 	}
@@ -442,7 +441,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		@Override
 		public boolean include(javax.swing.RowFilter.Entry<? extends M, ? extends I> entry)
 		{
-			String regex = filterRegex == null ? ".*" : filterRegex;
+			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
 			switch(m_Type)
             {
             case ARTIST:

@@ -942,6 +942,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					// Clean result
 					while(m_TableModel.getRowCount()>0)
 						m_TableModel.removeRow(0);
+					recordPreview.removeAll();
 					
 					// UI feedback
 					m_ButtonSearch.setText("Cancel");

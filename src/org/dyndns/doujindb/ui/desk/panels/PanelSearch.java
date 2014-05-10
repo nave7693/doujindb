@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
+import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -23,6 +24,8 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.*;
 import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
+import org.dyndns.doujindb.ui.desk.panels.util.WrapLayout;
+import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -631,6 +634,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JCheckBox checkColored;
 		private JTable tableResults;
 		private JScrollPane scrollResults;
+		private JPanel recordPreview;
+		private JScrollPane scrollRecordPreview;
+		private boolean previewToggled = false;
+		private JButton toggleList;
+		private JButton togglePreview;
 		
 		public IBook(JTabbedPane tab, int index)
 		{
@@ -670,8 +678,21 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			checkColored = new JCheckBox("Colored", false);
 			checkColored.setFont(font);
 			checkColored.setFocusable(false);
-			tableResults = new JTable();
 			
+			toggleList = new JButton(Icon.desktop_explorer_table_view_list);
+			toggleList.setToolTipText("Toggle List");
+			toggleList.addActionListener(this);
+			toggleList.setFocusable(false);
+			recordPreview = new JPanel();
+			recordPreview.setLayout(new WrapLayout());
+			scrollRecordPreview = new JScrollPane(recordPreview);
+			scrollRecordPreview.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			togglePreview = new JButton(Icon.desktop_explorer_table_view_preview);
+			togglePreview.setToolTipText("Toggle Preview");
+			togglePreview.addActionListener(this);
+			togglePreview.setFocusable(false);
+			
+			tableResults = new JTable();
 			m_TableModel = new RecordTableModel.IBook();
 			tableResults.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
@@ -838,6 +859,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(checkTranslated);
 			super.add(checkColored);
 			super.add(scrollResults);
+			super.add(toggleList);
+			super.add(scrollRecordPreview);
+			super.add(togglePreview);
 			
 			m_Worker = new SearchBook(null);
 			m_Worker.cancel(true);
@@ -861,62 +885,104 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			checkTranslated.setBounds(3, 3 + 100, 100, 15);
 			checkColored.setBounds(3, 3 + 115, 100, 15);
 			m_LabelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
+			if(!previewToggled)
+			{
+				toggleList.setBounds(0, 0, 0, 0);
+				scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
+				togglePreview.setBounds(width - 22, 3 + 125, 20, 20);
+				scrollRecordPreview.setBounds(0, 0, 0, 0);
+			} else {
+				toggleList.setBounds(width - 22, 3 + 125, 20, 20);
+				scrollResults.setBounds(0, 0, 0, 0);
+				togglePreview.setBounds(0, 0, 0, 0);
+				scrollRecordPreview.setBounds(3, 3 + 145, width - 5, height - 175);
+			}
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(ae.getSource().equals(toggleList))
 			{
-				// Prepare the Query to be run
-				QueryBook q = new QueryBook();
-				if(!textJapaneseName.getText().equals(""))
-					q.JapaneseName = textJapaneseName.getText();
-				if(!textTranslatedName.getText().equals(""))
-					q.TranslatedName = textTranslatedName.getText();
-				if(!textRomajiName.getText().equals(""))
-					q.RomajiName = textRomajiName.getText();
-				q.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
-				if(checkAdult.isSelected())
-					q.Adult = true;
-				if(checkColored.isSelected())
-					q.Colored = true;
-				if(checkTranslated.isSelected())
-					q.Translated = true;
-				if(checkDecensored.isSelected())
-					q.Decensored = true;
-				
-				// Clean result
-				while(m_TableModel.getRowCount()>0)
-					m_TableModel.removeRow(0);
-				
-				// UI feedback
-				m_ButtonSearch.setText("Cancel");
-				m_ButtonSearch.setMnemonic('C');
-				m_Tab.setIconAt(m_Index, Icon.window_loading);
-				
-				// Run the Worker
-				m_Worker = new SearchBook(q);
-				m_Worker.execute();
-			} else {
-				m_Worker.cancel(true);
+				previewToggled = false;
+				doLayout();
+				toggleList.validate();
+				return;
+			}
+			if(ae.getSource().equals(togglePreview))
+			{
+				previewToggled = true;
+				doLayout();
+				scrollRecordPreview.validate();
+				return;
+			}
+			if(ae.getSource().equals(m_ButtonSearch))
+			{
+				if(m_Worker.isDone())
+				{
+					// Prepare the Query to be run
+					QueryBook q = new QueryBook();
+					if(!textJapaneseName.getText().equals(""))
+						q.JapaneseName = textJapaneseName.getText();
+					if(!textTranslatedName.getText().equals(""))
+						q.TranslatedName = textTranslatedName.getText();
+					if(!textRomajiName.getText().equals(""))
+						q.RomajiName = textRomajiName.getText();
+					q.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
+					if(checkAdult.isSelected())
+						q.Adult = true;
+					if(checkColored.isSelected())
+						q.Colored = true;
+					if(checkTranslated.isSelected())
+						q.Translated = true;
+					if(checkDecensored.isSelected())
+						q.Decensored = true;
+					
+					// Clean result
+					while(m_TableModel.getRowCount()>0)
+						m_TableModel.removeRow(0);
+					
+					// UI feedback
+					m_ButtonSearch.setText("Cancel");
+					m_ButtonSearch.setMnemonic('C');
+					m_Tab.setIconAt(m_Index, Icon.window_loading);
+					
+					// Run the Worker
+					m_Worker = new SearchBook(q);
+					m_Worker.execute();
+				} else {
+					m_Worker.cancel(true);
+				}
 			}
 		}
 		
 		private final class SearchBook extends SearchWorker<Book>
 		{
+			private HashMap<Book, JButton> previews = new HashMap<Book, JButton>();
+			
 			private SearchBook(Query<Book> query)
 			{
 				super(query);
 			}
-			
 			@Override
-			protected Void doInBackground() {
+			protected Void doInBackground() throws Exception
+			{
 				RecordSet<Book> result = DataBase.getBooks((QueryBook) query);
-				for(Book o : result)
+				for(final Book o : result)
 				{
+					JButton bookButton;
+					bookButton = new JButton(
+						new ImageIcon(
+							ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
+					bookButton.addActionListener(new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae) {
+							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, o);
+						}
+					});
+					previews.put(o, bookButton);
 					publish(o);
 					if(super.isCancelled())
 						break;
@@ -926,7 +992,10 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void process(java.util.List<Book> data) {
 				for(Book o : data)
+				{
 					m_TableModel.addRecord(o);
+					recordPreview.add(previews.get(o));
+				}
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 			}
 			@Override
@@ -938,6 +1007,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
 				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_book);
+				recordPreview.validate();
+				recordPreview.doLayout();
 			}
 		}
 	}

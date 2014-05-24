@@ -10,11 +10,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
+import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
+import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.desk.WindowEx;
@@ -64,6 +67,16 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		recordPreview.setLayout(new WrapLayout());
 		new SwingWorker<Void,JButton>()
 		{
+			private ActionListener listener = new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					QueryBook query = new QueryBook();
+					query.ID = ae.getActionCommand();
+					RecordSet<Book> result = DataBase.getBooks(query);
+					UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, result.iterator().next());
+				}
+			};
 			@Override
 			protected Void doInBackground() throws Exception
 			{
@@ -73,13 +86,8 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 					bookButton = new JButton(
 						new ImageIcon(
 							ImageTool.read(DataStore.getThumbnail(book.getID()).getInputStream())));
-					bookButton.addActionListener(new ActionListener()
-					{
-						@Override
-						public void actionPerformed(ActionEvent ae) {
-							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
-						}
-					});
+					bookButton.setActionCommand(book.getID());
+					bookButton.addActionListener(listener);
 					bookButton.setBorder(null);
 					publish(bookButton);
 				}

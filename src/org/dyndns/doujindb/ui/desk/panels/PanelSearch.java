@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.*;
@@ -638,6 +639,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JPanel recordPreview;
 		private JScrollPane scrollRecordPreview;
 		private boolean previewToggled = false;
+		private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
 		private JButton toggleList;
 		private JButton togglePreview;
 		
@@ -860,9 +862,12 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(checkTranslated);
 			super.add(checkColored);
 			super.add(scrollResults);
-			super.add(toggleList);
-			super.add(scrollRecordPreview);
-			super.add(togglePreview);
+			if(previewEnabled)
+			{
+				super.add(toggleList);
+				super.add(togglePreview);
+				super.add(scrollRecordPreview);
+			}
 			
 			m_Worker = new SearchBook(null);
 			m_Worker.cancel(true);
@@ -983,18 +988,21 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				RecordSet<Book> result = DataBase.getBooks((QueryBook) query);
 				for(final Book o : result)
 				{
-					JButton bookButton;
-					try {
-						bookButton = new JButton(
-						new ImageIcon(
-							ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
-					} catch (DataStoreException dse) {
-						bookButton = new JButton(Icon.desktop_explorer_book_cover);
+					if(previewEnabled)
+					{
+						JButton bookButton;
+						try {
+							bookButton = new JButton(
+							new ImageIcon(
+								ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
+						} catch (DataStoreException dse) {
+							bookButton = new JButton(Icon.desktop_explorer_book_cover);
+						}
+						bookButton.setActionCommand(o.getID());
+						bookButton.addActionListener(listener);
+						bookButton.setBorder(null);
+						previews.put(o, bookButton);
 					}
-					bookButton.setActionCommand(o.getID());
-					bookButton.addActionListener(listener);
-					bookButton.setBorder(null);
-					previews.put(o, bookButton);
 					publish(o);
 					if(super.isCancelled())
 						break;
@@ -1006,7 +1014,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				for(Book o : data)
 				{
 					m_TableModel.addRecord(o);
-					recordPreview.add(previews.get(o));
+					if(previewEnabled)
+						recordPreview.add(previews.get(o));
 				}
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 			}

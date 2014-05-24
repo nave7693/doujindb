@@ -31,7 +31,7 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.ui.tray_on_exit",       "<html><body>Whether the user interface should be minimized on tray when is closed.</body></html>", false);
 		configAdd("org.dyndns.doujindb.ui.theme.color",        "<html><body>Foreground windows color.</body></html>", new Color(0xAA, 0xAA, 0xAA));
 		configAdd("org.dyndns.doujindb.ui.theme.background",   "<html><body>Background windows color.</body></html>", new Color(0x22, 0x22, 0x22));
-		configAdd("org.dyndns.doujindb.ui.image_preview",      "<html><body>Enable Book image preview</body></html>", true);
+		configAdd("org.dyndns.doujindb.ui.book_preview",      "<html><body>Enable Book image preview</body></html>", true);
 		configAdd("org.dyndns.doujindb.dat.datastore",         "<html><body>The folder in which are stored all the media files.</body></html>", System.getProperty("java.io.tmpdir"));
 		configAdd("org.dyndns.doujindb.dat.file_extension",    "<html><body>Default file extension given to files when exporting media archives.</body></html>", ".zip");
 		configAdd("org.dyndns.doujindb.dat.temp",              "<html><body>Temporary folder used to store session media files.</body></html>", System.getProperty("java.io.tmpdir"));

@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.DataBase;
 import org.dyndns.doujindb.db.DataBaseException;
@@ -35,6 +36,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	private JScrollPane scrollRecordPreview;
 	private JTextField searchField;
 	private boolean previewToggled = false;
+	private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
 	private JButton toggleList;
 	private JButton togglePreview;
 	protected static final Font font = UI.Font;
@@ -65,7 +67,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		toggleList.setFocusable(false);
 		recordPreview = new JPanel();
 		recordPreview.setLayout(new WrapLayout());
-		new SwingWorker<Void,JButton>()
+		if(previewEnabled) new SwingWorker<Void,JButton>()
 		{
 			private ActionListener listener = new ActionListener()
 			{
@@ -114,10 +116,12 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		togglePreview.setFocusable(false);
 		super.add(searchField);
 		super.add(recordList);
-		super.add(toggleList);
-		super.add(scrollRecordPreview);
-		super.add(togglePreview);
-		super.add(recordList);
+		if(previewEnabled)
+		{
+			super.add(toggleList);
+			super.add(togglePreview);
+			super.add(scrollRecordPreview);
+		}
 		super.setEnabled(false);
 		validate();
 	}

@@ -311,9 +311,24 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		        }
 		    }
 		});
-				
-		for(Record rcd : data)
-			tableModel.addRecord(rcd);
+		
+		final Iterable<T> records = data;
+		new SwingWorker<Void,Record>()
+		{
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				for(Record record : records)
+					publish(record);
+				return null;
+			}
+			@Override
+			protected void process(List<Record> chunks) {
+				for(Record record : chunks)
+					tableModel.addRecord(record);
+			}
+		}.execute();
+		
 		add(scrollPane);
    		setVisible(true);
 	}

@@ -16,6 +16,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
@@ -983,9 +984,13 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				for(final Book o : result)
 				{
 					JButton bookButton;
-					bookButton = new JButton(
+					try {
+						bookButton = new JButton(
 						new ImageIcon(
 							ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
+					} catch (DataStoreException dse) {
+						bookButton = new JButton(Icon.desktop_explorer_book_cover);
+					}
 					bookButton.setActionCommand(o.getID());
 					bookButton.addActionListener(listener);
 					previews.put(o, bookButton);

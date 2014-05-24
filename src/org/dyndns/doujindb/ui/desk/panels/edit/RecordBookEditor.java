@@ -80,6 +80,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, book);
 						}
 					});
+					bookButton.setBorder(null);
 					publish(bookButton);
 				}
 				return null;

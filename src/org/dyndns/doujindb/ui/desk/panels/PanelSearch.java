@@ -993,6 +993,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					}
 					bookButton.setActionCommand(o.getID());
 					bookButton.addActionListener(listener);
+					bookButton.setBorder(null);
 					previews.put(o, bookButton);
 					publish(o);
 					if(super.isCancelled())

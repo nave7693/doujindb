@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk;
+package org.dyndns.doujindb.ui;
 
 import java.awt.*;
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels;
+package org.dyndns.doujindb.ui.dialog;
 
 import java.awt.*;
 import java.awt.event.*;

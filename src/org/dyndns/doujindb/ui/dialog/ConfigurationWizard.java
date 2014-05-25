@@ -1,17 +1,19 @@
-package org.dyndns.doujindb.ui;
+package org.dyndns.doujindb.ui.dialog;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
 import java.util.concurrent.*;
+
 import javax.swing.*;
 
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.ui.desk.DialogEx;
+import org.dyndns.doujindb.ui.DialogEx;
+import org.dyndns.doujindb.ui.UI;
 
 @SuppressWarnings({"serial","unused"})
-final class ConfigurationWizard  extends JComponent implements Runnable, LayoutManager
+public final class ConfigurationWizard  extends JComponent implements Runnable, LayoutManager
 {
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;

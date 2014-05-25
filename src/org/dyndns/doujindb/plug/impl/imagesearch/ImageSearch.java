@@ -26,7 +26,7 @@ import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.WindowEx;
+import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.util.ImageTool;
 
 public final class ImageSearch extends Plugin

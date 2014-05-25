@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk;
+package org.dyndns.doujindb.ui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -7,8 +7,6 @@ import java.util.Hashtable;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-
-import org.dyndns.doujindb.ui.UI;
 
 public final class PopupMenuEx implements ActionListener
 {

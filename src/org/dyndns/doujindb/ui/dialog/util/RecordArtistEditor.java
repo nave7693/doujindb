@@ -1,32 +1,30 @@
-package org.dyndns.doujindb.ui.desk.panels.edit;
+package org.dyndns.doujindb.ui.dialog.util;
 
 import java.awt.*;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.*;
 
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.ParodyContainer;
+import org.dyndns.doujindb.db.containers.ArtistContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
-public class RecordParodyEditor extends JSplitPane implements DataBaseListener
+public class RecordArtistEditor extends JSplitPane implements DataBaseListener
 {
-	private ParodyContainer tokenIParody;
-	private RecordList<Parody> recordList;
+	private ArtistContainer tokenIArtist;
+	private RecordList<Artist> recordList;
 	private JTextField searchField = new JTextField("");
 	protected static final Font font = UI.Font;
 	
-	public RecordParodyEditor(ParodyContainer token) throws DataBaseException
+	public RecordArtistEditor(ArtistContainer token) throws DataBaseException
 	{
 		super();
-		this.tokenIParody = token;
+		this.tokenIArtist = token;
 		searchField.setFont(font);
 		setOrientation(JSplitPane.VERTICAL_SPLIT);
 		searchField.getDocument().addDocumentListener(new DocumentListener()
@@ -41,7 +39,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		recordList = new RecordList<Parody>(tokenIParody.getParodies(), Parody.class);
+		recordList = new RecordList<Artist>(tokenIArtist.getArtists(), Artist.class);
 		setTopComponent(searchField);
 		setBottomComponent(recordList);
 		setDividerSize(0);
@@ -49,7 +47,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		validate();
 	}
 	
-	public boolean contains(Parody item)
+	public boolean contains(Artist item)
 	{
 		boolean contains = false;
 		for(Object o : recordList.getRecords())
@@ -58,12 +56,12 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		return contains;
 	}
 	
-	public java.util.Iterator<Parody> iterator()
+	public java.util.Iterator<Artist> iterator()
 	{
 		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Parody> getRecordList()
+	public RecordList<Artist> getRecordList()
 	{
 		return recordList;
 	}
@@ -87,10 +85,10 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		switch(data.getType())
 		{
 		case LINK:
-			recordList.addRecord((Parody)data.getTarget());
+			recordList.addRecord((Artist)data.getTarget());
 			break;
 		case UNLINK:
-			recordList.removeRecord((Parody)data.getTarget());
+			recordList.removeRecord((Artist)data.getTarget());
 			break;
 		}
 	}

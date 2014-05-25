@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels;
+package org.dyndns.doujindb.ui.dialog;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -24,9 +24,8 @@ import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.panels.util.TransferHandlerEx;
-import org.dyndns.doujindb.ui.desk.panels.util.WrapLayout;
+import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;

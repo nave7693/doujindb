@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels;
+package org.dyndns.doujindb.ui.dialog;
 
 import java.awt.*;
 import java.awt.dnd.DropTarget;
@@ -15,9 +15,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.panels.edit.*;
-import org.dyndns.doujindb.ui.desk.panels.util.RecordList;
-import org.dyndns.doujindb.ui.desk.panels.util.TabbedPaneUIEx;
+import org.dyndns.doujindb.ui.dialog.util.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

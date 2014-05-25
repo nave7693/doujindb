@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk;
+package org.dyndns.doujindb.ui;
 
 import java.awt.*;
 import java.awt.dnd.*;
@@ -17,8 +17,7 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.panels.*;
+import org.dyndns.doujindb.ui.dialog.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -1677,7 +1676,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			JTabbedPane pane = new JTabbedPane();
 			pane.setFocusable(false);
 			PanelSearch<?> subPane;
-			subPane = new org.dyndns.doujindb.ui.desk.panels.PanelSearch.IArtist(pane, 0);
+			subPane = new org.dyndns.doujindb.ui.dialog.PanelSearch.IArtist(pane, 0);
 			listeners.add(subPane);
 			pane.addTab("Artist", Icon.desktop_explorer_artist, subPane);
 			subPane = new PanelSearch.IBook(pane, 1);

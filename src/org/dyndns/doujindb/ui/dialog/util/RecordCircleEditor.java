@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.desk.panels.edit;
+package org.dyndns.doujindb.ui.dialog.util;
 
 import java.awt.*;
 
@@ -8,25 +8,24 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.ContentContainer;
+import org.dyndns.doujindb.db.containers.CircleContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.desk.panels.util.*;
 
 @SuppressWarnings("serial")
-public class RecordContentEditor extends JSplitPane implements DataBaseListener
+public class RecordCircleEditor extends JSplitPane implements DataBaseListener
 {
-	private ContentContainer tokenIContent;
-	private RecordList<Content> recordList;
+	private CircleContainer tokenICircle;
+	private RecordList<Circle> recordList;
 	private JTextField searchField = new JTextField("");
 	protected static final Font font = UI.Font;
 	
-	public RecordContentEditor(ContentContainer token) throws DataBaseException
+	public RecordCircleEditor(CircleContainer token) throws DataBaseException
 	{
 		super();
-		this.tokenIContent = token;
+		this.tokenICircle = token;
 		searchField.setFont(font);
 		setOrientation(JSplitPane.VERTICAL_SPLIT);
 		searchField.getDocument().addDocumentListener(new DocumentListener()
@@ -41,7 +40,7 @@ public class RecordContentEditor extends JSplitPane implements DataBaseListener
 		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		recordList = new RecordList<Content>(tokenIContent.getContents(), Content.class);
+		recordList = new RecordList<Circle>(tokenICircle.getCircles(), Circle.class);
 		setTopComponent(searchField);
 		setBottomComponent(recordList);
 		setDividerSize(0);
@@ -49,7 +48,7 @@ public class RecordContentEditor extends JSplitPane implements DataBaseListener
 		validate();
 	}
 	
-	public boolean contains(Content item)
+	public boolean contains(Circle item)
 	{
 		boolean contains = false;
 		for(Object o : recordList.getRecords())
@@ -58,12 +57,12 @@ public class RecordContentEditor extends JSplitPane implements DataBaseListener
 		return contains;
 	}
 	
-	public java.util.Iterator<Content> iterator()
+	public java.util.Iterator<Circle> iterator()
 	{
 		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Content> getRecordList()
+	public RecordList<Circle> getRecordList()
 	{
 		return recordList;
 	}
@@ -87,10 +86,10 @@ public class RecordContentEditor extends JSplitPane implements DataBaseListener
 		switch(data.getType())
 		{
 		case LINK:
-			recordList.addRecord((Content)data.getTarget());
+			recordList.addRecord((Circle)data.getTarget());
 			break;
 		case UNLINK:
-			recordList.removeRecord((Content)data.getTarget());
+			recordList.removeRecord((Circle)data.getTarget());
 			break;
 		}
 	}

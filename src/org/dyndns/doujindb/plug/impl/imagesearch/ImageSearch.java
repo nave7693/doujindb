@@ -341,6 +341,7 @@ public final class ImageSearch extends Plugin
 		private final class TaskBuilder extends SwingWorker<Void, Integer> {
 			@Override
 			protected Void doInBackground() throws Exception {
+				Thread.currentThread().setName("plugin/image-search/cache-builder");
 				m_BuilderRunning = true;
 				PluginUI.this.doLayout();
 
@@ -418,6 +419,7 @@ public final class ImageSearch extends Plugin
 			
 			@Override
 			protected Void doInBackground() throws Exception {
+				Thread.currentThread().setName("plugin/image-search/cache-scanner");
 				m_ScannerRunning = true;
 				PluginUI.this.doLayout();
 				

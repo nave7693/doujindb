@@ -5,6 +5,9 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.ContentContainer;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 
 @SuppressWarnings("serial")
 public class ListContent extends RecordList<Content>
@@ -43,5 +46,65 @@ public class ListContent extends RecordList<Content>
 			removeRecord((Content)data.getTarget());
 			break;
 		}
+	}
+	
+	private final class TableModel extends RecordTableModel<Content>
+	{
+		public TableModel()
+		{
+			super();
+			addColumn("");
+			addColumn("Tag Name");
+			addColumn("Information");
+		}
+
+		public void addRecord(Content content)
+		{
+			if(containsRecord(content))
+				return;
+			super.addRow(new Object[]{
+					content,
+					content.getTagName(),
+					content.getInfo()});
+		}
+	}
+	
+	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Content>>
+	{
+
+		@Override
+		public boolean include(Entry<? extends RecordTableModel<Content>, ? extends Integer> entry)
+		{
+			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
+			Content content = (Content) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+        	if(content.isRecycled())
+        		return false;
+        	return (content.getTagName().matches(regex) ||
+        			content.getInfo().matches(regex));
+		}
+	}
+
+	@Override
+	void showRecordWindow(Content record) {
+		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, record);
+	}
+
+	@Override
+	void makeTransferHandler() {
+		TransferHandlerEx thex;
+		thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+		thex.setDragEnabled(true);
+		thex.setDropEnabled(true);
+		tableData.setTransferHandler(thex);
+	}
+
+	@Override
+	RecordTableModel<Content> makeModel() {
+		return new TableModel();
+	}
+
+	@Override
+	RecordTableRowFilter<RecordTableModel<Content>> makeRowFilter() {
+		return new RowFilter();
 	}
 }

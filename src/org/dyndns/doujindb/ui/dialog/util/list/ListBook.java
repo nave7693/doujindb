@@ -3,6 +3,7 @@ package org.dyndns.doujindb.ui.dialog.util.list;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import java.util.List;
 
@@ -18,13 +19,14 @@ import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 import org.dyndns.doujindb.ui.dialog.util.WrapLayout;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public class ListBook extends RecordList<Book> implements ActionListener, LayoutManager// extends JPanel, DataBaseListener
+public class ListBook extends RecordList<Book> implements ActionListener, LayoutManager
 {
 	private BookContainer tokenIBook;
 	private JPanel recordPreview;
@@ -165,17 +167,81 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	{
 		return getRecords().iterator();
 	}
+	
 	@Override
 	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		switch(data.getType())
 		{
 		case LINK:
-//TODO			recordList.addRecord((Book)data.getTarget());
+				addRecord((Book)data.getTarget());
 			break;
 		case UNLINK:
-//TODO			recordList.removeRecord((Book)data.getTarget());
+				removeRecord((Book)data.getTarget());
 			break;
 		}
+	}
+	
+	private final class TableModel extends RecordTableModel<Book>
+	{
+		public TableModel()
+		{
+			super();
+			addColumn("");
+			addColumn("Japanese");
+			addColumn("Translated");
+			addColumn("Romaji");
+		}
+
+		public void addRecord(Book book)
+		{
+			if(containsRecord(book))
+				return;
+			super.addRow(new Object[] {
+					book,
+					book.getJapaneseName(),
+					book.getTranslatedName(),
+					book.getRomajiName()});
+		}
+	}
+	
+	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Book>>
+	{
+
+		@Override
+		public boolean include(Entry<? extends RecordTableModel<Book>, ? extends Integer> entry)
+		{
+			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
+			Book book = (Book) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+        	if(book.isRecycled())
+        		return false;
+        	return (book.getJapaneseName().matches(regex) ||
+        			book.getTranslatedName().matches(regex) ||
+        			book.getRomajiName().matches(regex));
+		}
+	}
+
+	@Override
+	void showRecordWindow(Book record) {
+		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, record);
+	}
+
+	@Override
+	void makeTransferHandler() {
+		TransferHandlerEx thex;
+		thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
+		thex.setDragEnabled(true);
+		thex.setDropEnabled(true);
+		tableData.setTransferHandler(thex);
+	}
+
+	@Override
+	RecordTableModel<Book> makeModel() {
+		return new TableModel();
+	}
+
+	@Override
+	RecordTableRowFilter<RecordTableModel<Book>> makeRowFilter() {
+		return new RowFilter();
 	}
 }

@@ -5,6 +5,9 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.CircleContainer;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 
 @SuppressWarnings("serial")
 public class ListCircle extends RecordList<Circle>
@@ -44,4 +47,68 @@ public class ListCircle extends RecordList<Circle>
 			break;
 		}
 	}
+	
+	private final class TableModel extends RecordTableModel<Circle>
+	{
+		public TableModel()
+		{
+			super();
+			addColumn("");
+			addColumn("Japanese");
+			addColumn("Translated");
+			addColumn("Romaji");
+		}
+
+		public void addRecord(Circle circle)
+		{
+			if(containsRecord(circle))
+				return;
+			super.addRow(new Object[] {
+					circle,
+					circle.getJapaneseName(),
+					circle.getTranslatedName(),
+					circle.getRomajiName()});
+		}
+	}
+	
+	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Circle>>
+	{
+
+		@Override
+		public boolean include(Entry<? extends RecordTableModel<Circle>, ? extends Integer> entry)
+		{
+			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
+			Circle circle = (Circle) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+        	if(circle.isRecycled())
+        		return false;
+        	return (circle.getJapaneseName().matches(regex) ||
+        			circle.getTranslatedName().matches(regex) ||
+        			circle.getRomajiName().matches(regex));
+		}
+	}
+
+	@Override
+	void showRecordWindow(Circle record) {
+		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, record);
+	}
+
+	@Override
+	void makeTransferHandler() {
+		TransferHandlerEx thex;
+		thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
+		thex.setDragEnabled(true);
+		thex.setDropEnabled(true);
+		tableData.setTransferHandler(thex);
+	}
+
+	@Override
+	RecordTableModel<Circle> makeModel() {
+		return new TableModel();
+	}
+
+	@Override
+	RecordTableRowFilter<RecordTableModel<Circle>> makeRowFilter() {
+		return new RowFilter();
+	}
 }
+

@@ -5,6 +5,9 @@ import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.ParodyContainer;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 
 @SuppressWarnings("serial")
 public class ListParody extends RecordList<Parody>
@@ -43,5 +46,68 @@ public class ListParody extends RecordList<Parody>
 			removeRecord((Parody)data.getTarget());
 			break;
 		}
+	}
+	
+	private final class TableModel extends RecordTableModel<Parody>
+	{
+		public TableModel()
+		{
+			super();
+			addColumn("");
+			addColumn("Japanese");
+			addColumn("Translated");
+			addColumn("Romaji");
+		}
+
+		public void addRecord(Parody parody)
+		{
+			if(containsRecord(parody))
+				return;
+			super.addRow(new Object[] {
+					parody,
+					parody.getJapaneseName(),
+					parody.getTranslatedName(),
+					parody.getRomajiName()});
+		}
+	}
+	
+	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Parody>>
+	{
+
+		@Override
+		public boolean include(Entry<? extends RecordTableModel<Parody>, ? extends Integer> entry)
+		{
+			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
+			Parody parody = (Parody) entry.getModel().getValueAt(entry.getIdentifier(), 0);
+        	if(parody.isRecycled())
+        		return false;
+        	return (parody.getJapaneseName().matches(regex) ||
+        			parody.getTranslatedName().matches(regex) ||
+        			parody.getRomajiName().matches(regex));
+		}
+	}
+
+	@Override
+	void showRecordWindow(Parody record) {
+		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, record);
+	}
+
+	@Override
+	void makeTransferHandler() {
+		TransferHandlerEx thex;
+		thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+		thex.setDragEnabled(true);
+		thex.setDropEnabled(true);
+		tableData.setTransferHandler(thex);
+	}
+
+	@Override
+	RecordTableModel<Parody> makeModel() {
+		return new TableModel();
+	}
+
+	@Override
+	RecordTableRowFilter<RecordTableModel<Parody>> makeRowFilter() {
+		return new RowFilter();
 	}
 }

@@ -18,7 +18,6 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -31,7 +30,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected RecordTableRenderer tableRenderer;
 	protected RecordTableEditor tableEditor;
 	protected TableRowSorter<RecordTableModel<T>> tableSorter;
-	protected RecordTableRowFilter<RecordTableModel<T>,Integer> tableFilter;
+	protected RecordTableRowFilter<RecordTableModel<T>> tableFilter;
 
 	protected String filterRegex;
 	protected JTextField searchField;
@@ -39,18 +38,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected JPopupMenu popupAction;
 	
 	protected static final Font font = UI.Font;
-	
-	private Type m_Type;
-	
-	private enum Type
-	{
-		ARTIST,
-		BOOK,
-		CIRCLE,
-		CONTENT,
-		CONVENTION,
-		PARODY
-	}
 	
 	public RecordList(Iterable<T> data, Class<?> clazz)
 	{
@@ -75,10 +62,10 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		});
 		
 		tableData = new JTable();
-		tableModel = new RecordTableModel<T>(clazz);
+		tableModel = makeModel();
 		tableData.setModel(tableModel);
 		tableSorter = new TableRowSorter<RecordTableModel<T>>(tableModel);
-		tableFilter = new RecordTableRowFilter<RecordTableModel<T>,Integer>();
+		tableFilter = makeRowFilter();
 		tableSorter.setRowFilter(tableFilter);
 		tableData.setRowSorter(tableSorter);
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
@@ -92,60 +79,9 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		 * @see http://docs.oracle.com/javase/tutorial/uiswing/dnd/emptytable.html
 		 */
 		tableData.setFillsViewportHeight(true);
-		TransferHandlerEx thex;
-		if(clazz.equals(Artist.class))
-			m_Type = Type.ARTIST;
-		if(clazz.equals(Book.class))
-			m_Type = Type.BOOK;
-		if(clazz.equals(Circle.class))
-			m_Type = Type.CIRCLE;
-		if(clazz.equals(Content.class))
-			m_Type = Type.CONTENT;
-		if(clazz.equals(Convention.class))
-			m_Type = Type.CONVENTION;
-		if(clazz.equals(Parody.class))
-			m_Type = Type.PARODY;
-		switch(m_Type)
-        {
-        case ARTIST:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        case BOOK:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        case CIRCLE:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        case CONTENT:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        case CONVENTION:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        case PARODY:
-        	thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
-			thex.setDragEnabled(true);
-			thex.setDropEnabled(true);
-			tableData.setTransferHandler(thex);
-        	break;
-        default:
-        	throw new IllegalArgumentException("Invalid Class<?> provided : " + clazz);
-        }
+		
+		makeTransferHandler();
+		
 		tableData.setDragEnabled(true);
 		tableData.setDropMode(DropMode.ON);
 		tableData.getTableHeader().setFont(font);
@@ -164,37 +100,15 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 			tableData.getColumnModel().getColumn(k).setMinWidth(125);
 		}
 		scrollPane = new JScrollPane(tableData);
-		tableData.addMouseListener(new MouseAdapter() {
+		tableData.addMouseListener(new MouseAdapter()
+		{
+			@SuppressWarnings("unchecked")
 			public void mouseClicked(MouseEvent me)
 			{
-				if(me.getClickCount() == 2 &&
-					me.getButton() == MouseEvent.BUTTON1)
+				if(me.getClickCount() == 2 && me.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						final Record item = (Record) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0);
-						switch(m_Type)
-		                {
-		                case ARTIST:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
-		                	break;
-		                case BOOK:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
-		                	break;
-		                case CIRCLE:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
-		                	break;
-		                case CONTENT:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
-		                	break;
-		                case CONVENTION:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
-		                	break;
-		                case PARODY:
-		                	UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
-		                	break;
-		                default:
-		                	return;
-		                }
+						showRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
 					} catch (DataBaseException dbe) {
 						Logger.logError(dbe.getMessage(), dbe);
 					}
@@ -330,18 +244,18 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		});
 		
 		final Iterable<T> records = data;
-		new SwingWorker<Void,Record>()
+		new SwingWorker<Void, T>()
 		{
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				for(Record record : records)
+				for(T record : records)
 					publish(record);
 				return null;
 			}
 			@Override
-			protected void process(List<Record> chunks) {
-				for(Record record : chunks)
+			protected void process(List<T> chunks) {
+				for(T record : chunks)
 					tableModel.addRecord(record);
 			}
 		}.execute();
@@ -349,6 +263,14 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		add(scrollPane);
    		setVisible(true);
 	}
+	
+	abstract void showRecordWindow(T record);
+	
+	abstract void makeTransferHandler();
+	
+	abstract RecordTableModel<T> makeModel();
+	
+	abstract RecordTableRowFilter<RecordTableModel<T>> makeRowFilter();
 	
 	@Override
 	public void addMouseListener(MouseListener listener)
@@ -467,109 +389,13 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		}
 	}
 	
-	@SuppressWarnings("all")
-	private final class RecordTableRowFilter<M extends RecordTableModel<T>, I extends Integer> extends RowFilter<M, I>
+	public abstract class RecordTableRowFilter<M extends RecordTableModel<T>> extends RowFilter<M, Integer>
 	{
 
-		@Override
-		public boolean include(javax.swing.RowFilter.Entry<? extends M, ? extends I> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			switch(m_Type)
-            {
-            case ARTIST:
-            	Artist a = (Artist) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(a.isRecycled())
-            		return false;
-            	return (a.getJapaneseName().matches(regex) ||
-            			a.getTranslatedName().matches(regex) ||
-            			a.getRomajiName().matches(regex));
-            case BOOK:
-            	Book b = (Book) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(b.isRecycled())
-            		return false;
-            	return (b.getJapaneseName().matches(regex) ||
-            			b.getTranslatedName().matches(regex) ||
-            			b.getRomajiName().matches(regex));
-            case CIRCLE:
-            	Circle c = (Circle) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(c.isRecycled())
-            		return false;
-            	return (c.getJapaneseName().matches(regex) ||
-            			c.getTranslatedName().matches(regex) ||
-            			c.getRomajiName().matches(regex));
-            case CONTENT:
-            	Content t = (Content) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(t.isRecycled())
-            		return false;
-            	return (t.getTagName().matches(regex) ||
-            			t.getInfo().matches(regex));
-            case CONVENTION:
-            	Convention e = (Convention) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(e.isRecycled())
-            		return false;
-            	return (e.getTagName().matches(regex) ||
-            			e.getInfo().matches(regex));
-            case PARODY:
-            	Parody p = (Parody) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-            	if(p.isRecycled())
-            		return false;
-            	return (p.getJapaneseName().matches(regex) ||
-            			p.getTranslatedName().matches(regex) ||
-            			p.getRomajiName().matches(regex));
-            default:
-            	return false;
-            }
-		}
 	}
 	
-	public class RecordTableModel<R extends T> extends DefaultTableModel
+	public abstract class RecordTableModel<R extends T> extends DefaultTableModel
 	{
-		public RecordTableModel(Class<?> clazz)
-		{
-			super();
-			if(clazz == Artist.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(clazz == Book.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(clazz == Circle.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-			if(clazz == Convention.class)
-		    {
-				addColumn("");
-				addColumn("Tag Name");
-				addColumn("Information");
-		    }
-			if(clazz == Content.class)
-		    {
-				addColumn("");
-				addColumn("Tag Name");
-				addColumn("Information");
-		    }
-			if(clazz == Parody.class)
-		    {
-				addColumn("");
-				addColumn("Japanese");
-				addColumn("Translated");
-				addColumn("Romaji");
-		    }
-		}
-
 		@SuppressWarnings("unchecked")
 		public int getRecordCount()
 		{
@@ -612,57 +438,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 				}
 		}
 
-		public void addRecord(Record record)
-		{
-			if(containsRecord(record))
-				return;
-			if(record instanceof Artist)
-			{
-				Artist a = (Artist)record;
-				super.addRow(new Object[]{a,
-						a.getJapaneseName(),
-						a.getTranslatedName(),
-						a.getRomajiName()});
-			}
-			if(record instanceof Book)
-			{
-				Book b = (Book)record;
-				super.addRow(new Object[]{b,
-						b.getJapaneseName(),
-						b.getTranslatedName(),
-						b.getRomajiName()});
-			}
-			if(record instanceof Circle)
-			{
-				Circle c = (Circle)record;
-				super.addRow(new Object[]{c,
-						c.getJapaneseName(),
-						c.getTranslatedName(),
-						c.getRomajiName()});
-			}
-			if(record instanceof Convention)
-			{
-				Convention e = (Convention)record;
-				super.addRow(new Object[]{e,
-						e.getTagName(),
-						e.getInfo()});
-			}
-			if(record instanceof Content)
-			{
-				Content t = (Content)record;
-				super.addRow(new Object[]{t,
-						t.getTagName(),
-						t.getInfo()});
-			}
-			if(record instanceof Parody)
-			{
-				Parody p = (Parody)record;
-				super.addRow(new Object[]{p,
-						p.getJapaneseName(),
-						p.getTranslatedName(),
-						p.getRomajiName()});
-			}
-		}
+		abstract public void addRecord(R record);
 	}
 
 	private final class RecordTableEditor extends AbstractCellEditor implements TableCellEditor

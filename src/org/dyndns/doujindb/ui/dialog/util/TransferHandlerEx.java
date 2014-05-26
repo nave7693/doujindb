@@ -143,7 +143,7 @@ public final class TransferHandlerEx extends TransferHandler
 		
 		java.util.List<Record> data;
 		JTable table = (JTable)info.getComponent();
-		RecordList.RecordTableModel model = (RecordList.RecordTableModel)table.getModel();
+		RecordList.RecordTableModel model = (RecordList.RecordTableModel) table.getModel();
 		JTable.DropLocation dl = (JTable.DropLocation)info.getDropLocation();
 		
 		if(!table.isEnabled())

@@ -16,7 +16,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordBookEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
 import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -35,7 +35,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 	private JLabel labelWeblink;
 	private JTextField textWeblink;
 	private JTabbedPane tabLists;
-	private RecordBookEditor editorWorks;
+	private ListBook editorWorks;
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
@@ -62,11 +62,12 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 		textWeblink.setFont(font);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
-		editorWorks = new RecordBookEditor(tokenParody);
+		editorWorks = new ListBook(tokenParody);
 		tabLists.addTab("Works", Icon.desktop_explorer_book, editorWorks);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getRecordList()
+				editorWorks
 		}));
+		tabLists.doLayout();
 		try
 		{
 			DropTarget dt = new DropTarget();

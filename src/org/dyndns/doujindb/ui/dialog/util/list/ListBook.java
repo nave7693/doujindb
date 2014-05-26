@@ -3,11 +3,8 @@ package org.dyndns.doujindb.ui.dialog.util.list;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import java.util.List;
 
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.DataStore;
@@ -16,7 +13,6 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.containers.BookContainer;
-import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
@@ -28,39 +24,21 @@ import org.dyndns.doujindb.util.ImageTool;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public class RecordBookEditor extends JPanel implements LayoutManager, ActionListener, DataBaseListener
+public class ListBook extends RecordList<Book> implements ActionListener, LayoutManager// extends JPanel, DataBaseListener
 {
 	private BookContainer tokenIBook;
-	private RecordList<Book> recordList;
 	private JPanel recordPreview;
 	private JScrollPane scrollRecordPreview;
-	private JTextField searchField;
 	private boolean previewToggled = false;
 	private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
 	private JButton toggleList;
 	private JButton togglePreview;
-	protected static final Font font = UI.Font;
 	
-	public RecordBookEditor(BookContainer token) throws DataBaseException
+	public ListBook(BookContainer token) throws DataBaseException
 	{
-		super();
+		super(token.getBooks(), Book.class);
 		this.tokenIBook = token;
 		super.setLayout(this);
-		searchField = new JTextField("");
-		searchField.setFont(font);
-		searchField.getDocument().addDocumentListener(new DocumentListener()
-		{
-		    public void insertUpdate(DocumentEvent e) {
-		    	recordList.filterChanged(searchField.getText());
-		    }
-		    public void removeUpdate(DocumentEvent e) {
-		    	recordList.filterChanged(searchField.getText());
-		    }
-		    public void changedUpdate(DocumentEvent e) {
-		    	recordList.filterChanged(searchField.getText());
-		    }
-		});
-		recordList = new RecordList<Book>(tokenIBook.getBooks(), Book.class);
 		toggleList = new JButton(Icon.desktop_explorer_table_view_list);
 		toggleList.setToolTipText("Toggle List");
 		toggleList.addActionListener(this);
@@ -114,16 +92,12 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 		togglePreview.setToolTipText("Toggle Preview");
 		togglePreview.addActionListener(this);
 		togglePreview.setFocusable(false);
-		super.add(searchField);
-		super.add(recordList);
 		if(previewEnabled)
 		{
 			super.add(toggleList);
 			super.add(togglePreview);
 			super.add(scrollRecordPreview);
 		}
-		super.setEnabled(false);
-		validate();
 	}
 	
 	@Override
@@ -143,19 +117,20 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		searchField.setBounds(0, 0, width - 20, 20);
+//TODO		searchField.setBounds(0, 0, width - 20, 20);
 		if(!previewToggled)
 		{
-			toggleList.setBounds(0, 0, 0, 0);
-			recordList.setBounds(0, 20, width, height - 20);
-			togglePreview.setBounds(width - 20, 0, 20, 20);
-			scrollRecordPreview.setBounds(0, 0, 0, 0);
+//TODO			toggleList.setBounds(0, 0, 0, 0);
+//TODO			recordList.setBounds(0, 20, width, height - 20);
+//TODO			togglePreview.setBounds(width - 20, 0, 20, 20);
+//TODO			scrollRecordPreview.setBounds(0, 0, 0, 0);
 		} else {
-			toggleList.setBounds(width - 20, 0, 20, 20);
-			recordList.setBounds(0, 0, 0, 0);
-			togglePreview.setBounds(0, 0, 0, 0);
-			scrollRecordPreview.setBounds(0, 20, width, height - 20);
+//TODO			toggleList.setBounds(width - 20, 0, 20, 20);
+//TODO			recordList.setBounds(0, 0, 0, 0);
+//TODO			togglePreview.setBounds(0, 0, 0, 0);
+//TODO			scrollRecordPreview.setBounds(0, 20, width, height - 20);
 		}
+		super.layoutContainer(parent);
 	}
 	
 	@Override
@@ -180,7 +155,7 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	public boolean contains(Book item)
 	{
 		boolean contains = false;
-		for(Object o : recordList.getRecords())
+		for(Object o : getRecords())
 			if(o.equals(item))
 				return true;
 		return contains;
@@ -188,62 +163,19 @@ public class RecordBookEditor extends JPanel implements LayoutManager, ActionLis
 	
 	public java.util.Iterator<Book> iterator()
 	{
-		return recordList.getRecords().iterator();
+		return getRecords().iterator();
 	}
-	
-	public RecordList<Book> getRecordList()
-	{
-		return recordList;
-	}
-
-	@Override
-	public void setEnabled(boolean enabled)
-	{
-		recordList.setEnabled(enabled);
-		searchField.setEnabled(enabled);
-	}
-
-	@Override
-	public void recordAdded(Record rcd) { }
-	
-	@Override
-	public void recordDeleted(Record rcd) { }
-	
 	@Override
 	public void recordUpdated(Record rcd, UpdateData data)
 	{
 		switch(data.getType())
 		{
 		case LINK:
-			recordList.addRecord((Book)data.getTarget());
+//TODO			recordList.addRecord((Book)data.getTarget());
 			break;
 		case UNLINK:
-			recordList.removeRecord((Book)data.getTarget());
+//TODO			recordList.removeRecord((Book)data.getTarget());
 			break;
 		}
-	}
-	
-	@Override
-	public void databaseConnected() { }
-	
-	@Override
-	public void databaseDisconnected() { }
-	
-	@Override
-	public void databaseCommit() { }
-	
-	@Override
-	public void databaseRollback() { }
-
-	@Override
-	public void recordRecycled(Record rcd)
-	{
-		recordList.recordsChanged();
-	}
-
-	@Override
-	public void recordRestored(Record rcd)
-	{
-		recordList.recordsChanged();
 	}
 }

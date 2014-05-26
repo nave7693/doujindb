@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
-import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.records.Book.Rating;
 
 import static org.dyndns.doujindb.ui.UI.Icon;

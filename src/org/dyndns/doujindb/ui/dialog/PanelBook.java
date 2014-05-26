@@ -33,11 +33,7 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordArtistEditor;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordCircleEditor;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordContentEditor;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordParodyEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.*;
 import org.dyndns.doujindb.util.ImageTool;
 import org.dyndns.doujindb.util.RepositoryIndexer;
 
@@ -73,10 +69,10 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	private JCheckBox checkColored;
 	private BookRatingEditor editorRating;
 	private JTabbedPane tabLists;
-	private RecordArtistEditor editorArtists;
-	private RecordCircleEditor editorCircles;
-	private RecordContentEditor editorContents;
-	private RecordParodyEditor editorParodies;
+	private ListArtist editorArtists;
+	private ListCircle editorCircles;
+	private ListContent editorContents;
+	private ListParody editorParodies;
 	private PanelBookMedia mediaManager;
 	private JButton buttonConfirm;
 	
@@ -318,13 +314,13 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		panelInfo.add(comboType);
 		panelInfo.add(labelPreview);
 		tabLists.addTab("General", Icon.desktop_explorer_book_info, panelInfo);
-		editorArtists = new RecordArtistEditor(tokenBook);
+		editorArtists = new ListArtist(tokenBook);
 		tabLists.addTab("Artists", Icon.desktop_explorer_artist, editorArtists);
-		editorCircles = new RecordCircleEditor(tokenBook);
+		editorCircles = new ListCircle(tokenBook);
 		tabLists.addTab("Circles", Icon.desktop_explorer_circle, editorCircles);
-		editorContents = new RecordContentEditor(tokenBook);
+		editorContents = new ListContent(tokenBook);
 		tabLists.addTab("Contents", Icon.desktop_explorer_content, editorContents);
-		editorParodies = new RecordParodyEditor(tokenBook);
+		editorParodies = new ListParody(tokenBook);
 		tabLists.addTab("Parodies", Icon.desktop_explorer_parody, editorParodies);
 		mediaManager = new PanelBookMedia(tokenBook);
 		tabLists.addTab("Media", Icon.desktop_explorer_book_media, mediaManager);
@@ -335,12 +331,13 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		}
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
 				null,
-				editorArtists.getRecordList(),
-				editorCircles.getRecordList(),
-				editorContents.getRecordList(),
-				editorParodies.getRecordList(),
+				editorArtists,
+				editorCircles,
+				editorContents,
+				editorParodies,
 				null
 		}));
+		tabLists.doLayout();
 		try
 		{
 			DropTarget dt = new DropTarget();

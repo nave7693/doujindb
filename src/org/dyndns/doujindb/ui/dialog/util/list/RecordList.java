@@ -6,10 +6,14 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.*;
 
 import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
@@ -19,19 +23,20 @@ import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class RecordList<T extends Record> extends JPanel implements LayoutManager
+public abstract class RecordList<T extends Record> extends JPanel implements DataBaseListener, LayoutManager
 {
-	private JScrollPane scrollPane;
-	private JTable tableData;
-	private JPopupMenu m_PopupAction;
-	
-	private RecordTableModel<T> tableModel;
-	private RecordTableRenderer tableRenderer;
-	private RecordTableEditor tableEditor;
-	private TableRowSorter<RecordTableModel<T>> tableSorter;
-	private RecordTableRowFilter<RecordTableModel<T>,Integer> tableFilter;
-	
-	private String filterRegex;
+	protected JScrollPane scrollPane;
+	protected JTable tableData;
+	protected RecordTableModel<T> tableModel;
+	protected RecordTableRenderer tableRenderer;
+	protected RecordTableEditor tableEditor;
+	protected TableRowSorter<RecordTableModel<T>> tableSorter;
+	protected RecordTableRowFilter<RecordTableModel<T>,Integer> tableFilter;
+
+	protected String filterRegex;
+	protected JTextField searchField;
+
+	protected JPopupMenu popupAction;
 	
 	protected static final Font font = UI.Font;
 	
@@ -52,7 +57,22 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		super();
 		super.setLayout(this);
 		
-		m_PopupAction = new JPopupMenu();
+		popupAction = new JPopupMenu();
+		
+		searchField = new JTextField("");
+		searchField.setFont(font);
+		searchField.getDocument().addDocumentListener(new DocumentListener()
+		{
+		    public void insertUpdate(DocumentEvent e) {
+		    	filterChanged(searchField.getText());
+		    }
+		    public void removeUpdate(DocumentEvent e) {
+		    	filterChanged(searchField.getText());
+		    }
+		    public void changedUpdate(DocumentEvent e) {
+		    	filterChanged(searchField.getText());
+		    }
+		});
 		
 		tableData = new JTable();
 		tableModel = new RecordTableModel<T>(clazz);
@@ -194,7 +214,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		    	if (me.isPopupTrigger())
 		    	{
 		    		// Reset PopupMenu
-		    		m_PopupAction.removeAll();
+		    		popupAction.removeAll();
 		    		
 		    		// Get all selected Records
 		    		final Vector<T> selected = new Vector<T>();
@@ -244,7 +264,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 					});
 					menuItem.setName("remove");
 					menuItem.setActionCommand("remove");
-					m_PopupAction.add(menuItem);
+					popupAction.add(menuItem);
 					if(selected.size() == 1 && selected.get(0) instanceof Book)
 					{
 						menuItem = new JMenuItem("Clone", Icon.desktop_explorer_clone);
@@ -302,9 +322,9 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 						});
 						menuItem.setName("clone");
 						menuItem.setActionCommand("clone");
-						m_PopupAction.add(menuItem);
+						popupAction.add(menuItem);
 					}
-		            m_PopupAction.show(me.getComponent(), me.getX(), me.getY());
+					popupAction.show(me.getComponent(), me.getX(), me.getY());
 		        }
 		    }
 		});
@@ -340,18 +360,18 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	public void addLayoutComponent(String name, Component c) {}
 
 	@Override
-	public void layoutContainer(Container c)
+	public void layoutContainer(Container parent)
 	{
-		scrollPane.setBounds(0,0,c.getWidth(), c.getHeight());
+		scrollPane.setBounds(0, 0, parent.getWidth(), parent.getHeight());
 	}
 
 	@Override
-	public Dimension minimumLayoutSize(Container c) {
+	public Dimension minimumLayoutSize(Container parent) {
 		return new Dimension(250, 150);
 	}
 
 	@Override
-	public Dimension preferredLayoutSize(Container c) {
+	public Dimension preferredLayoutSize(Container parent) {
 		return new Dimension(250, 250);
 	}
 
@@ -361,6 +381,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 	@Override
 	public void setEnabled(boolean enabled)
 	{
+		searchField.setEnabled(enabled);
 		tableData.setDragEnabled(enabled);
 		tableData.setEnabled(enabled);
 		super.setEnabled(enabled);
@@ -666,5 +687,35 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 			    super.cancelCellEditing();
 			    return null;
 			}
+	}
+	
+	@Override
+	public void recordAdded(Record r) { }
+	
+	@Override
+	public void recordDeleted(Record r) { }
+	
+	@Override
+	public void databaseConnected() { }
+	
+	@Override
+	public void databaseDisconnected() { }
+	
+	@Override
+	public void databaseCommit() { }
+	
+	@Override
+	public void databaseRollback() { }
+
+	@Override
+	public void recordRecycled(Record r)
+	{
+		recordsChanged();
+	}
+
+	@Override
+	public void recordRestored(Record r)
+	{
+		recordsChanged();
 	}
 }

@@ -9,7 +9,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
+import org.dyndns.doujindb.ui.dialog.util.list.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

@@ -16,8 +16,8 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordBookEditor;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordCircleEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
+import org.dyndns.doujindb.ui.dialog.util.list.ListCircle;
 import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -36,8 +36,8 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 	private JLabel labelWeblink;
 	private JTextField textWeblink;
 	private JTabbedPane tabLists;
-	private RecordBookEditor editorWorks;
-	private RecordCircleEditor editorCircles;
+	private ListBook editorWorks;
+	private ListCircle editorCircles;
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
@@ -64,14 +64,15 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		textWeblink.setFont(font);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
-		editorWorks = new RecordBookEditor(tokenArtist);
+		editorWorks = new ListBook(tokenArtist);
 		tabLists.addTab("Works", Icon.desktop_explorer_book, editorWorks);
-		editorCircles = new RecordCircleEditor(tokenArtist);
+		editorCircles = new ListCircle(tokenArtist);
 		tabLists.addTab("Circles", Icon.desktop_explorer_circle, editorCircles);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getRecordList(),
-				editorCircles.getRecordList()
+				editorWorks,
+				editorCircles
 		}));
+		tabLists.doLayout();
 		try
 		{
 			DropTarget dt = new DropTarget();

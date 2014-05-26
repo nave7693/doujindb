@@ -22,7 +22,7 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordBookEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
 import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -41,7 +41,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	private JTextArea textInfo;
 	private JScrollPane scrollInfo;
 	private JTabbedPane tabLists;
-	private RecordBookEditor editorWorks;
+	private ListBook editorWorks;
 	private JTextField textAlias;
 	private JList<String> listAlias;
 	private JButton addAlias;
@@ -65,7 +65,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		scrollInfo = new JScrollPane(textInfo);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
-		editorWorks = new RecordBookEditor(tokenContent);
+		editorWorks = new ListBook(tokenContent);
 		tabLists.addTab("Works", Icon.desktop_explorer_book, editorWorks);
 		JPanel panel = new JPanel();
 		textAlias = new JTextField("");
@@ -256,9 +256,10 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		});
 		tabLists.addTab("Aliases", Icon.desktop_explorer_content, panel);
 		tabLists.setUI(new TabbedPaneUIEx(new RecordList<?>[]{
-				editorWorks.getRecordList(),
+				editorWorks,
 				null
 		}));
+		tabLists.doLayout();
 		try
 		{
 			DropTarget dt = new DropTarget();

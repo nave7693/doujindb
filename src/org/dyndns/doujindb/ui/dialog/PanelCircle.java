@@ -23,6 +23,9 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordArtistEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordBookEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;

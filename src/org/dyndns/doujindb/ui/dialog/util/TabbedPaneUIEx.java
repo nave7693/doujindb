@@ -9,6 +9,8 @@ import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
+
 public final class TabbedPaneUIEx extends BasicTabbedPaneUI
 {
 	private RecordList<?>[] recordLists;

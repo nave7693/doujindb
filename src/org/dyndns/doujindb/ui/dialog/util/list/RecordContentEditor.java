@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.dialog.util;
+package org.dyndns.doujindb.ui.dialog.util.list;
 
 import java.awt.*;
 
@@ -8,24 +8,24 @@ import javax.swing.event.DocumentListener;
 
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.ParodyContainer;
+import org.dyndns.doujindb.db.containers.ContentContainer;
 import org.dyndns.doujindb.db.event.DataBaseListener;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.ui.UI;
 
 @SuppressWarnings("serial")
-public class RecordParodyEditor extends JSplitPane implements DataBaseListener
+public class RecordContentEditor extends JSplitPane implements DataBaseListener
 {
-	private ParodyContainer tokenIParody;
-	private RecordList<Parody> recordList;
+	private ContentContainer tokenIContent;
+	private RecordList<Content> recordList;
 	private JTextField searchField = new JTextField("");
 	protected static final Font font = UI.Font;
 	
-	public RecordParodyEditor(ParodyContainer token) throws DataBaseException
+	public RecordContentEditor(ContentContainer token) throws DataBaseException
 	{
 		super();
-		this.tokenIParody = token;
+		this.tokenIContent = token;
 		searchField.setFont(font);
 		setOrientation(JSplitPane.VERTICAL_SPLIT);
 		searchField.getDocument().addDocumentListener(new DocumentListener()
@@ -40,7 +40,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		    	recordList.filterChanged(searchField.getText());
 		    }
 		});
-		recordList = new RecordList<Parody>(tokenIParody.getParodies(), Parody.class);
+		recordList = new RecordList<Content>(tokenIContent.getContents(), Content.class);
 		setTopComponent(searchField);
 		setBottomComponent(recordList);
 		setDividerSize(0);
@@ -48,7 +48,7 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		validate();
 	}
 	
-	public boolean contains(Parody item)
+	public boolean contains(Content item)
 	{
 		boolean contains = false;
 		for(Object o : recordList.getRecords())
@@ -57,12 +57,12 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		return contains;
 	}
 	
-	public java.util.Iterator<Parody> iterator()
+	public java.util.Iterator<Content> iterator()
 	{
 		return recordList.getRecords().iterator();
 	}
 	
-	public RecordList<Parody> getRecordList()
+	public RecordList<Content> getRecordList()
 	{
 		return recordList;
 	}
@@ -86,10 +86,10 @@ public class RecordParodyEditor extends JSplitPane implements DataBaseListener
 		switch(data.getType())
 		{
 		case LINK:
-			recordList.addRecord((Parody)data.getTarget());
+			recordList.addRecord((Content)data.getTarget());
 			break;
 		case UNLINK:
-			recordList.removeRecord((Parody)data.getTarget());
+			recordList.removeRecord((Content)data.getTarget());
 			break;
 		}
 	}

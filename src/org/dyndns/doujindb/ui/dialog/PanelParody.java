@@ -16,6 +16,8 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordBookEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

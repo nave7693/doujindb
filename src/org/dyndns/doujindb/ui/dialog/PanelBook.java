@@ -33,6 +33,11 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordArtistEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordCircleEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordContentEditor;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordParodyEditor;
 import org.dyndns.doujindb.util.ImageTool;
 import org.dyndns.doujindb.util.RepositoryIndexer;
 

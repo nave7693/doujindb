@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.ui.dialog.util;
+package org.dyndns.doujindb.ui.dialog.util.list;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,18 +6,15 @@ import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -505,7 +502,7 @@ public final class RecordList<T extends Record> extends JPanel implements Layout
 		}
 	}
 	
-	class RecordTableModel<R extends T> extends DefaultTableModel
+	public class RecordTableModel<R extends T> extends DefaultTableModel
 	{
 		public RecordTableModel(Class<?> clazz)
 		{

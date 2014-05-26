@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
@@ -8,6 +9,7 @@ import java.util.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

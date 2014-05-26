@@ -32,6 +32,7 @@ import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.ui.dialog.util.combobox.*;
 import org.dyndns.doujindb.util.ImageTool;
 import org.dyndns.doujindb.util.RepositoryIndexer;
 
@@ -222,7 +223,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		comboConvention = new ComboBoxConvention();
 		comboConvention.setFont(font);
 		comboConvention.setFocusable(true);
-		comboConvention.addItem(null);
 		editorRating = new BookRatingEditor(tokenBook.getRating());
 		checkAdult = new JCheckBox("Adult", false);
 		checkAdult.setFont(font);

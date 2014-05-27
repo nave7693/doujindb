@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
+import org.dyndns.doujindb.ui.dialog.util.dnd.ArtistTransferHandler;
 
 @SuppressWarnings("serial")
 public class ListArtist extends RecordList<Artist>
@@ -93,8 +93,7 @@ public class ListArtist extends RecordList<Artist>
 
 	@Override
 	void makeTransferHandler() {
-		TransferHandlerEx thex;
-		thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
+		ArtistTransferHandler thex = new ArtistTransferHandler();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

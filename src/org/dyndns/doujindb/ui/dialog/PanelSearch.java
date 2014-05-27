@@ -26,6 +26,7 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.ui.dialog.util.dnd.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -513,7 +514,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.ARTIST);
+			ArtistTransferHandler thex = new ArtistTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -844,7 +845,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
+			BookTransferHandler thex = new BookTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1209,7 +1210,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CIRCLE);
+			CircleTransferHandler thex = new CircleTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1476,7 +1477,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+			ContentTransferHandler thex = new ContentTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1726,7 +1727,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.CONVENTION);
+			ConventionTransferHandler thex = new ConventionTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1991,7 +1992,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			TransferHandlerEx thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+			ParodyTransferHandler thex = new ParodyTransferHandler();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);

@@ -1,37 +1,22 @@
-package org.dyndns.doujindb.ui.dialog.util;
+package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
-import java.util.*;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.ui.dialog.util.list.*;
 
-import static org.dyndns.doujindb.ui.UI.Icon;
-
 @SuppressWarnings("serial")
-public final class TransferHandlerEx extends TransferHandler
+abstract class TransferHandlerEx<T extends Record> extends TransferHandler
 {
-	public enum Type
-	{
-		ARTIST,
-		BOOK,
-		CIRCLE,
-		CONTENT,
-		CONVENTION,
-		PARODY
-	}
-	
-	private boolean dragEnabled = false;
-	private boolean dropEnabled = false;
-	private Type type;
-	private Image icon;
-	
-	private static DataFlavor flavorComponentSource = new DataFlavor("dnd-transfer/source", "DND.TransferSource")
+	protected boolean dragEnabled = false;
+	protected boolean dropEnabled = false;
+	protected Image icon;
+	protected DataFlavor flavor;
+	protected DataFlavor flavorComponentSource = new DataFlavor("dnd-transfer/source", "DND.TransferSource")
 	{
 		@Override
 		public String getMimeType()
@@ -51,31 +36,8 @@ public final class TransferHandlerEx extends TransferHandler
 			return Serializable.class;
 		}
 	};
-	private static HashMap<Type, DataFlavor> flavors;
-	{
-		flavors = new HashMap<Type, DataFlavor>();
-		for(Type t : Type.values())
-			flavors.put(t, new DataFlavorEx(t));
-	}
 	
-	private static HashMap<Type, Image> icons;
-	{
-		icons = new HashMap<Type, Image>();
-		icons.put(Type.ARTIST, Icon.desktop_explorer_artist.getImage());
-		icons.put(Type.BOOK, Icon.desktop_explorer_book.getImage());
-		icons.put(Type.CIRCLE, Icon.desktop_explorer_circle.getImage());
-		icons.put(Type.CONTENT, Icon.desktop_explorer_content.getImage());
-		icons.put(Type.CONVENTION, Icon.desktop_explorer_convention.getImage());
-		icons.put(Type.PARODY, Icon.desktop_explorer_parody.getImage());
-	}
-	
-	public TransferHandlerEx(Type type)
-	{
-		super();
-		
-		this.type = type;
-		icon = icons.get(type);
-	}
+	public TransferHandlerEx() { }
 	
 	public boolean getDragEnabled()
 	{
@@ -103,7 +65,7 @@ public final class TransferHandlerEx extends TransferHandler
 		if(!dropEnabled)
 			return false;
 		
-		if (!info.isDataFlavorSupported(flavors.get(type)))
+		if (!info.isDataFlavorSupported(flavor))
     		return false;
 		
 		try {
@@ -138,7 +100,7 @@ public final class TransferHandlerEx extends TransferHandler
 		if (!info.isDrop())
             return false;
 		
-		if (!info.isDataFlavorSupported(flavors.get(type)))
+		if (!info.isDataFlavorSupported(flavor))
     		return false;
 		
 		java.util.List<Record> data;
@@ -150,7 +112,7 @@ public final class TransferHandlerEx extends TransferHandler
 			return false;
 		
 		try {
-			data = (java.util.List<Record>) info.getTransferable().getTransferData(flavors.get(type));
+			data = (java.util.List<Record>) info.getTransferable().getTransferData(flavor);
 			 for(Record rcd : data)
 				 model.addRecord(rcd);
 		} catch (UnsupportedFlavorException ufe) {
@@ -175,68 +137,20 @@ public final class TransferHandlerEx extends TransferHandler
     }
 	
 	@Override
-    protected Transferable createTransferable(JComponent comp)
-    {
-		if(!dragEnabled)
-			return null;
-		
-		JTable table = (JTable)comp;
-    	final java.util.List<Record> data = new Vector<Record>();
-    	for(int index : table.getSelectedRows())
-    		data.add((Record)table.getValueAt(index, 0));
-    	
-    	return new TransferableEx(type, data, comp);
-    }
-	
-	@Override
 	protected void exportDone(JComponent source, Transferable data, int action)
 	{
 		super.exportDone(source, data, action);
 	}
 	
-	private final class DataFlavorEx extends DataFlavor
+	abstract class DataFlavorEx<R extends T> extends DataFlavor
 	{
-		private String mime = "doujindb/unknown";
-		private Class<?> clazz = Record.class;
-		private String name = "Doujindb.Record.Unknown";
+		protected String mime = "doujindb/unknown";
+		protected Class<? extends Record> clazz = Record.class;
+		protected String name = "Doujindb.Record.Unknown";
 		
-		private DataFlavorEx(Type type)
+		public DataFlavorEx()
 		{
 			super("doujindb/unknown", "Doujindb.Record.Unknown");
-			
-			switch(type)
-            {
-            case ARTIST:
-            	mime = "doujindb/record-artist";
-            	name = "Doujindb.Record.Artist";
-            	clazz = Artist.class;
-            	break;
-            case BOOK:
-            	mime = "doujindb/record-book";
-            	name = "Doujindb.Record.Book";
-            	clazz = Book.class;
-            	break;
-            case CIRCLE:
-            	mime = "doujindb/record-circle";
-            	name = "Doujindb.Record.Circle";
-            	clazz = Circle.class;
-            	break;
-            case CONTENT:
-            	mime = "doujindb/record-content";
-            	name = "Doujindb.Record.Content";
-            	clazz = Content.class;
-            	break;
-            case CONVENTION:
-            	mime = "doujindb/record-convention";
-            	name = "Doujindb.Record.Convention";
-            	clazz = Convention.class;
-            	break;
-            case PARODY:
-            	mime = "doujindb/record-parody";
-            	name = "Doujindb.Record.Parody";
-            	clazz = Parody.class;
-            	break;
-            }
 		}
 		
 		@Override
@@ -252,23 +166,19 @@ public final class TransferHandlerEx extends TransferHandler
 		}
 
 		@Override
-		public Class<?> getRepresentationClass()
+		public Class<? extends Record> getRepresentationClass()
 		{
 			return clazz;
 		}
 	}
 	
-	private final class TransferableEx implements Transferable
+	abstract class TransferableEx<R extends T> implements Transferable
 	{
-		private Type type;
-		private java.util.List<Record> data;
-		private Component component;
+		protected java.util.List<R> data;
+		protected Component component;
 		
-		private TransferableEx(Type type, java.util.List<Record> data, Component component)
+		protected TransferableEx(java.util.List<R> data, Component component)
 		{
-			super();
-			
-			this.type = type;
 			this.data = data;
 			this.component = component;
 		}
@@ -292,13 +202,13 @@ public final class TransferHandlerEx extends TransferHandler
 		@Override
 		public DataFlavor[] getTransferDataFlavors()
 		{
-			return new DataFlavor[]{ flavors.get(type) };
+			return new DataFlavor[]{ flavor };
 		}
 
 		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
-			return flavor.getMimeType().equals(flavors.get(type).getMimeType());
+			return flavor.getMimeType().equals(flavor.getMimeType());
 		}
 	}
 }

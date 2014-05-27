@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
+import org.dyndns.doujindb.ui.dialog.util.dnd.ContentTransferHandler;
 
 @SuppressWarnings("serial")
 public class ListContent extends RecordList<Content>
@@ -91,8 +91,7 @@ public class ListContent extends RecordList<Content>
 
 	@Override
 	void makeTransferHandler() {
-		TransferHandlerEx thex;
-		thex = new TransferHandlerEx(TransferHandlerEx.Type.CONTENT);
+		ContentTransferHandler thex = new ContentTransferHandler();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

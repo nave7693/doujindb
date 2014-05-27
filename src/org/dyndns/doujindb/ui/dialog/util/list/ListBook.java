@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+
 import java.util.List;
 
 import org.dyndns.doujindb.conf.Configuration;
@@ -19,8 +20,8 @@ import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
 import org.dyndns.doujindb.ui.dialog.util.WrapLayout;
+import org.dyndns.doujindb.ui.dialog.util.dnd.BookTransferHandler;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -228,8 +229,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 
 	@Override
 	void makeTransferHandler() {
-		TransferHandlerEx thex;
-		thex = new TransferHandlerEx(TransferHandlerEx.Type.BOOK);
+		BookTransferHandler thex = new BookTransferHandler();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

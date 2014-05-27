@@ -7,7 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.util.TransferHandlerEx;
+import org.dyndns.doujindb.ui.dialog.util.dnd.ParodyTransferHandler;
 
 @SuppressWarnings("serial")
 public class ListParody extends RecordList<Parody>
@@ -94,8 +94,7 @@ public class ListParody extends RecordList<Parody>
 
 	@Override
 	void makeTransferHandler() {
-		TransferHandlerEx thex;
-		thex = new TransferHandlerEx(TransferHandlerEx.Type.PARODY);
+		ParodyTransferHandler thex = new ParodyTransferHandler();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

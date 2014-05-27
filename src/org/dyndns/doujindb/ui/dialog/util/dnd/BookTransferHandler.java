@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Book;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -38,7 +38,7 @@ public final class BookTransferHandler extends TransferHandlerEx<Book>
 		private BookDataFlavor()
 		{
 			mime = "doujindb/record-book";
-        	name = "Doujindb.Record.Book";
+        	name = "DoujinDB.Record.Book";
         	clazz = Book.class;
 		}
 	}

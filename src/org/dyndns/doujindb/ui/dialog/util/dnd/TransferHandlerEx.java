@@ -90,7 +90,7 @@ abstract class TransferHandlerEx<T extends Record> extends TransferHandler
 		return true;
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
+	@SuppressWarnings({ "unchecked", "unused" })
 	@Override
     public boolean importData(TransferHandler.TransferSupport info)
     {
@@ -103,18 +103,18 @@ abstract class TransferHandlerEx<T extends Record> extends TransferHandler
 		if (!info.isDataFlavorSupported(flavor))
     		return false;
 		
-		java.util.List<Record> data;
+		java.util.List<T> data;
 		JTable table = (JTable)info.getComponent();
-		RecordList.RecordTableModel model = (RecordList.RecordTableModel) table.getModel();
+		RecordList<T>.RecordTableModel<T> model = (RecordList<T>.RecordTableModel<T>) table.getModel();
 		JTable.DropLocation dl = (JTable.DropLocation)info.getDropLocation();
 		
 		if(!table.isEnabled())
 			return false;
 		
 		try {
-			data = (java.util.List<Record>) info.getTransferable().getTransferData(flavor);
-			 for(Record rcd : data)
-				 model.addRecord(rcd);
+			data = (java.util.List<T>) info.getTransferable().getTransferData(flavor);
+			 for(T record : data)
+				 model.addRecord(record);
 		} catch (UnsupportedFlavorException ufe) {
 			ufe.printStackTrace();
 			return false;
@@ -144,13 +144,13 @@ abstract class TransferHandlerEx<T extends Record> extends TransferHandler
 	
 	abstract class DataFlavorEx<R extends T> extends DataFlavor
 	{
-		protected String mime = "doujindb/unknown";
+		protected String mime = "doujindb/record-unknown";
 		protected Class<? extends Record> clazz = Record.class;
-		protected String name = "Doujindb.Record.Unknown";
+		protected String name = "DoujinDB.Record.Unknown";
 		
 		public DataFlavorEx()
 		{
-			super("doujindb/unknown", "Doujindb.Record.Unknown");
+			super("doujindb/record-unknown", "DoujinDB.Record.Unknown");
 		}
 		
 		@Override

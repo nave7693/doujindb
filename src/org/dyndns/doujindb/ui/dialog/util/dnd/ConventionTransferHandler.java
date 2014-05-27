@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Convention;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -38,7 +38,7 @@ public final class ConventionTransferHandler extends TransferHandlerEx<Conventio
 		private ConventionDataFlavor()
 		{
 			mime = "doujindb/record-convention";
-        	name = "Doujindb.Record.Convention";
+        	name = "DoujinDB.Record.Convention";
         	clazz = Convention.class;
 		}
 	}

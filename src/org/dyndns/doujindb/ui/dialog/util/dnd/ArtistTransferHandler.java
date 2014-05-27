@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Artist;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -38,7 +38,7 @@ public final class ArtistTransferHandler extends TransferHandlerEx<Artist>
 		private ArtistDataFlavor()
 		{
 			mime = "doujindb/record-artist";
-        	name = "Doujindb.Record.Artist";
+        	name = "DoujinDB.Record.Artist";
         	clazz = Artist.class;
 		}
 	}

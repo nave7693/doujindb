@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Circle;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -38,7 +38,7 @@ public final class CircleTransferHandler extends TransferHandlerEx<Circle>
 		private CircleDataFlavor()
 		{
 			mime = "doujindb/record-circle";
-        	name = "Doujindb.Record.Circle";
+        	name = "DoujinDB.Record.Circle";
         	clazz = Circle.class;
 		}
 	}

@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.records.Parody;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -38,7 +38,7 @@ public final class ParodyTransferHandler extends TransferHandlerEx<Parody>
 		private ParodyDataFlavor()
 		{
 			mime = "doujindb/record-parody";
-        	name = "Doujindb.Record.Parody";
+        	name = "DoujinDB.Record.Parody";
         	clazz = Parody.class;
 		}
 	}

@@ -130,22 +130,23 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void layoutContainer(Container parent)
 	{
+		super.layoutContainer(parent);
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-//TODO		searchField.setBounds(0, 0, width - 20, 20);
+		searchComboBox.setBounds(0, 0, width - 41, 20);
+		addRecord.setBounds(width - 40, 0, 20, 20);
 		if(!previewToggled)
 		{
-//TODO			toggleList.setBounds(0, 0, 0, 0);
-//TODO			recordList.setBounds(0, 20, width, height - 20);
-//TODO			togglePreview.setBounds(width - 20, 0, 20, 20);
-//TODO			scrollRecordPreview.setBounds(0, 0, 0, 0);
+			toggleList.setBounds(0, 0, 0, 0);
+			togglePreview.setBounds(width - 20, 0, 20, 20);
+			scrollPane.setBounds(0, 21, width, height);
+			scrollRecordPreview.setBounds(0, 0, 0, 0);
 		} else {
-//TODO			toggleList.setBounds(width - 20, 0, 20, 20);
-//TODO			recordList.setBounds(0, 0, 0, 0);
-//TODO			togglePreview.setBounds(0, 0, 0, 0);
-//TODO			scrollRecordPreview.setBounds(0, 20, width, height - 20);
+			toggleList.setBounds(width - 20, 0, 20, 20);
+			togglePreview.setBounds(0, 0, 0, 0);
+			scrollPane.setBounds(0, 0, 0, 0);
+			scrollRecordPreview.setBounds(0, 21, width, height);
 		}
-		super.layoutContainer(parent);
 	}
 	
 	@Override

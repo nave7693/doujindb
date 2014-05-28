@@ -11,15 +11,15 @@ import org.dyndns.doujindb.db.records.Book;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class BookTransferHandler extends TransferHandlerEx<Book>
+public final class TransferHandlerBook extends TransferHandlerEx<Book>
 {
 	static private final DataFlavor bflavor = new BookDataFlavor();
 
-	public BookTransferHandler()
+	public TransferHandlerBook()
 	{
 		super();
 		icon = Icon.desktop_explorer_book.getImage();
-		flavor = BookTransferHandler.bflavor;
+		flavor = TransferHandlerBook.bflavor;
 	}
 	
 	@Override

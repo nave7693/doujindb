@@ -514,7 +514,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			ArtistTransferHandler thex = new ArtistTransferHandler();
+			TransferHandlerArtist thex = new TransferHandlerArtist();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -845,7 +845,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			BookTransferHandler thex = new BookTransferHandler();
+			TransferHandlerBook thex = new TransferHandlerBook();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1210,7 +1210,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			CircleTransferHandler thex = new CircleTransferHandler();
+			TransferHandlerCircle thex = new TransferHandlerCircle();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1477,7 +1477,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			ContentTransferHandler thex = new ContentTransferHandler();
+			TransferHandlerContent thex = new TransferHandlerContent();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1727,7 +1727,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			ConventionTransferHandler thex = new ConventionTransferHandler();
+			TransferHandlerConvention thex = new TransferHandlerConvention();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);
@@ -1992,7 +1992,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				}
 			});
 			tableResults.setDragEnabled(true);
-			ParodyTransferHandler thex = new ParodyTransferHandler();
+			TransferHandlerParody thex = new TransferHandlerParody();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
 			tableResults.setTransferHandler(thex);

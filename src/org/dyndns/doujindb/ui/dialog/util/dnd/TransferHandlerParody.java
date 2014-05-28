@@ -11,15 +11,15 @@ import org.dyndns.doujindb.db.records.Parody;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class ParodyTransferHandler extends TransferHandlerEx<Parody>
+public final class TransferHandlerParody extends TransferHandlerEx<Parody>
 {
 	static private final DataFlavor pflavor = new ParodyDataFlavor();
 
-	public ParodyTransferHandler()
+	public TransferHandlerParody()
 	{
 		super();
 		icon = Icon.desktop_explorer_parody.getImage();
-		flavor = ParodyTransferHandler.pflavor;
+		flavor = TransferHandlerParody.pflavor;
 	}
 	
 	@Override

@@ -11,15 +11,15 @@ import org.dyndns.doujindb.db.records.Convention;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class ConventionTransferHandler extends TransferHandlerEx<Convention>
+public final class TransferHandlerConvention extends TransferHandlerEx<Convention>
 {
 	static private final DataFlavor eflavor = new ConventionDataFlavor();
 
-	public ConventionTransferHandler()
+	public TransferHandlerConvention()
 	{
 		super();
 		icon = Icon.desktop_explorer_convention.getImage();
-		flavor = ConventionTransferHandler.eflavor;
+		flavor = TransferHandlerConvention.eflavor;
 	}
 	
 	@Override

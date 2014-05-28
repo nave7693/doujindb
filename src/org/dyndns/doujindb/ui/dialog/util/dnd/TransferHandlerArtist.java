@@ -10,15 +10,15 @@ import org.dyndns.doujindb.db.records.Artist;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class ArtistTransferHandler extends TransferHandlerEx<Artist>
+public final class TransferHandlerArtist extends TransferHandlerEx<Artist>
 {
 	static private final DataFlavor aflavor = new ArtistDataFlavor();
 	
-	public ArtistTransferHandler()
+	public TransferHandlerArtist()
 	{
 		super();
 		icon = Icon.desktop_explorer_artist.getImage();
-		flavor = ArtistTransferHandler.aflavor;
+		flavor = TransferHandlerArtist.aflavor;
 	}
 	
 	@Override

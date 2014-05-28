@@ -11,15 +11,15 @@ import org.dyndns.doujindb.db.records.Circle;
 import static org.dyndns.doujindb.ui.UI.Icon;
 
 @SuppressWarnings("serial")
-public final class CircleTransferHandler extends TransferHandlerEx<Circle>
+public final class TransferHandlerCircle extends TransferHandlerEx<Circle>
 {
 	static private final DataFlavor cflavor = new CircleDataFlavor();
 
-	public CircleTransferHandler()
+	public TransferHandlerCircle()
 	{
 		super();
 		icon = Icon.desktop_explorer_circle.getImage();
-		flavor = CircleTransferHandler.cflavor;
+		flavor = TransferHandlerCircle.cflavor;
 	}
 	
 	@Override

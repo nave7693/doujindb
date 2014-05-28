@@ -8,7 +8,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxCircle;
-import org.dyndns.doujindb.ui.dialog.util.dnd.CircleTransferHandler;
+import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerCircle;
 
 @SuppressWarnings("serial")
 public class ListCircle extends RecordList<Circle>
@@ -97,7 +97,7 @@ public class ListCircle extends RecordList<Circle>
 
 	@Override
 	void makeTransferHandler() {
-		CircleTransferHandler thex = new CircleTransferHandler();
+		TransferHandlerCircle thex = new TransferHandlerCircle();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

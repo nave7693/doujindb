@@ -22,7 +22,7 @@ import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.WrapLayout;
 import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxBook;
-import org.dyndns.doujindb.ui.dialog.util.dnd.BookTransferHandler;
+import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerBook;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -232,7 +232,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 
 	@Override
 	void makeTransferHandler() {
-		BookTransferHandler thex = new BookTransferHandler();
+		TransferHandlerBook thex = new TransferHandlerBook();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
 		tableData.setTransferHandler(thex);

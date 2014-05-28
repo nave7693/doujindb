@@ -275,13 +275,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	@Override
 	public synchronized String toString()
 	{
-		//return this.japaneseName;
-		return "("+(getConvention()==null?"不詳":getConvention())+") " +
-			"("+getType()+") " +
-			"["+getCircles().toString().replaceAll("[\\[\\]]", "").replaceAll(",", "／") +
-			"("+getArtists().toString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")] " +
-			""+getJapaneseName() + " " +
-			"("+getParodies().toString().replaceAll("[\\[\\]]", "").replaceAll(",", "／")+")";
+		return this.getJapaneseName();
 	}
 	
 	@Override

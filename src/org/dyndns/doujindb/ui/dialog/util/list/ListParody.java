@@ -1,5 +1,8 @@
 package org.dyndns.doujindb.ui.dialog.util.list;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.ParodyContainer;
@@ -22,6 +25,13 @@ public class ListParody extends RecordList<Parody>
 		searchComboBox = new ComboBoxParody();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Parody");
+		addRecord.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				tokenIParody.addParody((Parody) searchComboBox.getSelectedItem());
+			}
+		});
 		add(addRecord);
 	}
 	

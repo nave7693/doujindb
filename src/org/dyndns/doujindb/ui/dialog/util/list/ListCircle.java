@@ -1,5 +1,8 @@
 package org.dyndns.doujindb.ui.dialog.util.list;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
 import org.dyndns.doujindb.db.containers.CircleContainer;
@@ -22,6 +25,13 @@ public class ListCircle extends RecordList<Circle>
 		searchComboBox = new ComboBoxCircle();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Circle");
+		addRecord.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				tokenICircle.addCircle((Circle) searchComboBox.getSelectedItem());
+			}
+		});
 		add(addRecord);
 	}
 	

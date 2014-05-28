@@ -45,6 +45,13 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		searchComboBox = new ComboBoxBook();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Book");
+		addRecord.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				tokenIBook.addBook((Book) searchComboBox.getSelectedItem());
+			}
+		});
 		add(addRecord);
 		super.setLayout(this);
 		toggleList = new JButton(Icon.desktop_explorer_table_view_list);

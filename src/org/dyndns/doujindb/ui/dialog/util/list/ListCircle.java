@@ -7,6 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxCircle;
 import org.dyndns.doujindb.ui.dialog.util.dnd.CircleTransferHandler;
 
 @SuppressWarnings("serial")
@@ -18,6 +19,8 @@ public class ListCircle extends RecordList<Circle>
 	{
 		super(token.getCircles(), Circle.class);
 		this.tokenICircle = token;
+		searchComboBox = new ComboBoxCircle();
+		add(searchComboBox);
 	}
 	
 	public boolean contains(Circle item)

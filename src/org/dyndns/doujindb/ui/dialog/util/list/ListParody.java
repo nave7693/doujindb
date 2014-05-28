@@ -7,6 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxParody;
 import org.dyndns.doujindb.ui.dialog.util.dnd.ParodyTransferHandler;
 
 @SuppressWarnings("serial")
@@ -18,6 +19,8 @@ public class ListParody extends RecordList<Parody>
 	{
 		super(token.getParodies(), Parody.class);
 		this.tokenIParody = token;
+		searchComboBox = new ComboBoxParody();
+		add(searchComboBox);
 	}
 	
 	public boolean contains(Parody item)

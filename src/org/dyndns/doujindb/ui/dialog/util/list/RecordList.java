@@ -18,6 +18,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -34,6 +35,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 
 	protected String filterRegex;
 	protected JTextField searchField;
+	protected SearchComboBox<T> searchComboBox;
 
 	protected JPopupMenu popupAction;
 	
@@ -284,7 +286,10 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	@Override
 	public void layoutContainer(Container parent)
 	{
-		scrollPane.setBounds(0, 0, parent.getWidth(), parent.getHeight());
+		int width = parent.getWidth(),
+			height = parent.getHeight();
+		searchComboBox.setBounds(0, 0, width, 20);
+		scrollPane.setBounds(0, 21, width, height);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxArtist;
 import org.dyndns.doujindb.ui.dialog.util.dnd.ArtistTransferHandler;
 
 @SuppressWarnings("serial")
@@ -18,6 +19,8 @@ public class ListArtist extends RecordList<Artist>
 	{
 		super(token.getArtists(), Artist.class);
 		this.tokenIArtist = token;
+		searchComboBox = new ComboBoxArtist();
+		add(searchComboBox);
 	}
 	
 	public boolean contains(Artist item)

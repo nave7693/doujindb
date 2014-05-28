@@ -21,6 +21,7 @@ import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.WrapLayout;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxBook;
 import org.dyndns.doujindb.ui.dialog.util.dnd.BookTransferHandler;
 import org.dyndns.doujindb.util.ImageTool;
 
@@ -41,6 +42,8 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	{
 		super(token.getBooks(), Book.class);
 		this.tokenIBook = token;
+		searchComboBox = new ComboBoxBook();
+		add(searchComboBox);
 		super.setLayout(this);
 		toggleList = new JButton(Icon.desktop_explorer_table_view_list);
 		toggleList.setToolTipText("Toggle List");

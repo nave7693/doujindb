@@ -7,6 +7,7 @@ import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxContent;
 import org.dyndns.doujindb.ui.dialog.util.dnd.ContentTransferHandler;
 
 @SuppressWarnings("serial")
@@ -18,6 +19,8 @@ public class ListContent extends RecordList<Content>
 	{
 		super(token.getContents(), Content.class);
 		this.tokenIContent = token;
+		searchComboBox = new ComboBoxContent();
+		add(searchComboBox);
 	}
 	
 	public boolean contains(Content item)

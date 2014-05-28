@@ -13,7 +13,7 @@ import org.dyndns.doujindb.db.*;
  */
 
 @SuppressWarnings("serial")
-abstract class SearchComboBox<T extends Record> extends JComboBox<T> implements KeyListener
+public abstract class SearchComboBox<T extends Record> extends JComboBox<T> implements KeyListener
 {
 	protected final Vector<T> records = new Vector<T>();
 	

@@ -32,8 +32,8 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.ui.desk.*;
-import org.dyndns.doujindb.ui.desk.DesktopEx.*;
+import org.dyndns.doujindb.ui.DesktopEx.*;
+import org.dyndns.doujindb.ui.dialog.ConfigurationWizard;
 
 /**  
 * UI.java - DoujinDB graphical user interface.

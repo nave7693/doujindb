@@ -21,6 +21,8 @@ public class ListParody extends RecordList<Parody>
 		this.tokenIParody = token;
 		searchComboBox = new ComboBoxParody();
 		add(searchComboBox);
+		addRecord.setToolTipText("Add Parody");
+		add(addRecord);
 	}
 	
 	public boolean contains(Parody item)

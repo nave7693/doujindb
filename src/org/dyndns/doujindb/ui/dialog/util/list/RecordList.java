@@ -36,6 +36,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected String filterRegex;
 	protected JTextField searchField;
 	protected SearchComboBox<T> searchComboBox;
+	protected JButton addRecord;
 
 	protected JPopupMenu popupAction;
 	
@@ -62,6 +63,10 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		    	filterChanged(searchField.getText());
 		    }
 		});
+		
+		addRecord = new JButton(Icon.window_tab_explorer_add);
+		addRecord.setBorder(null);
+		addRecord.setFocusable(false);
 		
 		tableData = new JTable();
 		tableModel = makeModel();
@@ -288,7 +293,8 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		searchComboBox.setBounds(0, 0, width, 20);
+		searchComboBox.setBounds(0, 0, width - 21, 20);
+		addRecord.setBounds(width - 20, 0, 20, 20);
 		scrollPane.setBounds(0, 21, width, height);
 	}
 

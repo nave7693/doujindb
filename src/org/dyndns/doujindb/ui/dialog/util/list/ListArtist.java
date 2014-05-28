@@ -21,6 +21,8 @@ public class ListArtist extends RecordList<Artist>
 		this.tokenIArtist = token;
 		searchComboBox = new ComboBoxArtist();
 		add(searchComboBox);
+		addRecord.setToolTipText("Add Artist");
+		add(addRecord);
 	}
 	
 	public boolean contains(Artist item)

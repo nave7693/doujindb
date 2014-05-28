@@ -21,6 +21,8 @@ public class ListCircle extends RecordList<Circle>
 		this.tokenICircle = token;
 		searchComboBox = new ComboBoxCircle();
 		add(searchComboBox);
+		addRecord.setToolTipText("Add Circle");
+		add(addRecord);
 	}
 	
 	public boolean contains(Circle item)

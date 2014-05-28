@@ -21,6 +21,8 @@ public class ListContent extends RecordList<Content>
 		this.tokenIContent = token;
 		searchComboBox = new ComboBoxContent();
 		add(searchComboBox);
+		addRecord.setToolTipText("Add Content");
+		add(addRecord);
 	}
 	
 	public boolean contains(Content item)

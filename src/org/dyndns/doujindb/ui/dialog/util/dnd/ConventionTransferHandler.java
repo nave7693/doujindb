@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
@@ -12,11 +13,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class ConventionTransferHandler extends TransferHandlerEx<Convention>
 {
+	static private final DataFlavor eflavor = new ConventionDataFlavor();
+
 	public ConventionTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_convention.getImage();
-		flavor = new ConventionDataFlavor();
+		flavor = ConventionTransferHandler.eflavor;
 	}
 	
 	@Override
@@ -33,13 +36,11 @@ public final class ConventionTransferHandler extends TransferHandlerEx<Conventio
     	return new ConventionTransferable(data, comp);
     }
 	
-	private final class ConventionDataFlavor extends DataFlavorEx<Convention>
+	private static final class ConventionDataFlavor extends DataFlavor
 	{
 		private ConventionDataFlavor()
 		{
-			mime = "doujindb/record-convention";
-        	name = "DoujinDB.Record.Convention";
-        	clazz = Convention.class;
+			super("doujindb/record-convention", "Convention");
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
@@ -12,11 +13,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class ParodyTransferHandler extends TransferHandlerEx<Parody>
 {
+	static private final DataFlavor pflavor = new ParodyDataFlavor();
+
 	public ParodyTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_parody.getImage();
-		flavor = new ParodyDataFlavor();
+		flavor = ParodyTransferHandler.pflavor;
 	}
 	
 	@Override
@@ -33,13 +36,11 @@ public final class ParodyTransferHandler extends TransferHandlerEx<Parody>
     	return new ParodyTransferable(data, comp);
     }
 	
-	private final class ParodyDataFlavor extends DataFlavorEx<Parody>
+	private static final class ParodyDataFlavor extends DataFlavor
 	{
 		private ParodyDataFlavor()
 		{
-			mime = "doujindb/record-parody";
-        	name = "DoujinDB.Record.Parody";
-        	clazz = Parody.class;
+			super("doujindb/record-parody", "DoujinDB.Record.Parody");
 		}
 	}
 	

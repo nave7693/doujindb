@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
@@ -12,11 +13,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class CircleTransferHandler extends TransferHandlerEx<Circle>
 {
+	static private final DataFlavor cflavor = new CircleDataFlavor();
+
 	public CircleTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_circle.getImage();
-		flavor = new CircleDataFlavor();
+		flavor = CircleTransferHandler.cflavor;
 	}
 	
 	@Override
@@ -33,13 +36,11 @@ public final class CircleTransferHandler extends TransferHandlerEx<Circle>
     	return new CircleTransferable(data, comp);
     }
 	
-	private final class CircleDataFlavor extends DataFlavorEx<Circle>
+	private static final class CircleDataFlavor extends DataFlavor
 	{
 		private CircleDataFlavor()
 		{
-			mime = "doujindb/record-circle";
-        	name = "DoujinDB.Record.Circle";
-        	clazz = Circle.class;
+			super("doujindb/record-circle", "DoujinDB.Record.Circle");
 		}
 	}
 	

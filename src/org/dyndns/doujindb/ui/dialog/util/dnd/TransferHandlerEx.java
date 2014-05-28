@@ -142,35 +142,43 @@ abstract class TransferHandlerEx<T extends Record> extends TransferHandler
 		super.exportDone(source, data, action);
 	}
 	
-	abstract class DataFlavorEx<R extends T> extends DataFlavor
-	{
-		protected String mime = "doujindb/record-unknown";
-		protected Class<? extends Record> clazz = Record.class;
-		protected String name = "DoujinDB.Record.Unknown";
-		
-		public DataFlavorEx()
-		{
-			super("doujindb/record-unknown", "DoujinDB.Record.Unknown");
-		}
-		
-		@Override
-		public String getMimeType()
-		{
-			return mime;
-		}
-
-		@Override
-		public String getHumanPresentableName()
-		{
-			return name;
-		}
-
-		@Override
-		public Class<? extends Record> getRepresentationClass()
-		{
-			return clazz;
-		}
-	}
+//	abstract class DataFlavorEx<R extends T> extends DataFlavor
+//	{
+//		protected final String mime;
+//		protected Class<? extends Record> clazz;
+//		protected String name;
+//		
+//		public DataFlavorEx()
+//		{
+//			this("doujindb/record-unknown", "DoujinDB.Record.Unknown", Record.class);
+//		}
+//		
+//		public DataFlavorEx(String mime, String name, Class<? extends Record> clazz)
+//		{
+//			super(mime, name);
+//			this.mime = mime;
+//			this.name = name;
+//			this.clazz = clazz;
+//		}
+//		
+//		@Override
+//		public String getMimeType()
+//		{
+//			return mime;
+//		}
+//
+//		@Override
+//		public String getHumanPresentableName()
+//		{
+//			return name;
+//		}
+//
+//		@Override
+//		public Class<? extends Record> getRepresentationClass()
+//		{
+//			return clazz;
+//		}
+//	}
 	
 	abstract class TransferableEx<R extends T> implements Transferable
 	{

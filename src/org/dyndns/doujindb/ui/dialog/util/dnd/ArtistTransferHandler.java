@@ -12,11 +12,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class ArtistTransferHandler extends TransferHandlerEx<Artist>
 {
+	static private final DataFlavor aflavor = new ArtistDataFlavor();
+	
 	public ArtistTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_artist.getImage();
-		flavor = new ArtistDataFlavor();
+		flavor = ArtistTransferHandler.aflavor;
 	}
 	
 	@Override
@@ -33,13 +35,11 @@ public final class ArtistTransferHandler extends TransferHandlerEx<Artist>
     	return new ArtistTransferable(data, comp);
     }
 	
-	private final class ArtistDataFlavor extends DataFlavorEx<Artist>
+	private static final class ArtistDataFlavor extends DataFlavor
 	{
 		private ArtistDataFlavor()
 		{
-			mime = "doujindb/record-artist";
-        	name = "DoujinDB.Record.Artist";
-        	clazz = Artist.class;
+			super("doujindb/record-artist", "DoujinDB.Record.Artist");
 		}
 	}
 	

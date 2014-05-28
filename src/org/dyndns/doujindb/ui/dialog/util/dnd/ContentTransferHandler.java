@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
@@ -12,11 +13,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class ContentTransferHandler extends TransferHandlerEx<Content>
 {
+	static private final DataFlavor tflavor = new ContentDataFlavor();
+
 	public ContentTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_content.getImage();
-		flavor = new ContentDataFlavor();
+		flavor = ContentTransferHandler.tflavor;
 	}
 	
 	@Override
@@ -33,13 +36,11 @@ public final class ContentTransferHandler extends TransferHandlerEx<Content>
     	return new ContentTransferable(data, comp);
     }
 	
-	private final class ContentDataFlavor extends DataFlavorEx<Content>
+	private static final class ContentDataFlavor extends DataFlavor
 	{
 		private ContentDataFlavor()
 		{
-			mime = "doujindb/record-content";
-        	name = "DoujinDB.Record.Content";
-        	clazz = Content.class;
+			super("doujindb/record-content", "DoujinDB.Record.Content");
 		}
 	}
 	

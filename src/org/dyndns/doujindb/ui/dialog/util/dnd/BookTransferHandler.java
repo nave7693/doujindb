@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
@@ -12,11 +13,13 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public final class BookTransferHandler extends TransferHandlerEx<Book>
 {
+	static private final DataFlavor bflavor = new BookDataFlavor();
+
 	public BookTransferHandler()
 	{
 		super();
 		icon = Icon.desktop_explorer_book.getImage();
-		flavor = new BookDataFlavor();
+		flavor = BookTransferHandler.bflavor;
 	}
 	
 	@Override
@@ -33,13 +36,11 @@ public final class BookTransferHandler extends TransferHandlerEx<Book>
     	return new BookTransferable(data, comp);
     }
 	
-	private final class BookDataFlavor extends DataFlavorEx<Book>
+	private static final class BookDataFlavor extends DataFlavor
 	{
 		private BookDataFlavor()
 		{
-			mime = "doujindb/record-book";
-        	name = "DoujinDB.Record.Book";
-        	clazz = Book.class;
+			super("doujindb/record-book", "DoujinDB.Record.Book");
 		}
 	}
 	

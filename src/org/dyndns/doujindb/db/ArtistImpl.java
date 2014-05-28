@@ -99,9 +99,6 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 	public synchronized String toString()
 	{
 		return this.getJapaneseName();
-		/*return japaneseName + 
-			(romajiName.equals("") ? "" : " ("+romajiName+")") +
-			(translatedName.equals("") ? "" : " ("+translatedName+")");*/
 	}
 
 	@Override

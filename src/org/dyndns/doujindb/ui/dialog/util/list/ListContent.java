@@ -29,7 +29,9 @@ public class ListContent extends RecordList<Content>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIContent.addContent((Content) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Content)
+					tokenIContent.addContent((Content) selectedItem);
 			}
 		});
 		add(addRecord);

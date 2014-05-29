@@ -29,7 +29,9 @@ public class ListArtist extends RecordList<Artist>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIArtist.addArtist((Artist) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Artist)
+					tokenIArtist.addArtist((Artist) selectedItem);
 			}
 		});
 		add(addRecord);

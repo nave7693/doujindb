@@ -49,7 +49,9 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIBook.addBook((Book) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Book)
+					tokenIBook.addBook((Book) selectedItem);
 			}
 		});
 		add(addRecord);

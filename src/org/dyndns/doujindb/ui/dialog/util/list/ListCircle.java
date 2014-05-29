@@ -29,7 +29,9 @@ public class ListCircle extends RecordList<Circle>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenICircle.addCircle((Circle) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Circle)
+					tokenICircle.addCircle((Circle) selectedItem);
 			}
 		});
 		add(addRecord);

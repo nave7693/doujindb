@@ -29,7 +29,9 @@ public class ListParody extends RecordList<Parody>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIParody.addParody((Parody) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Parody)
+					tokenIParody.addParody((Parody) selectedItem);
 			}
 		});
 		add(addRecord);

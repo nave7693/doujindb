@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerCircle;
 @SuppressWarnings("serial")
 public class ListCircle extends RecordList<Circle>
 {
-	private CircleContainer tokenICircle;
-	
 	public ListCircle(CircleContainer token) throws DataBaseException
 	{
 		super(token.getCircles(), Circle.class);
-		this.tokenICircle = token;
 		searchComboBox = new ComboBoxCircle();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Circle");
@@ -31,7 +28,7 @@ public class ListCircle extends RecordList<Circle>
 			public void actionPerformed(ActionEvent ae) {
 				Object selectedItem = searchComboBox.getSelectedItem();
 				if(selectedItem != null && selectedItem instanceof Circle)
-					tokenICircle.addCircle((Circle) selectedItem);
+					tableModel.addRecord((Circle) selectedItem);
 			}
 		});
 		add(addRecord);

@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerArtist;
 @SuppressWarnings("serial")
 public class ListArtist extends RecordList<Artist>
 {
-	private ArtistContainer tokenIArtist;
-	
 	public ListArtist(ArtistContainer token) throws DataBaseException
 	{
 		super(token.getArtists(), Artist.class);
-		this.tokenIArtist = token;
 		searchComboBox = new ComboBoxArtist();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Artist");
@@ -31,7 +28,7 @@ public class ListArtist extends RecordList<Artist>
 			public void actionPerformed(ActionEvent ae) {
 				Object selectedItem = searchComboBox.getSelectedItem();
 				if(selectedItem != null && selectedItem instanceof Artist)
-					tokenIArtist.addArtist((Artist) selectedItem);
+					tableModel.addRecord((Artist) selectedItem);
 			}
 		});
 		add(addRecord);

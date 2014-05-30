@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerContent;
 @SuppressWarnings("serial")
 public class ListContent extends RecordList<Content>
 {
-	private ContentContainer tokenIContent;
-	
 	public ListContent(ContentContainer token) throws DataBaseException
 	{
 		super(token.getContents(), Content.class);
-		this.tokenIContent = token;
 		searchComboBox = new ComboBoxContent();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Content");
@@ -31,7 +28,7 @@ public class ListContent extends RecordList<Content>
 			public void actionPerformed(ActionEvent ae) {
 				Object selectedItem = searchComboBox.getSelectedItem();
 				if(selectedItem != null && selectedItem instanceof Content)
-					tokenIContent.addContent((Content) selectedItem);
+					tableModel.addRecord((Content) selectedItem);
 			}
 		});
 		add(addRecord);

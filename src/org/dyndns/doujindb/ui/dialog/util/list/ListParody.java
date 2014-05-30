@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerParody;
 @SuppressWarnings("serial")
 public class ListParody extends RecordList<Parody>
 {
-	private ParodyContainer tokenIParody;
-	
 	public ListParody(ParodyContainer token) throws DataBaseException
 	{
 		super(token.getParodies(), Parody.class);
-		this.tokenIParody = token;
 		searchComboBox = new ComboBoxParody();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Parody");
@@ -31,7 +28,7 @@ public class ListParody extends RecordList<Parody>
 			public void actionPerformed(ActionEvent ae) {
 				Object selectedItem = searchComboBox.getSelectedItem();
 				if(selectedItem != null && selectedItem instanceof Parody)
-					tokenIParody.addParody((Parody) selectedItem);
+					tableModel.addRecord((Parody) selectedItem);
 			}
 		});
 		add(addRecord);

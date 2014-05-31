@@ -141,13 +141,13 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		{
 			toggleList.setBounds(0, 0, 0, 0);
 			togglePreview.setBounds(width - 20, 0, 20, 20);
-			scrollPane.setBounds(0, 21, width, height);
+			scrollPane.setBounds(0, 21, width, height - 20);
 			scrollRecordPreview.setBounds(0, 0, 0, 0);
 		} else {
 			toggleList.setBounds(width - 20, 0, 20, 20);
 			togglePreview.setBounds(0, 0, 0, 0);
 			scrollPane.setBounds(0, 0, 0, 0);
-			scrollRecordPreview.setBounds(0, 21, width, height);
+			scrollRecordPreview.setBounds(0, 21, width, height - 20);
 		}
 	}
 	

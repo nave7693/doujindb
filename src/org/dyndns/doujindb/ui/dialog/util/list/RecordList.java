@@ -295,7 +295,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 			height = parent.getHeight();
 		searchComboBox.setBounds(0, 0, width - 21, 20);
 		addRecord.setBounds(width - 20, 0, 20, 20);
-		scrollPane.setBounds(0, 21, width, height);
+		scrollPane.setBounds(0, 21, width, height - 20);
 	}
 
 	@Override

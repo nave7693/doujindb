@@ -18,7 +18,7 @@ public class ListArtist extends RecordList<Artist>
 {
 	public ListArtist(ArtistContainer token) throws DataBaseException
 	{
-		super(token.getArtists(), Artist.class);
+		super(token.getArtists());
 		searchComboBox = new ComboBoxArtist();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Artist");

@@ -18,7 +18,7 @@ public class ListCircle extends RecordList<Circle>
 {
 	public ListCircle(CircleContainer token) throws DataBaseException
 	{
-		super(token.getCircles(), Circle.class);
+		super(token.getCircles());
 		searchComboBox = new ComboBoxCircle();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Circle");

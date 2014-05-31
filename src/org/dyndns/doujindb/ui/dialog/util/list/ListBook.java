@@ -40,7 +40,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	
 	public ListBook(BookContainer token) throws DataBaseException
 	{
-		super(token.getBooks(), Book.class);
+		super(token.getBooks());
 		this.tokenIBook = token;
 		searchComboBox = new ComboBoxBook();
 		add(searchComboBox);

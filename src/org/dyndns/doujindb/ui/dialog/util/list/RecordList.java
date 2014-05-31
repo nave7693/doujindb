@@ -42,7 +42,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	
 	protected static final Font font = UI.Font;
 	
-	public RecordList(Iterable<T> data, Class<?> clazz)
+	public RecordList(Iterable<T> data)
 	{
 		super();
 		super.setLayout(this);

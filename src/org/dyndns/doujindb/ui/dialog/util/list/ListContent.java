@@ -18,7 +18,7 @@ public class ListContent extends RecordList<Content>
 {
 	public ListContent(ContentContainer token) throws DataBaseException
 	{
-		super(token.getContents(), Content.class);
+		super(token.getContents());
 		searchComboBox = new ComboBoxContent();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Content");

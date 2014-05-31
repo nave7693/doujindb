@@ -18,7 +18,7 @@ public class ListParody extends RecordList<Parody>
 {
 	public ListParody(ParodyContainer token) throws DataBaseException
 	{
-		super(token.getParodies(), Parody.class);
+		super(token.getParodies());
 		searchComboBox = new ComboBoxParody();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Parody");

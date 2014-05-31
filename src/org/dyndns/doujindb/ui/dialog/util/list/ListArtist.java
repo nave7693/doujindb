@@ -32,6 +32,8 @@ public class ListArtist extends RecordList<Artist>
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Artist item)

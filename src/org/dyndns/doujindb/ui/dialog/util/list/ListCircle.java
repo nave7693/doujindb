@@ -32,6 +32,8 @@ public class ListCircle extends RecordList<Circle>
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Circle item)

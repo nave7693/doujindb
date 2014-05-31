@@ -1,19 +1,15 @@
 package org.dyndns.doujindb.ui.dialog.util.list;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.io.IOException;
 
 import javax.swing.*;
 
-import java.util.List;
-
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.DataStore;
-import org.dyndns.doujindb.db.DataBase;
-import org.dyndns.doujindb.db.DataBaseException;
-import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.RecordSet;
+import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.BookContainer;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.query.QueryBook;
@@ -30,7 +26,6 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public class ListBook extends RecordList<Book> implements ActionListener, LayoutManager
 {
-	private BookContainer tokenIBook;
 	private JPanel recordPreview;
 	private JScrollPane scrollRecordPreview;
 	private boolean previewToggled = false;
@@ -41,9 +36,9 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	public ListBook(BookContainer token) throws DataBaseException
 	{
 		super(token.getBooks());
-		this.tokenIBook = token;
+		super.setLayout(this);
+		
 		searchComboBox = new ComboBoxBook();
-		add(searchComboBox);
 		addRecord.setToolTipText("Add Book");
 		addRecord.addActionListener(new ActionListener()
 		{
@@ -51,60 +46,26 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 			public void actionPerformed(ActionEvent ae) {
 				Object selectedItem = searchComboBox.getSelectedItem();
 				if(selectedItem != null && selectedItem instanceof Book)
-					tableModel.addRecord((Book) selectedItem);
+					addRecord((Book) selectedItem);
 			}
 		});
-		add(addRecord);
-		super.setLayout(this);
 		toggleList = new JButton(Icon.desktop_explorer_table_view_list);
 		toggleList.setToolTipText("Toggle List");
 		toggleList.addActionListener(this);
 		toggleList.setFocusable(false);
 		recordPreview = new JPanel();
 		recordPreview.setLayout(new WrapLayout());
-		if(previewEnabled) new SwingWorker<Void,JButton>()
-		{
-			private ActionListener listener = new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) {
-					QueryBook query = new QueryBook();
-					query.ID = ae.getActionCommand();
-					RecordSet<Book> result = DataBase.getBooks(query);
-					UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, result.iterator().next());
-				}
-			};
-			@Override
-			protected Void doInBackground() throws Exception
-			{
-				for(final Book book : tokenIBook.getBooks())
-				{
-					JButton bookButton;
-					bookButton = new JButton(
-						new ImageIcon(
-							ImageTool.read(DataStore.getThumbnail(book.getID()).getInputStream())));
-					bookButton.setActionCommand(book.getID());
-					bookButton.addActionListener(listener);
-					bookButton.setBorder(null);
-					publish(bookButton);
-				}
-				return null;
-			}
-			@Override
-			protected void process(List<JButton> chunks) {
-				for(JButton button : chunks) {
-					recordPreview.add(button);
-				}
-			}
-			@Override
-			protected void done()
-			{
-				recordPreview.validate();
-				recordPreview.doLayout();
-			}
-		}.execute();
 		scrollRecordPreview = new JScrollPane(recordPreview);
+		scrollRecordPreview.getVerticalScrollBar().setUnitIncrement(25);
 		scrollRecordPreview.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollRecordPreview.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+		        int extent = scrollRecordPreview.getVerticalScrollBar().getModel().getExtent();
+		        if((scrollRecordPreview.getVerticalScrollBar().getValue() + extent) == scrollRecordPreview.getVerticalScrollBar().getMaximum())
+		        	loadData();
+		    }
+		});
 		togglePreview = new JButton(Icon.desktop_explorer_table_view_preview);
 		togglePreview.setToolTipText("Toggle Preview");
 		togglePreview.addActionListener(this);
@@ -114,6 +75,31 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 			super.add(toggleList);
 			super.add(togglePreview);
 			super.add(scrollRecordPreview);
+		}
+		add(searchComboBox);
+		add(addRecord);
+		
+		loadData();
+	}
+	
+	@Override
+	public void addRecord(Book record)
+	{
+		super.addRecord(record);
+		if(previewEnabled)
+		{
+			JButton bookButton;
+			try {
+				bookButton = new JButton(
+					new ImageIcon(
+						ImageTool.read(DataStore.getThumbnail(record.getID()).getInputStream())));
+				bookButton.setActionCommand(record.getID());
+				bookButton.addActionListener(this);
+				bookButton.setBorder(null);
+				recordPreview.add(bookButton);
+			} catch (DataBaseException | IOException | DataStoreException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -132,23 +118,26 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void layoutContainer(Container parent)
 	{
-		super.layoutContainer(parent);
-		int width = parent.getWidth(),
-			height = parent.getHeight();
-		searchComboBox.setBounds(0, 0, width - 41, 20);
-		addRecord.setBounds(width - 40, 0, 20, 20);
-		if(!previewToggled)
+		if(previewEnabled)
 		{
-			toggleList.setBounds(0, 0, 0, 0);
-			togglePreview.setBounds(width - 20, 0, 20, 20);
-			scrollPane.setBounds(0, 21, width, height - 20);
-			scrollRecordPreview.setBounds(0, 0, 0, 0);
-		} else {
-			toggleList.setBounds(width - 20, 0, 20, 20);
-			togglePreview.setBounds(0, 0, 0, 0);
-			scrollPane.setBounds(0, 0, 0, 0);
-			scrollRecordPreview.setBounds(0, 21, width, height - 20);
-		}
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			searchComboBox.setBounds(0, 0, width - 41, 20);
+			addRecord.setBounds(width - 40, 0, 20, 20);
+			if(!previewToggled)
+			{
+				toggleList.setBounds(0, 0, 0, 0);
+				togglePreview.setBounds(width - 20, 0, 20, 20);
+				scrollPane.setBounds(0, 21, width, height - 20);
+				scrollRecordPreview.setBounds(0, 0, 0, 0);
+			} else {
+				toggleList.setBounds(width - 20, 0, 20, 20);
+				togglePreview.setBounds(0, 0, 0, 0);
+				scrollPane.setBounds(0, 0, 0, 0);
+				scrollRecordPreview.setBounds(0, 21, width, height - 20);
+			}
+		} else
+			super.layoutContainer(parent);
 	}
 	
 	@Override
@@ -167,6 +156,13 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 			doLayout();
 			scrollRecordPreview.validate();
 			return;
+		}
+		if(ae.getActionCommand() != null)
+		{
+			QueryBook query = new QueryBook();
+			query.ID = ae.getActionCommand();
+			RecordSet<Book> result = DataBase.getBooks(query);
+			openRecordWindow(result.iterator().next());
 		}
 	}
 	

@@ -32,6 +32,8 @@ public class ListParody extends RecordList<Parody>
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Parody item)

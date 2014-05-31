@@ -241,8 +241,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		
 		add(scrollPane);
    		setVisible(true);
-   		
-   		loadData();
 	}
 	
 	protected void loadData()
@@ -262,7 +260,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 			@Override
 			protected void process(List<T> chunks) {
 				for(T record : chunks)
-					tableModel.addRecord(record);
+					addRecord(record);
 			}
 		}.execute();
 	}
@@ -318,16 +316,14 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		return tableModel.getRecords();
 	}
 	
-	public void addRecord(T rcd)
+	public void addRecord(T record)
 	{
-		tableModel.addRecord(rcd);
-		tableData.validate();
+		tableModel.addRecord(record);
 	}
 	
-	public void removeRecord(T rcd)
+	public void removeRecord(T record)
 	{
-		tableModel.removeRecord(rcd);
-		tableData.validate();
+		tableModel.removeRecord(record);
 	}
 	
 	public void recordsChanged()

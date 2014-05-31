@@ -32,6 +32,8 @@ public class ListContent extends RecordList<Content>
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Content item)

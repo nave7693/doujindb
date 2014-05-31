@@ -85,22 +85,6 @@ public class ListCircle extends RecordList<Circle>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Circle>>
-	{
-
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Circle>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Circle circle = (Circle) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(circle.isRecycled())
-        		return false;
-        	return (circle.getJapaneseName().matches(regex) ||
-        			circle.getTranslatedName().matches(regex) ||
-        			circle.getRomajiName().matches(regex));
-		}
-	}
-
 	@Override
 	void showRecordWindow(Circle record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, record);
@@ -117,11 +101,6 @@ public class ListCircle extends RecordList<Circle>
 	@Override
 	RecordTableModel<Circle> makeModel() {
 		return new TableModel();
-	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Circle>> makeRowFilter() {
-		return new RowFilter();
 	}
 }
 

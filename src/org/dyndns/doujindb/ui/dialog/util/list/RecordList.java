@@ -4,12 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.*;
 
 import org.dyndns.doujindb.db.*;
@@ -33,8 +28,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected TableRowSorter<RecordTableModel<T>> tableSorter;
 	protected RecordTableRowFilter<RecordTableModel<T>> tableFilter;
 
-	protected String filterRegex;
-	protected JTextField searchField;
 	protected SearchComboBox<T> searchComboBox;
 	protected JButton addRecord;
 
@@ -42,27 +35,12 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	
 	protected static final Font font = UI.Font;
 	
-	public RecordList(Iterable<T> data)
+	public RecordList(RecordSet<T> data)
 	{
 		super();
 		super.setLayout(this);
 		
 		popupAction = new JPopupMenu();
-		
-		searchField = new JTextField("");
-		searchField.setFont(font);
-		searchField.getDocument().addDocumentListener(new DocumentListener()
-		{
-		    public void insertUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		    public void removeUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		    public void changedUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		});
 		
 		addRecord = new JButton(Icon.window_tab_explorer_add);
 		addRecord.setBorder(null);
@@ -72,8 +50,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		tableModel = makeModel();
 		tableData.setModel(tableModel);
 		tableSorter = new TableRowSorter<RecordTableModel<T>>(tableModel);
-		tableFilter = makeRowFilter();
-		tableSorter.setRowFilter(tableFilter);
 		tableData.setRowSorter(tableSorter);
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 		tableEditor = new RecordTableEditor();
@@ -250,7 +226,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		    }
 		});
 		
-		final Iterable<T> records = data;
+		final RecordSet<T> records = data;
 		new SwingWorker<Void, T>()
 		{
 			@Override
@@ -284,8 +260,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	abstract void makeTransferHandler();
 	
 	abstract RecordTableModel<T> makeModel();
-	
-	abstract RecordTableRowFilter<RecordTableModel<T>> makeRowFilter();
 	
 	@Override
 	public void addMouseListener(MouseListener listener)
@@ -322,7 +296,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	@Override
 	public void setEnabled(boolean enabled)
 	{
-		searchField.setEnabled(enabled);
 		tableData.setDragEnabled(enabled);
 		tableData.setEnabled(enabled);
 		super.setEnabled(enabled);
@@ -353,19 +326,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	public int getRecordCount()
 	{
 		return tableModel.getRecordCount();
-	}
-	
-	public boolean filterChanged(String regex)
-	{
-		try
-		{
-			Pattern.compile(regex);
-			this.filterRegex = regex;
-			tableModel.fireTableDataChanged();
-			return true;
-		} catch (PatternSyntaxException | NullPointerException e) {
-			return false;
-		}
 	}
 	
 	private final class RecordTableRenderer extends DefaultTableCellRenderer

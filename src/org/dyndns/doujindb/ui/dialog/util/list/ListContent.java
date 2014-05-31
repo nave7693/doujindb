@@ -83,21 +83,6 @@ public class ListContent extends RecordList<Content>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Content>>
-	{
-
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Content>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Content content = (Content) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(content.isRecycled())
-        		return false;
-        	return (content.getTagName().matches(regex) ||
-        			content.getInfo().matches(regex));
-		}
-	}
-
 	@Override
 	void showRecordWindow(Content record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, record);
@@ -114,10 +99,5 @@ public class ListContent extends RecordList<Content>
 	@Override
 	RecordTableModel<Content> makeModel() {
 		return new TableModel();
-	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Content>> makeRowFilter() {
-		return new RowFilter();
 	}
 }

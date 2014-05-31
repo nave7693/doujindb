@@ -26,6 +26,9 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected RecordTableRenderer tableRenderer;
 	protected RecordTableEditor tableEditor;
 	protected TableRowSorter<RecordTableModel<T>> tableSorter;
+	
+	protected Iterator<T> rowsData;
+	protected final int rowsPageSize = 25;
 
 	protected SearchComboBox<T> searchComboBox;
 	protected JButton addRecord;
@@ -38,6 +41,8 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	{
 		super();
 		super.setLayout(this);
+		
+		rowsData = data.iterator();
 		
 		popupAction = new JPopupMenu();
 		
@@ -225,14 +230,33 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		    }
 		});
 		
-		final RecordSet<T> records = data;
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+		        int extent = scrollPane.getVerticalScrollBar().getModel().getExtent();
+		        if((scrollPane.getVerticalScrollBar().getValue() + extent) == scrollPane.getVerticalScrollBar().getMaximum())
+		        	loadData();
+		    }
+		});
+		
+		add(scrollPane);
+   		setVisible(true);
+   		
+   		loadData();
+	}
+	
+	private void loadData()
+	{
 		new SwingWorker<Void, T>()
 		{
 			@Override
 			protected Void doInBackground() throws Exception
 			{
-				for(T record : records)
-					publish(record);
+				for(int index = 0; index < rowsPageSize; index++)
+					if(rowsData.hasNext())
+						publish(rowsData.next());
+					else
+						break;
 				return null;
 			}
 			@Override
@@ -241,17 +265,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 					tableModel.addRecord(record);
 			}
 		}.execute();
-		scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent ae) {
-		        int extent = scrollPane.getVerticalScrollBar().getModel().getExtent();
-		        if((scrollPane.getVerticalScrollBar().getValue() + extent) == scrollPane.getVerticalScrollBar().getMaximum())
-		        	; //TODO Add more rows to TableModel
-		    }
-		});
-		
-		add(scrollPane);
-   		setVisible(true);
 	}
 	
 	abstract void showRecordWindow(T record);

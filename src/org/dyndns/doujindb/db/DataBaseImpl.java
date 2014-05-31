@@ -276,7 +276,7 @@ final class DataBaseImpl extends IDataBase
 	{
 		context.commitChanges();
 		
-		DataBase._databaseCommit();
+		DataBase.fireDatabaseCommit();
 	}
 
 	@Override
@@ -284,7 +284,7 @@ final class DataBaseImpl extends IDataBase
 	{
 		context.rollbackChanges();
 		
-		DataBase._databaseRollback();
+		DataBase.fireDatabaseRollback();
 	}
 	
 	@Override
@@ -292,7 +292,7 @@ final class DataBaseImpl extends IDataBase
 	{
 		context.deleteObject(((RecordImpl)record).ref);
 		
-		DataBase._recordDeleted(record);
+		DataBase.fireRecordDeleted(record);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -512,37 +512,37 @@ final class DataBaseImpl extends IDataBase
 		if(clazz == Artist.class)
 		{
 			T record = (T) newArtist();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Book.class)
 		{
 			T record = (T) newBook();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Circle.class)
 		{
 			T record = (T) newCircle();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Content.class)
 		{
 			T record = (T) newContent();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Convention.class)
 		{
 			T record = (T) newConvention();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Parody.class)
 		{
 			T record = (T) newParody();
-			DataBase._recordAdded((Record)record);
+			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		throw new DataBaseException("Invalid record class '" + clazz + "' specified.");
@@ -636,7 +636,7 @@ final class DataBaseImpl extends IDataBase
 			throw new DataBaseException(e);
 		}
 		
-		DataBase._databaseConnected();
+		DataBase.fireDatabaseConnected();
 	}
 	
 	@Override
@@ -644,7 +644,7 @@ final class DataBaseImpl extends IDataBase
 	{
 		node.setDataSource(null);
 		
-		DataBase._databaseDisconnected();
+		DataBase.fireDatabaseDisconnected();
 	}
 	
 	@Override

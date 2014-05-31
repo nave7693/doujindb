@@ -27,7 +27,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getTagName().equals(tagName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setTagName(tagName);
-		DataBase._recordUpdated(this, UpdateData.property("tag_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
@@ -42,7 +42,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setInfo(info);
-		DataBase._recordUpdated(this, UpdateData.property("info"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("info"));
 	}	
 	
 	@Override
@@ -57,7 +57,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setWeblink(weblink);
-		DataBase._recordUpdated(this, UpdateData.property("weblink"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -95,8 +95,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(book));
-		DataBase._recordUpdated(book, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(book));
+		DataBase.fireRecordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -106,8 +106,8 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.unlink(book));
-		DataBase._recordUpdated(book, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(book));
+		DataBase.fireRecordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -153,14 +153,14 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(true);
-		DataBase._recordRecycled(this);
+		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(false);
-		DataBase._recordRestored(this);
+		DataBase.fireRecordRestored(this);
 	}
 
 	@Override

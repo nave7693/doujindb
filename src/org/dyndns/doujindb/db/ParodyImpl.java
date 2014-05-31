@@ -27,7 +27,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getJapaneseName().equals(japaneseName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setJapaneseName(japaneseName);
-		DataBase._recordUpdated(this, UpdateData.property("japanese_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("japanese_name"));
 	}
 
 	@Override
@@ -42,7 +42,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getTranslatedName().equals(translatedName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setTranslatedName(translatedName);
-		DataBase._recordUpdated(this, UpdateData.property("translated_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("translated_name"));
 	}
 
 	@Override
@@ -57,7 +57,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getRomajiName().equals(romajiName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRomajiName(romajiName);
-		DataBase._recordUpdated(this, UpdateData.property("romaji_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("romaji_name"));
 	}
 
 	@Override
@@ -72,7 +72,7 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 		if(getWeblink().equals(weblink))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setWeblink(weblink);
-		DataBase._recordUpdated(this, UpdateData.property("weblink"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("weblink"));
 	}
 
 	@Override
@@ -100,8 +100,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(book));
-		DataBase._recordUpdated(book, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(book));
+		DataBase.fireRecordUpdated(book, UpdateData.link(this));
 	}
 
 	@Override
@@ -111,8 +111,8 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.unlink(book));
-		DataBase._recordUpdated(book, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(book));
+		DataBase.fireRecordUpdated(book, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -129,14 +129,14 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(true);
-		DataBase._recordRecycled(this);
+		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(false);
-		DataBase._recordRestored(this);
+		DataBase.fireRecordRestored(this);
 	}
 
 	@Override

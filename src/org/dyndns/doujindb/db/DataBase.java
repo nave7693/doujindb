@@ -261,47 +261,47 @@ public final class DataBase
 		}
 	}
 	
-	static void _recordAdded(Record rcd)
+	static void fireRecordAdded(Record record)
 	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_ADDED, record));
 	}
 
-	static void _recordDeleted(Record rcd)
+	static void fireRecordDeleted(Record record)
 	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_DELETED, record));
 	}
 
-	static void _recordUpdated(Record rcd, UpdateData info)
+	static void fireRecordUpdated(Record record, UpdateData info)
 	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, rcd, info));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_UPDATED, record, info));
 	}
 	
-	static void _recordRecycled(Record rcd)
+	static void fireRecordRecycled(Record record)
 	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RECYCLED, record));
 	}
 
-	static void _recordRestored(Record rcd)
+	static void fireRecordRestored(Record record)
 	{
-		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, rcd));
+		queue.offer(new DataBaseEvent(DataBaseEvent.Type.RECORD_RESTORED, record));
 	}
 
-	static void _databaseConnected()
+	static void fireDatabaseConnected()
 	{
 		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_CONNECTED));
 	}
 
-	static void _databaseDisconnected()
+	static void fireDatabaseDisconnected()
 	{
 		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_DISCONNECTED));
 	}
 
-	static void _databaseCommit()
+	static void fireDatabaseCommit()
 	{
 		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_COMMIT));
 	}
 
-	static void _databaseRollback()
+	static void fireDatabaseRollback()
 	{
 		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
 	}

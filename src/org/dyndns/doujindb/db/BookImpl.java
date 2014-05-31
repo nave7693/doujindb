@@ -27,7 +27,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getJapaneseName().equals(japaneseName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setJapaneseName(japaneseName);
-		DataBase._recordUpdated(this, UpdateData.property("japanese_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("japanese_name"));
 	}
 
 	@Override
@@ -42,7 +42,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getTranslatedName().equals(translatedName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslatedName(translatedName);
-		DataBase._recordUpdated(this, UpdateData.property("translated_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("translated_name"));
 	}
 
 	@Override
@@ -57,7 +57,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getRomajiName().equals(romajiName))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRomajiName(romajiName);
-		DataBase._recordUpdated(this, UpdateData.property("romaji_name"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("romaji_name"));
 	}
 
 	@Override
@@ -103,7 +103,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getDate().equals(released))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPublished(released);
-		DataBase._recordUpdated(this, UpdateData.property("released"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("released"));
 	}
 
 	@Override
@@ -118,7 +118,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getType().equals(type))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setType(type);
-		DataBase._recordUpdated(this, UpdateData.property("type"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("type"));
 	}
 
 	@Override
@@ -133,7 +133,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isAdult() == adult)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setAdult(adult);
-		DataBase._recordUpdated(this, UpdateData.property("adult"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("adult"));
 	}
 
 	@Override
@@ -148,7 +148,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isDecensored() == decensored)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setDecensored(decensored);
-		DataBase._recordUpdated(this, UpdateData.property("decensored"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("decensored"));
 	}
 
 	@Override
@@ -163,7 +163,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isTranslated() == translated)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setTranslated(translated);
-		DataBase._recordUpdated(this, UpdateData.property("translated"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("translated"));
 	}
 	
 	@Override
@@ -178,7 +178,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(isColored() == colored)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setColor(colored);
-		DataBase._recordUpdated(this, UpdateData.property("color"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("color"));
 	}
 
 	@Override
@@ -193,7 +193,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getRating().equals(rating))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRating(rating);
-		DataBase._recordUpdated(this, UpdateData.property("rating"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("rating"));
 	}
 	
 	@Override
@@ -218,7 +218,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getPages() == pages)
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setPages(pages);
-		DataBase._recordUpdated(this, UpdateData.property("pages"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("pages"));
 	}
 
 	@Override
@@ -240,20 +240,20 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		{
 			Convention conv = getConvention();
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof(null);
-			DataBase._recordUpdated(this, UpdateData.unlink(conv));
-			DataBase._recordUpdated(conv, UpdateData.unlink(this));
+			DataBase.fireRecordUpdated(this, UpdateData.unlink(conv));
+			DataBase.fireRecordUpdated(conv, UpdateData.unlink(this));
 		}
 		else
 		{
 			Convention conv = getConvention();
 			if(conv != null)
 			{
-				DataBase._recordUpdated(this, UpdateData.unlink(conv));
-				DataBase._recordUpdated(conv, UpdateData.unlink(this));
+				DataBase.fireRecordUpdated(this, UpdateData.unlink(conv));
+				DataBase.fireRecordUpdated(conv, UpdateData.unlink(this));
 			}
 			((org.dyndns.doujindb.db.cayenne.Book)ref).setConventionof((org.dyndns.doujindb.db.cayenne.Convention)((ConventionImpl)convention).ref);
-			DataBase._recordUpdated(this, UpdateData.link(convention));
-			DataBase._recordUpdated(convention, UpdateData.link(this));
+			DataBase.fireRecordUpdated(this, UpdateData.link(convention));
+			DataBase.fireRecordUpdated(convention, UpdateData.link(this));
 		}
 	}
 
@@ -269,7 +269,7 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 		if(getInfo().equals(info))
 			return;
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setInfo(info);
-		DataBase._recordUpdated(this, UpdateData.property("info"));
+		DataBase.fireRecordUpdated(this, UpdateData.property("info"));
 	}
 	
 	@Override
@@ -287,8 +287,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.ArtistImpl)artist).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(artist));
-		DataBase._recordUpdated(artist, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(artist));
+		DataBase.fireRecordUpdated(artist, UpdateData.link(this));
 	}
 
 	@Override
@@ -298,8 +298,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.ArtistImpl)artist).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.unlink(artist));
-		DataBase._recordUpdated(artist, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(artist));
+		DataBase.fireRecordUpdated(artist, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -311,8 +311,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.CircleImpl)circle).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(circle));
-		DataBase._recordUpdated(circle, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(circle));
+		DataBase.fireRecordUpdated(circle, UpdateData.link(this));
 	}
 
 	@Override
@@ -322,8 +322,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.CircleImpl)circle).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.unlink(circle));
-		DataBase._recordUpdated(circle, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(circle));
+		DataBase.fireRecordUpdated(circle, UpdateData.unlink(this));
 	}
 
 	@Override
@@ -335,8 +335,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Content)
 			((org.dyndns.doujindb.db.ContentImpl)content).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(content));
-		DataBase._recordUpdated(content, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(content));
+		DataBase.fireRecordUpdated(content, UpdateData.link(this));
 	}
 
 	@Override
@@ -348,8 +348,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			(org.dyndns.doujindb.db.cayenne.Parody)
 			((org.dyndns.doujindb.db.ParodyImpl)parody).ref
 		);
-		DataBase._recordUpdated(this, UpdateData.link(parody));
-		DataBase._recordUpdated(parody, UpdateData.link(this));
+		DataBase.fireRecordUpdated(this, UpdateData.link(parody));
+		DataBase.fireRecordUpdated(parody, UpdateData.link(this));
 	}
 
 	@Override
@@ -359,8 +359,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Content)
 				((org.dyndns.doujindb.db.ContentImpl)content).ref
 			);
-		DataBase._recordUpdated(this, UpdateData.unlink(content));
-		DataBase._recordUpdated(content, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(content));
+		DataBase.fireRecordUpdated(content, UpdateData.unlink(this));
 	}
 
 	@Override
@@ -370,8 +370,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 				(org.dyndns.doujindb.db.cayenne.Parody)
 				((org.dyndns.doujindb.db.ParodyImpl)parody).ref
 			);
-		DataBase._recordUpdated(this, UpdateData.unlink(parody));
-		DataBase._recordUpdated(parody, UpdateData.unlink(this));
+		DataBase.fireRecordUpdated(this, UpdateData.unlink(parody));
+		DataBase.fireRecordUpdated(parody, UpdateData.unlink(this));
 	}
 	
 	@Override
@@ -388,14 +388,14 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	public void doRecycle() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(true);
-		DataBase._recordRecycled(this);
+		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
 		((org.dyndns.doujindb.db.cayenne.Book)ref).setRecycled(false);
-		DataBase._recordRestored(this);
+		DataBase.fireRecordRestored(this);
 	}
 
 	@Override
@@ -417,8 +417,8 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			removeParody(parody);
 		if(getConvention() != null)
 		{
-			DataBase._recordUpdated(this, UpdateData.unlink(getConvention()));
-			DataBase._recordUpdated(getConvention(), UpdateData.unlink(this));
+			DataBase.fireRecordUpdated(this, UpdateData.unlink(getConvention()));
+			DataBase.fireRecordUpdated(getConvention(), UpdateData.unlink(this));
 		}
 		setConvention(null);
 	}

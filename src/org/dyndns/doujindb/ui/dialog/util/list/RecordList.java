@@ -26,7 +26,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected RecordTableRenderer tableRenderer;
 	protected RecordTableEditor tableEditor;
 	protected TableRowSorter<RecordTableModel<T>> tableSorter;
-	protected RecordTableRowFilter<RecordTableModel<T>> tableFilter;
 
 	protected SearchComboBox<T> searchComboBox;
 	protected JButton addRecord;

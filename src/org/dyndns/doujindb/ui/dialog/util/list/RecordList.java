@@ -266,6 +266,14 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 					tableModel.addRecord(record);
 			}
 		}.execute();
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+		        int extent = scrollPane.getVerticalScrollBar().getModel().getExtent();
+		        if((scrollPane.getVerticalScrollBar().getValue() + extent) == scrollPane.getVerticalScrollBar().getMaximum())
+		        	; //TODO Add more rows to TableModel
+		    }
+		});
 		
 		add(scrollPane);
    		setVisible(true);

@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerArtist;
 @SuppressWarnings("serial")
 public class ListArtist extends RecordList<Artist>
 {
-	private ArtistContainer tokenIArtist;
-	
 	public ListArtist(ArtistContainer token) throws DataBaseException
 	{
-		super(token.getArtists(), Artist.class);
-		this.tokenIArtist = token;
+		super(token.getArtists());
 		searchComboBox = new ComboBoxArtist();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Artist");
@@ -29,10 +26,14 @@ public class ListArtist extends RecordList<Artist>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIArtist.addArtist((Artist) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Artist)
+					tableModel.addRecord((Artist) selectedItem);
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Artist item)
@@ -86,28 +87,13 @@ public class ListArtist extends RecordList<Artist>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Artist>>
-	{
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Artist>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Artist artist = (Artist) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(artist.isRecycled())
-        		return false;
-        	return (artist.getJapaneseName().matches(regex) ||
-        			artist.getTranslatedName().matches(regex) ||
-        			artist.getRomajiName().matches(regex));
-		}
-	}
-
 	@Override
-	void showRecordWindow(Artist record) {
+	protected void openRecordWindow(Artist record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerArtist thex = new TransferHandlerArtist();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -115,12 +101,7 @@ public class ListArtist extends RecordList<Artist>
 	}
 
 	@Override
-	RecordTableModel<Artist> makeModel() {
+	protected RecordTableModel<Artist> getModel() {
 		return new TableModel();
-	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Artist>> makeRowFilter() {
-		return new RowFilter();
 	}
 }

@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerParody;
 @SuppressWarnings("serial")
 public class ListParody extends RecordList<Parody>
 {
-	private ParodyContainer tokenIParody;
-	
 	public ListParody(ParodyContainer token) throws DataBaseException
 	{
-		super(token.getParodies(), Parody.class);
-		this.tokenIParody = token;
+		super(token.getParodies());
 		searchComboBox = new ComboBoxParody();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Parody");
@@ -29,10 +26,14 @@ public class ListParody extends RecordList<Parody>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIParody.addParody((Parody) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Parody)
+					tableModel.addRecord((Parody) selectedItem);
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Parody item)
@@ -86,29 +87,13 @@ public class ListParody extends RecordList<Parody>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Parody>>
-	{
-
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Parody>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Parody parody = (Parody) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(parody.isRecycled())
-        		return false;
-        	return (parody.getJapaneseName().matches(regex) ||
-        			parody.getTranslatedName().matches(regex) ||
-        			parody.getRomajiName().matches(regex));
-		}
-	}
-
 	@Override
-	void showRecordWindow(Parody record) {
+	protected void openRecordWindow(Parody record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerParody thex = new TransferHandlerParody();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -116,12 +101,7 @@ public class ListParody extends RecordList<Parody>
 	}
 
 	@Override
-	RecordTableModel<Parody> makeModel() {
+	protected RecordTableModel<Parody> getModel() {
 		return new TableModel();
-	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Parody>> makeRowFilter() {
-		return new RowFilter();
 	}
 }

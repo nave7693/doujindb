@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerCircle;
 @SuppressWarnings("serial")
 public class ListCircle extends RecordList<Circle>
 {
-	private CircleContainer tokenICircle;
-	
 	public ListCircle(CircleContainer token) throws DataBaseException
 	{
-		super(token.getCircles(), Circle.class);
-		this.tokenICircle = token;
+		super(token.getCircles());
 		searchComboBox = new ComboBoxCircle();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Circle");
@@ -29,10 +26,14 @@ public class ListCircle extends RecordList<Circle>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenICircle.addCircle((Circle) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Circle)
+					tableModel.addRecord((Circle) selectedItem);
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Circle item)
@@ -86,29 +87,13 @@ public class ListCircle extends RecordList<Circle>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Circle>>
-	{
-
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Circle>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Circle circle = (Circle) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(circle.isRecycled())
-        		return false;
-        	return (circle.getJapaneseName().matches(regex) ||
-        			circle.getTranslatedName().matches(regex) ||
-        			circle.getRomajiName().matches(regex));
-		}
-	}
-
 	@Override
-	void showRecordWindow(Circle record) {
+	protected void openRecordWindow(Circle record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerCircle thex = new TransferHandlerCircle();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -116,13 +101,7 @@ public class ListCircle extends RecordList<Circle>
 	}
 
 	@Override
-	RecordTableModel<Circle> makeModel() {
+	protected RecordTableModel<Circle> getModel() {
 		return new TableModel();
 	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Circle>> makeRowFilter() {
-		return new RowFilter();
-	}
 }
-

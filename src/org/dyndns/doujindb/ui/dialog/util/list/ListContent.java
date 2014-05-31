@@ -16,12 +16,9 @@ import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerContent;
 @SuppressWarnings("serial")
 public class ListContent extends RecordList<Content>
 {
-	private ContentContainer tokenIContent;
-	
 	public ListContent(ContentContainer token) throws DataBaseException
 	{
-		super(token.getContents(), Content.class);
-		this.tokenIContent = token;
+		super(token.getContents());
 		searchComboBox = new ComboBoxContent();
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Content");
@@ -29,10 +26,14 @@ public class ListContent extends RecordList<Content>
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				tokenIContent.addContent((Content) searchComboBox.getSelectedItem());
+				Object selectedItem = searchComboBox.getSelectedItem();
+				if(selectedItem != null && selectedItem instanceof Content)
+					tableModel.addRecord((Content) selectedItem);
 			}
 		});
 		add(addRecord);
+		
+		loadData();
 	}
 	
 	public boolean contains(Content item)
@@ -84,28 +85,13 @@ public class ListContent extends RecordList<Content>
 		}
 	}
 	
-	private final class RowFilter extends RecordTableRowFilter<RecordTableModel<Content>>
-	{
-
-		@Override
-		public boolean include(Entry<? extends RecordTableModel<Content>, ? extends Integer> entry)
-		{
-			String regex = (filterRegex == null || filterRegex.equals("")) ? ".*" : filterRegex;
-			Content content = (Content) entry.getModel().getValueAt(entry.getIdentifier(), 0);
-        	if(content.isRecycled())
-        		return false;
-        	return (content.getTagName().matches(regex) ||
-        			content.getInfo().matches(regex));
-		}
-	}
-
 	@Override
-	void showRecordWindow(Content record) {
+	protected void openRecordWindow(Content record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerContent thex = new TransferHandlerContent();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -113,12 +99,7 @@ public class ListContent extends RecordList<Content>
 	}
 
 	@Override
-	RecordTableModel<Content> makeModel() {
+	protected RecordTableModel<Content> getModel() {
 		return new TableModel();
-	}
-
-	@Override
-	RecordTableRowFilter<RecordTableModel<Content>> makeRowFilter() {
-		return new RowFilter();
 	}
 }

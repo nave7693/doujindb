@@ -4,12 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.*;
 
 import org.dyndns.doujindb.db.*;
@@ -31,10 +26,10 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected RecordTableRenderer tableRenderer;
 	protected RecordTableEditor tableEditor;
 	protected TableRowSorter<RecordTableModel<T>> tableSorter;
-	protected RecordTableRowFilter<RecordTableModel<T>> tableFilter;
+	
+	protected Iterator<T> rowsData;
+	protected final int rowsPageSize = 25;
 
-	protected String filterRegex;
-	protected JTextField searchField;
 	protected SearchComboBox<T> searchComboBox;
 	protected JButton addRecord;
 
@@ -42,38 +37,23 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	
 	protected static final Font font = UI.Font;
 	
-	public RecordList(Iterable<T> data, Class<?> clazz)
+	public RecordList(RecordSet<T> data)
 	{
 		super();
 		super.setLayout(this);
 		
-		popupAction = new JPopupMenu();
+		rowsData = data.iterator();
 		
-		searchField = new JTextField("");
-		searchField.setFont(font);
-		searchField.getDocument().addDocumentListener(new DocumentListener()
-		{
-		    public void insertUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		    public void removeUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		    public void changedUpdate(DocumentEvent e) {
-		    	filterChanged(searchField.getText());
-		    }
-		});
+		popupAction = new JPopupMenu();
 		
 		addRecord = new JButton(Icon.window_tab_explorer_add);
 		addRecord.setBorder(null);
 		addRecord.setFocusable(false);
 		
 		tableData = new JTable();
-		tableModel = makeModel();
+		tableModel = getModel();
 		tableData.setModel(tableModel);
 		tableSorter = new TableRowSorter<RecordTableModel<T>>(tableModel);
-		tableFilter = makeRowFilter();
-		tableSorter.setRowFilter(tableFilter);
 		tableData.setRowSorter(tableSorter);
 		tableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 		tableEditor = new RecordTableEditor();
@@ -87,7 +67,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		 */
 		tableData.setFillsViewportHeight(true);
 		
-		makeTransferHandler();
+		registerTransferHandler();
 		
 		tableData.setDragEnabled(true);
 		tableData.setDropMode(DropMode.ON);
@@ -115,7 +95,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 				if(me.getClickCount() == 2 && me.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						showRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
+						openRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
 					} catch (DataBaseException dbe) {
 						Logger.logError(dbe.getMessage(), dbe);
 					}
@@ -250,34 +230,46 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		    }
 		});
 		
-		final Iterable<T> records = data;
-		new SwingWorker<Void, T>()
-		{
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 			@Override
-			protected Void doInBackground() throws Exception
-			{
-				for(T record : records)
-					publish(record);
-				return null;
-			}
-			@Override
-			protected void process(List<T> chunks) {
-				for(T record : chunks)
-					tableModel.addRecord(record);
-			}
-		}.execute();
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+		        int extent = scrollPane.getVerticalScrollBar().getModel().getExtent();
+		        if((scrollPane.getVerticalScrollBar().getValue() + extent) == scrollPane.getVerticalScrollBar().getMaximum())
+		        	loadData();
+		    }
+		});
 		
 		add(scrollPane);
    		setVisible(true);
 	}
 	
-	abstract void showRecordWindow(T record);
+	protected void loadData()
+	{
+		new SwingWorker<Void, T>()
+		{
+			@Override
+			protected Void doInBackground() throws Exception
+			{
+				for(int index = 0; index < rowsPageSize; index++)
+					if(rowsData.hasNext())
+						publish(rowsData.next());
+					else
+						break;
+				return null;
+			}
+			@Override
+			protected void process(List<T> chunks) {
+				for(T record : chunks)
+					addRecord(record);
+			}
+		}.execute();
+	}
 	
-	abstract void makeTransferHandler();
+	protected abstract void openRecordWindow(T record);
 	
-	abstract RecordTableModel<T> makeModel();
+	protected abstract void registerTransferHandler();
 	
-	abstract RecordTableRowFilter<RecordTableModel<T>> makeRowFilter();
+	protected abstract RecordTableModel<T> getModel();
 	
 	@Override
 	public void addMouseListener(MouseListener listener)
@@ -295,7 +287,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 			height = parent.getHeight();
 		searchComboBox.setBounds(0, 0, width - 21, 20);
 		addRecord.setBounds(width - 20, 0, 20, 20);
-		scrollPane.setBounds(0, 21, width, height);
+		scrollPane.setBounds(0, 21, width, height - 20);
 	}
 
 	@Override
@@ -314,7 +306,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	@Override
 	public void setEnabled(boolean enabled)
 	{
-		searchField.setEnabled(enabled);
 		tableData.setDragEnabled(enabled);
 		tableData.setEnabled(enabled);
 		super.setEnabled(enabled);
@@ -325,16 +316,14 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		return tableModel.getRecords();
 	}
 	
-	public void addRecord(T rcd)
+	public void addRecord(T record)
 	{
-		tableModel.addRecord(rcd);
-		tableData.validate();
+		tableModel.addRecord(record);
 	}
 	
-	public void removeRecord(T rcd)
+	public void removeRecord(T record)
 	{
-		tableModel.removeRecord(rcd);
-		tableData.validate();
+		tableModel.removeRecord(record);
 	}
 	
 	public void recordsChanged()
@@ -345,19 +334,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	public int getRecordCount()
 	{
 		return tableModel.getRecordCount();
-	}
-	
-	public boolean filterChanged(String regex)
-	{
-		try
-		{
-			Pattern.compile(regex);
-			this.filterRegex = regex;
-			tableModel.fireTableDataChanged();
-			return true;
-		} catch (PatternSyntaxException | NullPointerException e) {
-			return false;
-		}
 	}
 	
 	private final class RecordTableRenderer extends DefaultTableCellRenderer

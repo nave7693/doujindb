@@ -85,8 +85,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void addRecord(Book record)
 	{
-		super.addRecord(record);
-		if(previewEnabled)
+		if(previewEnabled && !tableModel.containsRecord(record))
 		{
 			JButton bookButton;
 			try {
@@ -101,6 +100,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 				e.printStackTrace();
 			}
 		}
+		super.addRecord(record);
 	}
 	
 	@Override

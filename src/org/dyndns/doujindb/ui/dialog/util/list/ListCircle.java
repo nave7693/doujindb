@@ -86,12 +86,12 @@ public class ListCircle extends RecordList<Circle>
 	}
 	
 	@Override
-	void showRecordWindow(Circle record) {
+	protected void openRecordWindow(Circle record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerCircle thex = new TransferHandlerCircle();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -99,8 +99,7 @@ public class ListCircle extends RecordList<Circle>
 	}
 
 	@Override
-	RecordTableModel<Circle> makeModel() {
+	protected RecordTableModel<Circle> getModel() {
 		return new TableModel();
 	}
 }
-

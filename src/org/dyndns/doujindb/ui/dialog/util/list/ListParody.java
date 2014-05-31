@@ -86,12 +86,12 @@ public class ListParody extends RecordList<Parody>
 	}
 	
 	@Override
-	void showRecordWindow(Parody record) {
+	protected void openRecordWindow(Parody record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerParody thex = new TransferHandlerParody();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -99,7 +99,7 @@ public class ListParody extends RecordList<Parody>
 	}
 
 	@Override
-	RecordTableModel<Parody> makeModel() {
+	protected RecordTableModel<Parody> getModel() {
 		return new TableModel();
 	}
 }

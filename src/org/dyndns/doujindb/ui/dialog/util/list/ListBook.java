@@ -222,12 +222,12 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	}
 	
 	@Override
-	void showRecordWindow(Book record) {
+	protected void openRecordWindow(Book record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerBook thex = new TransferHandlerBook();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -235,7 +235,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	}
 
 	@Override
-	RecordTableModel<Book> makeModel() {
+	protected RecordTableModel<Book> getModel() {
 		return new TableModel();
 	}
 }

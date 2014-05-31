@@ -86,12 +86,12 @@ public class ListArtist extends RecordList<Artist>
 	}
 	
 	@Override
-	void showRecordWindow(Artist record) {
+	protected void openRecordWindow(Artist record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerArtist thex = new TransferHandlerArtist();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -99,7 +99,7 @@ public class ListArtist extends RecordList<Artist>
 	}
 
 	@Override
-	RecordTableModel<Artist> makeModel() {
+	protected RecordTableModel<Artist> getModel() {
 		return new TableModel();
 	}
 }

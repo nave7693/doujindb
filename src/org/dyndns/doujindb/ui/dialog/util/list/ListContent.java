@@ -84,12 +84,12 @@ public class ListContent extends RecordList<Content>
 	}
 	
 	@Override
-	void showRecordWindow(Content record) {
+	protected void openRecordWindow(Content record) {
 		UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, record);
 	}
 
 	@Override
-	void makeTransferHandler() {
+	protected void registerTransferHandler() {
 		TransferHandlerContent thex = new TransferHandlerContent();
 		thex.setDragEnabled(true);
 		thex.setDropEnabled(true);
@@ -97,7 +97,7 @@ public class ListContent extends RecordList<Content>
 	}
 
 	@Override
-	RecordTableModel<Content> makeModel() {
+	protected RecordTableModel<Content> getModel() {
 		return new TableModel();
 	}
 }

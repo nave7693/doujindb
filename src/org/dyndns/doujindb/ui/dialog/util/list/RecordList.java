@@ -51,7 +51,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		addRecord.setFocusable(false);
 		
 		tableData = new JTable();
-		tableModel = makeModel();
+		tableModel = getModel();
 		tableData.setModel(tableModel);
 		tableSorter = new TableRowSorter<RecordTableModel<T>>(tableModel);
 		tableData.setRowSorter(tableSorter);
@@ -67,7 +67,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		 */
 		tableData.setFillsViewportHeight(true);
 		
-		makeTransferHandler();
+		registerTransferHandler();
 		
 		tableData.setDragEnabled(true);
 		tableData.setDropMode(DropMode.ON);
@@ -95,7 +95,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 				if(me.getClickCount() == 2 && me.getButton() == MouseEvent.BUTTON1)
 				{
 					try {
-						showRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
+						openRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
 					} catch (DataBaseException dbe) {
 						Logger.logError(dbe.getMessage(), dbe);
 					}
@@ -245,7 +245,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
    		loadData();
 	}
 	
-	private void loadData()
+	protected void loadData()
 	{
 		new SwingWorker<Void, T>()
 		{
@@ -267,11 +267,11 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 		}.execute();
 	}
 	
-	abstract void showRecordWindow(T record);
+	protected abstract void openRecordWindow(T record);
 	
-	abstract void makeTransferHandler();
+	protected abstract void registerTransferHandler();
 	
-	abstract RecordTableModel<T> makeModel();
+	protected abstract RecordTableModel<T> getModel();
 	
 	@Override
 	public void addMouseListener(MouseListener listener)

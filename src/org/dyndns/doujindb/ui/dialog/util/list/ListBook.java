@@ -85,14 +85,16 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void addRecord(Book record)
 	{
+		String bookId = record.getID();
 		if(previewEnabled && !tableModel.containsRecord(record))
 		{
 			JButton bookButton;
 			try {
 				bookButton = new JButton(
 					new ImageIcon(
-						ImageTool.read(DataStore.getThumbnail(record.getID()).getInputStream())));
-				bookButton.setActionCommand(record.getID());
+						ImageTool.read(DataStore.getThumbnail(bookId).getInputStream())));
+				bookButton.setName(bookId);
+				bookButton.setActionCommand(bookId);
 				bookButton.addActionListener(this);
 				bookButton.setBorder(null);
 				recordPreview.add(bookButton);
@@ -101,6 +103,16 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 			}
 		}
 		super.addRecord(record);
+	}
+	
+	@Override
+	public void removeRecord(Book record)
+	{
+		String bookId = record.getID();
+		for(Component comp : recordPreview.getComponents())
+			if(comp.getName().equals(bookId))
+				recordPreview.remove(comp);
+		super.removeRecord(record);
 	}
 	
 	@Override

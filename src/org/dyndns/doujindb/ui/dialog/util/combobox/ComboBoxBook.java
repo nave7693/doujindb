@@ -37,7 +37,7 @@ public class ComboBoxBook extends SearchComboBox<Book>
 	    QueryBook qb = new QueryBook();
 	    qb.JapaneseName = text + "%";
 	    for(Book e : DataBase.getBooks(qb)) {
-	        if(e.getJapaneseName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

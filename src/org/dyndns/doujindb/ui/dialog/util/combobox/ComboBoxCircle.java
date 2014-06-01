@@ -37,7 +37,7 @@ public class ComboBoxCircle extends SearchComboBox<Circle>
 	    QueryCircle qc = new QueryCircle();
 	    qc.JapaneseName = text + "%";
 	    for(Circle e : DataBase.getCircles(qc)) {
-	        if(e.getJapaneseName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

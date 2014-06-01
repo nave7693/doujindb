@@ -37,7 +37,7 @@ public class ComboBoxParody extends SearchComboBox<Parody>
 	    QueryParody qp = new QueryParody();
 	    qp.JapaneseName = text + "%";
 	    for(Parody e : DataBase.getParodies(qp)) {
-	        if(e.getJapaneseName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

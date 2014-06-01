@@ -37,7 +37,7 @@ public class ComboBoxArtist extends SearchComboBox<Artist>
 	    QueryArtist qa = new QueryArtist();
 	    qa.JapaneseName = text + "%";
 	    for(Artist e : DataBase.getArtists(qa)) {
-	        if(e.getJapaneseName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

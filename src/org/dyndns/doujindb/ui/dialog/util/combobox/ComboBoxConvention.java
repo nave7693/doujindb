@@ -37,7 +37,7 @@ public class ComboBoxConvention extends SearchComboBox<Convention>
 	    QueryConvention qc = new QueryConvention();
 	    qc.TagName = text + "%";
 	    for(Convention e : DataBase.getConventions(qc)) {
-	        if(e.getTagName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

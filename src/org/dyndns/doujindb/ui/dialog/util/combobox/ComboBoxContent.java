@@ -37,7 +37,7 @@ public class ComboBoxContent extends SearchComboBox<Content>
 	    QueryContent qc = new QueryContent();
 	    qc.TagName = text + "%";
 	    for(Content e : DataBase.getContents(qc)) {
-	        if(e.getTagName().startsWith(text)) mdl.addElement(e);
+	    	mdl.addElement(e);
 	    }
 	    return mdl;
 	}

@@ -117,6 +117,7 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 				org.dyndns.doujindb.db.cayenne.ContentAlias a = i.next();
 				if(a.getTagName().equals(alias))
 				{
+					i.remove();
 					((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(a);
 					DataBase.deleteObject(a);
 				}

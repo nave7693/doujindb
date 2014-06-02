@@ -132,6 +132,7 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 				org.dyndns.doujindb.db.cayenne.ConventionAlias a = i.next();
 				if(a.getTagName().equals(alias))
 				{
+					i.remove();
 					((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(a);
 					DataBase.deleteObject(a);
 				}

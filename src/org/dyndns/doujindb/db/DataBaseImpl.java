@@ -69,9 +69,8 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryArtistAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryArtistOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryArtistAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryArtistOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -92,9 +91,8 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("Translated")));
 		list.add(ExpressionFactory.matchExp("decensored", 
 		         new ExpressionParameter("Decensored")));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryBookAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryBookAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -107,9 +105,8 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryCircleAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryCircleOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryCircleAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryCircleOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -120,9 +117,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.joinExp(Expression.OR, conventionT));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryConventionAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryConventionOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryConventionAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryConventionOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -131,9 +127,8 @@ final class DataBaseImpl extends IDataBase
 		contentT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
 		contentT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
 		list.add(ExpressionFactory.joinExp(Expression.OR, contentT));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryContentAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryContentOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryContentAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryContentOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -146,9 +141,8 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("TranslatedName")));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
-		list.add(Expression.fromString("recycled = FALSE"));
-		queryParodyAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.AND, list));
-		queryParodyOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.OR, list));
+		queryParodyAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
+		queryParodyOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 	}
 	
 	public DataBaseImpl()

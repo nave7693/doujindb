@@ -110,7 +110,7 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("ID")));
 		List<Expression> conventionT = new ArrayList<Expression>();
 		conventionT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
-		conventionT.add(ExpressionFactory.likeExp("aliases.tagName", new ExpressionParameter("TagName")));
+		conventionT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
 		list.add(ExpressionFactory.joinExp(Expression.OR, conventionT));
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
@@ -123,7 +123,7 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("ID")));
 		List<Expression> contentT = new ArrayList<Expression>();
 		contentT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
-		contentT.add(ExpressionFactory.likeExp("aliases.tagName", new ExpressionParameter("TagName")));
+		contentT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
 		list.add(ExpressionFactory.joinExp(Expression.OR, contentT));
 		list.add(Expression.fromString("recycled = FALSE"));
 		exp = ExpressionFactory.joinExp(Expression.AND, list);

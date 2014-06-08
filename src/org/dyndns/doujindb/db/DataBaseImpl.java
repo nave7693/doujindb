@@ -39,18 +39,24 @@ final class DataBaseImpl extends IDataBase
 	private String connection;
 	private boolean autocommit = true;
 	
-	private static SelectQuery queryArtist;
-	private static SelectQuery queryBook;
-	private static SelectQuery queryCircle;
-	private static SelectQuery queryConvention;
-	private static SelectQuery queryContent;
-	private static SelectQuery queryParody;
+	private static SelectQuery queryArtistAnd;
+	private static SelectQuery queryBookAnd;
+	private static SelectQuery queryCircleAnd;
+	private static SelectQuery queryConventionAnd;
+	private static SelectQuery queryContentAnd;
+	private static SelectQuery queryParodyAnd;
+	
+	private static SelectQuery queryArtistOr;
+	private static SelectQuery queryBookOr;
+	private static SelectQuery queryCircleOr;
+	private static SelectQuery queryConventionOr;
+	private static SelectQuery queryContentOr;
+	private static SelectQuery queryParodyOr;
 	
 	private static final String TAG = "DataBaseImpl : ";
 	
 	{
 		List<Expression> list;
-		Expression exp;
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -64,8 +70,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryArtist = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, exp);
+		queryArtistAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryArtistOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.OR, list));
 
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -87,8 +93,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.matchExp("decensored", 
 		         new ExpressionParameter("Decensored")));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryBook = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, exp);
+		queryBookAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -102,8 +108,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryCircle = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, exp);
+		queryCircleAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryCircleOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.OR, list));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -115,8 +121,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryConvention = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, exp);
+		queryConventionAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryConventionOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.OR, list));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -126,8 +132,8 @@ final class DataBaseImpl extends IDataBase
 		contentT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
 		list.add(ExpressionFactory.joinExp(Expression.OR, contentT));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryContent = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, exp);
+		queryContentAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryContentOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.OR, list));
 		
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
@@ -141,8 +147,8 @@ final class DataBaseImpl extends IDataBase
 		list.add(ExpressionFactory.likeExp("weblink", 
 		         new ExpressionParameter("Weblink")));
 		list.add(Expression.fromString("recycled = FALSE"));
-		exp = ExpressionFactory.joinExp(Expression.AND, list);
-		queryParody = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, exp);
+		queryParodyAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.AND, list));
+		queryParodyOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, ExpressionFactory.joinExp(Expression.OR, list));
 	}
 	
 	public DataBaseImpl()
@@ -306,7 +312,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryBook)
 		{
-			select = queryBook.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryBookAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryBookOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
 		}
@@ -324,7 +340,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryCircle)
 		{
-			select = queryCircle.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryCircleAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryCircleOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
 		}
@@ -342,7 +368,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryArtist)
 		{
-			select = queryArtist.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryArtistAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryArtistOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
 		}
@@ -360,7 +396,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryParody)
 		{
-			select = queryParody.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryParodyAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryParodyOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
 		}
@@ -378,7 +424,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryContent)
 		{
-			select = queryContent.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryContentAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryContentOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
 		}
@@ -396,7 +452,17 @@ final class DataBaseImpl extends IDataBase
 		SelectQuery select;
 		if(query instanceof QueryConvention)
 		{
-			select = queryConvention.queryWithParameters(parseObject(query));
+			switch(query.QueryType)
+			{
+				case AND:
+					select = queryConventionAnd.queryWithParameters(parseObject(query));
+					break;
+				case OR:
+					select = queryConventionOr.queryWithParameters(parseObject(query));
+					break;
+				default:
+					throw new DataBaseException("Unknown QueryType '" + query.QueryType + "'");
+			}
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
 		}

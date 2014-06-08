@@ -714,15 +714,16 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						try {
 							Logger.logInfo(TAG + "connecting to DataBase ...");
 							DataBase.connect();
-							DataBase.doRollback();
 						} catch (DataBaseException dbe) {
 							Logger.logError(TAG + dbe.getMessage(), dbe);
+							return null;
 						}
 						try {
 							Logger.logInfo(TAG + "opening DataStore ...");
 							DataStore.open();
 						} catch (DataStoreException dse) {
 							Logger.logError(TAG + dse.getMessage(), dse);
+							return null;
 						}
 					}
 					return null;

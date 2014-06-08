@@ -98,7 +98,11 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 	@Override
 	public synchronized String toString()
 	{
-		return this.getJapaneseName();
+		String translation;
+		if(!(translation = getTranslatedName()).equals(""))
+			return this.getJapaneseName() + " (" + translation + ")";
+		else
+			return this.getJapaneseName();
 	}
 
 	@Override

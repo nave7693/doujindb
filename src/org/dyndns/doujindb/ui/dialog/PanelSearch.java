@@ -689,6 +689,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			recordPreview = new JPanel();
 			recordPreview.setLayout(new WrapLayout());
 			scrollRecordPreview = new JScrollPane(recordPreview);
+			scrollRecordPreview.getVerticalScrollBar().setUnitIncrement(25);
 			scrollRecordPreview.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			togglePreview = new JButton(Icon.desktop_explorer_table_view_preview);
 			togglePreview.setToolTipText("Toggle Preview");

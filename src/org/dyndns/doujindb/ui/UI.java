@@ -33,7 +33,7 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.DesktopEx.*;
-import org.dyndns.doujindb.ui.dialog.ConfigurationWizard;
+import org.dyndns.doujindb.ui.dialog.*;
 
 /**  
 * UI.java - DoujinDB graphical user interface.
@@ -539,53 +539,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		}
 		if(event.getSource() == menuHelpAbout)
 		{
-			{
-				JPanel panel = new JPanel();
-				panel.setSize(240, 400);
-				panel.setLayout(new GridLayout(2,1));
-				JLabel lab = new JLabel(Icon.window_dialog_about);
-				lab.setOpaque(true);
-				panel.add(lab);
-				JLabel l = new JLabel("<html><body style='margin:5px'>" +
-						"<b style='font-size:10px'>DoujinDB</b><br>" +
-						"<span style='font-size:9px'>" +
-						UI.class.getPackage().getSpecificationVersion() +
-						"</span><br>" +
-						"<br>" +
-						"<span style='font-size:9px'>" +
-						"Doujin Database written in Java™<br>" +
-						"JVM Version : " + System.getProperty("java.runtime.version") + "<br>" +
-						"Build ID : " + UI.class.getPackage().getImplementationVersion() + "<br>" +
-						"Copyright : " + UI.class.getPackage().getImplementationVendor() + "<br>" +
-						"eMail : N/A<br>" +
-						"Website : <br/><a href='http://code.google.com/p/doujindb/'>http://code.google.com/p/doujindb/</a><br>" +
-						"</span></body></html>");
-				JPanel bottom = new JPanel();
-				bottom.setLayout(new BorderLayout(5, 5));
-				bottom.add(l, BorderLayout.CENTER);
-				bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-				JButton ok = new JButton("Ok");
-				ok.setFont(Font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				bottom.add(ok, BorderLayout.SOUTH);
-				panel.add(bottom);
-				try {
-					Desktop.showDialog(
-							Desktop.getRootPane(),
-							panel,
-							Icon.menubar_help_about,
-							"About");
-				} catch (PropertyVetoException pve) { } 
+			try {
+				Desktop.showDialog(
+					Desktop.getRootPane(),
+					new DialogAbout(),
+					Icon.menubar_help_about,
+					"About");
+			} catch (PropertyVetoException pve) {
+				Logger.logWarning(pve.getMessage(), pve);
 			}
 			return;
 		}
@@ -594,7 +555,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			try
 			{
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-				desktop.browse(new URI("http://code.google.com/p/doujindb/issues/"));
+				desktop.browse(new URI("https://github.com/loli10K/doujindb/issues/new"));
 			} catch (IOException ioe) {
 				Logger.logError(TAG + ioe.getMessage(), ioe);
 			} catch (URISyntaxException use) {

@@ -951,7 +951,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						q.Translated = true;
 					if(checkDecensored.isSelected())
 						q.Decensored = true;
-					
+					for(Content tag : listSearchContent.getContents())
+						q.contents.add(tag);
+
 					// Clean result
 					while(m_TableModel.getRowCount()>0)
 						m_TableModel.removeRow(0);

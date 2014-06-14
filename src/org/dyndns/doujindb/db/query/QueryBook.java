@@ -1,6 +1,9 @@
 package org.dyndns.doujindb.db.query;
 
+import java.util.*;
+
 import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.records.Content;
 
 /**  
 * QueryBook.java - Used to query Book(s)
@@ -18,4 +21,5 @@ public final class QueryBook extends Query<Book>
 	public Boolean Decensored = null;
 	public Boolean Translated = null;
 	public Boolean Colored = null;
+	public Set<Content> contents = new HashSet<Content>();
 }

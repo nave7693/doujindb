@@ -669,7 +669,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			for(Book.Type tokenType : Book.Type.values())
 				comboType.addItem(tokenType);
 			comboType.setSelectedItem(null);
-			checkAdult = new JCheckBox("Adult", true);
+			checkAdult = new JCheckBox("Adult", false);
 			checkAdult.setFont(font);
 			checkAdult.setFocusable(false);
 			checkDecensored = new JCheckBox("Decensored", false);
@@ -887,10 +887,10 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);		
 			labelType.setBounds(3, 3 + 45, 100, 20);
 			comboType.setBounds(103, 3 + 45, 100, 20);
-			checkAdult.setBounds(3, 3 + 70, 100, 15);
-			checkDecensored.setBounds(3, 3 + 85, 100, 15);
-			checkTranslated.setBounds(3, 3 + 100, 100, 15);
-			checkColored.setBounds(3, 3 + 115, 100, 15);
+			checkAdult.setBounds(width - 105, 3 + 55, 100, 15);
+			checkDecensored.setBounds(width - 105, 3 + 70, 100, 15);
+			checkTranslated.setBounds(width - 105, 3 + 85, 100, 15);
+			checkColored.setBounds(width - 105, 3 + 100, 100, 15);
 			m_LabelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 			if(!previewToggled)

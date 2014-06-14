@@ -62,8 +62,6 @@ public final class DoujinshiDBScanner extends Plugin
 	static String USERNAME;
 	static String USER_AGENT = "Mozilla/5.0 (compatible; " + Name + "/" + Version + "; +" + Weblink + ")";
 	
-	static DataBaseContext Context;
-	
 	private static JComponent m_UI;
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
@@ -1470,8 +1468,6 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void startup() throws TaskErrorException
 	{
-		Context = DataBase.getContext(UUID);
-		
 		APIKEY = (String) Configuration.configRead(configBase + "apikey");
 		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
 		RESIZE_COVER = (Boolean) Configuration.configRead(configBase + "resize_cover");

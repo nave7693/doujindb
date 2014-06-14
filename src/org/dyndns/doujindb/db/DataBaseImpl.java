@@ -35,7 +35,6 @@ final class DataBaseImpl extends IDataBase
 	private DataDomain domain;
 	private DataNode node;
 	protected ObjectContext context;
-	private Hashtable<String, DataBaseContext> contexts;
 	private String connection;
 	private boolean autocommit = true;
 	
@@ -160,8 +159,6 @@ final class DataBaseImpl extends IDataBase
 		domain.addNode(node);
 
 		context = domain.createDataContext();
-
-		contexts = new Hashtable<String, DataBaseContext>();
 	}
 	
 	private synchronized void checkContext(DataSource ds, int timeout) throws DataBaseException
@@ -198,18 +195,6 @@ final class DataBaseImpl extends IDataBase
 			throw new DataBaseException("ExecutionException : Cannot initialize connection.");
 		} finally {
 		   future.cancel(true);
-		}
-	}
-	
-	public DataBaseContext getContext(String ID) throws DataBaseException
-	{
-		if(!contexts.containsKey(ID))
-		{
-			DataBaseContext db = new DataBaseContextImpl(context.createChildContext());
-			contexts.put(ID, db);
-			return db;
-		} else {
-			return contexts.get(ID);
 		}
 	}
 	

@@ -12,7 +12,6 @@ import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 */
 public abstract class IDataBase
 {
-	public abstract DataBaseContext getContext(String ID) throws DataBaseException;
 	public abstract void doCommit() throws DataBaseException;
 	public abstract void doRollback() throws DataBaseException;
 	public abstract void doDelete(Record record) throws DataBaseException;

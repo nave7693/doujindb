@@ -43,8 +43,6 @@ public final class ImageSearch extends Plugin
 	static int fMaxResults = 25;
 	static int fImageScaling = 16;
 	
-	static DataBaseContext fContext;
-	
 	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + fUUID);
 	static final File PLUGIN_IMAGEINDEX = new File(PLUGIN_HOME, "imageindex.ser");
 	
@@ -351,7 +349,7 @@ public final class ImageSearch extends Plugin
 				
 				// Init data
 				boolean cache_overwrite = m_CheckboxCacheOverwrite.isSelected();
-				RecordSet<Book> books = fContext.getBooks(null);
+				RecordSet<Book> books = DataBase.getBooks(null);
 				
 				m_ProgressBarCache.setMaximum(books.size());
 				if(cache_overwrite)
@@ -579,8 +577,6 @@ public final class ImageSearch extends Plugin
 	
 	@Override
 	protected void startup() {
-		fContext = DataBase.getContext(fUUID);
-		
 		fThreshold = (Integer) Configuration.configRead(fConfigBase + "threshold");
 		fMaxResults = (Integer) Configuration.configRead(fConfigBase + "max_result");
 		fImageScaling = (Integer) Configuration.configRead(fConfigBase + "image_scaling");

@@ -85,12 +85,6 @@ public final class DataBase
 		}.start();
 	}
 	
-	public static DataBaseContext getContext(String ID) throws DataBaseException
-	{
-		Logger.logDebug(TAG + "call getContext(" + ID + ")");
-		return instance.getContext(ID);
-	}
-	
 	public static void doCommit() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call doCommit()");

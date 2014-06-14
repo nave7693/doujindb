@@ -843,7 +843,7 @@ final class TaskManager
 			if(xmlbook == null)
 				throw new TaskErrorException("Error parsing XML : Book '" + task.getMugimugiBid() + "' was not found in Response file '" + task.getId() + ".xml'");
 			
-			book = DoujinshiDBScanner.Context.doInsert(Book.class);
+			book = DataBase.doInsert(Book.class);
 			book.setJapaneseName(xmlbook.NAME_JP);
 			book.setTranslatedName(xmlbook.NAME_EN);
 			book.setRomajiName(xmlbook.NAME_R);
@@ -856,11 +856,11 @@ final class TaskManager
 			book.setRating(Rating.UNRATED);
 			book.setInfo(xmlbook.DATA_INFO.length() > 255 ? xmlbook.DATA_INFO.substring(0, 255) : xmlbook.DATA_INFO);
 			
-			RecordSet<Artist> artists = DoujinshiDBScanner.Context.getArtists(null);
-			RecordSet<Circle> circles = DoujinshiDBScanner.Context.getCircles(null);
-			RecordSet<Parody> parodies = DoujinshiDBScanner.Context.getParodies(null);
-			RecordSet<Content> contents = DoujinshiDBScanner.Context.getContents(null);
-			RecordSet<Convention> conventions = DoujinshiDBScanner.Context.getConventions(null);
+			RecordSet<Artist> artists = DataBase.getArtists(null);
+			RecordSet<Circle> circles = DataBase.getCircles(null);
+			RecordSet<Parody> parodies = DataBase.getParodies(null);
+			RecordSet<Content> contents = DataBase.getContents(null);
+			RecordSet<Convention> conventions = DataBase.getConventions(null);
 			
 			Map<String, Artist> artists_added = new HashMap<String, Artist>();
 			Map<String, Circle> circles_added = new HashMap<String, Circle>();
@@ -884,7 +884,7 @@ final class TaskManager
 									artists_added.put(xmlitem.ID, artist);
 									break _case;
 								}
-							Artist a = DoujinshiDBScanner.Context.doInsert(Artist.class);
+							Artist a = DataBase.doInsert(Artist.class);
 							a.setJapaneseName(xmlitem.NAME_JP);
 							a.setTranslatedName(xmlitem.NAME_EN);
 							a.setRomajiName(xmlitem.NAME_R);
@@ -909,7 +909,7 @@ final class TaskManager
 									circles_added.put(xmlitem.ID, circle);
 									break _case;
 								}
-							Circle c = DoujinshiDBScanner.Context.doInsert(Circle.class);
+							Circle c = DataBase.doInsert(Circle.class);
 							c.setJapaneseName(xmlitem.NAME_JP);
 							c.setTranslatedName(xmlitem.NAME_EN);
 							c.setRomajiName(xmlitem.NAME_R);
@@ -936,7 +936,7 @@ final class TaskManager
 									book.addContent(content);
 									break _case;
 								}
-							Content cn = DoujinshiDBScanner.Context.doInsert(Content.class);
+							Content cn = DataBase.doInsert(Content.class);
 							// Tag Name priority NAME_JP > NAME_EN > NAME_R
 							cn.setTagName(xmlitem.NAME_JP.equals("")?xmlitem.NAME_EN.equals("")?xmlitem.NAME_R:xmlitem.NAME_EN:xmlitem.NAME_JP);
 							book.addContent(cn);
@@ -957,7 +957,7 @@ final class TaskManager
 									book.setConvention(convention);
 									break _case;
 								}
-							Convention cv = DoujinshiDBScanner.Context.doInsert(Convention.class);
+							Convention cv = DataBase.doInsert(Convention.class);
 							// Tag Name priority NAME_EN > NAME_JP > NAME_R
 							cv.setTagName(xmlitem.NAME_EN.equals("")?xmlitem.NAME_JP.equals("")?xmlitem.NAME_R:xmlitem.NAME_JP:xmlitem.NAME_EN);
 							book.setConvention(cv);
@@ -977,7 +977,7 @@ final class TaskManager
 									book.addParody(parody);
 									break _case;
 								}
-							Parody p = DoujinshiDBScanner.Context.doInsert(Parody.class);
+							Parody p = DataBase.doInsert(Parody.class);
 							p.setJapaneseName(xmlitem.NAME_JP);
 							p.setTranslatedName(xmlitem.NAME_EN);
 							p.setRomajiName(xmlitem.NAME_R);
@@ -992,7 +992,7 @@ final class TaskManager
 				}
 			}
 			
-			DoujinshiDBScanner.Context.doCommit();
+			DataBase.doCommit();
 			
 			if(artists_added.size() > 0 && circles_added.size() > 0) {
 				String[] ckeys = (String[]) circles_added.keySet().toArray(new String[0]);
@@ -1019,7 +1019,7 @@ final class TaskManager
 				}
 			}
 			
-			DoujinshiDBScanner.Context.doCommit();
+			DataBase.doCommit();
 			
 			task.setBook(book.getID());
 			

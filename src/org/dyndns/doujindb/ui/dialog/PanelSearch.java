@@ -26,6 +26,7 @@ import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxContent;
 import org.dyndns.doujindb.ui.dialog.util.dnd.*;
 import org.dyndns.doujindb.util.ImageTool;
 
@@ -48,7 +49,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	
 	private static DialogSearch m_PopupDialog = null;
 	
-	protected static final Font font = UI.Font;
+	private static final Font font = UI.Font;
 	
 	public PanelSearch(JTabbedPane tab, int index)
 	{
@@ -634,6 +635,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JCheckBox checkDecensored;
 		private JCheckBox checkTranslated;
 		private JCheckBox checkColored;
+		private DynamicListContent listSearchContent;
 		private JTable tableResults;
 		private JScrollPane scrollResults;
 		private JPanel recordPreview;
@@ -682,6 +684,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			checkColored.setFont(font);
 			checkColored.setFocusable(false);
 			
+			listSearchContent = new DynamicListContent();
+					
 			toggleList = new JButton(Icon.desktop_explorer_table_view_list);
 			toggleList.setToolTipText("Toggle List");
 			toggleList.addActionListener(this);
@@ -862,6 +866,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(checkDecensored);
 			super.add(checkTranslated);
 			super.add(checkColored);
+			super.add(listSearchContent);
 			super.add(scrollResults);
 			if(previewEnabled)
 			{
@@ -891,19 +896,20 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			checkDecensored.setBounds(width - 105, 3 + 70, 100, 15);
 			checkTranslated.setBounds(width - 105, 3 + 85, 100, 15);
 			checkColored.setBounds(width - 105, 3 + 100, 100, 15);
-			m_LabelResults.setBounds(3, 3 + 130, width / 2 - 6, 15);
+			listSearchContent.setBounds(3, 3 + 65, width - 110, 95);
+			m_LabelResults.setBounds(3, 3 + 160, width / 2 - 6, 15);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 			if(!previewToggled)
 			{
 				toggleList.setBounds(0, 0, 0, 0);
-				scrollResults.setBounds(3, 3 + 145, width - 5, height - 175);
-				togglePreview.setBounds(width - 22, 3 + 125, 20, 20);
+				scrollResults.setBounds(3, 3 + 175, width - 5, height - 205);
+				togglePreview.setBounds(width - 22, 3 + 155, 20, 20);
 				scrollRecordPreview.setBounds(0, 0, 0, 0);
 			} else {
-				toggleList.setBounds(width - 22, 3 + 125, 20, 20);
+				toggleList.setBounds(width - 22, 3 + 155, 20, 20);
 				scrollResults.setBounds(0, 0, 0, 0);
 				togglePreview.setBounds(0, 0, 0, 0);
-				scrollRecordPreview.setBounds(3, 3 + 145, width - 5, height - 175);
+				scrollRecordPreview.setBounds(3, 3 + 175, width - 5, height - 205);
 			}
 		}
 
@@ -1031,6 +1037,125 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				m_Tab.setIconAt(m_Index, Icon.desktop_explorer_book);
 				recordPreview.validate();
 				recordPreview.doLayout();
+			}
+		}
+		
+		private final class DynamicListContent extends JPanel implements LayoutManager
+		{
+			private JLabel labelContent;
+			private ComboBoxContent comboboxContent;
+			private JButton addSearchContent;
+			private JPanel listSearchContent;
+			private JScrollPane scrollSearchContent;
+			
+			private Map<JButton, Content> contents = new HashMap<JButton, Content>();
+			
+			private DynamicListContent()
+			{
+				super();
+				super.setLayout(this);
+				
+				labelContent = new JLabel("Contents");
+				labelContent.setFont(font);
+				super.add(labelContent);
+				comboboxContent = new ComboBoxContent();
+				super.add(comboboxContent);
+				addSearchContent = new JButton(Icon.window_tab_explorer_add);
+				addSearchContent.setBorder(null);
+				addSearchContent.setFocusable(false);
+				addSearchContent.setToolTipText("Add Content");
+				addSearchContent.addActionListener(new ActionListener()
+				{
+					ActionListener listener = new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae) {
+							JButton btnContent = (JButton) ae.getSource();
+							contents.remove(btnContent);
+							listSearchContent.remove(btnContent);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run()
+								{
+									listSearchContent.doLayout();
+									scrollSearchContent.doLayout();
+									listSearchContent.repaint();
+								}
+							});
+						}
+					};
+					
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						Object selectedItem = comboboxContent.getSelectedItem();
+						if(selectedItem != null && selectedItem instanceof Content)
+						{
+							Content content = (Content) selectedItem;
+							if(contents.containsValue(content))
+								return;
+							JButton btnContent = new JButton(content.getTagName());
+							btnContent.setFocusable(false);
+							btnContent.setBorderPainted(true);
+							btnContent.setContentAreaFilled(false);
+							btnContent.setFocusPainted(false);
+							btnContent.setIcon(Icon.desktop_explorer_delete);
+							btnContent.setHorizontalTextPosition(SwingConstants.LEFT);
+							btnContent.addActionListener(listener);
+							btnContent.setMargin(new Insets(1,1,1,1));
+							listSearchContent.add(btnContent);
+							contents.put(btnContent, content);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run()
+								{
+									listSearchContent.doLayout();
+									scrollSearchContent.doLayout();
+									listSearchContent.repaint();
+								}
+							});
+						}
+					}
+				});
+				super.add(addSearchContent);
+				listSearchContent = new JPanel();
+				FlowLayout layout = new WrapLayout();
+				layout.setHgap(2);
+				layout.setVgap(2);
+				listSearchContent.setLayout(layout);
+				scrollSearchContent = new JScrollPane(listSearchContent);
+				scrollSearchContent.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				super.add(scrollSearchContent);
+			}
+			
+			public Iterable<Content> getContents()
+			{
+				return contents.values();
+			}
+
+			@Override
+			public void addLayoutComponent(String name, Component comp) { }
+
+			@Override
+			public void removeLayoutComponent(Component comp) { }
+
+			@Override
+			public Dimension preferredLayoutSize(Container parent) {
+				return parent.getPreferredSize();
+			}
+
+			@Override
+			public Dimension minimumLayoutSize(Container parent) {
+				return parent.getMinimumSize();
+			}
+
+			@Override
+			public void layoutContainer(Container parent) {
+				int width = parent.getWidth(),
+					height = parent.getHeight();
+				labelContent.setBounds(0, 0, 100, 20);
+				comboboxContent.setBounds(100, 0, width - 100 - 20, 20);
+				addSearchContent.setBounds(width - 20, 0, 20, 20);
+				scrollSearchContent.setBounds(0, 20 + 3, width, height - 26);
 			}
 		}
 	}

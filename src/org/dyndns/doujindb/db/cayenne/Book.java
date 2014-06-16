@@ -15,7 +15,7 @@ public class Book extends _Book {
 		super.setRomajiName("");
 		super.setInfo("");
 		super.setRating(Rating.UNRATED);
-		super.setType(Type.同人誌);
+		super.setType(Type.不詳);
 		super.setAdult(true);
 		super.setColor(false);
 		super.setDecensored(false);

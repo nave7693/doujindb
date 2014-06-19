@@ -21,5 +21,5 @@ public final class QueryBook extends Query<Book>
 	public Boolean Decensored = null;
 	public Boolean Translated = null;
 	public Boolean Colored = null;
-	public Set<Content> contents = new HashSet<Content>();
+	public Set<Content> Contents = new HashSet<Content>();
 }

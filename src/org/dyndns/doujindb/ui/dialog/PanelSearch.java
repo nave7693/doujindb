@@ -952,7 +952,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					if(checkDecensored.isSelected())
 						q.Decensored = true;
 					for(Content tag : listSearchContent.getContents())
-						q.contents.add(tag);
+						q.Contents.add(tag);
 
 					// Clean result
 					while(m_TableModel.getRowCount()>0)

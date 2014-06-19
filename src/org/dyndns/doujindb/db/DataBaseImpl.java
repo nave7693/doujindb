@@ -16,6 +16,7 @@ import org.apache.cayenne.access.DbGenerator;
 import org.apache.cayenne.conn.PoolManager;
 import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.exp.*;
+import org.apache.cayenne.query.EJBQLQuery;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
@@ -305,6 +306,22 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
 		}
+
+		if(!query.Contents.isEmpty())
+		{
+	        EJBQLQuery ejbqlq = new EJBQLQuery("SELECT b.id FROM Book b"
+	        		+ " JOIN b.contents t"
+	        		+ " WHERE (t.tagName IN (:TAGS))"
+	        		+ " GROUP BY b.id"
+	        		+ " HAVING COUNT(b.id) = :TAG_COUNT");
+	        Set<String> tags = new HashSet<String>();
+	        for(Content t : query.Contents)
+	        	tags.add(t.getTagName());
+	        ejbqlq.setParameter("TAGS", tags);
+	        ejbqlq.setParameter("TAG_COUNT", tags.size());
+	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
+		}
+
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
 		Set<Book> buff = new TreeSet<Book>();
 		for(org.dyndns.doujindb.db.cayenne.Book o : list)

@@ -97,6 +97,7 @@
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
+		<obj-attribute name="id" type="java.lang.Integer" db-attribute-path="ID"/>
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
 		<obj-attribute name="color" type="java.lang.Boolean" db-attribute-path="COLOR"/>
 		<obj-attribute name="decensored" type="java.lang.Boolean" db-attribute-path="DECENSORED"/>

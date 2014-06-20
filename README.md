@@ -1,14 +1,12 @@
 DoujinDB
 ===
 
-A program used to manage a digital collection of comic books
+Cross-platform comic books manager
 
 Status
 ---
 
-DoujinDB it's mostly stable and has been tested with MySQL and SQLite.
-
-I'm using it to catalog ~150GB on disk (data: image files) and 4MB on a vanilla MySQL install (metadata: 11K books, 4K artists and 3K circles) without problems.
+DoujinDB it's mostly stable: it has been tested on ~300GB of data on disk (image files) and ~8MB for the index (MySQL) without problems.
 
 Build
 ---

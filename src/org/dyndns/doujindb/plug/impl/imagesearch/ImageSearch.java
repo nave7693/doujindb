@@ -349,7 +349,7 @@ public final class ImageSearch extends Plugin
 				
 				// Init data
 				boolean cache_overwrite = m_CheckboxCacheOverwrite.isSelected();
-				RecordSet<Book> books = DataBase.getBooks(null);
+				RecordSet<Book> books = DataBase.getBooks(new QueryBook());
 				
 				m_ProgressBarCache.setMaximum(books.size());
 				if(cache_overwrite)

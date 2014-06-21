@@ -8,6 +8,7 @@ import java.beans.PropertyVetoException;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -529,8 +530,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(textWeblink);
 			super.add(scrollResults);
 			
-			m_Worker = new SearchArtist(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchArtist(new QueryArtist());
 		}
 		
 		@Override
@@ -554,7 +554,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 			{
 				// Prepare the Query to be run
 				QueryArtist q = new QueryArtist();
@@ -611,8 +611,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
@@ -875,8 +873,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				super.add(scrollRecordPreview);
 			}
 			
-			m_Worker = new SearchBook(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchBook(new QueryBook());
 		}
 		
 		@Override
@@ -932,7 +929,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			}
 			if(ae.getSource().equals(m_ButtonSearch))
 			{
-				if(m_Worker.isDone())
+				if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 				{
 					// Prepare the Query to be run
 					QueryBook q = new QueryBook();
@@ -1031,8 +1028,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
@@ -1352,8 +1347,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(textWeblink);
 			super.add(scrollResults);
 			
-			m_Worker = new SearchCircle(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchCircle(new QueryCircle());
 		}
 		
 		@Override
@@ -1377,7 +1371,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 			{
 				// Prepare the Query to be run
 				QueryCircle q = new QueryCircle();
@@ -1434,8 +1428,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
@@ -1614,8 +1606,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(labelResults);
 			super.add(scrollResults);
 			
-			m_Worker = new SearchContent(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchContent(new QueryContent());
 		}
 		
 		@Override
@@ -1633,7 +1624,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 			{
 				// Prepare the Query to be run
 				QueryContent q = new QueryContent();
@@ -1684,8 +1675,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
@@ -1864,8 +1853,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(labelResults);
 			super.add(scrollResults);
 			
-			m_Worker = new SearchConvention(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchConvention(new QueryConvention());
 		}
 		
 		@Override
@@ -1883,7 +1871,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 			{
 				// Prepare the Query to be run
 				QueryConvention q = new QueryConvention();
@@ -1934,8 +1922,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');
@@ -2134,8 +2120,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(textWeblink);
 			super.add(scrollResults);
 			
-			m_Worker = new SearchParody(null);
-			m_Worker.cancel(true);
+			m_Worker = new SearchParody(new QueryParody());
 		}
 		
 		@Override
@@ -2159,7 +2144,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(m_Worker.isDone())
+			if(m_Worker.isDone() || m_Worker.getState() == StateValue.PENDING)
 			{
 				// Prepare the Query to be run
 				QueryParody q = new QueryParody();
@@ -2216,8 +2201,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			@Override
 			protected void done()
 			{
-				if(query == null)
-					return;
 				m_LabelResults.setText("Found : " + m_TableModel.getRowCount());
 				m_ButtonSearch.setText("Search");
 				m_ButtonSearch.setMnemonic('S');

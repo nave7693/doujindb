@@ -856,11 +856,11 @@ final class TaskManager
 			book.setRating(Rating.UNRATED);
 			book.setInfo(xmlbook.DATA_INFO.length() > 255 ? xmlbook.DATA_INFO.substring(0, 255) : xmlbook.DATA_INFO);
 			
-			RecordSet<Artist> artists = DataBase.getArtists(null);
-			RecordSet<Circle> circles = DataBase.getCircles(null);
-			RecordSet<Parody> parodies = DataBase.getParodies(null);
-			RecordSet<Content> contents = DataBase.getContents(null);
-			RecordSet<Convention> conventions = DataBase.getConventions(null);
+			RecordSet<Artist> artists = DataBase.getArtists(new QueryArtist());
+			RecordSet<Circle> circles = DataBase.getCircles(new QueryCircle());
+			RecordSet<Parody> parodies = DataBase.getParodies(new QueryParody());
+			RecordSet<Content> contents = DataBase.getContents(new QueryContent());
+			RecordSet<Convention> conventions = DataBase.getConventions(new QueryConvention());
 			
 			Map<String, Artist> artists_added = new HashMap<String, Artist>();
 			Map<String, Circle> circles_added = new HashMap<String, Circle>();

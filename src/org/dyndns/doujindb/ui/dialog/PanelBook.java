@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.TooManyListenersException;
-import java.util.TreeSet;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -559,19 +556,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				for(Type tokenType : Type.values())
 					comboType.addItem(tokenType);
 				comboType.setSelectedItem(tokenBook.getType());
-				Iterator<Convention> i = DataBase.getConventions(null).iterator();
-				TreeSet<Convention> set = new TreeSet<Convention>(new Comparator<Convention>()
-				{
-					@Override
-					public int compare(Convention c1, Convention c2) {
-						return c1.getTagName().compareTo(c2.getTagName());
-					}
-				});
-				while(i.hasNext())
-					set.add(i.next());
-				comboConvention.removeAllItems();
-				for(Convention conv : set)
-					comboConvention.addItem(conv);
 				comboConvention.setSelectedItem(tokenBook.getConvention());
 				checkAdult.setSelected(tokenBook.isAdult());
 				checkDecensored.setSelected(tokenBook.isDecensored());

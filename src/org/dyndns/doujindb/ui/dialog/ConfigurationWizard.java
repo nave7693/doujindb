@@ -24,7 +24,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	// STEP 1
 	private DialogWelcome uiCompWelcome;
 	// STEP 2
-	private JComponent uiCompDependency;
+	private DialogDependency uiCompDependency;
 	// STEP 3
 	private JComponent uiCompDatabase;
 	private JLabel uiCompDatabaseLabelDriver;
@@ -79,6 +79,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiLabelHeader.setBackground(Color.WHITE);
 		super.add(uiLabelHeader);
 		super.add(uiCompWelcome = new DialogWelcome());
+		super.add(uiCompDependency = new DialogDependency());
 		{
 			uiCompDatabase = new JPanel();
 			uiCompDatabaseLabelDriver = new JLabel("Driver");
@@ -466,6 +467,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiButtonBack.setBounds(width-160,height-25,75,20);
 		uiButtonCanc.setBounds(5,height-25,75,20);
 		uiCompWelcome.setBounds(0,0,0,0);
+		uiCompDependency.setBounds(0,0,0,0);
 		uiCompDatabase.setBounds(0,0,0,0);
 		uiCompDatastore.setBounds(0,0,0,0);
 		uiLabelFinish.setBounds(0,0,0,0);
@@ -473,6 +475,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		{
 		case WELCOME:
 			uiCompWelcome.setBounds(5,50,width-10,height-85);
+			break;
+		case DEPENDENCY:
+			uiCompDependency.setBounds(5,50,width-10,height-85);
+			uiCompDependency.doLayout();
 			break;
 		case DATABASE:
 			uiCompDatabase.setBounds(5,50,width-10,height-85);
@@ -603,6 +609,46 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			int width = parent.getWidth(),
 				height = parent.getHeight();
 			uiLabelWelcome.setBounds(0, 0, width, height);
+		}
+	}
+	
+	private final class DialogDependency extends JComponent implements LayoutManager
+	{
+		private JLabel uiLabelDependency;
+		private String rcLabelDependency = "<html></html>";
+		
+		private DialogDependency()
+		{
+			uiLabelDependency = new JLabel(rcLabelDependency);
+			uiLabelDependency.setOpaque(false);
+			super.add(uiLabelDependency);
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			uiLabelDependency.setBounds(0, 0, width, height);
 		}
 	}
 }

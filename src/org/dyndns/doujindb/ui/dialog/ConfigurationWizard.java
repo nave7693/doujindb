@@ -218,12 +218,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				fProgress = Progress.DATABASE;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(false);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DATABASE:
 				fProgress = Progress.DATASTORE;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(false);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DATASTORE:
@@ -467,6 +469,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 											uiLabelResult.setText("<html>Connection established.</html>");
 											uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
 											uiLabelResult.setForeground(Color.GREEN);
+											uiButtonNext.setEnabled(true);
 											conn.close();
 										} catch (Exception e) {}
 									} else {
@@ -626,6 +629,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 								uiLabelResult.setText("<html>Both directories are valid.</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
 								uiLabelResult.setForeground(Color.GREEN);
+								uiButtonNext.setEnabled(true);
 							} catch (RuntimeException re) {
 								uiLabelResult.setText("<html>" + re.getMessage() + "</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);

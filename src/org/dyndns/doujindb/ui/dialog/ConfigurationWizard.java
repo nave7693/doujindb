@@ -552,8 +552,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		
 		private JLabel uiLabelStore;
 		private JTextField uiTextStore;
-		private JLabel uiLabelTemp;
-		private JTextField uiTextTemp;
+		private JLabel uiLabelCache;
+		private JTextField uiTextCache;
 		private JButton uiTest;
 		private JLabel uiLabelResult;
 		
@@ -567,10 +567,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			super.add(uiLabelStore);
 			uiTextStore = new JTextField("/path/to/store/");
 			super.add(uiTextStore);
-			uiLabelTemp = new JLabel("Cache");
-			super.add(uiLabelTemp);
-			uiTextTemp = new JTextField(System.getProperty("java.io.tmpdir"));
-			super.add(uiTextTemp);
+			uiLabelCache = new JLabel("Cache");
+			super.add(uiLabelCache);
+			uiTextCache = new JTextField(System.getProperty("java.io.tmpdir"));
+			super.add(uiTextCache);
 			uiLabelResult = new JLabel("");
 			super.add(uiLabelResult);
 			uiTest = new JButton(UI.Icon.window_dialog_configwiz_dstest);
@@ -588,10 +588,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				{
 					uiTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
 					uiTextStore.setEditable(false);
-					uiTextTemp.setEditable(false);
+					uiTextCache.setEditable(false);
 					
 					Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiTextStore.getText());
-					Configuration.configWrite("org.dyndns.doujindb.dat.cache_dir", uiTextTemp.getText());
+					Configuration.configWrite("org.dyndns.doujindb.dat.cache_dir", uiTextCache.getText());
 					
 					new Thread()
 					{
@@ -610,7 +610,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 									throw new RuntimeException("Store directory is not readable: check your permissions.");
 								if(!store_rw.canWrite())
 									throw new RuntimeException("Store directory is not writable: check your permissions.");
-								File temp = new File(uiTextTemp.getText());
+								File temp = new File(uiTextCache.getText());
 								if(!temp.exists() || !temp.isDirectory())
 									throw new RuntimeException("Temporary folder is not a valid directory path.");
 								File temp_rw = new File(temp, ".rw-temp");
@@ -635,7 +635,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 								uiLabelResult.setForeground(Color.RED);
 							}
-							uiTextTemp.setEditable(true);
+							uiTextCache.setEditable(true);
 							uiTextStore.setEditable(true);
 							uiTest.setIcon(UI.Icon.window_dialog_configwiz_dstest);
 						}
@@ -672,8 +672,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDatastore.setBounds(0, 0, width, 40);
 			uiLabelStore.setBounds(5,40,width-10,20);
 			uiTextStore.setBounds(5,60,width-10,20);
-			uiLabelTemp.setBounds(5,80,width-10,20);
-			uiTextTemp.setBounds(5,100,width-10,20);
+			uiLabelCache.setBounds(5,80,width-10,20);
+			uiTextCache.setBounds(5,100,width-10,20);
 			uiLabelResult.setBounds(5,110,width-10,45);
 			uiTest.setBounds(width/2-40,height-20,80,20);
 		}

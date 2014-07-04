@@ -26,17 +26,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	// STEP 2
 	private DialogDependency uiCompDependency;
 	// STEP 3
-	private JComponent uiCompDatabase;
-	private JLabel uiCompDatabaseLabelDriver;
-	private JTextField uiCompDatabaseTextDriver;
-	private JLabel uiCompDatabaseLabelURL;
-	private JTextField uiCompDatabaseTextURL;
-	private JLabel uiCompDatabaseLabelUsername;
-	private JTextField uiCompDatabaseTextUsername;
-	private JLabel uiCompDatabaseLabelPassword;
-	private JTextField uiCompDatabaseTextPassword;
-	private JButton uiCompDatabaseTest;
-	private JLabel uiCompDatabaseLabelResult;
+	private DialogDatabase uiCompDatabase;
 	// STEP 4
 	private JComponent uiCompDatastore;
 	private JLabel uiCompDatastoreLabelStore;
@@ -80,158 +70,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		super.add(uiLabelHeader);
 		super.add(uiCompWelcome = new DialogWelcome());
 		super.add(uiCompDependency = new DialogDependency());
-		{
-			uiCompDatabase = new JPanel();
-			uiCompDatabaseLabelDriver = new JLabel("Driver");
-			uiCompDatabase.add(uiCompDatabaseLabelDriver);
-			uiCompDatabaseTextDriver = new JTextField("org.sqlite.JDBC");
-			uiCompDatabase.add(uiCompDatabaseTextDriver);
-			uiCompDatabaseLabelURL = new JLabel("URL");
-			uiCompDatabase.add(uiCompDatabaseLabelURL);
-			uiCompDatabaseTextURL = new JTextField("jdbc:sqlite:doujindb.sqlite");
-			uiCompDatabase.add(uiCompDatabaseTextURL);
-			uiCompDatabaseLabelUsername = new JLabel("Username");
-			uiCompDatabase.add(uiCompDatabaseLabelUsername);
-			uiCompDatabaseTextUsername = new JTextField("");
-			uiCompDatabase.add(uiCompDatabaseTextUsername);
-			uiCompDatabaseLabelPassword = new JLabel("Password");
-			uiCompDatabase.add(uiCompDatabaseLabelPassword);
-			uiCompDatabaseTextPassword = new JTextField("");
-			uiCompDatabase.add(uiCompDatabaseTextPassword);
-			uiCompDatabaseLabelResult = new JLabel("");
-			uiCompDatabase.add(uiCompDatabaseLabelResult);
-			uiCompDatabaseTest = new JButton(UI.Icon.window_dialog_configwiz_dbtest);
-			uiCompDatabaseTest.setBorder(null);
-			uiCompDatabaseTest.setFocusable(false);
-			uiCompDatabaseTest.setText("Test");
-			uiCompDatabaseTest.setToolTipText("Test");
-			uiCompDatabaseTest.setMnemonic('T');
-			uiCompDatabaseTest.setBorderPainted(true);
-			uiCompDatabaseTest.setBorder(BorderFactory.createLineBorder(linecolor));
-			uiCompDatabaseTest.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					uiCompDatabaseTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
-					uiCompDatabaseTextDriver.setEditable(false);
-					uiCompDatabaseTextURL.setEditable(false);
-					uiCompDatabaseTextUsername.setEditable(false);
-					uiCompDatabaseTextPassword.setEditable(false);
-					;
-					new Thread()
-					{
-						public void run()
-						{
-							try {
-								Class.forName(uiCompDatabaseTextDriver.getText());
-								ExecutorService executor = Executors.newCachedThreadPool();
-								Callable<Connection> task = new Callable<Connection>()
-								{
-								   public Connection call()
-								   {
-								      try {
-										return DriverManager.getConnection(uiCompDatabaseTextURL.getText(),
-												uiCompDatabaseTextUsername.getText(),
-												uiCompDatabaseTextPassword.getText());
-									} catch (SQLException sqle) {
-										/**
-										 * SQL error messages are too verbose,
-										 * mask them off with a common error message
-										 * and print the stack trace to the standard output.
-										 */
-										uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
-										uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-										uiCompDatabaseLabelResult.setForeground(Color.RED);
-										sqle.printStackTrace();
-										return null;
-									}
-								   }
-								};
-								Future<Connection> future = executor.submit(task);
-								try
-								{
-									Connection conn = future.get(3, TimeUnit.SECONDS);
-									if(conn != null)
-									{
-										try
-										{
-											uiCompDatabaseLabelResult.setText("<html>Connection established.</html>");
-											uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
-											uiCompDatabaseLabelResult.setForeground(Color.GREEN);
-											conn.close();
-										} catch (Exception e) {}
-									} else {
-										uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
-										uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-										uiCompDatabaseLabelResult.setForeground(Color.RED);
-									}
-								} catch (TimeoutException te) {
-									uiCompDatabaseLabelResult.setText("<html>Timeout Exception while obtaining SQL connection.</html>");
-									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-									uiCompDatabaseLabelResult.setForeground(Color.RED);
-								} catch (InterruptedException ie) {
-									uiCompDatabaseLabelResult.setText("<html>Interrupted Exception while obtaining SQL connection.</html>");
-									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-									uiCompDatabaseLabelResult.setForeground(Color.RED);
-								} catch (ExecutionException ee) {
-									uiCompDatabaseLabelResult.setText("<html>Execution Exception while obtaining SQL connection.</html>");
-									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-									uiCompDatabaseLabelResult.setForeground(Color.RED);
-								} finally {
-								   future.cancel(true);
-								}
-							} catch (ClassNotFoundException cnfe) {
-								uiCompDatabaseLabelResult.setText("<html>Cannot load jdbc driver '" + uiCompDatabaseTextDriver.getText() + "' : Class not found.</html>");
-								uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-								uiCompDatabaseLabelResult.setForeground(Color.RED);
-							}
-							uiCompDatabaseTextPassword.setEditable(true);
-							uiCompDatabaseTextUsername.setEditable(true);
-							uiCompDatabaseTextURL.setEditable(true);
-							uiCompDatabaseTextDriver.setEditable(true);
-							uiCompDatabaseTest.setIcon(UI.Icon.window_dialog_configwiz_dbtest);
-						}
-					}.start();
-				}					
-			});
-			uiCompDatabase.add(uiCompDatabaseTest);
-			uiCompDatabase.setLayout(new LayoutManager()
-			{
-				@Override
-				public void addLayoutComponent(String key,Component c){}
-				@Override
-				public void removeLayoutComponent(Component c){}
-				@Override
-				public Dimension minimumLayoutSize(Container parent)
-				{
-					return new Dimension(250,200);
-				}
-				@Override
-				public Dimension preferredLayoutSize(Container parent)
-				{
-					return new Dimension(250,200);
-				}
-				@Override
-				public void layoutContainer(Container parent)
-				{
-					int width = parent.getWidth(),
-						height = parent.getHeight();
-					int labelLength = 85;
-					uiCompDatabaseLabelDriver.setBounds(5,5,labelLength,20);
-					uiCompDatabaseTextDriver.setBounds(labelLength+5,5,width-labelLength-5,20);
-					uiCompDatabaseLabelURL.setBounds(5,25,labelLength,20);
-					uiCompDatabaseTextURL.setBounds(labelLength+5,25,width-labelLength-5,20);
-					uiCompDatabaseLabelUsername.setBounds(5,45,labelLength,20);
-					uiCompDatabaseTextUsername.setBounds(labelLength+5,45,width-labelLength-5,20);
-					uiCompDatabaseLabelPassword.setBounds(5,65,labelLength,20);
-					uiCompDatabaseTextPassword.setBounds(labelLength+5,65,width-labelLength-5,20);
-					uiCompDatabaseLabelResult.setBounds(5,90,width-10,45);
-					uiCompDatabaseTest.setBounds(width/2-40,height-25,80,20);
-				}
-			});
-			super.add(uiCompDatabase);
-		}
+		super.add(uiCompDatabase = new DialogDatabase());
 		{
 			uiCompDatastore = new JPanel();
 			uiCompDatastoreLabelStore = new JLabel("Store Directory");
@@ -402,10 +241,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				Configuration.configWrite("org.dyndns.doujindb.db.driver", uiCompDatabaseTextDriver.getText());
-				Configuration.configWrite("org.dyndns.doujindb.db.url", uiCompDatabaseTextURL.getText());
-				Configuration.configWrite("org.dyndns.doujindb.db.username", uiCompDatabaseTextUsername.getText());
-				Configuration.configWrite("org.dyndns.doujindb.db.password", uiCompDatabaseTextPassword.getText());
 				Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiCompDatastoreTextStore.getText());
 				Configuration.configWrite("org.dyndns.doujindb.dat.temp", uiCompDatastoreTextTemp.getText());
 				Configuration.configSave();
@@ -482,7 +317,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			break;
 		case DATABASE:
 			uiCompDatabase.setBounds(5,50,width-10,height-85);
-			uiCompDatabase.getLayout().layoutContainer(uiCompDatabase);
+			uiCompDatabase.doLayout();
 			break;
 		case DATASTORE:
 			uiCompDatastore.setBounds(5,50,width-10,height-85);
@@ -649,6 +484,188 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			int width = parent.getWidth(),
 				height = parent.getHeight();
 			uiLabelDependency.setBounds(0, 0, width, height);
+		}
+	}
+	
+	private final class DialogDatabase extends JComponent implements LayoutManager
+	{
+		private JLabel uiLabelDatabase;
+		private String rcLabelDatabase = "<html></html>"; //TODO
+		
+		private JLabel uiCompDatabaseLabelDriver;
+		private JTextField uiCompDatabaseTextDriver;
+		private JLabel uiCompDatabaseLabelURL;
+		private JTextField uiCompDatabaseTextURL;
+		private JLabel uiCompDatabaseLabelUsername;
+		private JTextField uiCompDatabaseTextUsername;
+		private JLabel uiCompDatabaseLabelPassword;
+		private JTextField uiCompDatabaseTextPassword;
+		private JButton uiCompDatabaseTest;
+		private JLabel uiCompDatabaseLabelResult;
+		
+		private DialogDatabase()
+		{
+			uiLabelDatabase = new JLabel(rcLabelDatabase);
+			uiLabelDatabase.setOpaque(false);
+			super.add(uiLabelDatabase);
+			
+			uiCompDatabaseLabelDriver = new JLabel("Driver");
+			super.add(uiCompDatabaseLabelDriver);
+			uiCompDatabaseTextDriver = new JTextField("org.sqlite.JDBC");
+			super.add(uiCompDatabaseTextDriver);
+			uiCompDatabaseLabelURL = new JLabel("URL");
+			super.add(uiCompDatabaseLabelURL);
+			uiCompDatabaseTextURL = new JTextField("jdbc:sqlite:doujindb.sqlite");
+			super.add(uiCompDatabaseTextURL);
+			uiCompDatabaseLabelUsername = new JLabel("Username");
+			super.add(uiCompDatabaseLabelUsername);
+			uiCompDatabaseTextUsername = new JTextField("");
+			super.add(uiCompDatabaseTextUsername);
+			uiCompDatabaseLabelPassword = new JLabel("Password");
+			super.add(uiCompDatabaseLabelPassword);
+			uiCompDatabaseTextPassword = new JTextField("");
+			super.add(uiCompDatabaseTextPassword);
+			uiCompDatabaseLabelResult = new JLabel("");
+			super.add(uiCompDatabaseLabelResult);
+			uiCompDatabaseTest = new JButton(UI.Icon.window_dialog_configwiz_dbtest);
+			uiCompDatabaseTest.setBorder(null);
+			uiCompDatabaseTest.setFocusable(false);
+			uiCompDatabaseTest.setText("Test");
+			uiCompDatabaseTest.setToolTipText("Test");
+			uiCompDatabaseTest.setMnemonic('T');
+			uiCompDatabaseTest.setBorderPainted(true);
+			uiCompDatabaseTest.setBorder(BorderFactory.createLineBorder(linecolor));
+			uiCompDatabaseTest.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					uiCompDatabaseTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
+					uiCompDatabaseTextDriver.setEditable(false);
+					uiCompDatabaseTextURL.setEditable(false);
+					uiCompDatabaseTextUsername.setEditable(false);
+					uiCompDatabaseTextPassword.setEditable(false);
+					
+					Configuration.configWrite("org.dyndns.doujindb.db.driver", uiCompDatabaseTextDriver.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.url", uiCompDatabaseTextURL.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.username", uiCompDatabaseTextUsername.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.password", uiCompDatabaseTextPassword.getText());
+					
+					new Thread()
+					{
+						public void run()
+						{
+							try {
+								Class.forName(uiCompDatabaseTextDriver.getText());
+								ExecutorService executor = Executors.newCachedThreadPool();
+								Callable<Connection> task = new Callable<Connection>()
+								{
+								   public Connection call()
+								   {
+								      try {
+										return DriverManager.getConnection(uiCompDatabaseTextURL.getText(),
+												uiCompDatabaseTextUsername.getText(),
+												uiCompDatabaseTextPassword.getText());
+									} catch (SQLException sqle) {
+										/**
+										 * SQL error messages are too verbose,
+										 * mask them off with a common error message
+										 * and print the stack trace to the standard output.
+										 */
+										uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
+										uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+										uiCompDatabaseLabelResult.setForeground(Color.RED);
+										sqle.printStackTrace();
+										return null;
+									}
+								   }
+								};
+								Future<Connection> future = executor.submit(task);
+								try
+								{
+									Connection conn = future.get(3, TimeUnit.SECONDS);
+									if(conn != null)
+									{
+										try
+										{
+											uiCompDatabaseLabelResult.setText("<html>Connection established.</html>");
+											uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
+											uiCompDatabaseLabelResult.setForeground(Color.GREEN);
+											conn.close();
+										} catch (Exception e) {}
+									} else {
+										uiCompDatabaseLabelResult.setText("<html>Error connecting to SQL resource '" + uiCompDatabaseTextURL.getText() + "'.</html>");
+										uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+										uiCompDatabaseLabelResult.setForeground(Color.RED);
+									}
+								} catch (TimeoutException te) {
+									uiCompDatabaseLabelResult.setText("<html>Timeout Exception while obtaining SQL connection.</html>");
+									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+									uiCompDatabaseLabelResult.setForeground(Color.RED);
+								} catch (InterruptedException ie) {
+									uiCompDatabaseLabelResult.setText("<html>Interrupted Exception while obtaining SQL connection.</html>");
+									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+									uiCompDatabaseLabelResult.setForeground(Color.RED);
+								} catch (ExecutionException ee) {
+									uiCompDatabaseLabelResult.setText("<html>Execution Exception while obtaining SQL connection.</html>");
+									uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+									uiCompDatabaseLabelResult.setForeground(Color.RED);
+								} finally {
+								   future.cancel(true);
+								}
+							} catch (ClassNotFoundException cnfe) {
+								uiCompDatabaseLabelResult.setText("<html>Cannot load jdbc driver '" + uiCompDatabaseTextDriver.getText() + "' : Class not found.</html>");
+								uiCompDatabaseLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+								uiCompDatabaseLabelResult.setForeground(Color.RED);
+							}
+							uiCompDatabaseTextPassword.setEditable(true);
+							uiCompDatabaseTextUsername.setEditable(true);
+							uiCompDatabaseTextURL.setEditable(true);
+							uiCompDatabaseTextDriver.setEditable(true);
+							uiCompDatabaseTest.setIcon(UI.Icon.window_dialog_configwiz_dbtest);
+						}
+					}.start();
+				}					
+			});
+			super.add(uiCompDatabaseTest);
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			int labelLength = 85;
+//TODO			uiLabelDatabase.setBounds(0, 0, width, height);
+			uiCompDatabaseLabelDriver.setBounds(5,5,labelLength,20);
+			uiCompDatabaseTextDriver.setBounds(labelLength+5,5,width-labelLength-5,20);
+			uiCompDatabaseLabelURL.setBounds(5,25,labelLength,20);
+			uiCompDatabaseTextURL.setBounds(labelLength+5,25,width-labelLength-5,20);
+			uiCompDatabaseLabelUsername.setBounds(5,45,labelLength,20);
+			uiCompDatabaseTextUsername.setBounds(labelLength+5,45,width-labelLength-5,20);
+			uiCompDatabaseLabelPassword.setBounds(5,65,labelLength,20);
+			uiCompDatabaseTextPassword.setBounds(labelLength+5,65,width-labelLength-5,20);
+			uiCompDatabaseLabelResult.setBounds(5,90,width-10,45);
+			uiCompDatabaseTest.setBounds(width/2-40,height-25,80,20);
 		}
 	}
 }

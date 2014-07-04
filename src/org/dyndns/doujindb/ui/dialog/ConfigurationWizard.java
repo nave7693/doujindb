@@ -366,7 +366,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	private final class DialogDatabase extends JComponent implements LayoutManager
 	{
 		private JLabel uiLabelDatabase;
-		private String rcLabelDatabase = "<html></html>"; //TODO
+		private String rcLabelDatabase = "<html>The Database is where all the metadata is stored: book info, tags, authors ...</html>";
 		
 		private JLabel uiLabelDriver;
 		private JTextField uiTextDriver;
@@ -531,24 +531,24 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			int width = parent.getWidth(),
 				height = parent.getHeight();
 			int labelLength = 85;
-//TODO			uiLabelDatabase.setBounds(0, 0, width, height);
-			uiLabelDriver.setBounds(5,5,labelLength,20);
-			uiTextDriver.setBounds(labelLength+5,5,width-labelLength-5,20);
-			uiLabelURL.setBounds(5,25,labelLength,20);
-			uiTextURL.setBounds(labelLength+5,25,width-labelLength-5,20);
-			uiLabelUsername.setBounds(5,45,labelLength,20);
-			uiTextUsername.setBounds(labelLength+5,45,width-labelLength-5,20);
-			uiLabelPassword.setBounds(5,65,labelLength,20);
-			uiTextPassword.setBounds(labelLength+5,65,width-labelLength-5,20);
-			uiLabelResult.setBounds(5,90,width-10,45);
-			uiTest.setBounds(width/2-40,height-25,80,20);
+			uiLabelDatabase.setBounds(0, 0, width, 40);
+			uiLabelDriver.setBounds(5,40,labelLength,20);
+			uiTextDriver.setBounds(labelLength+5,40,width-labelLength-5,20);
+			uiLabelURL.setBounds(5,60,labelLength,20);
+			uiTextURL.setBounds(labelLength+5,60,width-labelLength-5,20);
+			uiLabelUsername.setBounds(5,80,labelLength,20);
+			uiTextUsername.setBounds(labelLength+5,80,width-labelLength-5,20);
+			uiLabelPassword.setBounds(5,100,labelLength,20);
+			uiTextPassword.setBounds(labelLength+5,100,width-labelLength-5,20);
+			uiLabelResult.setBounds(5,110,width-10,45);
+			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
 	}
 	
 	private final class DialogDatastore extends JComponent implements LayoutManager
 	{
 		private JLabel uiLabelDatastore;
-		private String rcLabelDatastore = "<html></html>"; //TODO
+		private String rcLabelDatastore = "<html>The Datastore contains all the data files. Cache contains cached cover images.</html>";
 		
 		private JLabel uiLabelStore;
 		private JTextField uiTextStore;
@@ -563,13 +563,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDatastore.setOpaque(false);
 			super.add(uiLabelDatastore);
 			
-			uiLabelStore = new JLabel("Store Directory");
+			uiLabelStore = new JLabel("Data");
 			super.add(uiLabelStore);
 			uiTextStore = new JTextField("/path/to/store/");
 			super.add(uiTextStore);
-			uiLabelTemp = new JLabel("Temporary Directory");
+			uiLabelTemp = new JLabel("Cache");
 			super.add(uiLabelTemp);
-			uiTextTemp = new JTextField("/tmp/");
+			uiTextTemp = new JTextField(System.getProperty("java.io.tmpdir"));
 			super.add(uiTextTemp);
 			uiLabelResult = new JLabel("");
 			super.add(uiLabelResult);
@@ -591,7 +591,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 					uiTextTemp.setEditable(false);
 					
 					Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiTextStore.getText());
-					Configuration.configWrite("org.dyndns.doujindb.dat.temp", uiTextTemp.getText());
+					Configuration.configWrite("org.dyndns.doujindb.dat.cache_dir", uiTextTemp.getText());
 					
 					new Thread()
 					{
@@ -669,13 +669,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		{
 			int width = parent.getWidth(),
 				height = parent.getHeight();
-//TODO			uiLabelDatastore.setBounds(0, 0, width, height);
-			uiLabelStore.setBounds(5,5,width-10,20);
-			uiTextStore.setBounds(5,25,width-10,20);
-			uiLabelTemp.setBounds(5,45,width-10,20);
-			uiTextTemp.setBounds(5,65,width-10,20);
-			uiLabelResult.setBounds(5,90,width-10,45);
-			uiTest.setBounds(width/2-40,height-25,80,20);
+			uiLabelDatastore.setBounds(0, 0, width, 40);
+			uiLabelStore.setBounds(5,40,width-10,20);
+			uiTextStore.setBounds(5,60,width-10,20);
+			uiLabelTemp.setBounds(5,80,width-10,20);
+			uiTextTemp.setBounds(5,100,width-10,20);
+			uiLabelResult.setBounds(5,110,width-10,45);
+			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
 	}
 	

@@ -28,13 +28,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	// STEP 3
 	private DialogDatabase uiCompDatabase;
 	// STEP 4
-	private JComponent uiCompDatastore;
-	private JLabel uiCompDatastoreLabelStore;
-	private JTextField uiCompDatastoreTextStore;
-	private JLabel uiCompDatastoreLabelTemp;
-	private JTextField uiCompDatastoreTextTemp;
-	private JButton uiCompDatastoreTest;
-	private JLabel uiCompDatastoreLabelResult;
+	private DialogDatastore uiCompDatastore;
 	// STEP 5
 	private JLabel uiLabelFinish;
 	
@@ -71,116 +65,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		super.add(uiCompWelcome = new DialogWelcome());
 		super.add(uiCompDependency = new DialogDependency());
 		super.add(uiCompDatabase = new DialogDatabase());
-		{
-			uiCompDatastore = new JPanel();
-			uiCompDatastoreLabelStore = new JLabel("Store Directory");
-			uiCompDatastore.add(uiCompDatastoreLabelStore);
-			uiCompDatastoreTextStore = new JTextField("/path/to/store/");
-			uiCompDatastore.add(uiCompDatastoreTextStore);
-			uiCompDatastoreLabelTemp = new JLabel("Temporary Directory");
-			uiCompDatastore.add(uiCompDatastoreLabelTemp);
-			uiCompDatastoreTextTemp = new JTextField("/tmp/");
-			uiCompDatastore.add(uiCompDatastoreTextTemp);
-			uiCompDatastoreLabelResult = new JLabel("");
-			uiCompDatastore.add(uiCompDatastoreLabelResult);
-			uiCompDatastoreTest = new JButton(UI.Icon.window_dialog_configwiz_dstest);
-			uiCompDatastoreTest.setBorder(null);
-			uiCompDatastoreTest.setFocusable(false);
-			uiCompDatastoreTest.setText("Test");
-			uiCompDatastoreTest.setToolTipText("Test");
-			uiCompDatastoreTest.setMnemonic('T');
-			uiCompDatastoreTest.setBorderPainted(true);
-			uiCompDatastoreTest.setBorder(BorderFactory.createLineBorder(linecolor));
-			uiCompDatastoreTest.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					uiCompDatastoreTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
-					uiCompDatastoreTextStore.setEditable(false);
-					uiCompDatastoreTextTemp.setEditable(false);
-					;
-					new Thread()
-					{
-						public void run()
-						{
-							try {
-								File store = new File(uiCompDatastoreTextStore.getText());
-								if(!store.exists() || !store.isDirectory())
-									throw new RuntimeException("Store folder is not a valid directory path.");
-								File store_rw = new File(store, ".rw-store");
-								store_rw.createNewFile();
-								store_rw.deleteOnExit();
-								if(!store_rw.exists())
-									throw new RuntimeException("Store directory is not writable: check your permissions.");
-								if(!store_rw.canRead())
-									throw new RuntimeException("Store directory is not readable: check your permissions.");
-								if(!store_rw.canWrite())
-									throw new RuntimeException("Store directory is not writable: check your permissions.");
-								File temp = new File(uiCompDatastoreTextTemp.getText());
-								if(!temp.exists() || !temp.isDirectory())
-									throw new RuntimeException("Temporary folder is not a valid directory path.");
-								File temp_rw = new File(temp, ".rw-temp");
-								temp_rw.createNewFile();
-								temp_rw.deleteOnExit();
-								if(!temp_rw.exists())
-									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
-								if(!temp_rw.canRead())
-									throw new RuntimeException("Temporary directory is not readable: check your permissions.");
-								if(!temp_rw.canWrite())
-									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
-								;
-								uiCompDatastoreLabelResult.setText("<html>Both directories are valid.</html>");
-								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
-								uiCompDatastoreLabelResult.setForeground(Color.GREEN);
-							} catch (RuntimeException re) {
-								uiCompDatastoreLabelResult.setText("<html>" + re.getMessage() + "</html>");
-								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-								uiCompDatastoreLabelResult.setForeground(Color.RED);
-							} catch (IOException ioe) {
-								uiCompDatastoreLabelResult.setText("<html>" + ioe.getMessage() + "</html>");
-								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-								uiCompDatastoreLabelResult.setForeground(Color.RED);
-							}
-							uiCompDatastoreTextTemp.setEditable(true);
-							uiCompDatastoreTextStore.setEditable(true);
-							uiCompDatastoreTest.setIcon(UI.Icon.window_dialog_configwiz_dstest);
-						}
-					}.start();
-				}					
-			});
-			uiCompDatastore.add(uiCompDatastoreTest);
-			uiCompDatastore.setLayout(new LayoutManager()
-			{
-				@Override
-				public void addLayoutComponent(String key,Component c){}
-				@Override
-				public void removeLayoutComponent(Component c){}
-				@Override
-				public Dimension minimumLayoutSize(Container parent)
-				{
-					return new Dimension(250,200);
-				}
-				@Override
-				public Dimension preferredLayoutSize(Container parent)
-				{
-					return new Dimension(250,200);
-				}
-				@Override
-				public void layoutContainer(Container parent)
-				{
-					int width = parent.getWidth(),
-						height = parent.getHeight();
-					uiCompDatastoreLabelStore.setBounds(5,5,width-10,20);
-					uiCompDatastoreTextStore.setBounds(5,25,width-10,20);
-					uiCompDatastoreLabelTemp.setBounds(5,45,width-10,20);
-					uiCompDatastoreTextTemp.setBounds(5,65,width-10,20);
-					uiCompDatastoreLabelResult.setBounds(5,90,width-10,45);
-					uiCompDatastoreTest.setBounds(width/2-40,height-25,80,20);
-				}
-			});
-			super.add(uiCompDatastore);
-		}
+		super.add(uiCompDatastore = new DialogDatastore());
 		uiLabelFinish = new JLabel("<html>DoujinDB is now configured.<br/>" +
 				"<br/>" +
 				"You can later change all these settings from the <b>Settings</b> tab (where you'll find more things to be customized).<br/>" +
@@ -241,8 +126,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiCompDatastoreTextStore.getText());
-				Configuration.configWrite("org.dyndns.doujindb.dat.temp", uiCompDatastoreTextTemp.getText());
 				Configuration.configSave();
 				DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
 				window.dispose();
@@ -666,6 +549,140 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiCompDatabaseTextPassword.setBounds(labelLength+5,65,width-labelLength-5,20);
 			uiCompDatabaseLabelResult.setBounds(5,90,width-10,45);
 			uiCompDatabaseTest.setBounds(width/2-40,height-25,80,20);
+		}
+	}
+	
+	private final class DialogDatastore extends JComponent implements LayoutManager
+	{
+		private JLabel uiLabelDatastore;
+		private String rcLabelDatastore = "<html></html>"; //TODO
+		
+		private JLabel uiCompDatastoreLabelStore;
+		private JTextField uiCompDatastoreTextStore;
+		private JLabel uiCompDatastoreLabelTemp;
+		private JTextField uiCompDatastoreTextTemp;
+		private JButton uiCompDatastoreTest;
+		private JLabel uiCompDatastoreLabelResult;
+		
+		private DialogDatastore()
+		{
+			uiLabelDatastore = new JLabel(rcLabelDatastore);
+			uiLabelDatastore.setOpaque(false);
+			super.add(uiLabelDatastore);
+			
+			uiCompDatastoreLabelStore = new JLabel("Store Directory");
+			super.add(uiCompDatastoreLabelStore);
+			uiCompDatastoreTextStore = new JTextField("/path/to/store/");
+			super.add(uiCompDatastoreTextStore);
+			uiCompDatastoreLabelTemp = new JLabel("Temporary Directory");
+			super.add(uiCompDatastoreLabelTemp);
+			uiCompDatastoreTextTemp = new JTextField("/tmp/");
+			super.add(uiCompDatastoreTextTemp);
+			uiCompDatastoreLabelResult = new JLabel("");
+			super.add(uiCompDatastoreLabelResult);
+			uiCompDatastoreTest = new JButton(UI.Icon.window_dialog_configwiz_dstest);
+			uiCompDatastoreTest.setBorder(null);
+			uiCompDatastoreTest.setFocusable(false);
+			uiCompDatastoreTest.setText("Test");
+			uiCompDatastoreTest.setToolTipText("Test");
+			uiCompDatastoreTest.setMnemonic('T');
+			uiCompDatastoreTest.setBorderPainted(true);
+			uiCompDatastoreTest.setBorder(BorderFactory.createLineBorder(linecolor));
+			uiCompDatastoreTest.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					uiCompDatastoreTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
+					uiCompDatastoreTextStore.setEditable(false);
+					uiCompDatastoreTextTemp.setEditable(false);
+					
+					Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiCompDatastoreTextStore.getText());
+					Configuration.configWrite("org.dyndns.doujindb.dat.temp", uiCompDatastoreTextTemp.getText());
+					
+					new Thread()
+					{
+						public void run()
+						{
+							try {
+								File store = new File(uiCompDatastoreTextStore.getText());
+								if(!store.exists() || !store.isDirectory())
+									throw new RuntimeException("Store folder is not a valid directory path.");
+								File store_rw = new File(store, ".rw-store");
+								store_rw.createNewFile();
+								store_rw.deleteOnExit();
+								if(!store_rw.exists())
+									throw new RuntimeException("Store directory is not writable: check your permissions.");
+								if(!store_rw.canRead())
+									throw new RuntimeException("Store directory is not readable: check your permissions.");
+								if(!store_rw.canWrite())
+									throw new RuntimeException("Store directory is not writable: check your permissions.");
+								File temp = new File(uiCompDatastoreTextTemp.getText());
+								if(!temp.exists() || !temp.isDirectory())
+									throw new RuntimeException("Temporary folder is not a valid directory path.");
+								File temp_rw = new File(temp, ".rw-temp");
+								temp_rw.createNewFile();
+								temp_rw.deleteOnExit();
+								if(!temp_rw.exists())
+									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
+								if(!temp_rw.canRead())
+									throw new RuntimeException("Temporary directory is not readable: check your permissions.");
+								if(!temp_rw.canWrite())
+									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
+								;
+								uiCompDatastoreLabelResult.setText("<html>Both directories are valid.</html>");
+								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
+								uiCompDatastoreLabelResult.setForeground(Color.GREEN);
+							} catch (RuntimeException re) {
+								uiCompDatastoreLabelResult.setText("<html>" + re.getMessage() + "</html>");
+								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+								uiCompDatastoreLabelResult.setForeground(Color.RED);
+							} catch (IOException ioe) {
+								uiCompDatastoreLabelResult.setText("<html>" + ioe.getMessage() + "</html>");
+								uiCompDatastoreLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
+								uiCompDatastoreLabelResult.setForeground(Color.RED);
+							}
+							uiCompDatastoreTextTemp.setEditable(true);
+							uiCompDatastoreTextStore.setEditable(true);
+							uiCompDatastoreTest.setIcon(UI.Icon.window_dialog_configwiz_dstest);
+						}
+					}.start();
+				}					
+			});
+			super.add(uiCompDatastoreTest);
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+//TODO			uiLabelDatastore.setBounds(0, 0, width, height);
+			uiCompDatastoreLabelStore.setBounds(5,5,width-10,20);
+			uiCompDatastoreTextStore.setBounds(5,25,width-10,20);
+			uiCompDatastoreLabelTemp.setBounds(5,45,width-10,20);
+			uiCompDatastoreTextTemp.setBounds(5,65,width-10,20);
+			uiCompDatastoreLabelResult.setBounds(5,90,width-10,45);
+			uiCompDatastoreTest.setBounds(width/2-40,height-25,80,20);
 		}
 	}
 }

@@ -601,41 +601,47 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 						public void run()
 						{
 							try {
+								// Test Data directory
 								File store = new File(uiTextStore.getText());
 								if(!store.exists() || !store.isDirectory())
-									throw new RuntimeException("Store folder is not a valid directory path.");
+									throw new RuntimeException("Data directory is not a valid path.");
 								File store_rw = new File(store, ".rw-store");
-								store_rw.createNewFile();
+								try {
+									store_rw.createNewFile();
+								} catch (IOException ioe) {
+									throw new RuntimeException("Data directory is not writable: check your permissions.");
+								}
 								store_rw.deleteOnExit();
 								if(!store_rw.exists())
-									throw new RuntimeException("Store directory is not writable: check your permissions.");
+									throw new RuntimeException("Data directory is not writable: check your permissions.");
 								if(!store_rw.canRead())
-									throw new RuntimeException("Store directory is not readable: check your permissions.");
+									throw new RuntimeException("Data directory is not readable: check your permissions.");
 								if(!store_rw.canWrite())
-									throw new RuntimeException("Store directory is not writable: check your permissions.");
-								File temp = new File(uiTextCache.getText());
-								if(!temp.exists() || !temp.isDirectory())
-									throw new RuntimeException("Temporary folder is not a valid directory path.");
-								File temp_rw = new File(temp, ".rw-temp");
-								temp_rw.createNewFile();
-								temp_rw.deleteOnExit();
-								if(!temp_rw.exists())
-									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
-								if(!temp_rw.canRead())
-									throw new RuntimeException("Temporary directory is not readable: check your permissions.");
-								if(!temp_rw.canWrite())
-									throw new RuntimeException("Temporary directory is not writable: check your permissions.");
-								;
+									throw new RuntimeException("Data directory is not writable: check your permissions.");
+								// Test Cache directory
+								File cache = new File(uiTextCache.getText());
+								if(!cache.exists() || !cache.isDirectory())
+									throw new RuntimeException("Cache directory is not a valid path.");
+								File cache_rw = new File(cache, ".rw-cache");
+								try {
+									cache_rw.createNewFile();
+								} catch (IOException ioe) {
+									throw new RuntimeException("Cache directory is not writable: check your permissions.");
+								}
+								cache_rw.deleteOnExit();
+								if(!cache_rw.exists())
+									throw new RuntimeException("Cache directory is not writable: check your permissions.");
+								if(!cache_rw.canRead())
+									throw new RuntimeException("Cache directory is not readable: check your permissions.");
+								if(!cache_rw.canWrite())
+									throw new RuntimeException("Cache directory is not writable: check your permissions.");
+								// Both directories are valid
 								uiLabelResult.setText("<html>Both directories are valid.</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_success);
 								uiLabelResult.setForeground(Color.GREEN);
 								uiButtonNext.setEnabled(true);
 							} catch (RuntimeException re) {
 								uiLabelResult.setText("<html>" + re.getMessage() + "</html>");
-								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
-								uiLabelResult.setForeground(Color.RED);
-							} catch (IOException ioe) {
-								uiLabelResult.setText("<html>" + ioe.getMessage() + "</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 								uiLabelResult.setForeground(Color.RED);
 							}

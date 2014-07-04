@@ -24,6 +24,8 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	// STEP 1
 	private JLabel uiLabelWelcome;
 	// STEP 2
+	
+	// STEP 3
 	private JComponent uiCompDatabase;
 	private JLabel uiCompDatabaseLabelDriver;
 	private JTextField uiCompDatabaseTextDriver;
@@ -35,7 +37,7 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	private JTextField uiCompDatabaseTextPassword;
 	private JButton uiCompDatabaseTest;
 	private JLabel uiCompDatabaseLabelResult;
-	// STEP 3
+	// STEP 4
 	private JComponent uiCompDatastore;
 	private JLabel uiCompDatastoreLabelStore;
 	private JTextField uiCompDatastoreTextStore;
@@ -43,7 +45,7 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	private JTextField uiCompDatastoreTextTemp;
 	private JButton uiCompDatastoreTest;
 	private JLabel uiCompDatastoreLabelResult;
-	// STEP 4
+	// STEP 5
 	private JLabel uiLabelFinish;
 	
 	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
@@ -53,9 +55,9 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	enum Step
 	{
 		WELCOME (1),
-		DATABASE (2),
-		DATASTORE (3),
-		//TODO ? INTERFACE (4),
+		DEPENDENCY (2),
+		DATABASE (3),
+		DATASTORE (4),
 		FINISH (5);
 		
 		private final double value;

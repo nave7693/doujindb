@@ -30,7 +30,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	// STEP 4
 	private DialogDatastore uiCompDatastore;
 	// STEP 5
-	private JLabel uiLabelFinish;
+	private DialogFinish uiCompFinish;
 	
 	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
@@ -66,14 +66,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		super.add(uiCompDependency = new DialogDependency());
 		super.add(uiCompDatabase = new DialogDatabase());
 		super.add(uiCompDatastore = new DialogDatastore());
-		uiLabelFinish = new JLabel("<html>DoujinDB is now configured.<br/>" +
-				"<br/>" +
-				"You can later change all these settings from the <b>Settings</b> tab (where you'll find more things to be customized).<br/>" +
-				"<br/>" +
-				"Click <b>Finish</b> to end this Wizard." +
-				"</html>");
-		uiLabelFinish.setOpaque(false);
-		super.add(uiLabelFinish);
+		super.add(uiCompFinish = new DialogFinish());
 		uiBottomDivisor = new JLabel();
 		uiBottomDivisor.setOpaque(true);
 		uiBottomDivisor.setBackground(background);
@@ -188,7 +181,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiCompDependency.setBounds(0,0,0,0);
 		uiCompDatabase.setBounds(0,0,0,0);
 		uiCompDatastore.setBounds(0,0,0,0);
-		uiLabelFinish.setBounds(0,0,0,0);
+		uiCompFinish.setBounds(0,0,0,0);
 		switch(fProgress)
 		{
 		case WELCOME:
@@ -204,10 +197,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			break;
 		case DATASTORE:
 			uiCompDatastore.setBounds(5,50,width-10,height-85);
-			uiCompDatastore.getLayout().layoutContainer(uiCompDatastore);
+			uiCompDatastore.doLayout();
 			break;
 		case FINISH:
-			uiLabelFinish.setBounds(5,50,width-10,height-85);
+			uiCompFinish.setBounds(5,50,width-10,height-85);
 			break;
 		}
 	}
@@ -683,6 +676,51 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiCompDatastoreTextTemp.setBounds(5,65,width-10,20);
 			uiCompDatastoreLabelResult.setBounds(5,90,width-10,45);
 			uiCompDatastoreTest.setBounds(width/2-40,height-25,80,20);
+		}
+	}
+	
+	private final class DialogFinish extends JComponent implements LayoutManager
+	{
+		private JLabel uiLabelFinish;
+		private String rcLabelFinish = "<html>DoujinDB is now configured.<br/>" +
+				"<br/>" +
+				"You can later change all these settings from the <b>Settings</b> tab (where you'll find more things to be customized).<br/>" +
+				"<br/>" +
+				"Click <b>Finish</b> to end this Wizard." +
+				"</html>";
+		
+		private DialogFinish()
+		{
+			uiLabelFinish = new JLabel(rcLabelFinish);
+			uiLabelFinish.setOpaque(false);
+			super.add(uiLabelFinish);
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			uiLabelFinish.setBounds(0, 0, width, height);
 		}
 	}
 }

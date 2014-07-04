@@ -13,7 +13,7 @@ import org.dyndns.doujindb.ui.DialogEx;
 import org.dyndns.doujindb.ui.UI;
 
 @SuppressWarnings({"serial","unused"})
-public final class ConfigurationWizard  extends JComponent implements Runnable, LayoutManager
+public final class ConfigurationWizard  extends JComponent implements LayoutManager
 {
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;
@@ -24,7 +24,7 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	// STEP 1
 	private JLabel uiLabelWelcome;
 	// STEP 2
-	
+	private JComponent uiCompDependency;
 	// STEP 3
 	private JComponent uiCompDatabase;
 	private JLabel uiCompDatabaseLabelDriver;
@@ -52,7 +52,7 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	private static final Color linecolor = background.brighter();
 	
-	enum Step
+	enum Progress
 	{
 		WELCOME (1),
 		DEPENDENCY (2),
@@ -62,17 +62,15 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 		
 		private final double value;
 		
-		Step()
-		{
+		Progress() {
 			this(1);
 		}
-		Step(int value)
-		{
+		Progress(int value) {
 			this.value = value;
 		}
 	}
 	
-	private Step progress = Step.WELCOME;
+	private Progress fProgress = Progress.WELCOME;
 	
 	public ConfigurationWizard()
 	{
@@ -377,12 +375,12 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				next();
+				doNext();
 			}					
 		});
 		super.add(uiButtonNext);
 		uiButtonPrev = new JButton(UI.Icon.window_dialog_configwiz_prev);
-		uiButtonPrev.setEnabled(false);
+		uiButtonPrev.setEnabled(true);
 		uiButtonPrev.setBorder(null);
 		uiButtonPrev.setFocusable(false);
 		uiButtonPrev.setText("Back");
@@ -395,12 +393,11 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				back();
+				doBack();
 			}					
 		});
 		super.add(uiButtonPrev);
 		uiButtonFinish = new JButton(UI.Icon.window_dialog_configwiz_finish);
-		uiButtonFinish.setVisible(false);
 		uiButtonFinish.setBorder(null);
 		uiButtonFinish.setFocusable(false);
 		uiButtonFinish.setText("Finish");
@@ -444,6 +441,8 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 		});
 		super.add(uiButtonCanc);
 		super.setLayout(this);
+		
+		doBack();
 	}
 	
 	@Override
@@ -475,7 +474,7 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 		uiCompDatabase.setBounds(0,0,0,0);
 		uiCompDatastore.setBounds(0,0,0,0);
 		uiLabelFinish.setBounds(0,0,0,0);
-		switch(progress)
+		switch(fProgress)
 		{
 		case WELCOME:
 			uiLabelWelcome.setBounds(5,50,width-10,height-85);
@@ -493,49 +492,71 @@ public final class ConfigurationWizard  extends JComponent implements Runnable, 
 			break;
 		}
 	}
-	@Override
-	public void run()
+	private void doNext() throws RuntimeException
 	{
-		
-	}
-	private void next() throws RuntimeException
-	{
-		switch(progress)
+		switch(fProgress)
 		{
 		case WELCOME:
-			progress = Step.DATABASE;
-			uiButtonPrev.setEnabled(true);
+			fProgress = Progress.DEPENDENCY;
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
+			break;
+		case DEPENDENCY:
+			fProgress = Progress.DATABASE;
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
 			break;
 		case DATABASE:
-			progress = Step.DATASTORE;
+			fProgress = Progress.DATASTORE;
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
 			break;
 		case DATASTORE:
-			progress = Step.FINISH;
-			uiButtonNext.setEnabled(false);
+			fProgress = Progress.FINISH;
+			uiButtonPrev.setVisible(true);
 			uiButtonNext.setVisible(false);
 			uiButtonFinish.setVisible(true);
 			break;
 		case FINISH:
-			throw new RuntimeException("Already reached the last step.");
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(false);
+			uiButtonFinish.setVisible(true);
 		}
 		super.getLayout().layoutContainer(this);
 	}
-	private void back() throws RuntimeException
+	
+	private void doBack() throws RuntimeException
 	{
-		switch(progress)
+		switch(fProgress)
 		{
 		case WELCOME:
-			throw new RuntimeException("Already reached the first step.");
+			uiButtonPrev.setVisible(false);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
+		case DEPENDENCY:
+			fProgress = Progress.WELCOME;
+			uiButtonPrev.setVisible(false);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
+			break;
 		case DATABASE:
-			progress = Step.WELCOME;
-			uiButtonPrev.setEnabled(false);
+			fProgress = Progress.DEPENDENCY;
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
 			break;
 		case DATASTORE:
-			progress = Step.DATABASE;
+			fProgress = Progress.DATABASE;
+			uiButtonPrev.setVisible(true);
+			uiButtonNext.setVisible(true);
+			uiButtonFinish.setVisible(false);
 			break;
 		case FINISH:
-			progress = Step.DATASTORE;
-			uiButtonNext.setEnabled(true);
+			fProgress = Progress.DATASTORE;
+			uiButtonPrev.setVisible(true);
 			uiButtonNext.setVisible(true);
 			uiButtonFinish.setVisible(false);
 			break;

@@ -17,7 +17,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 {
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;
-	private JButton uiButtonPrev;
+	private JButton uiButtonBack;
 	private JButton uiButtonFinish;
 	private JButton uiButtonCanc;
 	private JLabel uiLabelHeader;
@@ -379,16 +379,16 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			}					
 		});
 		super.add(uiButtonNext);
-		uiButtonPrev = new JButton(UI.Icon.window_dialog_configwiz_prev);
-		uiButtonPrev.setEnabled(true);
-		uiButtonPrev.setBorder(null);
-		uiButtonPrev.setFocusable(false);
-		uiButtonPrev.setText("Back");
-		uiButtonPrev.setToolTipText("Back");
-		uiButtonPrev.setMnemonic('B');
-		uiButtonPrev.setBorderPainted(true);
-		uiButtonPrev.setBorder(BorderFactory.createLineBorder(linecolor));
-		uiButtonPrev.addActionListener(new ActionListener()
+		uiButtonBack = new JButton(UI.Icon.window_dialog_configwiz_prev);
+		uiButtonBack.setEnabled(true);
+		uiButtonBack.setBorder(null);
+		uiButtonBack.setFocusable(false);
+		uiButtonBack.setText("Back");
+		uiButtonBack.setToolTipText("Back");
+		uiButtonBack.setMnemonic('B');
+		uiButtonBack.setBorderPainted(true);
+		uiButtonBack.setBorder(BorderFactory.createLineBorder(linecolor));
+		uiButtonBack.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent ae) 
@@ -396,7 +396,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				doBack();
 			}					
 		});
-		super.add(uiButtonPrev);
+		super.add(uiButtonBack);
 		uiButtonFinish = new JButton(UI.Icon.window_dialog_configwiz_finish);
 		uiButtonFinish.setBorder(null);
 		uiButtonFinish.setFocusable(false);
@@ -446,19 +446,23 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	}
 	
 	@Override
-	public void addLayoutComponent(String key,Component c){}
+	public void addLayoutComponent(String key,Component c) { }
+	
 	@Override
-	public void removeLayoutComponent(Component c){}
+	public void removeLayoutComponent(Component c) { }
+	
 	@Override
 	public Dimension minimumLayoutSize(Container parent)
 	{
 		return new Dimension(300,250);
 	}
+	
 	@Override
 	public Dimension preferredLayoutSize(Container parent)
 	{
 		return new Dimension(300,250);
 	}
+	
 	@Override
 	public void layoutContainer(Container parent)
 	{
@@ -468,7 +472,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiBottomDivisor.setBounds(5,height-30,width-10,1);
 		uiButtonNext.setBounds(width-80,height-25,75,20);
 		uiButtonFinish.setBounds(width-80,height-25,75,20);
-		uiButtonPrev.setBounds(width-160,height-25,75,20);
+		uiButtonBack.setBounds(width-160,height-25,75,20);
 		uiButtonCanc.setBounds(5,height-25,75,20);
 		uiLabelWelcome.setBounds(0,0,0,0);
 		uiCompDatabase.setBounds(0,0,0,0);
@@ -496,34 +500,34 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	{
 		switch(fProgress)
 		{
-		case WELCOME:
-			fProgress = Progress.DEPENDENCY;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case DEPENDENCY:
-			fProgress = Progress.DATABASE;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case DATABASE:
-			fProgress = Progress.DATASTORE;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case DATASTORE:
-			fProgress = Progress.FINISH;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(false);
-			uiButtonFinish.setVisible(true);
-			break;
-		case FINISH:
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(false);
-			uiButtonFinish.setVisible(true);
+			case WELCOME:
+				fProgress = Progress.DEPENDENCY;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case DEPENDENCY:
+				fProgress = Progress.DATABASE;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case DATABASE:
+				fProgress = Progress.DATASTORE;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case DATASTORE:
+				fProgress = Progress.FINISH;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(false);
+				uiButtonFinish.setVisible(true);
+				break;
+			case FINISH:
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(false);
+				uiButtonFinish.setVisible(true);
 		}
 		super.getLayout().layoutContainer(this);
 	}
@@ -532,34 +536,34 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	{
 		switch(fProgress)
 		{
-		case WELCOME:
-			uiButtonPrev.setVisible(false);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-		case DEPENDENCY:
-			fProgress = Progress.WELCOME;
-			uiButtonPrev.setVisible(false);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case DATABASE:
-			fProgress = Progress.DEPENDENCY;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case DATASTORE:
-			fProgress = Progress.DATABASE;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
-		case FINISH:
-			fProgress = Progress.DATASTORE;
-			uiButtonPrev.setVisible(true);
-			uiButtonNext.setVisible(true);
-			uiButtonFinish.setVisible(false);
-			break;
+			case WELCOME:
+				uiButtonBack.setVisible(false);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+			case DEPENDENCY:
+				fProgress = Progress.WELCOME;
+				uiButtonBack.setVisible(false);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case DATABASE:
+				fProgress = Progress.DEPENDENCY;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case DATASTORE:
+				fProgress = Progress.DATABASE;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
+			case FINISH:
+				fProgress = Progress.DATASTORE;
+				uiButtonBack.setVisible(true);
+				uiButtonNext.setVisible(true);
+				uiButtonFinish.setVisible(false);
+				break;
 		}
 		super.getLayout().layoutContainer(this);
 	}

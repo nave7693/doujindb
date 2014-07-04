@@ -22,7 +22,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	private JButton uiButtonCanc;
 	private JLabel uiLabelHeader;
 	// STEP 1
-	private JLabel uiLabelWelcome;
+	private DialogWelcome uiCompWelcome;
 	// STEP 2
 	private JComponent uiCompDependency;
 	// STEP 3
@@ -78,16 +78,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiLabelHeader.setOpaque(true);
 		uiLabelHeader.setBackground(Color.WHITE);
 		super.add(uiLabelHeader);
-		uiLabelWelcome = new JLabel("<html>Welcome to DoujinDB.<br/>" +
-				"<br/>" +
-				"We couldn't find any configuration file, so either you deleted it or this is the first time you run DoujinDB.<br/>" +
-				"<br/>" +
-				"This wizard will help you through the process of configuring the program.<br/>" +
-				"<br/>" +
-				"Click <b>Next</b> to proceed." +
-				"</html>");
-		uiLabelWelcome.setOpaque(false);
-		super.add(uiLabelWelcome);
+		super.add(uiCompWelcome = new DialogWelcome());
 		{
 			uiCompDatabase = new JPanel();
 			uiCompDatabaseLabelDriver = new JLabel("Driver");
@@ -474,14 +465,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		uiButtonFinish.setBounds(width-80,height-25,75,20);
 		uiButtonBack.setBounds(width-160,height-25,75,20);
 		uiButtonCanc.setBounds(5,height-25,75,20);
-		uiLabelWelcome.setBounds(0,0,0,0);
+		uiCompWelcome.setBounds(0,0,0,0);
 		uiCompDatabase.setBounds(0,0,0,0);
 		uiCompDatastore.setBounds(0,0,0,0);
 		uiLabelFinish.setBounds(0,0,0,0);
 		switch(fProgress)
 		{
 		case WELCOME:
-			uiLabelWelcome.setBounds(5,50,width-10,height-85);
+			uiCompWelcome.setBounds(5,50,width-10,height-85);
 			break;
 		case DATABASE:
 			uiCompDatabase.setBounds(5,50,width-10,height-85);
@@ -566,5 +557,52 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 		}
 		super.getLayout().layoutContainer(this);
+	}
+	
+	private final class DialogWelcome extends JComponent implements LayoutManager
+	{
+		private JLabel uiLabelWelcome;
+		private String rcLabelWelcome = "<html>Welcome to DoujinDB.<br/>" +
+				"<br/>" +
+				"We couldn't find any configuration file, so either you deleted it or this is the first time you run DoujinDB.<br/>" +
+				"<br/>" +
+				"This wizard will help you through the process of configuring the program.<br/>" +
+				"<br/>" +
+				"Click <b>Next</b> to proceed." +
+				"</html>";
+		
+		private DialogWelcome()
+		{
+			uiLabelWelcome = new JLabel(rcLabelWelcome);
+			uiLabelWelcome.setOpaque(false);
+			super.add(uiLabelWelcome);
+			super.setLayout(this);
+		}
+		
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public void layoutContainer(Container parent)
+		{
+			int width = parent.getWidth(),
+				height = parent.getHeight();
+			uiLabelWelcome.setBounds(0, 0, width, height);
+		}
 	}
 }

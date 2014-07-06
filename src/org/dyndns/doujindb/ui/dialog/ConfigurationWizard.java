@@ -23,15 +23,15 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	private JButton uiButtonCanc;
 	private JLabel uiLabelHeader;
 	// STEP 1
-	private DialogWelcome uiCompWelcome;
+	private Dialog uiCompWelcome;
 	// STEP 2
-	private DialogDependency uiCompDependency;
+	private Dialog uiCompDependency;
 	// STEP 3
-	private DialogDatabase uiCompDatabase;
+	private Dialog uiCompDatabase;
 	// STEP 4
-	private DialogDatastore uiCompDatastore;
+	private Dialog uiCompDatastore;
 	// STEP 5
-	private DialogFinish uiCompFinish;
+	private Dialog uiCompFinish;
 	
 	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
@@ -211,6 +211,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		{
 			case WELCOME:
 				fProgress = Progress.DEPENDENCY;
+				uiCompDependency.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
@@ -218,6 +219,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case DEPENDENCY:
 				fProgress = Progress.DATABASE;
+				uiCompDatabase.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(false);
@@ -225,6 +227,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case DATABASE:
 				fProgress = Progress.DATASTORE;
+				uiCompDatastore.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(false);
@@ -232,12 +235,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case DATASTORE:
 				fProgress = Progress.FINISH;
+				uiCompFinish.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(false);
 				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(true);
 				break;
 			case FINISH:
+				uiCompFinish.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(false);
 				uiButtonNext.setEnabled(true);
@@ -251,12 +256,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		switch(fProgress)
 		{
 			case WELCOME:
+				uiCompWelcome.doDisplay();
 				uiButtonBack.setVisible(false);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 			case DEPENDENCY:
 				fProgress = Progress.WELCOME;
+				uiCompWelcome.doDisplay();
 				uiButtonBack.setVisible(false);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
@@ -264,6 +271,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case DATABASE:
 				fProgress = Progress.DEPENDENCY;
+				uiCompDependency.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
@@ -271,6 +279,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case DATASTORE:
 				fProgress = Progress.DATABASE;
+				uiCompDatabase.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
@@ -278,6 +287,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				break;
 			case FINISH:
 				fProgress = Progress.DATASTORE;
+				uiCompDatastore.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
 				uiButtonNext.setEnabled(true);
@@ -289,6 +299,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	
 	private static abstract class Dialog extends JComponent implements LayoutManager
 	{
+		protected abstract void doDisplay();
+		
 		@Override
 		public void addLayoutComponent(String key,Component c) { }
 		
@@ -335,6 +347,9 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				height = parent.getHeight();
 			uiLabelWelcome.setBounds(0, 0, width, height);
 		}
+
+		@Override
+		protected void doDisplay() { }
 	}
 	
 	private final class DialogDependency extends Dialog
@@ -403,6 +418,11 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelCLoggingLib.setBounds(5,100,width-5,20);
 			uiLabelVelocityLib.setBounds(5,120,width-5,20);
 			uiDownload.setBounds(width/2-40,height-20,80,20);
+		}
+
+		@Override
+		protected void doDisplay() {
+			// TODO Auto-generated method stub
 		}
 	}
 	
@@ -590,6 +610,9 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelResult.setBounds(5,110,width-10,45);
 			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
+
+		@Override
+		protected void doDisplay() { }
 	}
 	
 	private final class DialogDatastore extends Dialog
@@ -713,6 +736,9 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelResult.setBounds(5,110,width-10,45);
 			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
+
+		@Override
+		protected void doDisplay() { }
 	}
 	
 	private final class DialogFinish extends Dialog
@@ -740,5 +766,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				height = parent.getHeight();
 			uiLabelFinish.setBounds(0, 0, width, height);
 		}
+
+		@Override
+		protected void doDisplay() { }
 	}
 }

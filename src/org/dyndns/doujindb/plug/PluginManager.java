@@ -76,8 +76,13 @@ public final class PluginManager
 	
 	private static void discoverAll()
 	{
+		File libDirectory = new File(Core.DOUJINDB_HOME, "lib");
 		Logger.logInfo(TAG + "discovering plugins ...");
-		for(File file : new File(Core.DOUJINDB_HOME, "lib").listFiles(new FilenameFilter()
+		// check if lib directory is present
+		if(!libDirectory.exists())
+			return;
+		// check each .jar file
+		for(File file : libDirectory.listFiles(new FilenameFilter()
 		{
 			@Override
 			public boolean accept(File dir, String name) {

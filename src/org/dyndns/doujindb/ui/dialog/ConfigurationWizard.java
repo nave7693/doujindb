@@ -3,6 +3,8 @@ package org.dyndns.doujindb.ui.dialog;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
+import java.nio.channels.Channels;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -374,11 +376,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDependency = new JLabel(rcLabelDependency);
 			uiLabelDependency.setOpaque(false);
 			
-			for(final String[] lib : mLibraries)
+			for(String[] lib : mLibraries)
 			{
-				JLabel uiLabelLib = new JLabel(lib[0]);
+				final String libName = lib[0];
+				final String libURL = lib[1];
+				
+				JLabel uiLabelLib = new JLabel(libName);
 				uiLabelLib.setIcon(UI.Icon.window_loading);
-				mLibLabel.put(lib[0], uiLabelLib);
+				mLibLabel.put(libName, uiLabelLib);
 				super.add(uiLabelLib);
 				
 				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_depdown);
@@ -391,10 +396,42 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						//TODO wget(lib[1]);
+						final JButton source = ((JButton) ae.getSource());
+						source.setVisible(false);
+						mLibLabel.get(libName).setIcon(UI.Icon.window_loading);
+						
+						new SwingWorker<Void, String>() {
+							private boolean errorOccurred = true;
+							@Override
+							protected Void doInBackground() throws Exception {
+								try {
+									File libFile = new File(new File(Core.DOUJINDB_HOME, "lib"), libName + ".jar");
+									libFile.getParentFile().mkdirs();
+									FileOutputStream libFileOS = new FileOutputStream(libFile);
+									libFileOS.getChannel().transferFrom(Channels.newChannel(new URL(libURL).openStream()), 0, Long.MAX_VALUE);
+									libFileOS.close();
+									errorOccurred = false;
+								} catch (IOException ioe) {
+									errorOccurred = true;
+									ioe.printStackTrace();
+								}
+								return null;
+							}
+							
+							@Override
+							protected void done() {
+								if(errorOccurred) {
+									source.setVisible(true);
+									mLibLabel.get(libName).setIcon(UI.Icon.window_dialog_configwiz_error);
+								} else {
+									// check again
+									doDisplay();
+								}
+							}
+						}.execute();
 					}
 				});
-				mLibButton.put(lib[0], uiButtonLib);
+				mLibButton.put(libName, uiButtonLib);
 				super.add(uiButtonLib);
 			}
 			

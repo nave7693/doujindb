@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 
 import javax.swing.*;
@@ -357,11 +358,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		private JLabel uiLabelDependency;
 		private String rcLabelDependency = "<html></html>";
 		
-		private JLabel uiLabelAshwoodLib;
-		private JLabel uiLabelCayenneLib;
-		private JLabel uiLabelCCollectionLib;
-		private JLabel uiLabelCLoggingLib;
-		private JLabel uiLabelVelocityLib;
+		private Map<String, JLabel> mLibraries = new HashMap<String, JLabel>();
 		private JButton uiDownload;
 		
 		private DialogDependency()
@@ -369,21 +366,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDependency = new JLabel(rcLabelDependency);
 			uiLabelDependency.setOpaque(false);
 			
-			uiLabelAshwoodLib = new JLabel("ashwood");
-			uiLabelAshwoodLib.setIcon(UI.Icon.window_loading);
-			super.add(uiLabelAshwoodLib);
-			uiLabelCayenneLib = new JLabel("cayenne-server");
-			uiLabelCayenneLib.setIcon(UI.Icon.window_loading);
-			super.add(uiLabelCayenneLib);
-			uiLabelCCollectionLib = new JLabel("commons-collections");
-			uiLabelCCollectionLib.setIcon(UI.Icon.window_loading);
-			super.add(uiLabelCCollectionLib);
-			uiLabelCLoggingLib = new JLabel("commons-logging");
-			uiLabelCLoggingLib.setIcon(UI.Icon.window_loading);
-			super.add(uiLabelCLoggingLib);
-			uiLabelVelocityLib = new JLabel("velocity");
-			uiLabelVelocityLib.setIcon(UI.Icon.window_loading);
-			super.add(uiLabelVelocityLib);
+			for(String lib : new String[]{ "ashwood", "cayenne-server", "commons-collections", "commons-logging", "velocity" })
+			{
+				JLabel uiLabelLib = new JLabel(lib);
+				uiLabelLib.setIcon(UI.Icon.window_loading);
+				mLibraries.put(lib,  uiLabelLib);
+				super.add(uiLabelLib);
+			}
 			
 			uiDownload = new JButton(UI.Icon.window_dialog_configwiz_depdown);
 			uiDownload.setBorder(null);
@@ -410,19 +399,32 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
+				height = parent.getHeight(),
+				index = 0;
 			uiLabelDependency.setBounds(0, 0, width, 40);
-			uiLabelAshwoodLib.setBounds(5,40,width-5,20);
-			uiLabelCayenneLib.setBounds(5,60,width-5,20);
-			uiLabelCCollectionLib.setBounds(5,80,width-5,20);
-			uiLabelCLoggingLib.setBounds(5,100,width-5,20);
-			uiLabelVelocityLib.setBounds(5,120,width-5,20);
+			for(JLabel label : mLibraries.values())
+				label.setBounds(5,40 + index++ * 20,width-5,20);
 			uiDownload.setBounds(width/2-40,height-20,80,20);
 		}
 
 		@Override
 		protected void doDisplay() {
-			// TODO Auto-generated method stub
+			new SwingWorker<Void, String>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					return null;
+				}
+				
+				@Override
+				protected void process(List<String> chunks) {
+					
+				}
+
+				@Override
+				protected void done() {
+					
+				}
+			}.execute();
 		}
 	}
 	

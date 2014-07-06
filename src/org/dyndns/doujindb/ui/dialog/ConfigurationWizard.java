@@ -287,7 +287,28 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		super.getLayout().layoutContainer(this);
 	}
 	
-	private final class DialogWelcome extends JComponent implements LayoutManager
+	private static abstract class Dialog extends JComponent implements LayoutManager
+	{
+		@Override
+		public void addLayoutComponent(String key,Component c) { }
+		
+		@Override
+		public void removeLayoutComponent(Component c) { }
+		
+		@Override
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+		
+		@Override
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(300,250);
+		}
+	}
+	
+	private final class DialogWelcome extends Dialog
 	{
 		private JLabel uiLabelWelcome;
 		private String rcLabelWelcome = "<html>Welcome to DoujinDB.<br/>" +
@@ -308,24 +329,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 		
 		@Override
-		public void addLayoutComponent(String key,Component c) { }
-		
-		@Override
-		public void removeLayoutComponent(Component c) { }
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
@@ -334,7 +337,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 	}
 	
-	private final class DialogDependency extends JComponent implements LayoutManager
+	private final class DialogDependency extends Dialog
 	{
 		private JLabel uiLabelDependency;
 		private String rcLabelDependency = "<html></html>";
@@ -389,24 +392,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 		
 		@Override
-		public void addLayoutComponent(String key,Component c) { }
-		
-		@Override
-		public void removeLayoutComponent(Component c) { }
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
@@ -421,7 +406,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 	}
 	
-	private final class DialogDatabase extends JComponent implements LayoutManager
+	private final class DialogDatabase extends Dialog
 	{
 		private JLabel uiLabelDatabase;
 		private String rcLabelDatabase = "<html>The Database is where all the metadata is stored: book info, tags, authors ...</html>";
@@ -588,24 +573,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 		
 		@Override
-		public void addLayoutComponent(String key,Component c) { }
-		
-		@Override
-		public void removeLayoutComponent(Component c) { }
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
@@ -625,7 +592,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 	}
 	
-	private final class DialogDatastore extends JComponent implements LayoutManager
+	private final class DialogDatastore extends Dialog
 	{
 		private JLabel uiLabelDatastore;
 		private String rcLabelDatastore = "<html>The Datastore contains all the data files. Cache contains cached cover images.</html>";
@@ -734,24 +701,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 		
 		@Override
-		public void addLayoutComponent(String key,Component c) { }
-		
-		@Override
-		public void removeLayoutComponent(Component c) { }
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
@@ -766,7 +715,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		}
 	}
 	
-	private final class DialogFinish extends JComponent implements LayoutManager
+	private final class DialogFinish extends Dialog
 	{
 		private JLabel uiLabelFinish;
 		private String rcLabelFinish = "<html>DoujinDB is now configured.<br/>" +
@@ -782,24 +731,6 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelFinish.setOpaque(false);
 			super.add(uiLabelFinish);
 			super.setLayout(this);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) { }
-		
-		@Override
-		public void removeLayoutComponent(Component c) { }
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return new Dimension(300,250);
 		}
 		
 		@Override

@@ -10,6 +10,7 @@ import java.util.concurrent.*;
 
 import javax.swing.*;
 
+import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.ui.DialogEx;
 import org.dyndns.doujindb.ui.UI;
@@ -409,9 +410,22 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 
 		@Override
 		protected void doDisplay() {
+			// reset status to loading
+			for(String lib : mLibraries.keySet())
+			{
+				mLibraries.get(lib).setIcon(UI.Icon.window_loading);
+			}
+			// async check every library
 			new SwingWorker<Void, String>() {
 				@Override
 				protected Void doInBackground() throws Exception {
+					for(String lib : mLibraries.keySet())
+					{
+						if(new File(new File(Core.DOUJINDB_HOME, "lib"), lib + ".jar").exists())
+							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_success);
+						else
+							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_error);
+					}
 					return null;
 				}
 				

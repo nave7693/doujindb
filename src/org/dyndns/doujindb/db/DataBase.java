@@ -11,7 +11,7 @@ import org.dyndns.doujindb.log.*;
 
 public final class DataBase
 {
-	private static IDataBase instance = new DataBaseImpl();
+	private static IDataBase instance;
 	private static CopyOnWriteArraySet<DataBaseListener> listeners = new CopyOnWriteArraySet<DataBaseListener>();
 	private static ConcurrentLinkedQueue<DataBaseEvent> queue = new ConcurrentLinkedQueue<DataBaseEvent>();
 	
@@ -85,119 +85,124 @@ public final class DataBase
 		}.start();
 	}
 	
+	private static IDataBase getInstace()
+	{
+		return instance == null ? instance = new DataBaseImpl() : instance;
+	}
+	
 	public static void doCommit() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call doCommit()");
-		instance.doCommit();
+		getInstace().doCommit();
 	}
 
 	public static void doRollback() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call doRollback()");
-		instance.doRollback();
+		getInstace().doRollback();
 	}
 	
 	public static void doDelete(Record record) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call doDelete(" + record + ")");
-		instance.doDelete(record);
+		getInstace().doDelete(record);
 	}
 	
 	public static RecordSet<Book> getBooks(QueryBook query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getBooks(" + query + ")");
-		return instance.getBooks(query);
+		return getInstace().getBooks(query);
 	}
 
 	public static RecordSet<Circle> getCircles(QueryCircle query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getCircles(" + query + ")");
-		return instance.getCircles(query);
+		return getInstace().getCircles(query);
 	}
 
 	public static RecordSet<Artist> getArtists(QueryArtist query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getArtists(" + query + ")");
-		return instance.getArtists(query);
+		return getInstace().getArtists(query);
 	}
 
 	public static RecordSet<Parody> getParodies(QueryParody query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getParodies(" + query + ")");
-		return instance.getParodies(query);
+		return getInstace().getParodies(query);
 	}
 
 	public static RecordSet<Content> getContents(QueryContent query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getContents(" + query + ")");
-		return instance.getContents(query);
+		return getInstace().getContents(query);
 	}
 
 	public static RecordSet<Convention> getConventions(QueryConvention query) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getConventions(" + query + ")");
-		return instance.getConventions(query);
+		return getInstace().getConventions(query);
 	}
 	
 	public static RecordSet<Record> getRecycled() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getRecycled()");
-		return instance.getRecycled();
+		return getInstace().getRecycled();
 	}
 
 	public static RecordSet<Record> getDeleted() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getDeleted()");
-		return instance.getDeleted();
+		return getInstace().getDeleted();
 	}
 
 	public static RecordSet<Record> getModified() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getModified()");
-		return instance.getModified();
+		return getInstace().getModified();
 	}
 
 	public static RecordSet<Record> getUncommitted() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call getUncommitted()");
-		return instance.getUncommitted();
+		return getInstace().getUncommitted();
 	}
 	
 	public static <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call doInsert(" + clazz + ")");
-		return instance.doInsert(clazz);
+		return getInstace().doInsert(clazz);
 	}
 	
 	public static void connect() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call connect()");
-		instance.connect();
+		getInstace().connect();
 	}
 	
 	public static void disconnect() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call disconnect()");
-		instance.disconnect();
+		getInstace().disconnect();
 	}
 	
 	public static boolean isConnected() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call isConnected()");
-		return instance.isConnected();
+		return getInstace().isConnected();
 	}
 	
 	public static String getConnection() throws DataBaseException
 	{
 
 		Logger.logDebug(TAG + "call getConnection()");
-		return instance.getConnection();
+		return getInstace().getConnection();
 	}
 
 	public static boolean isAutocommit() throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call isAutocommit()");
-		return instance.isAutocommit();
+		return getInstace().isAutocommit();
 	}
 	
 	public static void addDataBaseListener(DataBaseListener dbl)
@@ -303,18 +308,18 @@ public final class DataBase
 	static ContentAlias newContentAlias()
 	{
 		Logger.logDebug(TAG + "call newContentAlias()");
-		return instance.newContentAlias();
+		return getInstace().newContentAlias();
 	}
 	
 	static ConventionAlias newConventionAlias()
 	{
 		Logger.logDebug(TAG + "call newConventionAlias()");
-		return instance.newConventionAlias();
+		return getInstace().newConventionAlias();
 	}
 	
 	static void deleteObject(Object o) throws DataBaseException
 	{
 		Logger.logDebug(TAG + "call deleteObject(" + o + ")");
-		instance.deleteObject(o);
+		getInstace().deleteObject(o);
 	}
 }

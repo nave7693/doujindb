@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.concurrent.*;
 
 import javax.swing.*;
@@ -380,6 +381,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		
 		private JLabel uiLabelDriver;
 		private JComboBox<String> uiComboboxDriver;
+		private Map<String, String> drivers = new HashMap<String, String>();
 		private JLabel uiLabelURL;
 		private JTextField uiTextURL;
 		private JLabel uiLabelUsername;
@@ -400,13 +402,20 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiComboboxDriver = new JComboBox<String>();
 			uiComboboxDriver.setFocusable(false);
 			uiComboboxDriver.setLightWeightPopupEnabled(true);
-			uiComboboxDriver.addItem("org.sqlite.JDBC");
-			uiComboboxDriver.addItem("com.mysql.jdbc.Driver");
-			uiComboboxDriver.addItem("org.hsqldb.jdbcDriver");
-			uiComboboxDriver.addItem("org.apache.derby.jdbc.EmbeddedDriver");
-			uiComboboxDriver.addItem("org.postgresql.Driver");
-			uiComboboxDriver.addItem("oracle.jdbc.OracleDriver");
-			uiComboboxDriver.addItem("com.microsoft.jdbc.sqlserver.SQLServerDriver");
+			drivers.put("SQLite", "org.sqlite.JDBC");
+			uiComboboxDriver.addItem("SQLite");
+			drivers.put("MySQL", "com.mysql.jdbc.Driver");
+			uiComboboxDriver.addItem("MySQL");
+			drivers.put("HyperSQL", "org.hsqldb.jdbcDriver");
+			uiComboboxDriver.addItem("HyperSQL");
+			drivers.put("DerbyDB", "org.apache.derby.jdbc.EmbeddedDriver");
+			uiComboboxDriver.addItem("DerbyDB");
+			drivers.put("PostgreSQL", "org.postgresql.Driver");
+			uiComboboxDriver.addItem("PostgreSQL");
+			drivers.put("Oracle", "oracle.jdbc.OracleDriver");
+			uiComboboxDriver.addItem("Oracle");
+			drivers.put("Microsoft SQL Server", "com.microsoft.jdbc.sqlserver.SQLServerDriver");
+			uiComboboxDriver.addItem("Microsoft SQL Server");
 			super.add(uiComboboxDriver);
 			uiLabelURL = new JLabel("URL");
 			super.add(uiLabelURL);
@@ -441,7 +450,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 					uiTextUsername.setEditable(false);
 					uiTextPassword.setEditable(false);
 					
-					Configuration.configWrite("org.dyndns.doujindb.db.driver", (String) uiComboboxDriver.getSelectedItem());
+					Configuration.configWrite("org.dyndns.doujindb.db.driver", drivers.get((String) uiComboboxDriver.getSelectedItem()));
 					Configuration.configWrite("org.dyndns.doujindb.db.url", uiTextURL.getText());
 					Configuration.configWrite("org.dyndns.doujindb.db.username", uiTextUsername.getText());
 					Configuration.configWrite("org.dyndns.doujindb.db.password", uiTextPassword.getText());
@@ -451,7 +460,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 						public void run()
 						{
 							try {
-								Class.forName((String) uiComboboxDriver.getSelectedItem());
+								Class.forName((String) Configuration.configRead("org.dyndns.doujindb.db.driver"));
 								ExecutorService executor = Executors.newCachedThreadPool();
 								Callable<Connection> task = new Callable<Connection>()
 								{
@@ -510,7 +519,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 								   future.cancel(true);
 								}
 							} catch (ClassNotFoundException cnfe) {
-								uiLabelResult.setText("<html>Cannot load jdbc driver '" + (String) uiComboboxDriver.getSelectedItem() + "' : Class not found.</html>");
+								uiLabelResult.setText("<html>Cannot load jdbc driver '" + (String) Configuration.configRead("org.dyndns.doujindb.db.driver") + "' : Class not found.</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 								uiLabelResult.setForeground(Color.RED);
 							}

@@ -359,6 +359,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		private JLabel uiLabelDependency;
 		private String rcLabelDependency = "<html></html>";
 		
+		private String[][] mLibraries = new String[][]{
+			new String[]{ "ashwood",             "http://search.maven.org/remotecontent?filepath=org/objectstyle/ashwood/ashwood/2.0/ashwood-2.0.jar" },
+			new String[]{ "cayenne-server",      "http://search.maven.org/remotecontent?filepath=org/apache/cayenne/cayenne-server/3.0.2/cayenne-server-3.0.2.jar" },
+			new String[]{ "commons-collections", "http://search.maven.org/remotecontent?filepath=commons-collections/commons-collections/3.1/commons-collections-3.1.jar" },
+			new String[]{ "commons-logging",     "http://search.maven.org/remotecontent?filepath=commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar" },
+			new String[]{ "velocity",            "http://search.maven.org/remotecontent?filepath=velocity/velocity/1.3/velocity-1.3.jar" }
+		};
 		private Map<String, JLabel> mLibLabel = new HashMap<String, JLabel>();
 		private Map<String, JButton> mLibButton = new HashMap<String, JButton>();
 		
@@ -367,11 +374,11 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDependency = new JLabel(rcLabelDependency);
 			uiLabelDependency.setOpaque(false);
 			
-			for(String lib : new String[]{ "ashwood", "cayenne-server", "commons-collections", "commons-logging", "velocity" })
+			for(final String[] lib : mLibraries)
 			{
-				JLabel uiLabelLib = new JLabel(lib);
+				JLabel uiLabelLib = new JLabel(lib[0]);
 				uiLabelLib.setIcon(UI.Icon.window_loading);
-				mLibLabel.put(lib, uiLabelLib);
+				mLibLabel.put(lib[0], uiLabelLib);
 				super.add(uiLabelLib);
 				
 				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_depdown);
@@ -384,10 +391,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 					@Override
 					public void actionPerformed(ActionEvent ae) 
 					{
-						
+						//TODO wget(lib[1]);
 					}
 				});
-				mLibButton.put(lib, uiButtonLib);
+				mLibButton.put(lib[0], uiButtonLib);
 				super.add(uiButtonLib);
 			}
 			

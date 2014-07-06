@@ -339,10 +339,51 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		private JLabel uiLabelDependency;
 		private String rcLabelDependency = "<html></html>";
 		
+		private JLabel uiLabelAshwoodLib;
+		private JLabel uiLabelCayenneLib;
+		private JLabel uiLabelCCollectionLib;
+		private JLabel uiLabelCLoggingLib;
+		private JLabel uiLabelVelocityLib;
+		private JButton uiDownload;
+		
 		private DialogDependency()
 		{
 			uiLabelDependency = new JLabel(rcLabelDependency);
 			uiLabelDependency.setOpaque(false);
+			
+			uiLabelAshwoodLib = new JLabel("ashwood");
+			uiLabelAshwoodLib.setIcon(UI.Icon.window_loading);
+			super.add(uiLabelAshwoodLib);
+			uiLabelCayenneLib = new JLabel("cayenne-server");
+			uiLabelCayenneLib.setIcon(UI.Icon.window_loading);
+			super.add(uiLabelCayenneLib);
+			uiLabelCCollectionLib = new JLabel("commons-collections");
+			uiLabelCCollectionLib.setIcon(UI.Icon.window_loading);
+			super.add(uiLabelCCollectionLib);
+			uiLabelCLoggingLib = new JLabel("commons-logging");
+			uiLabelCLoggingLib.setIcon(UI.Icon.window_loading);
+			super.add(uiLabelCLoggingLib);
+			uiLabelVelocityLib = new JLabel("velocity");
+			uiLabelVelocityLib.setIcon(UI.Icon.window_loading);
+			super.add(uiLabelVelocityLib);
+			
+			uiDownload = new JButton(UI.Icon.window_dialog_configwiz_depdown);
+			uiDownload.setBorder(null);
+			uiDownload.setFocusable(false);
+			uiDownload.setText("Download");
+			uiDownload.setToolTipText("Download");
+			uiDownload.setMnemonic('D');
+			uiDownload.setBorderPainted(true);
+			uiDownload.setBorder(BorderFactory.createLineBorder(linecolor));
+			uiDownload.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					
+				}
+			});
+			super.add(uiDownload);
 			super.add(uiLabelDependency);
 			super.setLayout(this);
 		}
@@ -370,7 +411,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		{
 			int width = parent.getWidth(),
 				height = parent.getHeight();
-			uiLabelDependency.setBounds(0, 0, width, height);
+			uiLabelDependency.setBounds(0, 0, width, 40);
+			uiLabelAshwoodLib.setBounds(5,40,width-5,20);
+			uiLabelCayenneLib.setBounds(5,60,width-5,20);
+			uiLabelCCollectionLib.setBounds(5,80,width-5,20);
+			uiLabelCLoggingLib.setBounds(5,100,width-5,20);
+			uiLabelVelocityLib.setBounds(5,120,width-5,20);
+			uiDownload.setBounds(width/2-40,height-20,80,20);
 		}
 	}
 	

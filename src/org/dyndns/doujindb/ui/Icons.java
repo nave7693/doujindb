@@ -58,6 +58,7 @@ public final class Icons
 	public final ImageIcon window_dialog_configwiz_loading = null;
 	public final ImageIcon window_dialog_configwiz_dbtest = null;
 	public final ImageIcon window_dialog_configwiz_dstest = null;
+	public final ImageIcon window_dialog_configwiz_depdown = null;
 	public final ImageIcon window_dialog_configwiz_success = null;
 	public final ImageIcon window_dialog_configwiz_error = null;
 	public final ImageIcon desktop_wallpaper_import = null;

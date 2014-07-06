@@ -450,33 +450,37 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 					uiTextUsername.setEditable(false);
 					uiTextPassword.setEditable(false);
 					
-					Configuration.configWrite("org.dyndns.doujindb.db.driver", drivers.get((String) uiComboboxDriver.getSelectedItem()));
-					Configuration.configWrite("org.dyndns.doujindb.db.url", uiTextURL.getText());
-					Configuration.configWrite("org.dyndns.doujindb.db.username", uiTextUsername.getText());
-					Configuration.configWrite("org.dyndns.doujindb.db.password", uiTextPassword.getText());
+					final String dbDriver = drivers.get((String) uiComboboxDriver.getSelectedItem()),
+						dbURL = uiTextURL.getText(),
+						dbUsername = uiTextUsername.getText(),
+						dbPassword = uiTextPassword.getText();
+					Configuration.configWrite("org.dyndns.doujindb.db.driver", dbDriver);
+					Configuration.configWrite("org.dyndns.doujindb.db.url", dbURL);
+					Configuration.configWrite("org.dyndns.doujindb.db.username", dbUsername);
+					Configuration.configWrite("org.dyndns.doujindb.db.password", dbPassword);
 					
 					new Thread()
 					{
 						public void run()
 						{
 							try {
-								Class.forName((String) Configuration.configRead("org.dyndns.doujindb.db.driver"));
+								Class.forName(dbDriver);
 								ExecutorService executor = Executors.newCachedThreadPool();
 								Callable<Connection> task = new Callable<Connection>()
 								{
 								   public Connection call()
 								   {
 								      try {
-										return DriverManager.getConnection(uiTextURL.getText(),
-												uiTextUsername.getText(),
-												uiTextPassword.getText());
+										return DriverManager.getConnection(dbURL,
+												dbUsername,
+												dbPassword);
 									} catch (SQLException sqle) {
 										/**
 										 * SQL error messages are too verbose,
 										 * mask them off with a common error message
 										 * and print the stack trace to the standard output.
 										 */
-										uiLabelResult.setText("<html>Error connecting to SQL resource '" + uiTextURL.getText() + "'.</html>");
+										uiLabelResult.setText("<html>Error connecting to SQL resource '" + dbURL + "'.</html>");
 										uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 										uiLabelResult.setForeground(Color.RED);
 										sqle.printStackTrace();
@@ -499,7 +503,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 											conn.close();
 										} catch (Exception e) {}
 									} else {
-										uiLabelResult.setText("<html>Error connecting to SQL resource '" + uiTextURL.getText() + "'.</html>");
+										uiLabelResult.setText("<html>Error connecting to SQL resource '" + dbURL + "'.</html>");
 										uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 										uiLabelResult.setForeground(Color.RED);
 									}
@@ -519,7 +523,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 								   future.cancel(true);
 								}
 							} catch (ClassNotFoundException cnfe) {
-								uiLabelResult.setText("<html>Cannot load jdbc driver '" + (String) Configuration.configRead("org.dyndns.doujindb.db.driver") + "' : Class not found.</html>");
+								uiLabelResult.setText("<html>Cannot load jdbc driver '" + dbDriver + "' : Class not found.</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 								uiLabelResult.setForeground(Color.RED);
 							}

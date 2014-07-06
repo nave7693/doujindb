@@ -359,8 +359,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		private JLabel uiLabelDependency;
 		private String rcLabelDependency = "<html></html>";
 		
-		private Map<String, JLabel> mLibraries = new HashMap<String, JLabel>();
-		private JButton uiDownload;
+		private Map<String, JLabel> mLibLabel = new HashMap<String, JLabel>();
+		private Map<String, JButton> mLibButton = new HashMap<String, JButton>();
 		
 		private DialogDependency()
 		{
@@ -371,28 +371,26 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			{
 				JLabel uiLabelLib = new JLabel(lib);
 				uiLabelLib.setIcon(UI.Icon.window_loading);
-				mLibraries.put(lib,  uiLabelLib);
+				mLibLabel.put(lib, uiLabelLib);
 				super.add(uiLabelLib);
+				
+				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_depdown);
+				uiButtonLib.setFocusable(false);
+				uiButtonLib.setVisible(false);
+				uiButtonLib.setBorderPainted(true);
+				uiButtonLib.setBorder(BorderFactory.createLineBorder(linecolor));
+				uiButtonLib.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent ae) 
+					{
+						
+					}
+				});
+				mLibButton.put(lib, uiButtonLib);
+				super.add(uiButtonLib);
 			}
 			
-			uiDownload = new JButton(UI.Icon.window_dialog_configwiz_depdown);
-			uiDownload.setEnabled(false);
-			uiDownload.setBorder(null);
-			uiDownload.setFocusable(false);
-			uiDownload.setText("Download");
-			uiDownload.setToolTipText("Download");
-			uiDownload.setMnemonic('D');
-			uiDownload.setBorderPainted(true);
-			uiDownload.setBorder(BorderFactory.createLineBorder(linecolor));
-			uiDownload.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					
-				}
-			});
-			super.add(uiDownload);
 			super.add(uiLabelDependency);
 			super.setLayout(this);
 		}
@@ -404,32 +402,37 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				height = parent.getHeight(),
 				index = 0;
 			uiLabelDependency.setBounds(0, 0, width, 40);
-			for(JLabel label : mLibraries.values())
-				label.setBounds(5,40 + index++ * 20,width-5,20);
-			uiDownload.setBounds(width/2-40,height-20,80,20);
+			for(String lib : mLibLabel.keySet())
+			{
+				mLibLabel.get(lib).setBounds(5,40 + index * 20,width-25,20);
+				mLibButton.get(lib).setBounds(width-25,40 + index * 20,20,20);
+				index++;
+			}
 		}
 
 		@Override
 		protected void doDisplay() {
 			// reset status
-			uiDownload.setEnabled(false);
-			for(String lib : mLibraries.keySet())
+			for(String lib : mLibLabel.keySet())
 			{
-				mLibraries.get(lib).setIcon(UI.Icon.window_loading);
+				mLibLabel.get(lib).setIcon(UI.Icon.window_loading);
+				mLibButton.get(lib).setVisible(false);
 			}
 			// async check every library
 			new SwingWorker<Void, String>() {
 				private boolean missingLib = false;
 				@Override
 				protected Void doInBackground() throws Exception {
-					for(String lib : mLibraries.keySet())
+					for(String lib : mLibLabel.keySet())
 					{
 						if(new File(new File(Core.DOUJINDB_HOME, "lib"), lib + ".jar").exists())
 						{
-							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_success);
+							mLibLabel.get(lib).setIcon(UI.Icon.window_dialog_configwiz_success);
+							mLibButton.get(lib).setVisible(false);
 						} else {
 							missingLib = true;
-							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_error);
+							mLibLabel.get(lib).setIcon(UI.Icon.window_dialog_configwiz_error);
+							mLibButton.get(lib).setVisible(true);
 						}
 					}
 					return null;
@@ -438,13 +441,9 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				@Override
 				protected void done() {
 					if(missingLib)
-					{
-						uiDownload.setEnabled(true);
 						uiButtonNext.setEnabled(false);
-					} else {
-						uiDownload.setEnabled(false);
+					else
 						uiButtonNext.setEnabled(true);
-					}
 				}
 			}.execute();
 		}

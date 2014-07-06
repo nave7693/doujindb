@@ -216,7 +216,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				uiCompDependency.doDisplay();
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
-				uiButtonNext.setEnabled(true);
+				uiButtonNext.setEnabled(false);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DEPENDENCY:
@@ -376,6 +376,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			}
 			
 			uiDownload = new JButton(UI.Icon.window_dialog_configwiz_depdown);
+			uiDownload.setEnabled(false);
 			uiDownload.setBorder(null);
 			uiDownload.setFocusable(false);
 			uiDownload.setText("Download");
@@ -410,33 +411,40 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 
 		@Override
 		protected void doDisplay() {
-			// reset status to loading
+			// reset status
+			uiDownload.setEnabled(false);
 			for(String lib : mLibraries.keySet())
 			{
 				mLibraries.get(lib).setIcon(UI.Icon.window_loading);
 			}
 			// async check every library
 			new SwingWorker<Void, String>() {
+				private boolean missingLib = false;
 				@Override
 				protected Void doInBackground() throws Exception {
 					for(String lib : mLibraries.keySet())
 					{
 						if(new File(new File(Core.DOUJINDB_HOME, "lib"), lib + ".jar").exists())
+						{
 							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_success);
-						else
+						} else {
+							missingLib = true;
 							mLibraries.get(lib).setIcon(UI.Icon.window_dialog_configwiz_error);
+						}
 					}
 					return null;
 				}
 				
 				@Override
-				protected void process(List<String> chunks) {
-					
-				}
-
-				@Override
 				protected void done() {
-					
+					if(missingLib)
+					{
+						uiDownload.setEnabled(true);
+						uiButtonNext.setEnabled(false);
+					} else {
+						uiDownload.setEnabled(false);
+						uiButtonNext.setEnabled(true);
+					}
 				}
 			}.execute();
 		}

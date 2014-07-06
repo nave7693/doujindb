@@ -359,7 +359,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	private final class DialogDependency extends Dialog
 	{
 		private JLabel uiLabelDependency;
-		private String rcLabelDependency = "<html></html>";
+		private String rcLabelDependency = "<html>Apache Cayenne (and dependencies) are required to run DoujinDB.</html>";
 		
 		private String[][] mLibraries = new String[][]{
 			new String[]{ "ashwood",             "http://search.maven.org/remotecontent?filepath=org/objectstyle/ashwood/ashwood/2.0/ashwood-2.0.jar" },
@@ -387,6 +387,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				super.add(uiLabelLib);
 				
 				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_depdown);
+				uiButtonLib.setText("Download");
 				uiButtonLib.setFocusable(false);
 				uiButtonLib.setVisible(false);
 				uiButtonLib.setBorderPainted(true);
@@ -448,8 +449,8 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			uiLabelDependency.setBounds(0, 0, width, 40);
 			for(String lib : mLibLabel.keySet())
 			{
-				mLibLabel.get(lib).setBounds(5,40 + index * 20,width-25,20);
-				mLibButton.get(lib).setBounds(width-25,40 + index * 20,20,20);
+				mLibLabel.get(lib).setBounds(5,40 + index * 20,width-85,20);
+				mLibButton.get(lib).setBounds(width-85,40 + index * 20,80,20);
 				index++;
 			}
 		}

@@ -212,6 +212,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				fProgress = Progress.DEPENDENCY;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DEPENDENCY:
@@ -232,11 +233,13 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				fProgress = Progress.FINISH;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(false);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(true);
 				break;
 			case FINISH:
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(false);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(true);
 		}
 		super.getLayout().layoutContainer(this);
@@ -249,29 +252,34 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			case WELCOME:
 				uiButtonBack.setVisible(false);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 			case DEPENDENCY:
 				fProgress = Progress.WELCOME;
 				uiButtonBack.setVisible(false);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DATABASE:
 				fProgress = Progress.DEPENDENCY;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 				break;
 			case DATASTORE:
 				fProgress = Progress.DATABASE;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 				break;
 			case FINISH:
 				fProgress = Progress.DATASTORE;
 				uiButtonBack.setVisible(true);
 				uiButtonNext.setVisible(true);
+				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(false);
 				break;
 		}

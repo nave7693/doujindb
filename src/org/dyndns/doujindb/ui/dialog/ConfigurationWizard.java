@@ -371,7 +371,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 		private String rcLabelDatabase = "<html>The Database is where all the metadata is stored: book info, tags, authors ...</html>";
 		
 		private JLabel uiLabelDriver;
-		private JTextField uiTextDriver;
+		private JComboBox<String> uiComboboxDriver;
 		private JLabel uiLabelURL;
 		private JTextField uiTextURL;
 		private JLabel uiLabelUsername;
@@ -389,8 +389,17 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			
 			uiLabelDriver = new JLabel("Driver");
 			super.add(uiLabelDriver);
-			uiTextDriver = new JTextField("org.sqlite.JDBC");
-			super.add(uiTextDriver);
+			uiComboboxDriver = new JComboBox<String>();
+			uiComboboxDriver.setFocusable(false);
+			uiComboboxDriver.setLightWeightPopupEnabled(true);
+			uiComboboxDriver.addItem("org.sqlite.JDBC");
+			uiComboboxDriver.addItem("com.mysql.jdbc.Driver");
+			uiComboboxDriver.addItem("org.hsqldb.jdbcDriver");
+			uiComboboxDriver.addItem("org.apache.derby.jdbc.EmbeddedDriver");
+			uiComboboxDriver.addItem("org.postgresql.Driver");
+			uiComboboxDriver.addItem("oracle.jdbc.OracleDriver");
+			uiComboboxDriver.addItem("com.microsoft.jdbc.sqlserver.SQLServerDriver");
+			super.add(uiComboboxDriver);
 			uiLabelURL = new JLabel("URL");
 			super.add(uiLabelURL);
 			uiTextURL = new JTextField("jdbc:sqlite:doujindb.sqlite");
@@ -419,12 +428,12 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				public void actionPerformed(ActionEvent ae) 
 				{
 					uiTest.setIcon(UI.Icon.window_dialog_configwiz_loading);
-					uiTextDriver.setEditable(false);
+					uiComboboxDriver.setEditable(false);
 					uiTextURL.setEditable(false);
 					uiTextUsername.setEditable(false);
 					uiTextPassword.setEditable(false);
 					
-					Configuration.configWrite("org.dyndns.doujindb.db.driver", uiTextDriver.getText());
+					Configuration.configWrite("org.dyndns.doujindb.db.driver", (String) uiComboboxDriver.getSelectedItem());
 					Configuration.configWrite("org.dyndns.doujindb.db.url", uiTextURL.getText());
 					Configuration.configWrite("org.dyndns.doujindb.db.username", uiTextUsername.getText());
 					Configuration.configWrite("org.dyndns.doujindb.db.password", uiTextPassword.getText());
@@ -434,7 +443,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 						public void run()
 						{
 							try {
-								Class.forName(uiTextDriver.getText());
+								Class.forName((String) uiComboboxDriver.getSelectedItem());
 								ExecutorService executor = Executors.newCachedThreadPool();
 								Callable<Connection> task = new Callable<Connection>()
 								{
@@ -493,14 +502,14 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 								   future.cancel(true);
 								}
 							} catch (ClassNotFoundException cnfe) {
-								uiLabelResult.setText("<html>Cannot load jdbc driver '" + uiTextDriver.getText() + "' : Class not found.</html>");
+								uiLabelResult.setText("<html>Cannot load jdbc driver '" + (String) uiComboboxDriver.getSelectedItem() + "' : Class not found.</html>");
 								uiLabelResult.setIcon(UI.Icon.window_dialog_configwiz_error);
 								uiLabelResult.setForeground(Color.RED);
 							}
 							uiTextPassword.setEditable(true);
 							uiTextUsername.setEditable(true);
 							uiTextURL.setEditable(true);
-							uiTextDriver.setEditable(true);
+							uiComboboxDriver.setEditable(true);
 							uiTest.setIcon(UI.Icon.window_dialog_configwiz_dbtest);
 						}
 					}.start();
@@ -536,7 +545,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			int labelLength = 85;
 			uiLabelDatabase.setBounds(0, 0, width, 40);
 			uiLabelDriver.setBounds(5,40,labelLength,20);
-			uiTextDriver.setBounds(labelLength+5,40,width-labelLength-5,20);
+			uiComboboxDriver.setBounds(labelLength+5,40,width-labelLength-5,20);
 			uiLabelURL.setBounds(5,60,labelLength,20);
 			uiTextURL.setBounds(labelLength+5,60,width-labelLength-5,20);
 			uiLabelUsername.setBounds(5,80,labelLength,20);

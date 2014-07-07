@@ -83,7 +83,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	public static final DesktopEx Desktop = loadDesktop();
 	public static final JFileChooser FileChooser = loadFileChooser();
 	
-	public static Font loadFont()
+	private static Font loadFont()
 	{
 		return new java.awt.Font(
 			((Font)Configuration.configRead("org.dyndns.doujindb.ui.font")).getFontName(),
@@ -91,7 +91,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
 	}
 	
-	public static Theme loadTheme()
+	private static Theme loadTheme()
 	{
 		try
 		{
@@ -137,12 +137,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		return null;
 	}
 	
-	public static DesktopEx loadDesktop()
+	private static DesktopEx loadDesktop()
 	{
 		return new DesktopEx();
 	}
 	
-	public static JFileChooser loadFileChooser()
+	private static JFileChooser loadFileChooser()
 	{
 		JFileChooser filechooser = new JFileChooser(Core.DOUJINDB_HOME);
 		filechooser.setFont(Font);

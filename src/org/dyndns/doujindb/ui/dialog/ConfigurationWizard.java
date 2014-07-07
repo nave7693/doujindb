@@ -386,7 +386,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				mLibLabel.put(libName, uiLabelLib);
 				super.add(uiLabelLib);
 				
-				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_depdown);
+				JButton uiButtonLib = new JButton(UI.Icon.window_dialog_configwiz_download);
 				uiButtonLib.setText("Download");
 				uiButtonLib.setFocusable(false);
 				uiButtonLib.setVisible(false);
@@ -551,7 +551,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			super.add(uiTextPassword);
 			uiLabelResult = new JLabel("");
 			super.add(uiLabelResult);
-			uiTest = new JButton(UI.Icon.window_dialog_configwiz_dbtest);
+			uiTest = new JButton(UI.Icon.window_dialog_configwiz_reload);
 			uiTest.setBorder(null);
 			uiTest.setFocusable(false);
 			uiTest.setText("Test");
@@ -651,7 +651,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 							uiTextUsername.setEditable(true);
 							uiTextURL.setEditable(true);
 							uiComboboxDriver.setEditable(true);
-							uiTest.setIcon(UI.Icon.window_dialog_configwiz_dbtest);
+							uiTest.setIcon(UI.Icon.window_dialog_configwiz_reload);
 						}
 					}.start();
 				}					
@@ -711,7 +711,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 			super.add(uiTextCache);
 			uiLabelResult = new JLabel("");
 			super.add(uiLabelResult);
-			uiTest = new JButton(UI.Icon.window_dialog_configwiz_dstest);
+			uiTest = new JButton(UI.Icon.window_dialog_configwiz_reload);
 			uiTest.setBorder(null);
 			uiTest.setFocusable(false);
 			uiTest.setText("Test");
@@ -782,7 +782,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 							}
 							uiTextCache.setEditable(true);
 							uiTextStore.setEditable(true);
-							uiTest.setIcon(UI.Icon.window_dialog_configwiz_dstest);
+							uiTest.setIcon(UI.Icon.window_dialog_configwiz_reload);
 						}
 					}.start();
 				}					

@@ -461,6 +461,20 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				catch (ClassCastException cce) { }
 	}
 	
+	public void showConfigurationWizard()
+	{
+		ConfigurationWizard configWiz = new ConfigurationWizard();
+		configWiz.setSize(300, 300);
+		try {
+			showDialog(getRootPane(),
+				configWiz,
+				Icon.window_dialog_configwiz_icon,
+				"Configuration Wizard");
+		} catch (PropertyVetoException pve) {
+			Logger.logError(TAG + "could not load Configuration Wizard dialog.", pve);
+		} 
+	}
+	
 	public void showDialog(JRootPane parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
 	{
 		final JComponent glassPane = (JComponent) parent.getGlassPane();

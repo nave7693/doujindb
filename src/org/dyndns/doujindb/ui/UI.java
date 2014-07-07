@@ -196,20 +196,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		return filechooser;
 	}
 	
-	public static void showConfigurationWizard()
-	{
-		ConfigurationWizard configWiz = new ConfigurationWizard();
-		configWiz.setSize(300, 300);
-		try {
-			Desktop.showDialog(Desktop.getRootPane(),
-				configWiz,
-				Icon.window_dialog_configwiz_icon,
-				"Configuration Wizard");
-		} catch (PropertyVetoException pve) {
-			Logger.logError(TAG + "could not load Configuration Wizard dialog.", pve);
-		} 
-	}
-	
 	@SuppressWarnings("serial")
 	public UI()
 	{

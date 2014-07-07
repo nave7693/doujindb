@@ -82,7 +82,7 @@ public final class Core implements Runnable
 		if(isConfigurationWizard)
 		{
 			Logger.logInfo(TAG + "running Configuration Wizard ...");
-			UI.showConfigurationWizard();
+			UI.Desktop.showConfigurationWizard();
 		}
 	}
 }

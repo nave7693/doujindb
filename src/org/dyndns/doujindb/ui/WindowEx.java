@@ -70,8 +70,8 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 			@Override
 	    	protected void paintComponent(Graphics g)
 	    	{
-	    		g.setColor(getBackground());
-	    		g.fillRect(0, 0, getSize().width, getSize().height);
+				g.setColor(getBackground());
+				g.fillRect(0,0,getWidth(),getHeight());
 	    	}
 			@Override
 	    	public void setBackground(Color background)
@@ -89,7 +89,7 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 		super.addComponentListener(new ComponentAdapter(){
 			@Override
 			public void componentResized(ComponentEvent ce) {
-				ModalLayer.setBounds(1, 1, ModalLayer.getRootPane().getWidth() - 2, ModalLayer.getRootPane().getHeight() - 2);
+				ModalLayer.setBounds(1, 1, getRootPane().getWidth() - 2, getRootPane().getHeight() - 2);
 				ModalLayer.doLayout();
 			}
 		});

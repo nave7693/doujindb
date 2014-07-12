@@ -13,13 +13,13 @@ import org.dyndns.doujindb.ui.*;
 @SuppressWarnings("serial")
 public final class DialogAbout extends DialogEx
 {
-	private static String SPECIFICATION_NAME = "";
-	private static String SPECIFICATION_VERSION = "";
-	private static String IMPLEMENTATION_NAME = "";
-	private static String IMPLEMENTATION_VERSION = "";
-	private static String BUILD_DATE = "";
-	private static String IMPLEMENTATION_VENDOR = "";
-	private static String IMPLEMENTATION_URL = "";
+	private static String strSpecificationName = "";
+	private static String strSpecificationVersion = "";
+	private static String strImplementationName = "";
+	private static String strImplementationVersion = "";
+	private static String strBuildDate = "";
+	private static String strImplementationVendor = "";
+	private static String strImplementationUrl = "";
 	
 	public static final Icons Icon = UI.Icon;
 	public static final Font Font = UI.Font;
@@ -47,13 +47,13 @@ public final class DialogAbout extends DialogEx
 				throw new Exception("Could not read manifest");
 
 			Attributes attr = manifest.getMainAttributes();
-			SPECIFICATION_NAME = attr.getValue(Name.SPECIFICATION_TITLE);
-			SPECIFICATION_VERSION = attr.getValue(Name.SPECIFICATION_VERSION);
-			IMPLEMENTATION_NAME = attr.getValue(Name.IMPLEMENTATION_TITLE);
-			IMPLEMENTATION_VERSION = attr.getValue(Name.IMPLEMENTATION_VERSION);
-			BUILD_DATE = attr.getValue("Build-Date");
-			IMPLEMENTATION_VENDOR = attr.getValue(Name.IMPLEMENTATION_VENDOR);
-			IMPLEMENTATION_URL = attr.getValue(Name.IMPLEMENTATION_URL);
+			strSpecificationName = attr.getValue(Name.SPECIFICATION_TITLE);
+			strSpecificationVersion = attr.getValue(Name.SPECIFICATION_VERSION);
+			strImplementationName = attr.getValue(Name.IMPLEMENTATION_TITLE);
+			strImplementationVersion = attr.getValue(Name.IMPLEMENTATION_VERSION);
+			strBuildDate = attr.getValue("Build-Date");
+			strImplementationVendor = attr.getValue(Name.IMPLEMENTATION_VENDOR);
+			strImplementationUrl = attr.getValue(Name.IMPLEMENTATION_URL);
 		} catch (Exception e) { } finally {
 			try { jis.close(); } catch (Exception e) { }
 		}
@@ -78,44 +78,44 @@ public final class DialogAbout extends DialogEx
 		gbc.insets = new Insets(5, 5, 5, 5);
 		panel.add(fLabelAboutImage, gbc);
 		
-		JLabel fLabelName = new JLabel(SPECIFICATION_NAME);
+		JLabel fLabelName = new JLabel(strSpecificationName);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelName, gbc);
 		
-		JLabel fLabelSpecVersion = new JLabel("version : " + SPECIFICATION_VERSION);
+		JLabel fLabelSpecVersion = new JLabel("version : " + strSpecificationVersion);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelSpecVersion, gbc);
 		
-		JLabel fLabelImplName = new JLabel("codename : " + IMPLEMENTATION_NAME);
+		JLabel fLabelImplName = new JLabel("codename : " + strImplementationName);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelImplName, gbc);
 		
-		JLabel fLabelImplVersion = new JLabel("build-num : " + IMPLEMENTATION_VERSION);
+		JLabel fLabelImplVersion = new JLabel("build-num : " + strImplementationVersion);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelImplVersion, gbc);
 		
-		JLabel fLabelBuildDate = new JLabel("build-date : " + BUILD_DATE);
+		JLabel fLabelBuildDate = new JLabel("build-date : " + strBuildDate);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelBuildDate, gbc);
 		
-		JLabel fLabelImplVendor = new JLabel("copyright : " + IMPLEMENTATION_VENDOR);
+		JLabel fLabelImplVendor = new JLabel("copyright : " + strImplementationVendor);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
 		panel.add(fLabelImplVendor, gbc);
 		
-		JLabel fLabelImplURL = new JLabel("<html><body><a href='" + IMPLEMENTATION_URL + "'>" + IMPLEMENTATION_URL + "</a></body></html>");
+		JLabel fLabelImplURL = new JLabel("<html><body><a href='" + strImplementationUrl + "'>" + strImplementationUrl + "</a></body></html>");
 		fLabelImplURL.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				try {
 					java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-					desktop.browse(new URI(IMPLEMENTATION_URL));
+					desktop.browse(new URI(strImplementationUrl));
 				} catch (IOException | URISyntaxException e) { }
 			}
 		});

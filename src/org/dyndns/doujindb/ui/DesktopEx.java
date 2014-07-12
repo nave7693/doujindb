@@ -21,6 +21,7 @@ import org.dyndns.doujindb.ui.dialog.*;
 import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
+import static org.dyndns.doujindb.ui.UI.ModalLayer;
 
 @SuppressWarnings("serial")
 public final class DesktopEx extends JDesktopPane implements DataBaseListener
@@ -466,109 +467,87 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		ConfigurationWizard configWiz = new ConfigurationWizard();
 		configWiz.setSize(300, 300);
 		try {
-			showDialog(configWiz,
+			showDialog(new DialogEx(configWiz,
 				Icon.window_dialog_configwiz_icon,
-				"Configuration Wizard");
+				"Configuration Wizard"));
 		} catch (PropertyVetoException pve) {
 			Logger.logError(TAG + "could not load Configuration Wizard dialog.", pve);
 		} 
 	}
 	
-	public void showDialog(JRootPane parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
+	public void showDialog(WindowEx parent, final DialogEx dialog) throws PropertyVetoException
 	{
-		final JComponent glassPane = (JComponent) parent.getGlassPane();
-		if(glassPane.isEnabled())
-			throw new PropertyVetoException("Dialog already open.", null);
-		final DialogEx window = new DialogEx(dialog, icon, title);
-		window.pack();
-		window.setMaximizable(false);
-		window.setIconifiable(false);
-		window.setResizable(false);
-		window.setClosable(false);
-		Rectangle bounds = glassPane.getBounds();
-		Rectangle rect = window.getBounds();
-		int x = (bounds.width - rect.width) / 2;
-		int y = (bounds.height - rect.height) / 2;
-		window.setLocation(x, y);
-		glassPane.add(window);
-		glassPane.setEnabled(true);
-		glassPane.setVisible(true);
-		glassPane.setEnabled(false);
-		window.addInternalFrameListener(new InternalFrameAdapter()
+		final JComponent modalLayer = parent.ModalLayer;
+		// check if other modal dialogs are already open
+		if(modalLayer.isEnabled())
+			throw new PropertyVetoException("Another DialogEx is already open.", null);
+		// add dialog to modal layer and enable it
+		modalLayer.add(dialog);
+		modalLayer.setEnabled(true);
+		// install dialog dispose()/close() hooks
+		dialog.addInternalFrameListener(new InternalFrameAdapter()
 		{
 			@Override
 			public void internalFrameClosed(InternalFrameEvent ife)
 			{
-				glassPane.add(ife.getInternalFrame());
-				glassPane.setEnabled(false);
-				glassPane.setVisible(false);
-				glassPane.setEnabled(false);
+				modalLayer.setEnabled(false);
+				modalLayer.setVisible(false);
 			}
-
 			@Override
 			public void internalFrameClosing(InternalFrameEvent ife)
 			{
-				glassPane.add(ife.getInternalFrame());
-				glassPane.setEnabled(false);
-				glassPane.setVisible(false);
-				glassPane.setEnabled(false);
+				modalLayer.setEnabled(false);
+				modalLayer.setVisible(false);
 			}
 		});
+		// display dialog
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	try { window.setSelected(true); } catch (PropertyVetoException pve)
-            	{
+            	try {
+            		ModalLayer.setVisible(true);
+            		getRootPane().repaint();
+            		dialog.setVisible(true);
+            		dialog.setSelected(true);
+            	} catch (PropertyVetoException pve) {
             		Logger.logWarning(pve.getMessage(), pve);
         		}
             }
         });
 	}
 	
-	public void showDialog(JComponent dialog, Icon icon, String title) throws PropertyVetoException
+	public void showDialog(final DialogEx dialog) throws PropertyVetoException
 	{
-		final JComponent glassPane = UI.GlassPane;
-		if(glassPane.isEnabled())
-			throw new PropertyVetoException("Dialog already open.", null);
-		final DialogEx window = new DialogEx(dialog, icon, title);
-		window.pack();
-		window.setMaximizable(false);
-		window.setIconifiable(false);
-		window.setResizable(false);
-		window.setClosable(false);
-		Rectangle bounds = glassPane.getBounds();
-		Rectangle rect = window.getBounds();
-		int x = (bounds.width - rect.width) / 2;
-		int y = (bounds.height - rect.height) / 2;
-		window.setLocation(x, y);
-		glassPane.add(window);
-		glassPane.setEnabled(true);
-		glassPane.setVisible(true);
-		glassPane.setEnabled(false);
-		window.addInternalFrameListener(new InternalFrameAdapter()
+		// check if other modal dialogs are already open
+		if(ModalLayer.isEnabled())
+			throw new PropertyVetoException("Another DialogEx is already open.", null);
+		// add dialog to modal layer and enable it
+		ModalLayer.add(dialog);
+		ModalLayer.setEnabled(true);
+		// install dialog dispose()/close() hooks
+		dialog.addInternalFrameListener(new InternalFrameAdapter()
 		{
 			@Override
 			public void internalFrameClosed(InternalFrameEvent ife)
 			{
-				glassPane.add(ife.getInternalFrame());
-				glassPane.setEnabled(true);
-				glassPane.setVisible(false);
-				glassPane.setEnabled(false);
+				ModalLayer.setEnabled(false);
+				ModalLayer.setVisible(false);
 			}
-
 			@Override
 			public void internalFrameClosing(InternalFrameEvent ife)
 			{
-				glassPane.add(ife.getInternalFrame());
-				glassPane.setEnabled(true);
-				glassPane.setVisible(false);
-				glassPane.setEnabled(false);
+				ModalLayer.setEnabled(false);
+				ModalLayer.setVisible(false);
 			}
 		});
-		getRootPane().repaint();
+		// display dialog
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	try { window.setSelected(true); } catch (PropertyVetoException pve)
-            	{
+            	try {
+            		ModalLayer.setVisible(true);
+            		getRootPane().repaint();
+            		dialog.setVisible(true);
+            		dialog.setSelected(true);
+            	} catch (PropertyVetoException pve) {
             		Logger.logWarning(pve.getMessage(), pve);
         		}
             }

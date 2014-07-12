@@ -45,7 +45,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
-	static JComponent GlassPane;
+	static JComponent ModalLayer;
 	
 	private JTabbedPane uiPanelTabbed;
 	private TrayIcon uiTrayIcon;
@@ -211,8 +211,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		super.getContentPane().setBackground(background);
 		Logger.logInfo(TAG + "basic user interface loaded.");
-			
-		GlassPane = new JComponent()
+		
+		ModalLayer = new JComponent()
 	    {
 			@Override
 	    	protected void paintComponent(Graphics g)
@@ -226,12 +226,20 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    		super.setBackground( background );
 	    	}
 	    };
-	    GlassPane.addMouseListener(new MouseAdapter(){});
-	    GlassPane.setOpaque(true);
-	    GlassPane.setVisible(false);
-	    GlassPane.setEnabled(false);
-	    GlassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
-	    super.getLayeredPane().add(GlassPane, JLayeredPane.PALETTE_LAYER);
+		ModalLayer.addMouseListener(new MouseAdapter(){});
+		ModalLayer.setOpaque(true);
+		ModalLayer.setVisible(false);
+		ModalLayer.setEnabled(false);
+		ModalLayer.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
+		ModalLayer.setLayout(new GridBagLayout());
+		super.addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent ce) {
+				ModalLayer.setBounds(1, 1, ModalLayer.getRootPane().getWidth() - 2, ModalLayer.getRootPane().getHeight() - 2);
+				ModalLayer.doLayout();
+			}
+		});
+	    super.getLayeredPane().add(ModalLayer, JLayeredPane.PALETTE_LAYER);
 		
 		uiPanelTabbed = new JTabbedPane();
 		super.addWindowListener(this);
@@ -432,7 +440,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		GlassPane.setBounds(1, 1, GlassPane.getRootPane().getWidth() - 2, GlassPane.getRootPane().getHeight() - 2);
 		m_ButtonConnectionCtl.setBounds(width - 22,Desktop.getParent().getHeight()-20,20,20);
 		m_LabelConnectionStatus.setBounds(1,Desktop.getParent().getHeight()-20,width-25,20);
 		if(uiPanelDesktopShow.isEnabled())
@@ -520,10 +527,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if(event.getSource() == menuHelpAbout)
 		{
 			try {
-				Desktop.showDialog(
-					new DialogAbout(),
+				Desktop.showDialog(new DialogEx(new DialogAbout(),
 					Icon.menubar_help_about,
-					"About");
+					"About"));
 			} catch (PropertyVetoException pve) {
 				Logger.logWarning(pve.getMessage(), pve);
 			}

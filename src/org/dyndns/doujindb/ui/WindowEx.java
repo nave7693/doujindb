@@ -3,6 +3,7 @@ package org.dyndns.doujindb.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicDesktopIconUI;
 
@@ -12,6 +13,8 @@ import org.dyndns.doujindb.db.event.*;
 @SuppressWarnings("serial")
 public abstract class WindowEx extends JInternalFrame implements DataBaseListener
 {
+	JComponent ModalLayer;
+	
 	protected Vector<DataBaseListener> listeners = new Vector<DataBaseListener>();
 	protected Type type;
 	
@@ -62,17 +65,8 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    ui.getNorthPane().setPreferredSize(new Dimension(ui.getNorthPane().getPreferredSize().width, 22));
 	    super.setVisible(true);
 	    
-	    JComponent glassPane = new JComponent()
+		ModalLayer = new JComponent()
 	    {
-			@Override
-			public void setVisible(boolean visible)
-			{
-				if(!isEnabled())
-					return;
-				super.setVisible(visible);
-				if(!visible)
-					super.removeAll();
-			}
 			@Override
 	    	protected void paintComponent(Graphics g)
 	    	{
@@ -85,12 +79,20 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    		super.setBackground( background );
 	    	}
 	    };
-	    glassPane.addMouseListener(new MouseAdapter(){});
-	    glassPane.setOpaque(false);
-	    glassPane.setVisible(false);
-	    glassPane.setEnabled(false);
-	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
-		setGlassPane(glassPane);
+		ModalLayer.addMouseListener(new MouseAdapter(){});
+		ModalLayer.setOpaque(true);
+		ModalLayer.setVisible(false);
+		ModalLayer.setEnabled(false);
+		ModalLayer.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
+		ModalLayer.setLayout(new GridBagLayout());
+		super.addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent ce) {
+				ModalLayer.setBounds(1, 1, ModalLayer.getRootPane().getWidth() - 2, ModalLayer.getRootPane().getHeight() - 2);
+				ModalLayer.doLayout();
+			}
+		});
+	    super.getLayeredPane().add(ModalLayer, JLayeredPane.PALETTE_LAYER);
 	    
 	    DataBase.addDataBaseListener(this);
 	}

@@ -464,12 +464,8 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	public void showConfigurationWizard()
 	{
-		ConfigurationWizard configWiz = new ConfigurationWizard();
-		configWiz.setSize(300, 300);
 		try {
-			showDialog(new DialogEx(configWiz,
-				Icon.window_dialog_configwiz_icon,
-				"Configuration Wizard"));
+			showDialog(new ConfigurationWizard());
 		} catch (PropertyVetoException pve) {
 			Logger.logError(TAG + "could not load Configuration Wizard dialog.", pve);
 		} 

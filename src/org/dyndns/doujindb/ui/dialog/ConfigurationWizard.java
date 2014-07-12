@@ -15,10 +15,11 @@ import javax.swing.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.ui.DialogEx;
+import org.dyndns.doujindb.ui.Icons;
 import org.dyndns.doujindb.ui.UI;
 
 @SuppressWarnings({"serial","unused"})
-public final class ConfigurationWizard  extends JComponent implements LayoutManager
+public final class ConfigurationWizard  extends DialogEx implements LayoutManager
 {
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;
@@ -40,6 +41,9 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	private static final Color linecolor = background.brighter();
+	
+	public static final Icons Icon = UI.Icon;
+	public static final Font Font = UI.Font;
 	
 	enum Progress
 	{
@@ -63,19 +67,28 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 	
 	public ConfigurationWizard()
 	{
+		super(Icon.window_dialog_configwiz_icon, "Configuration Wizard");
+		// reset progress
+		doBack();
+	}
+	
+	@Override
+	public JComponent createComponent()
+	{
+		JPanel panel = new JPanel();
 		uiLabelHeader = new JLabel(UI.Icon.window_dialog_configwiz_header);
 		uiLabelHeader.setOpaque(true);
 		uiLabelHeader.setBackground(Color.WHITE);
-		super.add(uiLabelHeader);
-		super.add(uiCompWelcome = new DialogWelcome());
-		super.add(uiCompDependency = new DialogDependency());
-		super.add(uiCompDatabase = new DialogDatabase());
-		super.add(uiCompDatastore = new DialogDatastore());
-		super.add(uiCompFinish = new DialogFinish());
+		panel.add(uiLabelHeader);
+		panel.add(uiCompWelcome = new DialogWelcome());
+		panel.add(uiCompDependency = new DialogDependency());
+		panel.add(uiCompDatabase = new DialogDatabase());
+		panel.add(uiCompDatastore = new DialogDatastore());
+		panel.add(uiCompFinish = new DialogFinish());
 		uiBottomDivisor = new JLabel();
 		uiBottomDivisor.setOpaque(true);
 		uiBottomDivisor.setBackground(background);
-		super.add(uiBottomDivisor);
+		panel.add(uiBottomDivisor);
 		uiButtonNext = new JButton(UI.Icon.window_dialog_configwiz_next);
 		uiButtonNext.setBorder(null);
 		uiButtonNext.setFocusable(false);
@@ -92,7 +105,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				doNext();
 			}					
 		});
-		super.add(uiButtonNext);
+		panel.add(uiButtonNext);
 		uiButtonBack = new JButton(UI.Icon.window_dialog_configwiz_prev);
 		uiButtonBack.setEnabled(true);
 		uiButtonBack.setBorder(null);
@@ -110,7 +123,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				doBack();
 			}					
 		});
-		super.add(uiButtonBack);
+		panel.add(uiButtonBack);
 		uiButtonFinish = new JButton(UI.Icon.window_dialog_configwiz_finish);
 		uiButtonFinish.setBorder(null);
 		uiButtonFinish.setFocusable(false);
@@ -129,7 +142,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				window.dispose();
 			}					
 		});
-		super.add(uiButtonFinish);
+		panel.add(uiButtonFinish);
 		uiButtonCanc = new JButton(UI.Icon.window_dialog_configwiz_cancel);
 		uiButtonCanc.setBorder(null);
 		uiButtonCanc.setFocusable(false);
@@ -147,10 +160,10 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				window.dispose();
 			}					
 		});
-		super.add(uiButtonCanc);
-		super.setLayout(this);
+		panel.add(uiButtonCanc);
+		panel.setLayout(this);
 		
-		doBack();
+		return panel;
 	}
 	
 	@Override
@@ -252,7 +265,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				uiButtonNext.setEnabled(true);
 				uiButtonFinish.setVisible(true);
 		}
-		super.getLayout().layoutContainer(this);
+		getLayout().layoutContainer(this);
 	}
 	
 	private void doBack() throws RuntimeException
@@ -298,7 +311,7 @@ public final class ConfigurationWizard  extends JComponent implements LayoutMana
 				uiButtonFinish.setVisible(false);
 				break;
 		}
-		super.getLayout().layoutContainer(this);
+		getLayout().layoutContainer(this);
 	}
 	
 	private static abstract class Dialog extends JComponent implements LayoutManager

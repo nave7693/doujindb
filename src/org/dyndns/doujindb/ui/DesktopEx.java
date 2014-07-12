@@ -462,15 +462,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				catch (ClassCastException cce) { }
 	}
 	
-	public void showConfigurationWizard()
-	{
-		try {
-			showDialog(new ConfigurationWizard());
-		} catch (PropertyVetoException pve) {
-			Logger.logError(TAG + "could not load Configuration Wizard dialog.", pve);
-		} 
-	}
-	
 	public void showDialog(WindowEx parent, final DialogEx dialog) throws PropertyVetoException
 	{
 		final JComponent modalLayer = parent.ModalLayer;

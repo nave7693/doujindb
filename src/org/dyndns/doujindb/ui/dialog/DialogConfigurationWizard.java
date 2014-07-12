@@ -19,7 +19,7 @@ import org.dyndns.doujindb.ui.Icons;
 import org.dyndns.doujindb.ui.UI;
 
 @SuppressWarnings({"serial","unused"})
-public final class ConfigurationWizard  extends DialogEx implements LayoutManager
+public final class DialogConfigurationWizard  extends DialogEx implements LayoutManager
 {
 	private JPanel panel;
 	
@@ -67,7 +67,7 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 	
 	private Progress fProgress = Progress.WELCOME;
 	
-	public ConfigurationWizard()
+	public DialogConfigurationWizard()
 	{
 		super(Icon.window_dialog_configwiz_icon, "Configuration Wizard");
 		// reset progress

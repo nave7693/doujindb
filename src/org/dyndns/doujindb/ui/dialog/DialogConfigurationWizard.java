@@ -140,8 +140,7 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			public void actionPerformed(ActionEvent ae) 
 			{
 				Configuration.configSave();
-				DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-				window.dispose();
+				dispose();
 			}					
 		});
 		panel.add(uiButtonFinish);
@@ -158,8 +157,7 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-				window.dispose();
+				dispose();
 			}					
 		});
 		panel.add(uiButtonCanc);

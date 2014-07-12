@@ -80,6 +80,7 @@ public abstract class WindowEx extends JInternalFrame implements DataBaseListene
 	    	}
 	    };
 		ModalLayer.addMouseListener(new MouseAdapter(){});
+		ModalLayer.addMouseMotionListener(new MouseMotionAdapter(){});
 		ModalLayer.setOpaque(true);
 		ModalLayer.setVisible(false);
 		ModalLayer.setEnabled(false);

@@ -226,7 +226,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    		super.setBackground( background );
 	    	}
 	    };
-		ModalLayer.addMouseListener(new MouseAdapter(){});
+	    ModalLayer.addMouseListener(new MouseAdapter(){});
+	    ModalLayer.addMouseMotionListener(new MouseMotionAdapter(){});
 		ModalLayer.setOpaque(true);
 		ModalLayer.setVisible(false);
 		ModalLayer.setEnabled(false);

@@ -491,7 +491,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	try {
-            		ModalLayer.setVisible(true);
+            		modalLayer.setVisible(true);
             		getRootPane().repaint();
             		dialog.setVisible(true);
             		dialog.setSelected(true);

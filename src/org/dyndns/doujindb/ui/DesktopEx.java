@@ -466,8 +466,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		ConfigurationWizard configWiz = new ConfigurationWizard();
 		configWiz.setSize(300, 300);
 		try {
-			showDialog(getRootPane(),
-				configWiz,
+			showDialog(configWiz,
 				Icon.window_dialog_configwiz_icon,
 				"Configuration Wizard");
 		} catch (PropertyVetoException pve) {
@@ -478,7 +477,57 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	public void showDialog(JRootPane parent, JComponent dialog, Icon icon, String title) throws PropertyVetoException
 	{
 		final JComponent glassPane = (JComponent) parent.getGlassPane();
-		if(glassPane.isVisible())
+		if(glassPane.isEnabled())
+			throw new PropertyVetoException("Dialog already open.", null);
+		final DialogEx window = new DialogEx(dialog, icon, title);
+		window.pack();
+		window.setMaximizable(false);
+		window.setIconifiable(false);
+		window.setResizable(false);
+		window.setClosable(false);
+		Rectangle bounds = glassPane.getBounds();
+		Rectangle rect = window.getBounds();
+		int x = (bounds.width - rect.width) / 2;
+		int y = (bounds.height - rect.height) / 2;
+		window.setLocation(x, y);
+		glassPane.add(window);
+		glassPane.setEnabled(true);
+		glassPane.setVisible(true);
+		glassPane.setEnabled(false);
+		window.addInternalFrameListener(new InternalFrameAdapter()
+		{
+			@Override
+			public void internalFrameClosed(InternalFrameEvent ife)
+			{
+				glassPane.add(ife.getInternalFrame());
+				glassPane.setEnabled(false);
+				glassPane.setVisible(false);
+				glassPane.setEnabled(false);
+			}
+
+			@Override
+			public void internalFrameClosing(InternalFrameEvent ife)
+			{
+				glassPane.add(ife.getInternalFrame());
+				glassPane.setEnabled(false);
+				glassPane.setVisible(false);
+				glassPane.setEnabled(false);
+			}
+		});
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	try { window.setSelected(true); } catch (PropertyVetoException pve)
+            	{
+            		Logger.logWarning(pve.getMessage(), pve);
+        		}
+            }
+        });
+	}
+	
+	public void showDialog(JComponent dialog, Icon icon, String title) throws PropertyVetoException
+	{
+		final JComponent glassPane = UI.GlassPane;
+		if(glassPane.isEnabled())
 			throw new PropertyVetoException("Dialog already open.", null);
 		final DialogEx window = new DialogEx(dialog, icon, title);
 		window.pack();
@@ -515,6 +564,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				glassPane.setEnabled(false);
 			}
 		});
+		getRootPane().repaint();
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	try { window.setSelected(true); } catch (PropertyVetoException pve)

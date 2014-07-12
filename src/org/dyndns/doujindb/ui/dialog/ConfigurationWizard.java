@@ -21,6 +21,8 @@ import org.dyndns.doujindb.ui.UI;
 @SuppressWarnings({"serial","unused"})
 public final class ConfigurationWizard  extends DialogEx implements LayoutManager
 {
+	private JPanel panel;
+	
 	private JLabel uiBottomDivisor;
 	private JButton uiButtonNext;
 	private JButton uiButtonBack;
@@ -75,7 +77,7 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 	@Override
 	public JComponent createComponent()
 	{
-		JPanel panel = new JPanel();
+		panel = new JPanel();
 		uiLabelHeader = new JLabel(UI.Icon.window_dialog_configwiz_header);
 		uiLabelHeader.setOpaque(true);
 		uiLabelHeader.setBackground(Color.WHITE);
@@ -366,7 +368,9 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 		}
 
 		@Override
-		protected void doDisplay() { }
+		protected void doDisplay() {
+			panel.doLayout();
+		}
 	}
 	
 	private final class DialogDependency extends Dialog
@@ -504,6 +508,8 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 						uiButtonNext.setEnabled(true);
 				}
 			}.execute();
+			
+			panel.doLayout();
 		}
 	}
 	
@@ -693,7 +699,9 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 		}
 
 		@Override
-		protected void doDisplay() { }
+		protected void doDisplay() {
+			panel.doLayout();
+		}
 	}
 	
 	private final class DialogDatastore extends Dialog
@@ -819,7 +827,9 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 		}
 
 		@Override
-		protected void doDisplay() { }
+		protected void doDisplay() {
+			panel.doLayout();
+		}
 	}
 	
 	private final class DialogFinish extends Dialog
@@ -849,6 +859,8 @@ public final class ConfigurationWizard  extends DialogEx implements LayoutManage
 		}
 
 		@Override
-		protected void doDisplay() { }
+		protected void doDisplay() {
+			panel.doLayout();
+		}
 	}
 }

@@ -528,9 +528,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if(event.getSource() == menuHelpAbout)
 		{
 			try {
-				Desktop.showDialog(new DialogEx(new DialogAbout(),
-					Icon.menubar_help_about,
-					"About"));
+				Desktop.showDialog(new DialogAbout());
 			} catch (PropertyVetoException pve) {
 				Logger.logWarning(pve.getMessage(), pve);
 			}

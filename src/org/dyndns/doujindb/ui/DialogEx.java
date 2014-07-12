@@ -5,16 +5,13 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 
 @SuppressWarnings("serial")
-public final class DialogEx extends JInternalFrame implements LayoutManager
+public abstract class DialogEx extends JInternalFrame
 {
-	private JComponent root = new JPanel();
-	
-	DialogEx(JComponent comp, Icon icon, String title)
+	protected DialogEx(Icon icon, String title)
 	{
 		super("", true, true, true, true);
-		setLayout(this);
-		((BasicInternalFrameUI)getUI()).setNorthPane(null);
-		getDesktopIcon().setUI(new BasicDesktopIconUI()
+		((BasicInternalFrameUI)super.getUI()).setNorthPane(null);
+		super.getDesktopIcon().setUI(new BasicDesktopIconUI()
 		{
 			protected void installComponents()
 			{
@@ -22,45 +19,19 @@ public final class DialogEx extends JInternalFrame implements LayoutManager
 			}
 			@Override public Dimension getPreferredSize(JComponent c)
 			{
-				return new Dimension(145,25);
+				return new Dimension(145, 25);
 			}
 			protected void uninstallComponents()
 			{
 				super.uninstallComponents();
 			}        
 		});
-		setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
-		setFrameIcon(icon);
-		setTitle(title);
-		root = comp;
-		setLayout(new GridLayout(1,1));
-		add(root);
-		super.setVisible(true);
+		super.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+		super.setFrameIcon(icon);
+		super.setTitle(title);
+		super.setLayout(new GridLayout(1,1));
+		super.add(createComponent());
 	}
 	
-	@Override
-	public void layoutContainer(Container parent)
-	{
-		int width = parent.getWidth(),
-			height = parent.getHeight();
-		root.setBounds(0, 0, width, height);
-	}
-	
-	@Override
-	public void addLayoutComponent(String key,Component c) {}
-	
-	@Override
-	public void removeLayoutComponent(Component c) {}
-	
-	@Override
-	public Dimension minimumLayoutSize(Container parent)
-	{
-		return getMinimumSize();
-	}
-	
-	@Override
-	public Dimension preferredLayoutSize(Container parent)
-	{
-		return getPreferredSize();
-	}
+	public abstract JComponent createComponent();
 }

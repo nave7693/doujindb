@@ -11,18 +11,8 @@ import java.util.jar.Attributes.*;
 import org.dyndns.doujindb.ui.*;
 
 @SuppressWarnings("serial")
-public final class DialogAbout extends JPanel
+public final class DialogAbout extends DialogEx
 {
-	private JLabel fLabelAboutImage;
-	private JLabel fLabelName;
-	private JLabel fLabelSpecVersion;
-	private JLabel fLabelImplName;
-	private JLabel fLabelImplVersion;
-	private JLabel fLabelBuildDate;
-	private JLabel fLabelImplVendor;
-	private JLabel fLabelImplURL;
-	private JButton fButtonClose;
-	
 	private static String SPECIFICATION_NAME = "";
 	private static String SPECIFICATION_VERSION = "";
 	private static String IMPLEMENTATION_NAME = "";
@@ -71,47 +61,54 @@ public final class DialogAbout extends JPanel
 	
 	public DialogAbout()
 	{
-		super.setLayout(new GridBagLayout());
+		super(Icon.menubar_help_about, "About");
+	}
+	
+	@Override
+	public JComponent createComponent()
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
 		
-		fLabelAboutImage = new JLabel(Icon.window_dialog_about);
+		JLabel fLabelAboutImage = new JLabel(Icon.window_dialog_about);
 		gbc.anchor = GridBagConstraints.PAGE_START;
 		gbc.insets = new Insets(5, 5, 5, 5);
-		super.add(fLabelAboutImage, gbc);
+		panel.add(fLabelAboutImage, gbc);
 		
-		fLabelName = new JLabel(SPECIFICATION_NAME);
+		JLabel fLabelName = new JLabel(SPECIFICATION_NAME);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelName, gbc);
+		panel.add(fLabelName, gbc);
 		
-		fLabelSpecVersion = new JLabel("version : " + SPECIFICATION_VERSION);
+		JLabel fLabelSpecVersion = new JLabel("version : " + SPECIFICATION_VERSION);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelSpecVersion, gbc);
+		panel.add(fLabelSpecVersion, gbc);
 		
-		fLabelImplName = new JLabel("codename : " + IMPLEMENTATION_NAME);
+		JLabel fLabelImplName = new JLabel("codename : " + IMPLEMENTATION_NAME);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplName, gbc);
+		panel.add(fLabelImplName, gbc);
 		
-		fLabelImplVersion = new JLabel("build-num : " + IMPLEMENTATION_VERSION);
+		JLabel fLabelImplVersion = new JLabel("build-num : " + IMPLEMENTATION_VERSION);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplVersion, gbc);
+		panel.add(fLabelImplVersion, gbc);
 		
-		fLabelBuildDate = new JLabel("build-date : " + BUILD_DATE);
+		JLabel fLabelBuildDate = new JLabel("build-date : " + BUILD_DATE);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelBuildDate, gbc);
+		panel.add(fLabelBuildDate, gbc);
 		
-		fLabelImplVendor = new JLabel("copyright : " + IMPLEMENTATION_VENDOR);
+		JLabel fLabelImplVendor = new JLabel("copyright : " + IMPLEMENTATION_VENDOR);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplVendor, gbc);
+		panel.add(fLabelImplVendor, gbc);
 		
-		fLabelImplURL = new JLabel("<html><body><a href='" + IMPLEMENTATION_URL + "'>" + IMPLEMENTATION_URL + "</a></body></html>");
+		JLabel fLabelImplURL = new JLabel("<html><body><a href='" + IMPLEMENTATION_URL + "'>" + IMPLEMENTATION_URL + "</a></body></html>");
 		fLabelImplURL.addMouseListener(new MouseAdapter()
 		{
 			@Override
@@ -124,9 +121,9 @@ public final class DialogAbout extends JPanel
 		});
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplURL, gbc);
+		panel.add(fLabelImplURL, gbc);
 		
-		fButtonClose = new JButton("Ok");
+		JButton fButtonClose = new JButton("Ok");
 		fButtonClose.setFont(Font);
 		fButtonClose.setMnemonic('O');
 		fButtonClose.setFocusable(false);
@@ -135,12 +132,13 @@ public final class DialogAbout extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-				window.dispose();
+				dispose();
 			}
 		});
 		gbc.anchor = GridBagConstraints.PAGE_END;
 		gbc.insets = new Insets(5, 5, 5, 5);
-		super.add(fButtonClose, gbc);
+		panel.add(fButtonClose, gbc);
+		
+		return panel;
 	}
 }

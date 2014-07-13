@@ -409,6 +409,32 @@ public class PanelBookMedia extends JPanel
 	    }
 	}
 	
+	private int filesCount(DataFile rootDf) throws DataStoreException, DataBaseException
+	{
+		if(!rootDf.isDirectory())
+			return 1;
+		int count = 0;
+		for(DataFile df : rootDf.listFiles())
+			if(df.isDirectory())
+				count += filesCount(df);
+			else
+				count += 1;
+		return count;
+	}
+	
+	private int filesCount(File rootFile) throws DataStoreException, DataBaseException
+	{
+		if(!rootFile.isDirectory())
+			return 1;
+		int count = 0;
+		for(File f : rootFile.listFiles())
+			if(f.isDirectory())
+				count += filesCount(f);
+			else
+				count += 1;
+		return count;
+	}
+	
 	private final class DialogDelete extends DialogEx
 	{
 		protected DialogDelete()
@@ -497,15 +523,107 @@ public class PanelBookMedia extends JPanel
 	
 	private final class DialogUpload extends DialogEx
 	{
+		private final DataFile destFolder;
+		private final File[] dataFiles;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
+		
 		protected DialogUpload(DataFile destFolder, File[] dataFiles)
 		{
 			super(Icon.desktop_explorer_book_media_upload, "Upload");
+			this.destFolder = destFolder;
+			this.dataFiles = dataFiles;
 		}
 
 		@Override
 		public JComponent createComponent()
 		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
+				}					
+			});
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
 			
+			swingWorker = new SwingWorker<Void,File>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					for(File file : dataFiles)
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					for(File file : dataFiles)
+					{
+						try
+						{
+							doUpload(file, destFolder);
+						} catch (Exception e) {
+							Logger.logError(e.getMessage(), e);
+						}
+					}
+					return null;
+				}
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			swingWorker.execute();
+			
+			return panel;
+		}
+		
+		private void doUpload(File up, DataFile path) throws IOException, Exception
+		{
+			DataFile dst = path.getFile(up.getName());
+			if(up.isDirectory())
+			{
+				dst.mkdirs();
+				for(File file : up.listFiles())
+					doUpload(file, dst);
+			} else {
+				dst.touch();
+				OutputStream out = dst.getOutputStream();
+				InputStream in = new FileInputStream(up);
+				byte[] buff = new byte[0x800];
+				int read;
+				while((read = in.read(buff)) != -1)
+				{
+					out.write(buff, 0, read);
+					if(swingWorker.isCancelled())
+					{
+						try { in.close(); } catch (Exception e) {}
+						try { out.close(); } catch (Exception e) {}
+						throw new Exception("Upload stopped by user input.");
+					}
+				}
+				progressbar.setValue(progressbar.getValue() + 1);
+				in.close();
+				out.close();
+			}
 		}
 	}
 	

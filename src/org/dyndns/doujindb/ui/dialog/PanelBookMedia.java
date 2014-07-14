@@ -531,8 +531,10 @@ public class PanelBookMedia extends JPanel
 		protected DialogUpload(DataFile destFolder, File[] dataFiles)
 		{
 			super(Icon.desktop_explorer_book_media_upload, "Upload");
+			
 			this.destFolder = destFolder;
 			this.dataFiles = dataFiles;
+			swingWorker.execute();
 		}
 
 		@Override
@@ -591,7 +593,6 @@ public class PanelBookMedia extends JPanel
 					dispose();
 				}
 			};
-			swingWorker.execute();
 			
 			return panel;
 		}

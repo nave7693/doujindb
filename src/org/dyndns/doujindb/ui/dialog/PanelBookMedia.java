@@ -736,15 +736,126 @@ public class PanelBookMedia extends JPanel
 	
 	private final class DialogArchive extends DialogEx
 	{
-		protected DialogArchive(File dstFolder)
+		private final File destFolder;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
+		
+		protected DialogArchive(File destFolder)
 		{
 			super(Icon.desktop_explorer_book_media_package, "Archive");
+			
+			this.destFolder = destFolder;
+			swingWorker.execute();
 		}
 
 		@Override
 		public JComponent createComponent()
 		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
+				}
+			});
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
 			
+			swingWorker = new SwingWorker<Void,File>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					DataFile srcDataFile = DataStore.getFile(tokenBook.getID());
+					for(DataFile file : srcDataFile.listFiles())
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					File zip = new File(destFolder, tokenBook.toString() + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
+					try
+					{
+						ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zip));
+						zout.setLevel(9);
+						// add metadata to zip files
+//						ZipEntry entry = new ZipEntry(".xml");
+//						zout.putNextEntry(entry);
+//						writeMetadata(book, zout);
+//						zout.closeEntry();
+						// add actual files
+						doZip("", srcDataFile.listFiles(), zout);
+						zout.close();
+					} catch (IOException ioe) {
+						zip.delete();
+						Logger.logWarning(ioe.getMessage(), ioe);
+					}
+					return null;
+				}
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			
+			return panel;
+		}
+		
+		private void doZip(String base, DataFile[] files, ZipOutputStream zout) throws IOException, Exception
+		{
+			for(DataFile ds : files)
+			{
+				if(ds.isDirectory())
+				{
+					ZipEntry entry = new ZipEntry(base + ds.getName() + File.separator);
+					entry.setMethod(ZipEntry.DEFLATED);
+					try {
+						zout.putNextEntry(entry);
+						zout.closeEntry();
+					} catch (IOException ioe) {
+						Logger.logWarning(ioe.getMessage(), ioe);
+					}
+					doZip(base + ds.getName() + File.separator, ds.listFiles(), zout);
+				}else
+				{
+					int read;
+					byte[] buff = new byte[0x800];
+					ZipEntry entry = new ZipEntry(base + ds.getName());
+					entry.setMethod(ZipEntry.DEFLATED);
+					try
+					{
+						InputStream in = ds.getInputStream();
+						zout.putNextEntry(entry);
+						while ((read = in.read(buff)) != -1)
+						{
+							zout.write(buff, 0, read);
+							if(swingWorker.isCancelled())
+								throw new Exception("Archive stopped by user input.");
+						}
+						zout.closeEntry();
+						in.close();
+						progressbar.setValue(progressbar.getValue() + 1);
+					} catch (IOException ioe) {
+						Logger.logWarning(ioe.getMessage(), ioe);
+					}
+				}
+			}
 		}
 	}
 	

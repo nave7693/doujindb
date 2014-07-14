@@ -630,15 +630,107 @@ public class PanelBookMedia extends JPanel
 	
 	private final class DialogDownload extends DialogEx
 	{
+		private final File destFolder;
+		private final DataFile[] dataFiles;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
+		
 		protected DialogDownload(File destFolder, DataFile[] dataFiles)
 		{
 			super(Icon.desktop_explorer_book_media_download, "Download");
+
+			this.destFolder = destFolder;
+			this.dataFiles = dataFiles;
+			swingWorker.execute();
 		}
 
 		@Override
 		public JComponent createComponent()
 		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae)
+				{
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
+				}
+			});
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
 			
+			swingWorker = new SwingWorker<Void,File>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					for(DataFile file : dataFiles)
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					for(DataFile file : dataFiles)
+					{
+						try
+						{
+							doDownload(file, destFolder);
+						} catch (Exception e) {
+							Logger.logError(e.getMessage(), e);
+						}
+					}
+					return null;
+				}
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			
+			return panel;
+		}
+		
+		private void doDownload(DataFile dw, File path) throws IOException, Exception
+		{
+			File dst = new File(path, dw.getName());
+			if(dw.isDirectory())
+			{
+				dst.mkdirs();
+				for(DataFile file : dw.listFiles())
+					doDownload(file, dst);
+			} else {
+				OutputStream out = new FileOutputStream(dst);
+				InputStream in = dw.getInputStream();
+				byte[] buff = new byte[0x800];
+				int read;
+				while((read = in.read(buff)) != -1)
+				{
+					out.write(buff, 0, read);
+					if(swingWorker.isCancelled())
+					{
+						try { in.close(); } catch (Exception e) {}
+						try { out.close(); } catch (Exception e) {}
+						throw new Exception("Upload stopped by user input.");
+					}
+				}
+				progressbar.setValue(progressbar.getValue() + 1);
+				in.close();
+				out.close();
+			}
 		}
 	}
 	

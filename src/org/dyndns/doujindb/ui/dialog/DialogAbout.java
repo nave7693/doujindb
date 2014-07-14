@@ -11,25 +11,15 @@ import java.util.jar.Attributes.*;
 import org.dyndns.doujindb.ui.*;
 
 @SuppressWarnings("serial")
-public final class DialogAbout extends JPanel
+public final class DialogAbout extends DialogEx
 {
-	private JLabel fLabelAboutImage;
-	private JLabel fLabelName;
-	private JLabel fLabelSpecVersion;
-	private JLabel fLabelImplName;
-	private JLabel fLabelImplVersion;
-	private JLabel fLabelBuildDate;
-	private JLabel fLabelImplVendor;
-	private JLabel fLabelImplURL;
-	private JButton fButtonClose;
-	
-	private static String SPECIFICATION_NAME = "";
-	private static String SPECIFICATION_VERSION = "";
-	private static String IMPLEMENTATION_NAME = "";
-	private static String IMPLEMENTATION_VERSION = "";
-	private static String BUILD_DATE = "";
-	private static String IMPLEMENTATION_VENDOR = "";
-	private static String IMPLEMENTATION_URL = "";
+	private static String strSpecificationName = "";
+	private static String strSpecificationVersion = "";
+	private static String strImplementationName = "";
+	private static String strImplementationVersion = "";
+	private static String strBuildDate = "";
+	private static String strImplementationVendor = "";
+	private static String strImplementationUrl = "";
 	
 	public static final Icons Icon = UI.Icon;
 	public static final Font Font = UI.Font;
@@ -57,13 +47,13 @@ public final class DialogAbout extends JPanel
 				throw new Exception("Could not read manifest");
 
 			Attributes attr = manifest.getMainAttributes();
-			SPECIFICATION_NAME = attr.getValue(Name.SPECIFICATION_TITLE);
-			SPECIFICATION_VERSION = attr.getValue(Name.SPECIFICATION_VERSION);
-			IMPLEMENTATION_NAME = attr.getValue(Name.IMPLEMENTATION_TITLE);
-			IMPLEMENTATION_VERSION = attr.getValue(Name.IMPLEMENTATION_VERSION);
-			BUILD_DATE = attr.getValue("Build-Date");
-			IMPLEMENTATION_VENDOR = attr.getValue(Name.IMPLEMENTATION_VENDOR);
-			IMPLEMENTATION_URL = attr.getValue(Name.IMPLEMENTATION_URL);
+			strSpecificationName = attr.getValue(Name.SPECIFICATION_TITLE);
+			strSpecificationVersion = attr.getValue(Name.SPECIFICATION_VERSION);
+			strImplementationName = attr.getValue(Name.IMPLEMENTATION_TITLE);
+			strImplementationVersion = attr.getValue(Name.IMPLEMENTATION_VERSION);
+			strBuildDate = attr.getValue("Build-Date");
+			strImplementationVendor = attr.getValue(Name.IMPLEMENTATION_VENDOR);
+			strImplementationUrl = attr.getValue(Name.IMPLEMENTATION_URL);
 		} catch (Exception e) { } finally {
 			try { jis.close(); } catch (Exception e) { }
 		}
@@ -71,62 +61,69 @@ public final class DialogAbout extends JPanel
 	
 	public DialogAbout()
 	{
-		super.setLayout(new GridBagLayout());
+		super(Icon.menubar_help_about, "About");
+	}
+	
+	@Override
+	public JComponent createComponent()
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
 		
-		fLabelAboutImage = new JLabel(Icon.window_dialog_about);
+		JLabel fLabelAboutImage = new JLabel(Icon.window_dialog_about);
 		gbc.anchor = GridBagConstraints.PAGE_START;
 		gbc.insets = new Insets(5, 5, 5, 5);
-		super.add(fLabelAboutImage, gbc);
+		panel.add(fLabelAboutImage, gbc);
 		
-		fLabelName = new JLabel(SPECIFICATION_NAME);
+		JLabel fLabelName = new JLabel(strSpecificationName);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelName, gbc);
+		panel.add(fLabelName, gbc);
 		
-		fLabelSpecVersion = new JLabel("version : " + SPECIFICATION_VERSION);
+		JLabel fLabelSpecVersion = new JLabel("version : " + strSpecificationVersion);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelSpecVersion, gbc);
+		panel.add(fLabelSpecVersion, gbc);
 		
-		fLabelImplName = new JLabel("codename : " + IMPLEMENTATION_NAME);
+		JLabel fLabelImplName = new JLabel("codename : " + strImplementationName);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplName, gbc);
+		panel.add(fLabelImplName, gbc);
 		
-		fLabelImplVersion = new JLabel("build-num : " + IMPLEMENTATION_VERSION);
+		JLabel fLabelImplVersion = new JLabel("build-num : " + strImplementationVersion);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplVersion, gbc);
+		panel.add(fLabelImplVersion, gbc);
 		
-		fLabelBuildDate = new JLabel("build-date : " + BUILD_DATE);
+		JLabel fLabelBuildDate = new JLabel("build-date : " + strBuildDate);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelBuildDate, gbc);
+		panel.add(fLabelBuildDate, gbc);
 		
-		fLabelImplVendor = new JLabel("copyright : " + IMPLEMENTATION_VENDOR);
+		JLabel fLabelImplVendor = new JLabel("copyright : " + strImplementationVendor);
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplVendor, gbc);
+		panel.add(fLabelImplVendor, gbc);
 		
-		fLabelImplURL = new JLabel("<html><body><a href='" + IMPLEMENTATION_URL + "'>" + IMPLEMENTATION_URL + "</a></body></html>");
+		JLabel fLabelImplURL = new JLabel("<html><body><a href='" + strImplementationUrl + "'>" + strImplementationUrl + "</a></body></html>");
 		fLabelImplURL.addMouseListener(new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				try {
 					java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-					desktop.browse(new URI(IMPLEMENTATION_URL));
+					desktop.browse(new URI(strImplementationUrl));
 				} catch (IOException | URISyntaxException e) { }
 			}
 		});
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.insets = new Insets(1, 5, 1, 5);
-		super.add(fLabelImplURL, gbc);
+		panel.add(fLabelImplURL, gbc);
 		
-		fButtonClose = new JButton("Ok");
+		JButton fButtonClose = new JButton("Ok");
 		fButtonClose.setFont(Font);
 		fButtonClose.setMnemonic('O');
 		fButtonClose.setFocusable(false);
@@ -135,12 +132,13 @@ public final class DialogAbout extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-				window.dispose();
+				dispose();
 			}
 		});
 		gbc.anchor = GridBagConstraints.PAGE_END;
 		gbc.insets = new Insets(5, 5, 5, 5);
-		super.add(fButtonClose, gbc);
+		panel.add(fButtonClose, gbc);
+		
+		return panel;
 	}
 }

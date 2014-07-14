@@ -4,14 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.*;
+import java.util.zip.*;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -27,8 +21,7 @@ import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
-import org.dyndns.doujindb.ui.DialogEx;
-import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.dialog.util.*;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -36,7 +29,8 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings({"serial", "unused"})
 public class PanelBookMedia extends JPanel
 {
-	private Book tokenBook;
+	private final Book tokenBook;
+	
 	private JButton buttonReload;
 	private JLabel labelDiskUsage;
 	private JButton buttonUpload;
@@ -50,7 +44,8 @@ public class PanelBookMedia extends JPanel
 	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
 	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
 	
-	protected static final Font font = UI.Font;
+	public static final Icons Icon = UI.Icon;
+	public static final Font Font = UI.Font;
 	
 	private static final String TAG = "PanelBook.Media : ";
 	
@@ -91,24 +86,14 @@ public class PanelBookMedia extends JPanel
 						{
 							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(true);
-							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
-							{
-								fc.setMultiSelectionEnabled(false);
-								fc.setFileSelectionMode(prev_option);
 								return;
-							}
-							File files[] = fc.getSelectedFiles();
-							DataFile up_folder = DataStore.getFile(tokenBook.getID());
-							Thread uploader = new Uploader(up_folder, files);
-							uploader.start();
-							try { while(uploader.isAlive()) sleep(10); } catch (Exception e) {}
-							fc.setMultiSelectionEnabled(false);
-							fc.setFileSelectionMode(prev_option);
-							loadData();	
+							File dataFiles[] = fc.getSelectedFiles();
+							DataFile destFolder = DataStore.getFile(tokenBook.getID());
+							UI.Desktop.showDialog(getTopLevelWindow(), new DialogUpload(destFolder, dataFiles));
 						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							Logger.logError(TAG + e.getMessage(), e);
 						}
 					}
 				}.start();
@@ -134,39 +119,29 @@ public class PanelBookMedia extends JPanel
 						{
 							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(false);
-							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
-							{
-								fc.setMultiSelectionEnabled(false);
-								fc.setFileSelectionMode(prev_option);
 								return;
-							}
-							File dl_folder = fc.getSelectedFile();
-							Set<DataFile> dss = new TreeSet<DataFile>();
+							File destFolder = fc.getSelectedFile();
+							Set<DataFile> dataFiles = new TreeSet<DataFile>();
+							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
+							DataFile rootDf = DataStore.getFile(tokenBook.getID());
+							for(TreePath path : paths)
+							try
 							{
-								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataFile root_ds = DataStore.getFile(tokenBook.getID());
-								for(TreePath path : paths)
-								try
-								{
-									StringBuilder sb = new StringBuilder();
-									Object[] nodes = path.getPath();
-									for(int i = 0;i < nodes.length;i++) {
-										sb.append(nodes[i].toString());
-									}
-									DataFile ds = root_ds.getFile(sb.toString());
-									dss.add(ds);
-								} catch (Exception e) { e.printStackTrace(); }
+								StringBuilder sb = new StringBuilder();
+								Object[] nodes = path.getPath();
+								for(int i = 0;i < nodes.length;i++) {
+									sb.append(nodes[i].toString());
+								}
+								DataFile dataFile = rootDf.getFile(sb.toString());
+								dataFiles.add(dataFile);
+							} catch (Exception e) {
+								Logger.logError(TAG + e.getMessage(), e);
 							}
-							Thread downloader = new Downloader(dl_folder, dss);
-							downloader.start();
-							try { while(downloader.isAlive()) sleep(10); } catch (Exception e) {}
-							fc.setMultiSelectionEnabled(false);
-							fc.setFileSelectionMode(prev_option);
-							loadData();
+							UI.Desktop.showDialog(getTopLevelWindow(), new DialogDownload(destFolder, dataFiles.toArray(new DataFile[]{})));
 						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							Logger.logError(TAG + e.getMessage(), e);
 						}
 					}
 				}.start();				
@@ -183,74 +158,10 @@ public class PanelBookMedia extends JPanel
 			{
 				if(treeMedia.CheckBoxRenderer.getCheckedPaths().length < 1)
 					return;
-				JPanel panel = new JPanel();
-				panel.setSize(250, 150);
-				panel.setLayout(new GridLayout(2, 1));
-				JLabel lab = new JLabel("<html><body>Delete selected file/folders?<br/><i>(This cannot be undone)</i></body></html>");
-				lab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-				lab.setFont(font);
-				panel.add(lab);
-				JPanel bottom = new JPanel();
-				bottom.setLayout(new GridLayout(1, 2));
-				JButton canc = new JButton("Cancel");
-				canc.setFont(font);
-				canc.setMnemonic('C');
-				canc.setFocusable(false);
-				canc.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				JButton ok = new JButton("Ok");
-				ok.setFont(font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						try
-						{
-							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataFile root_ds = DataStore.getFile(tokenBook.getID());
-							for(TreePath path : paths)
-							try
-							{
-								Object os[] = path.getPath();
-								DataFile ds = root_ds;
-								for(int k=1;k<os.length;k++)
-									if(os[k].toString().startsWith("/"))
-										ds = ds.getFile(os[k].toString().substring(1));
-									else
-										ds = ds.getFile(os[k].toString());
-								ds.delete(true);
-							} catch (Exception e) { e.printStackTrace(); }
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
-						}
-						loadData();
-						DialogEx window = (DialogEx) ((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				bottom.add(ok);
-				bottom.add(canc);
-				bottom.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-				panel.add(bottom);
 				try {
-					UI.Desktop.showDialog(
-							(JRootPane) getRootPane(),
-							panel,
-							Icon.desktop_explorer_book_media_delete,
-							"Delete");
-				} catch (PropertyVetoException pve)
-				{
-					Logger.logWarning(pve.getMessage(), pve);
+					UI.Desktop.showDialog(getTopLevelWindow(), new DialogDelete());
+				} catch (PropertyVetoException pve) {
+					Logger.logWarning(TAG + pve.getMessage(), pve);
 				}
 			}
 		});
@@ -271,23 +182,14 @@ public class PanelBookMedia extends JPanel
 						try
 						{
 							JFileChooser fc = UI.FileChooser;
-							fc.setMultiSelectionEnabled(true);
-							int prev_option = fc.getFileSelectionMode();
+							fc.setMultiSelectionEnabled(false);
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
-							{
-								fc.setMultiSelectionEnabled(false);
-								fc.setFileSelectionMode(prev_option);
 								return;
-							}
-							File file = fc.getSelectedFile();
-							Thread packager = new Packager(tokenBook, file);
-							packager.start();
-							try { while(packager.isAlive()) sleep(10); } catch (Exception e) {}
-							fc.setMultiSelectionEnabled(false);
-							fc.setFileSelectionMode(prev_option);
+							File destFolder = fc.getSelectedFile();
+							UI.Desktop.showDialog(getTopLevelWindow(), new DialogArchive(destFolder));
 						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							Logger.logError(TAG + e.getMessage(), e);
 						}
 					}
 				}.start();
@@ -370,7 +272,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			protected void done() {
 				try {
-					labelDiskUsage.setText(bytesToSize(DataStore.diskUsage(DataStore.getFile(tokenBook.getID()))));
+					labelDiskUsage.setText(toSize(DataStore.diskUsage(DataStore.getFile(tokenBook.getID()))));
 				} catch (Exception e) { }
 				treeMedia.clearSelection();
 				treeMedia.CheckBoxRenderer.clearSelection();
@@ -380,10 +282,16 @@ public class PanelBookMedia extends JPanel
 		}.execute();
 	}
 	
-	private static String bytesToSize(long bytes)
+	private WindowEx getTopLevelWindow()
+	{
+		return (WindowEx) SwingUtilities.getAncestorOfClass(WindowEx.class, this);
+	}
+	
+	private static String toSize(long bytes)
 	{
 		int unit = 1024;
-	    if (bytes < unit) return bytes + " B";
+	    if (bytes < unit)
+	    	return bytes + " B";
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
@@ -398,7 +306,7 @@ public class PanelBookMedia extends JPanel
 		{
 			super(root);
 			super.setFocusable(false);
-			super.setFont(font);
+			super.setFont(Font);
 			super.setEditable(false);
 			super.setRootVisible(true);
 			super.setScrollsOnExpand(true);
@@ -481,7 +389,7 @@ public class PanelBookMedia extends JPanel
 		}
 	}
 	
-	private void filesWalk(DataFile file, MutableTreeNode parent) throws DataStoreException, DataBaseException
+	private static void filesWalk(DataFile file, MutableTreeNode parent) throws DataStoreException, DataBaseException
 	{
 		int index = 0; 
 		for(DataFile df : file.listFiles())
@@ -497,558 +405,425 @@ public class PanelBookMedia extends JPanel
 		        DefaultMutableTreeNode sub = new DefaultMutableTreeNode(df.getName());
 		        parent.insert(sub, index);
 	        }
-	        index++;
+	        index ++;
 	    }
 	}
 	
-	private final class Downloader extends Thread
+	private int filesCount(DataFile rootDf) throws DataStoreException, DataBaseException
 	{
-		private String label_file_current = "";
-		private long progress_file_current = 0;
-		private long progress_file_max = 1;
-		private long progress_overall_current = 0;
-		private long progress_overall_max = 1;
-		private JProgressBar progressbar_file;
-		private JProgressBar progressbar_overall;
-		private JButton cancel;
-		private boolean stopped = false;
-		private Timer clock;
-		
-		private File dl_root;
-		private Set<DataFile> dss;
-		
-		public Downloader(File dl_root, Set<DataFile> dss)
+		if(!rootDf.isDirectory())
+			return 1;
+		int count = 0;
+		for(DataFile df : rootDf.listFiles())
+			if(df.isDirectory())
+				count += filesCount(df);
+			else
+				count += 1;
+		return count;
+	}
+	
+	private int filesCount(File rootFile) throws DataStoreException, DataBaseException
+	{
+		if(!rootFile.isDirectory())
+			return 1;
+		int count = 0;
+		for(File f : rootFile.listFiles())
+			if(f.isDirectory())
+				count += filesCount(f);
+			else
+				count += 1;
+		return count;
+	}
+	
+	private final class DialogDelete extends DialogEx
+	{
+		protected DialogDelete()
 		{
-			this.dl_root = dl_root;
-			this.dss = dss;
+			super(Icon.desktop_explorer_book_media_delete, "Delete");
 		}
-		
-		private int count(DataFile ds_root) throws DataStoreException, DataBaseException
-		{
-			int count = 0;
-			for(DataFile ds : ds_root.listFiles())
-				if(ds.isDirectory())
-					count += count(ds);
-				else
-					count += 1;
-			return count;
-		}
-		
-		private void download(DataFile dl) throws IOException, Exception
-		{
-			File dst = new File(dl_root, dl.getPath());
-			label_file_current = dl.getName();
-			if(dl.isDirectory())
-			{
-				progress_overall_current++;
-				dst.mkdirs();
-				for(DataFile ds : dl.listFiles())
-					download(ds);
-			}else
-			{
-				progress_overall_current++;
-				dst.getParentFile().mkdirs();
-				OutputStream out = new FileOutputStream(dst);
-				InputStream in = dl.getInputStream();
-				byte[] buff = new byte[0x800];
-				int read;
-				progress_file_current = 0;
-				progress_file_max = dl.length();
-				while((read = in.read(buff)) != -1)
-				{
-					out.write(buff, 0, read);		
-					progress_file_current += read;
-					if(stopped)
-					{
-						try { out.close(); } catch (Exception e) {}
-						throw new Exception("Thread stopped by user input.");
-					}
-				}
-				in.close();
-				out.close();
-			}
-		}
-		
+
 		@Override
-		public void run()
+		public JComponent createComponent()
 		{
-			super.setPriority(Thread.MIN_PRIORITY);
-			JPanel comp = new JPanel();
-			comp.setMinimumSize(new Dimension(250,75));
-			comp.setPreferredSize(new Dimension(250,75));
-			comp.setLayout(new GridLayout(3,1));
-			cancel = new JButton("Cancel");
-			cancel.setFont(font);
-			cancel.setMnemonic('C');
-			cancel.setFocusable(false);
-			cancel.addActionListener(new ActionListener()
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			JLabel lab = new JLabel("<html><body>Permanently delete selected files?</body></html>");
+			lab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			lab.setFont(Font);
+			panel.add(lab);
+			JPanel bottom = new JPanel();
+			bottom.setLayout(new GridLayout(1, 2));
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae) 
 				{
-					clock.stop();
-					stopped = true;
-					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
-					window.dispose();
+					dispose();
 				}					
 			});
-			progressbar_file = new JProgressBar(1,100);
-			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(font);
-			progressbar_overall = new JProgressBar(1,100);
-			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(font);
-			comp.add(progressbar_overall);
-			comp.add(progressbar_file);
-			comp.add(cancel);
-			clock = new Timer(50, new ActionListener()
+			final JButton ok = new JButton("Ok");
+			ok.setFont(Font);
+			ok.setMnemonic('O');
+			ok.setFocusable(false);
+			ok.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					ok.setEnabled(false);
+					ok.setIcon(Icon.window_loading);
+					new SwingWorker<Void,Void>()
+					{
+						@Override
+						protected Void doInBackground() throws Exception
+						{
+							try
+							{
+								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
+								DataFile root_ds = DataStore.getFile(tokenBook.getID());
+								for(TreePath path : paths)
+									try
+									{
+										Object os[] = path.getPath();
+										DataFile ds = root_ds;
+										for(int k=1;k<os.length;k++)
+											if(os[k].toString().startsWith("/"))
+												ds = ds.getFile(os[k].toString().substring(1));
+											else
+												ds = ds.getFile(os[k].toString());
+										ds.delete(true);
+									} catch (Exception e) {
+										Logger.logError(TAG + e.getMessage(), e);
+									}
+							} catch (Exception e) {
+								Logger.logError(e.getMessage(), e);
+							}
+							return null;
+						}
+						@Override
+						protected void done()
+						{
+							loadData();
+							dispose();
+						}
+					}.execute();
+				}					
+			});
+			bottom.add(ok);
+			bottom.add(canc);
+			bottom.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(bottom);
+			return panel;
+		}
+	}
+	
+	private final class DialogUpload extends DialogEx
+	{
+		private final DataFile destFolder;
+		private final File[] dataFiles;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
+		
+		protected DialogUpload(DataFile destFolder, File[] dataFiles)
+		{
+			super(Icon.desktop_explorer_book_media_upload, "Upload");
+			
+			this.destFolder = destFolder;
+			this.dataFiles = dataFiles;
+			swingWorker.execute();
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					int file = (int)(progress_file_current*100/(progress_file_max==0?1:progress_file_max));
-					progressbar_file.setString(file+"%");
-					progressbar_file.setValue(file);
-					int overall = (int)(progress_overall_current*100/(progress_overall_max==0?1:progress_overall_max));
-					progressbar_overall.setString(label_file_current + " (" + overall+"%)");
-					progressbar_overall.setValue(overall);
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
 				}					
 			});
-			clock.start();
-			Vector<String> errors = new Vector<String>();
-			try
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
+			
+			swingWorker = new SwingWorker<Void,File>()
 			{
-				UI.Desktop.showDialog(
-						(JRootPane) getRootPane(),
-						comp,
-						Icon.desktop_explorer_book_media_download,
-						"Downloading ...");
-				progress_overall_max = 0;
-				for(DataFile ds : dss)
-					progress_overall_max += count(ds);
-				for(DataFile ds : dss)
-				{
-					try
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					for(File file : dataFiles)
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					for(File file : dataFiles)
 					{
-						download(ds);
-					} catch (Exception e) {}
-					/*try
-					{
-						File dst = new File(dl_root, ds.getName());
-						if(ds.isDirectory())
+						try
 						{
-							dst.mkdirs();
-						}else
-						{
-							ds.getParent().mkdirs();
-							OutputStream out = new FileOutputStream(dst);
-							InputStream in = ds.getInputStream();
-							byte[] buff = new byte[0x800];
-							int read;
-							progress_bytes_current = 0;
-							progress_bytes_max = ds.size();
-							while((read = in.read(buff)) != -1)
-							{
-								out.write(buff, 0, read);		
-								progress_bytes_current += read;
-								if(stopped)
-									throw new Exception("Thread stopped by user input.");
-							}
-							in.close();
-							out.close();
+							doUpload(file, destFolder);
+						} catch (Exception e) {
+							Logger.logError(e.getMessage(), e);
 						}
-						progress_file_current++;
-					} catch (Exception e) {
-						progress_file_current++;
-						errors.add(ds.getPath());
-					}*/
+					}
+					return null;
 				}
-			} catch (PropertyVetoException pve) {
-				Logger.logError(pve.getMessage(), pve);
-			} catch (DataStoreException re) {
-				Logger.logError(re.getMessage(), re);
-			} catch (DataBaseException dbe) {
-				Logger.logError(dbe.getMessage(), dbe);
-			}
-			clock.stop();
-			DialogEx window = (DialogEx) comp.getRootPane().getParent();
-			window.dispose();
-			;
-			if(errors.size() == 0)
-				return;
-			{
-				JPanel panel = new JPanel();
-				panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-				panel.setLayout(new BorderLayout(5, 5));
-				JLabel lab = new JLabel("<html><body>" +
-						"The following entries were not downloaded.<br>" +
-						"Make sure the download directory is writable and empty.<br>" +
-						"</body></html>");
-				panel.add(lab, BorderLayout.NORTH);
-				JList<String> list = new JList<String>(errors);
-				list.setFont(font);
-				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(background);
-				panel.add(new JScrollPane(list), BorderLayout.CENTER);
-				JButton ok = new JButton("Ok");
-				ok.setFont(font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
-					{
-						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				JPanel centered = new JPanel();
-				centered.setLayout(new GridLayout(1,3));
-				centered.add(new JLabel());
-				centered.add(ok);
-				centered.add(new JLabel());
-				panel.add(centered, BorderLayout.SOUTH);
-				try
-				{
-					UI.Desktop.showDialog(
-							(JRootPane) getRootPane(),
-							panel,
-							Icon.desktop_explorer_book_media_download,
-							"Downloading - Error");
-				} catch (PropertyVetoException pve) {} 
-			}
-		}
-	}
-	
-	private final class Uploader extends Thread
-	{
-		private String label_file_current = "";
-		private long progress_file_current = 0;
-		private long progress_file_max = 1;
-		private long progress_overall_current = 0;
-		private long progress_overall_max = 1;
-		private JProgressBar progressbar_file;
-		private JProgressBar progressbar_overall;
-		private JButton cancel;
-		private boolean stopped = false;
-		private Timer clock;
-		
-		private DataFile up_root;
-		private File[] files;
-		
-		public Uploader(DataFile up_root, File[] files)
-		{
-			this.up_root = up_root;
-			this.files = files;
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			
+			return panel;
 		}
 		
-		private int count(File base)
-		{
-			int count = 0;
-			for(File file : base.listFiles())
-				if(file.isDirectory())
-					count += count(file);
-				else
-					count++;
-			return count;
-		}
-		
-		private void upload(File up, DataFile path) throws IOException, Exception
+		private void doUpload(File up, DataFile path) throws IOException, Exception
 		{
 			DataFile dst = path.getFile(up.getName());
-			label_file_current = up.getName();
 			if(up.isDirectory())
 			{
-				progress_overall_current++;
 				dst.mkdirs();
 				for(File file : up.listFiles())
-					upload(file, dst);
-			}else
-			{
-				progress_overall_current++;
+					doUpload(file, dst);
+			} else {
 				dst.touch();
 				OutputStream out = dst.getOutputStream();
 				InputStream in = new FileInputStream(up);
 				byte[] buff = new byte[0x800];
 				int read;
-				progress_file_current = 0;
-				progress_file_max = up.length() + 1;
 				while((read = in.read(buff)) != -1)
 				{
-					out.write(buff, 0, read);		
-					progress_file_current += read;
-					if(stopped)
+					out.write(buff, 0, read);
+					if(swingWorker.isCancelled())
 					{
 						try { in.close(); } catch (Exception e) {}
 						try { out.close(); } catch (Exception e) {}
-						throw new Exception("Thread stopped by user input.");
+						throw new Exception("Upload stopped by user input.");
 					}
 				}
+				progressbar.setValue(progressbar.getValue() + 1);
 				in.close();
 				out.close();
 			}
 		}
+	}
+	
+	private final class DialogDownload extends DialogEx
+	{
+		private final File destFolder;
+		private final DataFile[] dataFiles;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
 		
-		@Override
-		public void run()
+		protected DialogDownload(File destFolder, DataFile[] dataFiles)
 		{
-			super.setPriority(Thread.MIN_PRIORITY);
-			JPanel comp = new JPanel();
-			comp.setMinimumSize(new Dimension(250,75));
-			comp.setPreferredSize(new Dimension(250,75));
-			comp.setLayout(new GridLayout(3,1));
-			cancel = new JButton("Cancel");
-			cancel.setFont(font);
-			cancel.setMnemonic('C');
-			cancel.setFocusable(false);
-			cancel.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					clock.stop();
-					stopped = true;
-					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			progressbar_file = new JProgressBar(1,100);
-			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(font);
-			progressbar_overall = new JProgressBar(1,100);
-			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(font);
-			comp.add(progressbar_overall);
-			comp.add(progressbar_file);
-			comp.add(cancel);
-			clock = new Timer(50, new ActionListener()
+			super(Icon.desktop_explorer_book_media_download, "Download");
+
+			this.destFolder = destFolder;
+			this.dataFiles = dataFiles;
+			swingWorker.execute();
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					int file = (int)(progress_file_current*100/(progress_file_max==0?1:progress_file_max));
-					progressbar_file.setString(file+"%");
-					progressbar_file.setValue(file);
-					int overall = (int)(progress_overall_current*100/(progress_overall_max==0?1:progress_overall_max));
-					progressbar_overall.setString(label_file_current + " (" + overall+"%)");
-					progressbar_overall.setValue(overall);
-				}					
-			});
-			clock.start();
-			Vector<String> errors = new Vector<String>();
-			try
-			{
-				UI.Desktop.showDialog(
-						(JRootPane) getRootPane(),
-						comp,
-						Icon.desktop_explorer_book_media_upload,
-						"Uploading ...");
-				progress_overall_max = 0;
-				for(File file : files)
-					if(file.isDirectory())
-						progress_overall_max += count(file);
-					else
-						progress_overall_max += 1;
-				for(File file : files)
-				{
-					try
-					{
-						upload(file, up_root);
-					} catch (Exception e) { e.printStackTrace(); }
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
 				}
-			} catch (PropertyVetoException pve) {
-				Logger.logError(pve.getMessage(), pve);
-			}
-			clock.stop();
-			DialogEx window = (DialogEx) comp.getRootPane().getParent();
-			window.dispose();
-			;
-			if(errors.size() == 0)
-				return;
+			});
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
+			
+			swingWorker = new SwingWorker<Void,File>()
 			{
-				JPanel panel = new JPanel();
-				panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-				panel.setLayout(new BorderLayout(5, 5));
-				JLabel lab = new JLabel("<html><body>" +
-						"The following entries were not uploaded.<br>" +
-						"Make sure the upload directory is writable and empty.<br>" +
-						"</body></html>");
-				panel.add(lab, BorderLayout.NORTH);
-				JList<String> list = new JList<String>(errors);
-				list.setFont(font);
-				list.setSelectionBackground(list.getSelectionForeground());
-				list.setSelectionForeground(background);
-				panel.add(new JScrollPane(list), BorderLayout.CENTER);
-				JButton ok = new JButton("Ok");
-				ok.setFont(font);
-				ok.setMnemonic('O');
-				ok.setFocusable(false);
-				ok.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent ae) 
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					for(DataFile file : dataFiles)
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					for(DataFile file : dataFiles)
 					{
-						DialogEx window = (DialogEx)((JComponent)ae.getSource()).getRootPane().getParent();
-						window.dispose();
-					}					
-				});
-				JPanel centered = new JPanel();
-				centered.setLayout(new GridLayout(1,3));
-				centered.add(new JLabel());
-				centered.add(ok);
-				centered.add(new JLabel());
-				panel.add(centered, BorderLayout.SOUTH);
-				try
+						try
+						{
+							doDownload(file, destFolder);
+						} catch (Exception e) {
+							Logger.logError(e.getMessage(), e);
+						}
+					}
+					return null;
+				}
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			
+			return panel;
+		}
+		
+		private void doDownload(DataFile dw, File path) throws IOException, Exception
+		{
+			File dst = new File(path, dw.getName());
+			if(dw.isDirectory())
+			{
+				dst.mkdirs();
+				for(DataFile file : dw.listFiles())
+					doDownload(file, dst);
+			} else {
+				OutputStream out = new FileOutputStream(dst);
+				InputStream in = dw.getInputStream();
+				byte[] buff = new byte[0x800];
+				int read;
+				while((read = in.read(buff)) != -1)
 				{
-					UI.Desktop.showDialog(
-							(JRootPane) getRootPane(),
-							panel,
-							Icon.desktop_explorer_book_media_upload,
-							"Uploading - Error");
-				} catch (PropertyVetoException pve) {} 
+					out.write(buff, 0, read);
+					if(swingWorker.isCancelled())
+					{
+						try { in.close(); } catch (Exception e) {}
+						try { out.close(); } catch (Exception e) {}
+						throw new Exception("Upload stopped by user input.");
+					}
+				}
+				progressbar.setValue(progressbar.getValue() + 1);
+				in.close();
+				out.close();
 			}
 		}
 	}
 	
-	private static final class Packager extends Thread
+	private final class DialogArchive extends DialogEx
 	{
-		private final String PACKAGE_INDEX = ".xml";
-		private final String PACKAGE_PREVIEW = ".preview";
+		private final File destFolder;
+		private SwingWorker<Void,File> swingWorker;
+		private JProgressBar progressbar;
 		
-		private long progress_bytes_current = 0;
-		private long progress_bytes_max = 1;
-		private long progress_file_current = 0;
-		private long progress_file_max = 1;
-		private long progress_overall_current = 0;
-		private long progress_overall_max = 1;
-		private JProgressBar progressbar_bytes;
-		private JProgressBar progressbar_file;
-		private JProgressBar progressbar_overall;
-		private JButton cancel;
-		private boolean stopped = false;
-		private Timer clock;
-		private Book book;
-		private File destdir;
-		
-		public Packager(Book book, File dest)
+		protected DialogArchive(File destFolder)
 		{
-			this.book = book;
-			this.destdir = dest;
+			super(Icon.desktop_explorer_book_media_package, "Archive");
+			
+			this.destFolder = destFolder;
+			swingWorker.execute();
 		}
-		
+
 		@Override
-		public void run()
+		public JComponent createComponent()
 		{
-			super.setPriority(Thread.MIN_PRIORITY);
-			JPanel comp = new JPanel();
-			comp.setMinimumSize(new Dimension(250,75));
-			comp.setPreferredSize(new Dimension(250,75));
-			comp.setLayout(new GridLayout(4,1));
-			cancel = new JButton("Cancel");
-			cancel.setFont(font);
-			cancel.setMnemonic('C');
-			cancel.setFocusable(false);
-			cancel.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					clock.stop();
-					stopped = true;
-					DialogEx window = (DialogEx) cancel.getRootPane().getParent();
-					window.dispose();
-				}					
-			});
-			progressbar_bytes = new JProgressBar(1,100);
-			progressbar_bytes.setStringPainted(true);
-			progressbar_bytes.setFont(font);
-			progressbar_file = new JProgressBar(1,100);
-			progressbar_file.setStringPainted(true);
-			progressbar_file.setFont(font);
-			progressbar_overall = new JProgressBar(1,100);
-			progressbar_overall.setStringPainted(true);
-			progressbar_overall.setFont(font);
-			comp.add(progressbar_overall);
-			comp.add(progressbar_file);
-			comp.add(progressbar_bytes);
-			comp.add(cancel);
-			clock = new Timer(50, new ActionListener()
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			progressbar = new JProgressBar(1, 1);
+			progressbar.setStringPainted(false);
+			progressbar.setFont(Font);
+			progressbar.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(progressbar);
+			JButton canc = new JButton("Cancel");
+			canc.setFont(Font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent ae)
 				{
-					int bytes = (int)(progress_bytes_current*100/progress_bytes_max);
-					progressbar_bytes.setString(bytes+"%");
-					progressbar_bytes.setValue(bytes);
-					int file = (int)(progress_file_current*100/progress_file_max);
-					progressbar_file.setString(file+"%");
-					progressbar_file.setValue(file);
-					int overall = (int)(progress_overall_current*100/progress_overall_max);
-					//progressbar_overall.setString(overall+"%");
-					progressbar_overall.setValue(overall);
-				}					
+					swingWorker.cancel(true);
+					loadData();
+					dispose();
+				}
 			});
-			clock.start();
-			try
+			canc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(canc);
+			
+			swingWorker = new SwingWorker<Void,File>()
 			{
-				//FIXME
-//				UI.Desktop.showDialog(
-//						(RootPaneContainer) PanelBookMedia.this.getRootPane().getParent(),
-//						comp,
-//						Icon.desktop_explorer_book_media_package,
-//						"Exporting ...");
-				progress_overall_max = 1;
-				{
-					File zip = new File(destdir, book + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
-					DataFile ds = DataStore.getFile(book.getID());
-					progress_file_max = count(ds);
-					progress_file_current = 0;
-					progressbar_overall.setString(book.toString());
+				@Override
+				protected Void doInBackground() throws Exception {
+					int totalFiles = 0;
+					DataFile srcDataFile = DataStore.getFile(tokenBook.getID());
+					for(DataFile file : srcDataFile.listFiles())
+						try {
+							totalFiles += filesCount(file);
+						} catch (Exception e) { }
+					progressbar.setMaximum(totalFiles);
+					progressbar.setMinimum(1);
+					progressbar.setValue(1);
+					File zip = new File(destFolder, tokenBook.toString() + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
 					try
 					{
 						ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zip));
 						zout.setLevel(9);
-						;
-						ZipEntry entry = new ZipEntry(PACKAGE_INDEX);
-						zout.putNextEntry(entry);
-						metadata(book, zout);
-						zout.closeEntry();
-						;
-						zip("", ds.listFiles(), zout);
+						// add metadata to zip files
+//						ZipEntry entry = new ZipEntry(".xml");
+//						zout.putNextEntry(entry);
+//						writeMetadata(book, zout);
+//						zout.closeEntry();
+						// add actual files
+						doZip("", srcDataFile.listFiles(), zout);
 						zout.close();
 					} catch (IOException ioe) {
 						zip.delete();
 						Logger.logWarning(ioe.getMessage(), ioe);
 					}
-					progress_overall_current++;
+					return null;
 				}
-			} catch (Exception e) {
-				Logger.logError(e.getMessage(), e);
-			}
-			clock.stop();
-			DialogEx window = (DialogEx) comp.getRootPane().getParent();
-			window.dispose();
+				@Override
+				protected void done() {
+					loadData();
+					dispose();
+				}
+			};
+			
+			return panel;
 		}
 		
-		private int count(DataFile ds_root) throws DataStoreException
-		{
-			int count = 0;
-			for(DataFile ds : ds_root.listFiles())
-				if(ds.isDirectory())
-					count += count(ds);
-				else
-					count += 1;
-			return count;
-		}
-		
-		private void zip(String base, DataFile[] files, ZipOutputStream zout) throws IOException, Exception
+		private void doZip(String base, DataFile[] files, ZipOutputStream zout) throws IOException, Exception
 		{
 			for(DataFile ds : files)
 			{
 				if(ds.isDirectory())
 				{
-					ZipEntry entry = new ZipEntry(base + ds.getName() + "/");
+					ZipEntry entry = new ZipEntry(base + ds.getName() + File.separator);
 					entry.setMethod(ZipEntry.DEFLATED);
 					try {
 						zout.putNextEntry(entry);
@@ -1056,11 +831,9 @@ public class PanelBookMedia extends JPanel
 					} catch (IOException ioe) {
 						Logger.logWarning(ioe.getMessage(), ioe);
 					}
-					zip(base + ds.getName() + "/", ds.listFiles(), zout);
+					doZip(base + ds.getName() + File.separator, ds.listFiles(), zout);
 				}else
 				{
-					if(ds.getName().equals(PACKAGE_PREVIEW))
-						continue;
 					int read;
 					byte[] buff = new byte[0x800];
 					ZipEntry entry = new ZipEntry(base + ds.getName());
@@ -1069,98 +842,20 @@ public class PanelBookMedia extends JPanel
 					{
 						InputStream in = ds.getInputStream();
 						zout.putNextEntry(entry);
-						progress_bytes_max = ds.length();
-						progress_bytes_current = 0;
 						while ((read = in.read(buff)) != -1)
 						{
 							zout.write(buff, 0, read);
-							progress_bytes_current += read;
-							if(stopped)
-								throw new Exception("Thread stopped by user input.");
+							if(swingWorker.isCancelled())
+								throw new Exception("Archive stopped by user input.");
 						}
 						zout.closeEntry();
-						progress_file_current++;
 						in.close();
+						progressbar.setValue(progressbar.getValue() + 1);
 					} catch (IOException ioe) {
 						Logger.logWarning(ioe.getMessage(), ioe);
 					}
 				}
 			}
-		}
-		
-		private void metadata(Book book, OutputStream dest) throws DataBaseException
-		{
-			XMLBook doujin = new XMLBook();
-			doujin.japaneseName = book.getJapaneseName();
-			doujin.translatedName = book.getTranslatedName();
-			doujin.romajiName = book.getRomajiName();
-			doujin.Convention = book.getConvention() == null ? "" : book.getConvention().getTagName();
-			doujin.Released = book.getDate();
-			doujin.Type = book.getType();
-			doujin.Pages = book.getPages();
-			doujin.Adult = book.isAdult();
-			doujin.Decensored = book.isDecensored();
-			doujin.Colored = book.isColored();
-			doujin.Translated = book.isTranslated();
-			doujin.Rating = book.getRating();
-			doujin.Info = book.getInfo();
-			for(Artist a : book.getArtists())
-				doujin.artists.add(a.getJapaneseName());
-			for(Circle c : book.getCircles())
-				doujin.circles.add(c.getJapaneseName());
-			for(Parody p : book.getParodies())
-				doujin.parodies.add(p.getJapaneseName());
-			for(Content ct : book.getContents())
-				doujin.contents.add(ct.getTagName());
-			try
-			{
-				JAXBContext context = JAXBContext.newInstance(XMLBook.class);
-				Marshaller m = context.createMarshaller();
-				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-				m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-				m.marshal(doujin, dest);
-			} catch (Exception e) {
-				Logger.logWarning("Error parsing XML file : " + e.getMessage(), e);
-			}
-		}
-		
-		@XmlRootElement(name="Doujin")
-		private static final class XMLBook
-		{
-			@XmlElement(required=true)
-			private String japaneseName;
-			@XmlElement(required=false)
-			private String translatedName = "";
-			@XmlElement(required=false)
-			private String romajiName = "";
-			@XmlElement(required=false)
-			private String Convention = "";
-			@XmlElement(required=false)
-			private Date Released;
-			@XmlElement(required=false)
-			private Type Type;
-			@XmlElement(required=false)
-			private int Pages;
-			@XmlElement(required=false)
-			private boolean Adult;
-			@XmlElement(required=false)
-			private boolean Decensored;
-			@XmlElement(required=false)
-			private boolean Translated;
-			@XmlElement(required=false)
-			private boolean Colored;
-			@XmlElement(required=false)
-			private Rating Rating;
-			@XmlElement(required=false)
-			private String Info;
-			@XmlElement(name="Artist", required=false)
-			private List<String> artists = new Vector<String>();
-			@XmlElement(name="Circle", required=false)
-			private List<String> circles = new Vector<String>();
-			@XmlElement(name="Parody", required=false)
-			private List<String> parodies = new Vector<String>();
-			@XmlElement(name="Content", required=false)
-			private List<String> contents = new Vector<String>();
 		}
 	}
 }

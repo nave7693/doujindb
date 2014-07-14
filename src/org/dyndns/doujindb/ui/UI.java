@@ -45,6 +45,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
+	static JComponent ModalLayer;
+	
 	private JTabbedPane uiPanelTabbed;
 	private TrayIcon uiTrayIcon;
 	private JPopupMenu uiTrayPopup;
@@ -200,6 +202,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	public UI()
 	{
 		super();
+		super.setLayout(this);
 		super.setTitle("DoujinDB v" + getClass().getPackage().getSpecificationVersion());
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
@@ -208,23 +211,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		
 		super.getContentPane().setBackground(background);
 		Logger.logInfo(TAG + "basic user interface loaded.");
-			
-	    JComponent glassPane = new JComponent()
+		
+		ModalLayer = new JComponent()
 	    {
-			@Override
-			public void setVisible(boolean visible)
-			{
-				if(!isEnabled())
-					return;
-				super.setVisible(visible);
-				if(!visible)
-					super.removeAll();
-			}
 			@Override
 	    	protected void paintComponent(Graphics g)
 	    	{
-	    		g.setColor(getBackground());
-	    		g.fillRect(0, 0, getSize().width, getSize().height);
+		        g.setColor(getBackground());
+		        g.fillRect(0,0,getWidth(),getHeight());
 	    	}
 			@Override
 	    	public void setBackground(Color background)
@@ -232,12 +226,21 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	    		super.setBackground( background );
 	    	}
 	    };
-	    glassPane.addMouseListener(new MouseAdapter(){});
-	    glassPane.setOpaque(false);
-	    glassPane.setVisible(false);
-	    glassPane.setEnabled(false);
-	    glassPane.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
-		setGlassPane(glassPane);
+	    ModalLayer.addMouseListener(new MouseAdapter(){});
+	    ModalLayer.addMouseMotionListener(new MouseMotionAdapter(){});
+		ModalLayer.setOpaque(true);
+		ModalLayer.setVisible(false);
+		ModalLayer.setEnabled(false);
+		ModalLayer.setBackground(new Color(0x22, 0x22, 0x22, 0xae));
+		ModalLayer.setLayout(new GridBagLayout());
+		super.addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent ce) {
+				ModalLayer.setBounds(1, 1, getRootPane().getWidth() - 2, getRootPane().getHeight() - 2);
+				ModalLayer.doLayout();
+			}
+		});
+	    super.getLayeredPane().add(ModalLayer, JLayeredPane.PALETTE_LAYER);
 		
 		uiPanelTabbed = new JTabbedPane();
 		super.addWindowListener(this);
@@ -407,7 +410,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		} else
 			Logger.logWarning(TAG + "system tray not supported.");
 
-		super.setLayout(this);
 		/*
 		 * 16/4/2011 - Bug introduced migrating from JDK6 to JDK7
 		 * java.lang.IllegalStateException: This function should be called while holding treeLock
@@ -526,11 +528,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		if(event.getSource() == menuHelpAbout)
 		{
 			try {
-				Desktop.showDialog(
-					Desktop.getRootPane(),
-					new DialogAbout(),
-					Icon.menubar_help_about,
-					"About");
+				Desktop.showDialog(new DialogAbout());
 			} catch (PropertyVetoException pve) {
 				Logger.logWarning(pve.getMessage(), pve);
 			}

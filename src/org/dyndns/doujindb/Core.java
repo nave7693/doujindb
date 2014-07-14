@@ -1,11 +1,13 @@
 package org.dyndns.doujindb;
 
+import java.beans.PropertyVetoException;
 import java.io.*;
 
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.PluginManager;
 import org.dyndns.doujindb.ui.*;
+import org.dyndns.doujindb.ui.dialog.DialogConfigurationWizard;
 
 /**  
 * Core.java - DoujinDB core.
@@ -82,7 +84,11 @@ public final class Core implements Runnable
 		if(isConfigurationWizard)
 		{
 			Logger.logInfo(TAG + "running Configuration Wizard ...");
-			UI.Desktop.showConfigurationWizard();
+			try {
+				UI.Desktop.showDialog(new DialogConfigurationWizard());
+			} catch (PropertyVetoException pve) {
+				Logger.logWarning(pve.getMessage(), pve);
+			}
 		}
 	}
 }

@@ -5,9 +5,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 
+import org.dyndns.doujindb.conf.Configuration;
+
 @SuppressWarnings("serial")
 public abstract class DialogEx extends JInternalFrame
 {
+	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
+	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	
 	protected DialogEx(Icon icon, String title)
 	{
 		super();
@@ -38,10 +43,13 @@ public abstract class DialogEx extends JInternalFrame
 		JLabel labelTitle = new JLabel();
 		labelTitle.setIcon(icon);
 		labelTitle.setText(title);
+		labelTitle.setForeground(foreground);
+		labelTitle.setOpaque(true);
+		labelTitle.setBackground(background.darker());
 		gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.insets = new Insets(2,2,2,2);
+		gbc.insets = new Insets(1,1,1,1);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		super.add(labelTitle, gbc);
 		gbc = new GridBagConstraints();

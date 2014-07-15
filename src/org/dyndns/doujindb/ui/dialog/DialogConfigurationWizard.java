@@ -28,7 +28,6 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 	private JButton uiButtonBack;
 	private JButton uiButtonFinish;
 	private JButton uiButtonCanc;
-	private JLabel uiLabelHeader;
 	// STEP 1
 	private Dialog uiCompWelcome;
 	// STEP 2
@@ -78,10 +77,6 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 	public JComponent createComponent()
 	{
 		panel = new JPanel();
-		uiLabelHeader = new JLabel(UI.Icon.window_dialog_configwiz_header);
-		uiLabelHeader.setOpaque(true);
-		uiLabelHeader.setBackground(Color.WHITE);
-		panel.add(uiLabelHeader);
 		panel.add(uiCompWelcome = new DialogWelcome());
 		panel.add(uiCompDependency = new DialogDependency());
 		panel.add(uiCompDatabase = new DialogDatabase());
@@ -189,7 +184,6 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 	{
 		int width = parent.getWidth(),
 			height = parent.getHeight();
-		uiLabelHeader.setBounds(0,0,width,48);
 		uiBottomDivisor.setBounds(5,height-30,width-10,1);
 		uiButtonNext.setBounds(width-80,height-25,75,20);
 		uiButtonFinish.setBounds(width-80,height-25,75,20);
@@ -203,22 +197,22 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 		switch(fProgress)
 		{
 		case WELCOME:
-			uiCompWelcome.setBounds(5,50,width-10,height-85);
+			uiCompWelcome.setBounds(5,5,width-10,height-40);
 			break;
 		case DEPENDENCY:
-			uiCompDependency.setBounds(5,50,width-10,height-85);
+			uiCompDependency.setBounds(5,5,width-10,height-40);
 			uiCompDependency.doLayout();
 			break;
 		case DATABASE:
-			uiCompDatabase.setBounds(5,50,width-10,height-85);
+			uiCompDatabase.setBounds(5,5,width-10,height-40);
 			uiCompDatabase.doLayout();
 			break;
 		case DATASTORE:
-			uiCompDatastore.setBounds(5,50,width-10,height-85);
+			uiCompDatastore.setBounds(5,5,width-10,height-40);
 			uiCompDatastore.doLayout();
 			break;
 		case FINISH:
-			uiCompFinish.setBounds(5,50,width-10,height-85);
+			uiCompFinish.setBounds(5,5,width-10,height-40);
 			break;
 		}
 	}
@@ -685,14 +679,14 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			int labelLength = 85;
 			uiLabelDatabase.setBounds(0, 0, width, 40);
 			uiLabelDriver.setBounds(5,40,labelLength,20);
-			uiComboboxDriver.setBounds(labelLength+5,40,width-labelLength-5,20);
+			uiComboboxDriver.setBounds(labelLength+5,40,width-labelLength-10,20);
 			uiLabelURL.setBounds(5,60,labelLength,20);
-			uiTextURL.setBounds(labelLength+5,60,width-labelLength-5,20);
+			uiTextURL.setBounds(labelLength+5,60,width-labelLength-10,20);
 			uiLabelUsername.setBounds(5,80,labelLength,20);
-			uiTextUsername.setBounds(labelLength+5,80,width-labelLength-5,20);
+			uiTextUsername.setBounds(labelLength+5,80,width-labelLength-10,20);
 			uiLabelPassword.setBounds(5,100,labelLength,20);
-			uiTextPassword.setBounds(labelLength+5,100,width-labelLength-5,20);
-			uiLabelResult.setBounds(5,110,width-10,45);
+			uiTextPassword.setBounds(labelLength+5,100,width-labelLength-10,20);
+			uiLabelResult.setBounds(5,125,width-10,60);
 			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
 
@@ -820,7 +814,7 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			uiTextStore.setBounds(5,60,width-10,20);
 			uiLabelCache.setBounds(5,80,width-10,20);
 			uiTextCache.setBounds(5,100,width-10,20);
-			uiLabelResult.setBounds(5,110,width-10,45);
+			uiLabelResult.setBounds(5,125,width-10,60);
 			uiTest.setBounds(width/2-40,height-20,80,20);
 		}
 

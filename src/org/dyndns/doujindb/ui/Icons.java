@@ -146,6 +146,7 @@ public final class Icons
 	public final ImageIcon menubar_help = null;
 	public final ImageIcon menubar_help_about = null;
 	public final ImageIcon menubar_help_bugtrack = null;
+	public final ImageIcon menubar_help_update = null;
 	public final ImageIcon dialog_message = null;
 	public final ImageIcon dialog_warning = null;
 	public final ImageIcon dialog_error = null;

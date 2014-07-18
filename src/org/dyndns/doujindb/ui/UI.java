@@ -72,6 +72,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JMenu menuHelp;
 	private JMenuItem menuHelpAbout;
 	private JMenuItem menuHelpBugtrack;
+	private JMenuItem menuHelpUpdate;
 	
 	private static final String TAG = "UI : ";
 	
@@ -434,6 +435,36 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				uiPanelDesktopAdd.setEnabled(false);
 			}
 		});
+		
+		if((Boolean)Configuration.configRead("org.dyndns.doujindb.sys.check_updates"))
+		{
+			new SwingWorker<Void,Void>()
+			{
+				private boolean updateAvailable = false;
+				@Override
+				protected Void doInBackground() throws Exception {
+					URL updateURL = new URL("https://github.com/loli10K/doujindb/releases/latest");
+					HttpURLConnection httpConn = (HttpURLConnection) updateURL.openConnection();
+					httpConn.setInstanceFollowRedirects(false);
+					httpConn.connect();
+					String location = httpConn.getHeaderField("Location");
+					if(!location.endsWith(Core.class.getPackage().getSpecificationVersion()))
+						updateAvailable = true;
+					return null;
+				}
+				@Override
+				protected void done() {
+					if(!updateAvailable)
+						return;
+					menuHelpUpdate = new JMenuItem("Update",Icon.menubar_help_update);
+					menuHelpUpdate.setMnemonic(KeyEvent.VK_U);
+					menuHelpUpdate.setFont(Font);
+					menuHelpUpdate.addActionListener(UI.this);
+					menuHelp.addSeparator();
+					menuHelp.add(menuHelpUpdate);
+				}
+			}.execute();
+		}
 	}
 
 	@Override
@@ -540,6 +571,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 				desktop.browse(new URI("https://github.com/loli10K/doujindb/issues/new"));
+			} catch (IOException ioe) {
+				Logger.logError(TAG + ioe.getMessage(), ioe);
+			} catch (URISyntaxException use) {
+				Logger.logError(TAG + use.getMessage(), use);
+			}
+			return;
+		}
+		if(event.getSource() == menuHelpUpdate)
+		{
+			try
+			{
+				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+				desktop.browse(new URI("https://github.com/loli10K/doujindb/releases/latest"));
 			} catch (IOException ioe) {
 				Logger.logError(TAG + ioe.getMessage(), ioe);
 			} catch (URISyntaxException use) {

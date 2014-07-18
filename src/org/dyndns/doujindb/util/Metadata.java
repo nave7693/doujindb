@@ -42,11 +42,8 @@ public final class Metadata
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			m.marshal(xmlbook, out);
-			out.close();
 		} catch (JAXBException jaxbe) {
 			Logger.logError("Error writing XML metadata : " + jaxbe.getMessage(), jaxbe);
-		} catch (IOException ioe) {
-			Logger.logError("Error writing XML metadata : " + ioe.getMessage(), ioe);
 		}
 	}
 	

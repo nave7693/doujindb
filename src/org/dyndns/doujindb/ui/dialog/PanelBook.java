@@ -516,9 +516,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				public Void doInBackground() {
 					if(tokenBook.getID() != null)
 						try {
-							Metadata.toXML(tokenBook, DataStore.getMeta(tokenBook.getID()).getOutputStream());
-						} catch (DataStoreException dse) {
-							dse.printStackTrace();
+							OutputStream out = DataStore.getMeta(tokenBook.getID()).getOutputStream();
+							Metadata.toXML(tokenBook, out);
+							out.close();
+						} catch (DataStoreException | IOException e) {
+							e.printStackTrace();
 						}
 					if(DataBase.isAutocommit())
 						DataBase.doCommit();

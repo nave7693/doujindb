@@ -38,7 +38,7 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.dat.keep_cache",        "<html><body>Keep a local cache of cover files.</body></html>", true);
 		configAdd("org.dyndns.doujindb.dat.cache_dir",         "<html><body>Local cover cache directory.</body></html>", System.getProperty("java.io.tmpdir"));
 //		configAdd("org.dyndns.doujindb.net.listen_port",       "<html><body>Network port used to accept incoming connections.</body></html>", 1099);
-//		configAdd("org.dyndns.doujindb.sys.check_updates",     "<html><body>Whether to check if program updates are available.</body></html>", false);
+		configAdd("org.dyndns.doujindb.sys.check_updates",     "<html><body>Check if updates are available.</body></html>", true);
 		configAdd("org.dyndns.doujindb.log.debug",             "<html><body>Log debug messages.</body></html>", false);
 		configAdd("org.dyndns.doujindb.log.cayenne",           "<html><body>Cayenne logging.</body></html>", false);
 		configAdd("org.dyndns.doujindb.db.driver",             "<html><body>SQL Driver full qualified class name.</body></html>", "sql.jdbc.Driver");

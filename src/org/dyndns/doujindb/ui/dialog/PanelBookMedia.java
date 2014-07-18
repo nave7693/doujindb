@@ -23,6 +23,7 @@ import org.dyndns.doujindb.db.records.Book.*;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.dialog.util.*;
+import org.dyndns.doujindb.util.Metadata;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -794,10 +795,10 @@ public class PanelBookMedia extends JPanel
 						ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zip));
 						zout.setLevel(9);
 						// add metadata to zip files
-//						ZipEntry entry = new ZipEntry(".xml");
-//						zout.putNextEntry(entry);
-//						writeMetadata(book, zout);
-//						zout.closeEntry();
+						ZipEntry entry = new ZipEntry(".xml");
+						zout.putNextEntry(entry);
+						Metadata.toXML(tokenBook, zout);
+						zout.closeEntry();
 						// add actual files
 						doZip("", srcDataFile.listFiles(), zout);
 						zout.close();

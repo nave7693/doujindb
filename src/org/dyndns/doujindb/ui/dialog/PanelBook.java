@@ -32,7 +32,7 @@ import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
 import org.dyndns.doujindb.ui.dialog.util.list.*;
 import org.dyndns.doujindb.util.ImageTool;
-import org.dyndns.doujindb.util.RepositoryIndexer;
+import org.dyndns.doujindb.util.Metadata;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -516,7 +516,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				public Void doInBackground() {
 					if(tokenBook.getID() != null)
 						try {
-							RepositoryIndexer.index(tokenBook);
+							Metadata.toXML(tokenBook, DataStore.getMeta(tokenBook.getID()).getOutputStream());
 						} catch (DataStoreException dse) {
 							dse.printStackTrace();
 						}

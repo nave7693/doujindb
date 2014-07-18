@@ -31,7 +31,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	private JButton buttonWallpaper;
 	
 	private JButton m_ButtonTrash;
-	private JButton buttonTools;
 	
 	private Vector<JButton> buttonPlugins;
 	
@@ -106,27 +105,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			}
 		});
 		super.add(m_ButtonTrash);
-		buttonTools = new JButton(Icon.desktop_tools_enabled);
-		buttonTools.setDisabledIcon(Icon.desktop_tools_disabled);
-		buttonTools.setToolTipText("Tools");
-		buttonTools.setFocusable(false);
-		buttonTools.setEnabled(false);
-		buttonTools.setContentAreaFilled(false);
-		buttonTools.setBorder(null);
-		buttonTools.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae)
-			{
-				try {
-					showToolsWindow();
-				} catch (DataBaseException dbe) {
-					Logger.logError(dbe.getMessage(), dbe);
-					dbe.printStackTrace();
-				}
-			}
-		});
-		super.add(buttonTools);
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -136,7 +114,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				wallpaper.setBounds(0,0,wallpaperImage.getIconWidth(),wallpaperImage.getIconHeight());
 				setComponentZOrder(wallpaper,getComponentCount()-1);
 				m_ButtonTrash.setBounds(5,5,32,32);
-				buttonTools.setBounds(5+32,5,32,32);
 				int spacing = 0;
 				for(JButton plugin : buttonPlugins)
 				{
@@ -303,25 +280,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		if(checkWindow(WindowEx.Type.WINDOW_SEARCH))
 			return null;
 		WindowEx window = new WindowSearchImpl();
-		window.setBounds(0,0,450,450);
-		window.setMinimumSize(new Dimension(400, 350));
-		super.add(window);
-		try
-		{
-			window.setVisible(true);
-			window.setSelected(true);
-		} catch (PropertyVetoException pve)
-		{
-			Logger.logWarning(pve.getMessage(), pve);
-		}
-		return window;
-	}
-	
-	public WindowEx showToolsWindow() throws DataBaseException
-	{
-		if(checkWindow(WindowEx.Type.WINDOW_TOOLS))
-			return null;
-		WindowEx window = new WindowToolsImpl();
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
@@ -631,7 +589,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	public void databaseConnected()
 	{
 		m_ButtonTrash.setEnabled(true);
-		buttonTools.setEnabled(true);
 		for(JButton plugin : buttonPlugins)
 			plugin.setEnabled(true);
 		loadData();
@@ -641,7 +598,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	public void databaseDisconnected()
 	{
 		m_ButtonTrash.setEnabled(false);
-		buttonTools.setEnabled(false);
 		for(JButton plugin : buttonPlugins)
 			plugin.setEnabled(false);
 		new SwingWorker<Void, Object>()
@@ -1744,19 +1700,6 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		}
 	}
 	
-	private final class WindowToolsImpl extends WindowEx
-	{
-		WindowToolsImpl() throws DataBaseException
-		{
-			super();
-			this.type = Type.WINDOW_TOOLS;
-			super.setFrameIcon(Icon.desktop_explorer_tools);
-			super.setTitle("Tools");
-			//TODO org.dyndns.doujindb.util.RepositoryIndexer.rebuildIndexes();
-			super.setVisible(true);
-		}
-	}
-
 	private final class WindowPluginImpl extends WindowEx
 	{
 		private Plugin plugin;

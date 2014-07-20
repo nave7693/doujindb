@@ -127,6 +127,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							{
 								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
+								fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 								if(fc.showOpenDialog(PanelBook.this) != JFileChooser.APPROVE_OPTION)
 									return null;
 								BufferedImage image = null;

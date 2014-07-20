@@ -1524,15 +1524,10 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 						{
 							JFileChooser fc = FileChooser;
 							fc.setMultiSelectionEnabled(false);
-							int prev_option = fc.getFileSelectionMode();
 							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 							if(fc.showOpenDialog(Desktop) != JFileChooser.APPROVE_OPTION)
-							{
-								fc.setFileSelectionMode(prev_option);
 								return;
-							}
 							File file = fc.getSelectedFile();
-							fc.setFileSelectionMode(prev_option);
 							valueNew = file;
 							directory.setText(file.getAbsolutePath());
 						}

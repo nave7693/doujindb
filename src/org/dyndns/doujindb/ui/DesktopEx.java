@@ -61,6 +61,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 						{
 							JFileChooser fc = UI.FileChooser;
 							fc.setMultiSelectionEnabled(false);
+							fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 							if(fc.showOpenDialog(DesktopEx.this) != JFileChooser.APPROVE_OPTION)
 								return null;
 							File file = fc.getSelectedFile();

@@ -421,21 +421,16 @@ public final class DoujinshiDBScanner extends Plugin
 				try 
 				{
 					JFileChooser fc = UI.FileChooser;
-					int prev_option = fc.getFileSelectionMode();
-					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					fc.setMultiSelectionEnabled(true);
+					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					if(fc.showOpenDialog(PluginUI.this) != JFileChooser.APPROVE_OPTION)
-					{
-						fc.setFileSelectionMode(prev_option);
 						return;
-					}
 					final File files[] = fc.getSelectedFiles();
 					for(File file : files)
 					{
 						TaskManager.add(file);
 					}
 					m_PanelTasks.dataChanged();
-					fc.setFileSelectionMode(prev_option);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

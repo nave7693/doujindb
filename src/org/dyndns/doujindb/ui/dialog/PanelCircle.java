@@ -102,6 +102,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							{
 								JFileChooser fc = UI.FileChooser;
 								fc.setMultiSelectionEnabled(false);
+								fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 								if(fc.showOpenDialog(PanelCircle.this) != JFileChooser.APPROVE_OPTION)
 									return null;
 								BufferedImage image = null;

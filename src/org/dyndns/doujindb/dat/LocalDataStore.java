@@ -14,7 +14,7 @@ final class LocalDataStore implements IDataStore
 	
 	private static final String DATAFILE_ROOTFS = "local://";
 	private static final String DATAFILE_META = ".xml";
-	private static final String DATAFILE_COVER = ".preview";
+	private static final String DATAFILE_THUMBNAIL = ".thumb";
 	
 	@SuppressWarnings("unused")
 	private static final String TAG = "LocalDataStore : ";
@@ -37,7 +37,7 @@ final class LocalDataStore implements IDataStore
 	{
 		DataStore.checkOpen();
 		
-		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_COVER), bookId);
+		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_THUMBNAIL), bookId);
 	}
 
 	@Override
@@ -232,7 +232,7 @@ final class LocalDataStore implements IDataStore
 						return true;
 					if(name.equals(DATAFILE_META))
 						return false;
-					if(name.equals(DATAFILE_COVER))
+					if(name.equals(DATAFILE_THUMBNAIL))
 						return false;
 					if(name.matches(regexp))
 						return true;

@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.Artist;
 */
 public final class QueryArtist extends Query<Artist>
 {
-	public String ID = null;
+	public String Id = null;
 	public String JapaneseName = null;
 	public String RomajiName = null;
 	public String TranslatedName = null;

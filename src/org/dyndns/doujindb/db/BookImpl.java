@@ -378,13 +378,9 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 	}
 	
 	@Override
-	public synchronized String getID() throws DataBaseException
+	public synchronized Integer getId() throws DataBaseException
 	{
-		Integer ID = ((org.dyndns.doujindb.db.cayenne.Book)ref).getID();
-		if(ID == null)
-			return null;
-		else
-			return "B" + String.format("%08x", ID);
+		return ((org.dyndns.doujindb.db.cayenne.Book)ref).getID();
 	}
 	
 	@Override

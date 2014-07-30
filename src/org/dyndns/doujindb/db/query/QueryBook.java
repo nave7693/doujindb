@@ -12,7 +12,7 @@ import org.dyndns.doujindb.db.records.Content;
 */
 public final class QueryBook extends Query<Book>
 {
-	public String ID = null;
+	public String Id = null;
 	public String JapaneseName = null;
 	public String RomajiName = null;
 	public String TranslatedName = null;

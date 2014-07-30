@@ -17,9 +17,10 @@ abstract class RecordImpl implements Record, Serializable, Comparable<Record>
 	@Override
 	public synchronized int compareTo(Record o)
 	{
-		if(getID() == null || o.getID() == null)
-			return (""+super.hashCode()).compareTo(""+o.hashCode());
-		return this.getID().compareTo(o.getID());
+		if(getId() == null || o.getId() == null)
+			return ((Integer)super.hashCode()).compareTo(o.hashCode());
+		else
+			return this.getId().compareTo(o.getId());
 	}
 
 	@Override

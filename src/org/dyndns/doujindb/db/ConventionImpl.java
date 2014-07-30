@@ -141,13 +141,9 @@ final class ConventionImpl extends RecordImpl implements Convention, Serializabl
 	}
 	
 	@Override
-	public synchronized String getID() throws DataBaseException
+	public synchronized Integer getId() throws DataBaseException
 	{
-		Integer ID = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getID();
-		if(ID == null)
-			return null;
-		else
-			return "E" + String.format("%08x", ID);
+		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getID();
 	}
 	
 	@Override

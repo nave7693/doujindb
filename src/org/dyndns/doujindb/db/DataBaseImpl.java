@@ -59,8 +59,8 @@ final class DataBaseImpl extends IDataBase
 		List<Expression> list;
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
 		list.add(ExpressionFactory.likeExp("romajiName", 
@@ -73,8 +73,8 @@ final class DataBaseImpl extends IDataBase
 		queryArtistOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
 		list.add(ExpressionFactory.likeExp("romajiName", 
@@ -95,8 +95,8 @@ final class DataBaseImpl extends IDataBase
 		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
 		list.add(ExpressionFactory.likeExp("romajiName", 
@@ -109,8 +109,8 @@ final class DataBaseImpl extends IDataBase
 		queryCircleOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		List<Expression> conventionT = new ArrayList<Expression>();
 		conventionT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
 		conventionT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
@@ -121,8 +121,8 @@ final class DataBaseImpl extends IDataBase
 		queryConventionOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		List<Expression> contentT = new ArrayList<Expression>();
 		contentT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
 		contentT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));
@@ -131,8 +131,8 @@ final class DataBaseImpl extends IDataBase
 		queryContentOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("ID", 
-		         new ExpressionParameter("ID")));
+		list.add(ExpressionFactory.matchDbExp("Id", 
+		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
 		list.add(ExpressionFactory.likeExp("romajiName", 
@@ -319,7 +319,7 @@ final class DataBaseImpl extends IDataBase
 	        	tags.add(t.getTagName());
 	        ejbqlq.setParameter("TAGS", tags);
 	        ejbqlq.setParameter("TAG_COUNT", tags.size());
-	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
+	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("Id", context.performQuery(ejbqlq))));
 		}
 
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
@@ -728,37 +728,6 @@ final class DataBaseImpl extends IDataBase
 	private Map<String, Object> parseObject(Object o)
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
-		/**
-		 * Special case here: different types of records
-		 * put a letter in front of the ID.
-		 * Also if we are quering by ID we don't even consider other fields.
-		 * 
-		 * Artist		=> A
-		 * Book			=> B
-		 * Circle		=> C
-		 * Content		=> T
-		 * Convention	=> E
-		 * Parody		=> P
-		 */
-		Field id;
-		try {
-			id = o.getClass().getField("ID");
-			if(id.get(o) != null)
-			{
-				map.put("ID", Integer.parseInt(id.get(o).toString().substring(1), 16));
-				return map;
-			}
-		} catch (NoSuchFieldException scfe) {
-			scfe.printStackTrace();
-		} catch (SecurityException se) {
-			se.printStackTrace();
-		} catch (NumberFormatException nfe) {
-			nfe.printStackTrace();
-		} catch (IllegalArgumentException iae) {
-			iae.printStackTrace();
-		} catch (IllegalAccessException iae) {
-			iae.printStackTrace();
-		}
 		for(Field field : o.getClass().getFields())
 			try {
 				Object value = field.get(o);

@@ -9,7 +9,7 @@ import org.dyndns.doujindb.db.records.Convention;
 */
 public final class QueryConvention extends Query<Convention>
 {
-	public String ID = null;
+	public String Id = null;
 	public String TagName = null;
 	public String Weblink = null;
 }

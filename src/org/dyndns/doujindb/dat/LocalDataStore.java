@@ -25,11 +25,11 @@ final class LocalDataStore implements IDataStore
 	}
 	
 	@Override
-	public DataFile getMeta(String bookId) throws DataStoreException
+	public DataFile.MetaData getMetadata(String bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		
-		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_META));
+		return new DataFile.MetaData(){};
 	}
 
 	@Override

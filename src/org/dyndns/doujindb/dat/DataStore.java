@@ -43,11 +43,11 @@ public final class DataStore
 			throw new DataStoreException("DataStore is closed.");
 	}
 	
-	public static DataFile getMeta(String bookId) throws DataStoreException
+	public static DataFile.MetaData getMetadata(String bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getMeta(" + bookId + ")");
 		checkOpen();
-		return instance.getMeta(bookId);
+		return instance.getMetadata(bookId);
 	}
 	
 	public static DataFile getThumbnail(String bookId) throws DataStoreException

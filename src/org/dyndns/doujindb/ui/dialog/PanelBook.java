@@ -515,14 +515,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			new SwingWorker<Void, Object>() {
 				@Override
 				public Void doInBackground() {
-					if(tokenBook.getID() != null)
-						try {
-							OutputStream out = DataStore.getMeta(tokenBook.getID()).getOutputStream();
-							Metadata.toXML(tokenBook, out);
-							out.close();
-						} catch (DataStoreException | IOException e) {
-							e.printStackTrace();
-						}
 					if(DataBase.isAutocommit())
 						DataBase.doCommit();
 					if(tokenBook.getID() != null)

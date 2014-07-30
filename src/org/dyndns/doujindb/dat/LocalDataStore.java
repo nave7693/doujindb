@@ -25,6 +25,23 @@ final class LocalDataStore implements IDataStore
 		this.rootPath = rootPath;
 	}
 	
+	private File mapIdStore(Integer recordId, String prefix)
+	{
+		/**
+		 * Root-Path
+		 *  - 00
+		 *     - B00000000
+		 *     - B00000100
+		 *     - B00000200
+		 *  - 01
+		 *     - B00000001
+		 *  ...
+		 *  - ff
+		 *     - B000000ff
+		 */
+		return new File(new File(rootPath, new Integer(recordId % 256).toString()), String.format("%s%08x", prefix, recordId));
+	}
+	
 	@Override
 	public DataFile.MetaData getMetadata(Integer bookId) throws DataStoreException
 	{
@@ -38,7 +55,9 @@ final class LocalDataStore implements IDataStore
 	{
 		DataStore.checkOpen();
 		
-		return new LocalDataFile(new File(new File(rootPath, bookId), DATAFILE_THUMBNAIL), bookId);
+		File store = mapIdStore(bookId, "B");
+		
+		return new LocalDataFile(new File(store, DATAFILE_THUMBNAIL), store.getName());
 	}
 	
 	@Override
@@ -46,15 +65,18 @@ final class LocalDataStore implements IDataStore
 	{
 		DataStore.checkOpen();
 		
-		return new LocalDataFile(new File(new File(rootPath, circleId), DATAFILE_BANNER), circleId);
-	}
+		File store = mapIdStore(circleId, "C");
+		
+		return new LocalDataFile(new File(store, DATAFILE_BANNER), store.getName());	}
 
 	@Override
 	public DataFile getStore(Integer bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		
-		return new LocalDataFile(new File(rootPath, bookId));
+		File store = mapIdStore(bookId, "B");
+		
+		return new LocalDataFile(store);
 	}
 	
 	private final class LocalDataFile implements DataFile, Comparable<DataFile>

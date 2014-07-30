@@ -93,7 +93,7 @@ public final class DataStore
 			for(File file : srcPath.listFiles())
 				fromFile(file, dataFile);
 		} else {
-			Files.copy(srcPath.toPath(), dataFile.getOutputStream());
+			Files.copy(srcPath.toPath(), dataFile.openOutputStream());
 		}
 	}
 	
@@ -126,7 +126,7 @@ public final class DataStore
 			for(DataFile dataFile : srcPath.listFiles())
 				toFile(dataFile, file);
 		} else {
-			Files.copy(srcPath.getInputStream(), file.toPath());
+			Files.copy(srcPath.openInputStream(), file.toPath());
 		}
 	}
 	

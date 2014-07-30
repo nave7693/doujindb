@@ -1000,7 +1000,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						try {
 							bookButton = new JButton(
 							new ImageIcon(
-								ImageTool.read(DataStore.getThumbnail(o.getID()).getInputStream())));
+								ImageTool.read(DataStore.getThumbnail(o.getID()).openInputStream())));
 						} catch (DataStoreException dse) {
 							bookButton = new JButton(Icon.desktop_explorer_book_cover);
 						}

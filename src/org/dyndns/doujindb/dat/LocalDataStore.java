@@ -142,7 +142,7 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public InputStream getInputStream() throws DataStoreException
+		public InputStream openInputStream() throws DataStoreException
 		{
 			DataStore.checkOpen();
 			
@@ -168,7 +168,7 @@ final class LocalDataStore implements IDataStore
 		}
 
 		@Override
-		public OutputStream getOutputStream() throws DataStoreException
+		public OutputStream openOutputStream() throws DataStoreException
 		{
 			DataStore.checkOpen();
 			

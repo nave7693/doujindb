@@ -117,7 +117,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								try {
 									DataStore.getFile(tokenCircle.getID()).mkdirs();
 									DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
-									OutputStream out = banner.getOutputStream();
+									OutputStream out = banner.openOutputStream();
 									Graphics2D graphics2D = resized_image.createGraphics();
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 									graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -345,7 +345,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 					if(tokenCircle.getID() == null)
 						return null;
 					DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
-					InputStream in = banner.getInputStream();
+					InputStream in = banner.openInputStream();
 					labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelBanner.setName("banner");
 					in.close();

@@ -1048,7 +1048,7 @@ public final class DoujinshiDBScanner extends Plugin
 									// Load images from local DataStore
 									ImageIcon ii = new ImageIcon(
 										ImageTool.read(
-											DataStore.getThumbnail(id).getInputStream()));
+											DataStore.getThumbnail(id).openInputStream()));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
 									data.put("imageicon", ii);

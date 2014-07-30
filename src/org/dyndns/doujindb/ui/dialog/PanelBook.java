@@ -141,7 +141,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								try {
 									DataStore.getFile(tokenBook.getID()).mkdirs();
 									DataFile cover = DataStore.getThumbnail(tokenBook.getID());
-									OutputStream out = cover.getOutputStream();
+									OutputStream out = cover.openOutputStream();
 									ImageTool.write(image = ImageTool.getScaledInstance(image, 256, 256, true), out);
 									
 									final ImageIcon ii = new ImageIcon(image);
@@ -563,7 +563,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 					if(tokenBook.getID() == null)
 						return null;
 					DataFile cover = DataStore.getThumbnail(tokenBook.getID());
-					InputStream in = cover.getInputStream();
+					InputStream in = cover.openInputStream();
 					labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelPreview.setName("preview");
 					in.close();

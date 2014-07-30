@@ -92,7 +92,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 			try {
 				bookButton = new JButton(
 					new ImageIcon(
-						ImageTool.read(DataStore.getThumbnail(bookId).getInputStream())));
+						ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
 				bookButton.setName(bookId);
 				bookButton.setActionCommand(bookId);
 				bookButton.addActionListener(this);

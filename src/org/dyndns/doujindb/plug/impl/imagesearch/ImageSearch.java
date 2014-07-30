@@ -368,7 +368,7 @@ public final class ImageSearch extends Plugin
 						if(CacheManager.contains(book.getID()) && !cache_overwrite)
 							continue;
 						
-						bi = ImageTool.read(DataStore.getThumbnail(book.getID()).getInputStream());
+						bi = ImageTool.read(DataStore.getThumbnail(book.getID()).openInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
 						CacheManager.put(book.getID(), bi);
@@ -456,7 +456,7 @@ public final class ImageSearch extends Plugin
 						{
 							JButton button;
 							try {
-								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).getInputStream())));
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).openInputStream())));
 							} catch (DataStoreException dse) {
 								button = new JButton(fIcons.search_missing);
 							}
@@ -485,7 +485,7 @@ public final class ImageSearch extends Plugin
 						{
 							JButton button;
 							try {
-								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).getInputStream())));
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).openInputStream())));
 							} catch (DataStoreException dse) {
 								button = new JButton(fIcons.search_missing);
 							}

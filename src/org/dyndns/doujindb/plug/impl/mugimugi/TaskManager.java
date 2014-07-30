@@ -669,7 +669,7 @@ final class TaskManager
 				for(String dupe : duplicateList) {
 					long bytesBook = DataStore.diskUsage(DataStore.getFile(dupe));
 					long pagesBook = DataStore.listFiles(DataStore.getFile(dupe)).length;
-					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getFile(dupe)).getInputStream());
+					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getFile(dupe)).openInputStream());
 					String resBook = biBook.getWidth() + "x" + biBook.getHeight();
 					if(bytesNew > bytesBook)
 						higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
@@ -1052,7 +1052,7 @@ final class TaskManager
 		}
 		try {
 			DataFile df = DataStore.getThumbnail(task.getBook());
-			OutputStream out = df.getOutputStream();
+			OutputStream out = df.openOutputStream();
 			BufferedImage image = ImageTool.read(reqFile);
 			ImageTool.write(ImageTool.getScaledInstance(image, 256, 256, true), out);
 			out.close();
@@ -1071,7 +1071,7 @@ final class TaskManager
 		try {
 			CacheManager.put(id, (BufferedImage) new ImageIcon(
 				ImageTool.read(
-						DataStore.getThumbnail(id).getInputStream())).getImage());
+						DataStore.getThumbnail(id).openInputStream())).getImage());
 		} catch (IOException | ClassCastException | DataStoreException e) {
 			throw new TaskErrorException("Error adding book to cache : " + e.getMessage());
 		}

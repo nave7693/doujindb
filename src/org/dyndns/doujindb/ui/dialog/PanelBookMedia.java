@@ -608,7 +608,7 @@ public class PanelBookMedia extends JPanel
 					doUpload(file, dst);
 			} else {
 				dst.touch();
-				OutputStream out = dst.getOutputStream();
+				OutputStream out = dst.openOutputStream();
 				InputStream in = new FileInputStream(up);
 				byte[] buff = new byte[0x800];
 				int read;
@@ -715,7 +715,7 @@ public class PanelBookMedia extends JPanel
 					doDownload(file, dst);
 			} else {
 				OutputStream out = new FileOutputStream(dst);
-				InputStream in = dw.getInputStream();
+				InputStream in = dw.openInputStream();
 				byte[] buff = new byte[0x800];
 				int read;
 				while((read = in.read(buff)) != -1)
@@ -841,7 +841,7 @@ public class PanelBookMedia extends JPanel
 					entry.setMethod(ZipEntry.DEFLATED);
 					try
 					{
-						InputStream in = ds.getInputStream();
+						InputStream in = ds.openInputStream();
 						zout.putNextEntry(entry);
 						while ((read = in.read(buff)) != -1)
 						{

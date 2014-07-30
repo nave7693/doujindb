@@ -12,8 +12,8 @@ public interface DataFile
 	public boolean canWrite() throws DataStoreException;	
 	public long length() throws DataStoreException;
 	public String size() throws DataStoreException;
-	public InputStream getInputStream() throws DataStoreException;
-	public OutputStream getOutputStream() throws DataStoreException;	
+	public InputStream openInputStream() throws DataStoreException;
+	public OutputStream openOutputStream() throws DataStoreException;	
 	public DataFile[] listFiles() throws DataStoreException;
 	public DataFile[] listFiles(String regexp) throws DataStoreException;
 	public DataFile getFile(String name) throws DataStoreException;

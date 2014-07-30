@@ -59,14 +59,14 @@ abstract class Task
 	private String warning;
 	
 	@XmlElement(name="mugimugiBId")
-	private String mugimugi_bid;
+	private Integer mugimugi_bid;
 	@XmlElement(name="taskBook")
-	private String book;
+	private Integer book;
 	
 	@XmlElement(name="duplicateList")
-	private Set<String> duplicate_list;
+	private Set<Integer> duplicate_list;
 	@XmlElement(name="mugimugiList")
-	private Set<String> mugimugi_list;
+	private Set<Integer> mugimugi_list;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -121,35 +121,35 @@ abstract class Task
 		return path;
 	}
 	
-	public String getBook() {
+	public Integer getBook() {
 		return book;
 	}
 	
-	protected void setBook(String book) {
+	protected void setBook(Integer book) {
 		this.book = book;
 	}
 	
-	public String getMugimugiBid() {
+	public Integer getMugimugiBid() {
 		return mugimugi_bid;
 	}
 	
-	protected void setMugimugiBid(String mugimugi_bid) {
+	protected void setMugimugiBid(Integer mugimugi_bid) {
 		this.mugimugi_bid = mugimugi_bid;
 	}
 	
-	public Set<String> getDuplicatelist() {
+	public Set<Integer> getDuplicatelist() {
 		return duplicate_list;
 	}
 
-	protected void setDuplicateList(Set<String> duplicate_list) {
+	protected void setDuplicateList(Set<Integer> duplicate_list) {
 		this.duplicate_list = duplicate_list;
 	}
 	
-	public Set<String> getMugimugiList() {
+	public Set<Integer> getMugimugiList() {
 		return mugimugi_list;
 	}
 
-	protected void setMugimugiList(Set<String> mugimugi_list) {
+	protected void setMugimugiList(Set<Integer> mugimugi_list) {
 		this.mugimugi_list = mugimugi_list;
 	}
 	

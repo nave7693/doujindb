@@ -10,12 +10,12 @@ import org.dyndns.doujindb.util.ImageTool;
 @SuppressWarnings("unchecked")
 public final class CacheManager
 {
-	private static Map<String, ImageSignature> fCacheData;
+	private static Map<Integer, ImageSignature> fCacheData;
 	private static File fCacheFile = ImageSearch.PLUGIN_IMAGEINDEX;
 	
 	static
 	{
-		fCacheData = new TreeMap<String, ImageSignature>();
+		fCacheData = new TreeMap<Integer, ImageSignature>();
 		read();
 	}
 	
@@ -36,7 +36,7 @@ public final class CacheManager
 			try {
 				ObjectInputStream ois = new ObjectInputStream(
 						new FileInputStream(fCacheFile));
-				fCacheData = (TreeMap<String, ImageSignature>) ois.readObject();
+				fCacheData = (TreeMap<Integer, ImageSignature>) ois.readObject();
 				ois.close();
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
@@ -44,7 +44,7 @@ public final class CacheManager
 				cnfe.printStackTrace();
 			}
 			if(fCacheData == null)
-				fCacheData = new TreeMap<String, ImageSignature>();
+				fCacheData = new TreeMap<Integer, ImageSignature>();
 		}
 	}
 	
@@ -52,40 +52,40 @@ public final class CacheManager
 		return fCacheData.size();
 	}
 
-	public static Set<String> keys() {
+	public static Set<Integer> keys() {
 		return fCacheData.keySet();
 	}
 
-	public static void put(String id, BufferedImage bi) {
+	public static void put(Integer id, BufferedImage bi) {
 		synchronized(fCacheData) {
 			fCacheData.put(id, new ImageSignature(bi));
 		}
 	}
 	
-	public static void remove(String id) {
+	public static void remove(Integer id) {
 		synchronized(fCacheData) {
 			fCacheData.remove(id);
 		}
 	}
 	
-	public static ImageSignature get(String id) {
+	public static ImageSignature get(Integer id) {
 		return fCacheData.get(id);
 	}
 
-	public static boolean contains(String id) {
+	public static boolean contains(Integer id) {
 		return fCacheData.containsKey(id);
 	}
 	
-	public static String search(BufferedImage bi) {
-		TreeMap<Double, String> result = search(bi, 1);
+	public static Integer search(BufferedImage bi) {
+		TreeMap<Double, Integer> result = search(bi, 1);
 		if(result.isEmpty())
 			return null;
 		else
 			return result.firstEntry().getValue();
 	}
 	
-	public static TreeMap<Double, String> search(BufferedImage bi, int count) {
-		TreeMap<Double, String> result = new TreeMap<Double, String>(new Comparator<Double>() {
+	public static TreeMap<Double, Integer> search(BufferedImage bi, int count) {
+		TreeMap<Double, Integer> result = new TreeMap<Double, Integer>(new Comparator<Double>() {
 			@Override
 			public int compare(Double a, Double b)
 			{
@@ -96,7 +96,7 @@ public final class CacheManager
 		ImageSignature ims = new ImageSignature(
 			ImageTool.getScaledInstance(bi, 256, 256, true));
 		
-		for(String key : keys()) {
+		for(Integer key : keys()) {
 			ImageSignature value = get(key);
 			double diff = ims.diff(value);
 			if(diff > ImageSearch.fThreshold) {
@@ -118,7 +118,7 @@ public final class CacheManager
 	public static void dump() {
 		File folder = new File(ImageSearch.PLUGIN_HOME, "imageindex");
 		folder.mkdirs();
-		for(String key : fCacheData.keySet()) {
+		for(Integer key : fCacheData.keySet()) {
 			ImageSignature ims = fCacheData.get(key);
 			File file = new File(folder, key + ".png");
 			try {

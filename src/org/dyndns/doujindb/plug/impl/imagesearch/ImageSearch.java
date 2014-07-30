@@ -365,13 +365,13 @@ public final class ImageSearch extends Plugin
 						
 					BufferedImage bi;
 					try {
-						if(CacheManager.contains(book.getID()) && !cache_overwrite)
+						if(CacheManager.contains(book.getId()) && !cache_overwrite)
 							continue;
 						
-						bi = ImageTool.read(DataStore.getThumbnail(book.getID()).openInputStream());
+						bi = ImageTool.read(DataStore.getThumbnail(book.getId()).openInputStream());
 						bi = ImageTool.getScaledInstance(bi, 256, 256, true);
 						
-						CacheManager.put(book.getID(), bi);
+						CacheManager.put(book.getId(), bi);
 						
 						publish(m_ProgressBarCache.getValue()+1);
 						
@@ -446,17 +446,17 @@ public final class ImageSearch extends Plugin
 					
 					m_ButtonScanPreview.setIcon(new ImageIcon(bi));
 					
-					TreeMap<Double, String> result = CacheManager.search(bi, max_results);
+					TreeMap<Double, Integer> result = CacheManager.search(bi, max_results);
 					
 					boolean first_result = false;
 					for(double index : result.keySet())
 					{
-						final String book_id = result.get(index);
+						final Integer bookId = result.get(index);
 						if(!first_result)
 						{
 							JButton button;
 							try {
-								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).openInputStream())));
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
 							} catch (DataStoreException dse) {
 								button = new JButton(fIcons.search_missing);
 							}
@@ -470,7 +470,7 @@ public final class ImageSearch extends Plugin
 										protected Void doInBackground() throws Exception
 										{
 											QueryBook qid = new QueryBook();
-											qid.ID = book_id;
+											qid.Id = bookId;
 											RecordSet<Book> set = DataBase.getBooks(qid);
 											if(set.size() == 1)
 												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
@@ -485,7 +485,7 @@ public final class ImageSearch extends Plugin
 						{
 							JButton button;
 							try {
-								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(book_id).openInputStream())));
+								button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
 							} catch (DataStoreException dse) {
 								button = new JButton(fIcons.search_missing);
 							}
@@ -499,7 +499,7 @@ public final class ImageSearch extends Plugin
 										protected Void doInBackground() throws Exception
 										{
 											QueryBook qid = new QueryBook();
-											qid.ID = book_id;
+											qid.Id = bookId;
 											RecordSet<Book> set = DataBase.getBooks(qid);
 											if(set.size() == 1)
 												UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());

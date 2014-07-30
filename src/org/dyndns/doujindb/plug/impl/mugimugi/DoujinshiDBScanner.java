@@ -1041,7 +1041,7 @@ public final class DoujinshiDBScanner extends Plugin
 					{
 						if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
 						{
-							for(String id : m_Task.getDuplicatelist())
+							for(Integer id : m_Task.getDuplicatelist())
 							{
 								try
 								{
@@ -1058,7 +1058,7 @@ public final class DoujinshiDBScanner extends Plugin
 						}
 						if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
 						{
-							for(String id : m_Task.getMugimugiList())
+							for(Integer id : m_Task.getMugimugiList())
 							{
 								try
 								{
@@ -1078,11 +1078,11 @@ public final class DoujinshiDBScanner extends Plugin
 					{
 						for(Map<String,Object> data : chunks)
 						{
-							final String id = (String) data.get("id");
+							final Integer id = (Integer) data.get("id");
 							final ImageIcon imageicon = (ImageIcon) data.get("imageicon");
 							
 							JButton button = new JButton(imageicon);
-							button.setActionCommand(id);
+							button.setActionCommand(id.toString());
 							button.setFocusable(false);
 							if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
 							{
@@ -1097,7 +1097,7 @@ public final class DoujinshiDBScanner extends Plugin
 											protected Void doInBackground() throws Exception
 											{
 												QueryBook qid = new QueryBook();
-												qid.ID = id;
+												qid.Id = id;
 												RecordSet<Book> set = DataBase.getBooks(qid);
 												if(set.size() == 1)
 													UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
@@ -1116,8 +1116,7 @@ public final class DoujinshiDBScanner extends Plugin
 									@Override
 									public void actionPerformed(ActionEvent ae) {
 										try {
-											int bid = Integer.parseInt(id.substring(1));
-											URI uri = new URI(DoujinshiDBScanner.DOUJINSHIDB_URL + "book/" + bid + "/");
+											URI uri = new URI(DoujinshiDBScanner.DOUJINSHIDB_URL + "book/" + id + "/");
 											Desktop.getDesktop().browse(uri);
 										} catch (URISyntaxException urise) {
 											urise.printStackTrace();
@@ -1314,11 +1313,11 @@ public final class DoujinshiDBScanner extends Plugin
 					{
 						@Override
 						protected Void doInBackground() throws Exception {
-							String bookid = m_Task.getBook();
+							Integer bookid = m_Task.getBook();
 							if(bookid != null)
 							{
 								QueryBook qid = new QueryBook();
-								qid.ID = bookid;
+								qid.Id = bookid;
 								RecordSet<Book> set = DataBase.getBooks(qid);
 								if(set.size() == 1)
 									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
@@ -1330,7 +1329,7 @@ public final class DoujinshiDBScanner extends Plugin
 				}
 				if(ae.getSource() == m_ButtonImportBID)
 				{
-					m_Task.setMugimugiBid(m_ButtonImportBID.getActionCommand());
+					m_Task.setMugimugiBid(Integer.parseInt(m_ButtonImportBID.getActionCommand()));
 					m_Task.setInfo(Task.Info.IDLE);
 					return;
 				}

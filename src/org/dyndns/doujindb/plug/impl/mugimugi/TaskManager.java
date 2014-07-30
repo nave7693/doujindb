@@ -634,7 +634,7 @@ final class TaskManager
 		
 		File reqFile;
 		BufferedImage reqImage;
-		String searchResult;
+		Integer searchResult;
 		
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		try {
@@ -647,14 +647,14 @@ final class TaskManager
 		}
 		searchResult = CacheManager.search(reqImage);
 		if(searchResult != null) {
-			Set<String> duplicateList = new HashSet<String>();
+			Set<Integer> duplicateList = new HashSet<Integer>();
 			duplicateList.add(searchResult);
 			task.setDuplicateList(duplicateList);
 			
 			String japanLang = "";
 			try {
-				for(String dupe : duplicateList) {
-					if(DataStore.getFile(dupe).getFile("@japanese").exists())
+				for(Integer dupe : duplicateList) {
+					if(DataStore.getStore(dupe).getFile("@japanese").exists())
 						continue;
 					japanLang = " (missing japanese language)";
 				}
@@ -666,10 +666,10 @@ final class TaskManager
 				long pagesNew = DataStore.listFiles(new File(task.getPath())).length;
 				BufferedImage biNew = javax.imageio.ImageIO.read(new FileInputStream(findFile(new File(task.getPath()))));
 				String resNew = biNew.getWidth() + "x" + biNew.getHeight();
-				for(String dupe : duplicateList) {
-					long bytesBook = DataStore.diskUsage(DataStore.getFile(dupe));
-					long pagesBook = DataStore.listFiles(DataStore.getFile(dupe)).length;
-					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getFile(dupe)).openInputStream());
+				for(Integer dupe : duplicateList) {
+					long bytesBook = DataStore.diskUsage(DataStore.getStore(dupe));
+					long pagesBook = DataStore.listFiles(DataStore.getStore(dupe)).length;
+					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream());
 					String resBook = biBook.getWidth() + "x" + biBook.getHeight();
 					if(bytesNew > bytesBook)
 						higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
@@ -727,10 +727,10 @@ final class TaskManager
 			pcs.firePropertyChange("api-info", 0, 1);
 			
 			double bestResult = 0;
-			Set<String> mugimugi_list = new HashSet<String>();
+			Set<Integer> mugimugi_list = new HashSet<Integer>();
 			for(XMLParser.XML_Book book : list.Books) {
 				mugimugi_list.add(book.ID);
-				fetchImage(Long.valueOf(book.ID.substring(1)));
+				fetchImage(book.ID);
 				double result = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
 				if(result > bestResult) {
 					bestResult = result;
@@ -799,9 +799,9 @@ final class TaskManager
 					books.add(b);
 			}
 			if(!books.isEmpty()) {
-				Set<String> duplicateList = new HashSet<String>();
+				Set<Integer> duplicateList = new HashSet<Integer>();
 				for(Book _book : books)
-					duplicateList.add(_book.getID());
+					duplicateList.add(_book.getId());
 				task.setDuplicateList(duplicateList);
 				throw new TaskWarningException("Possible duplicate book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
 			}
@@ -1021,7 +1021,7 @@ final class TaskManager
 			
 			DataBase.doCommit();
 			
-			task.setBook(book.getID());
+			task.setBook(book.getId());
 			
 		} catch (NullPointerException |
 				JAXBException |
@@ -1046,7 +1046,7 @@ final class TaskManager
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		
 		try {
-			DataStore.fromFile(basepath, DataStore.getFile(task.getBook()), true);
+			DataStore.fromFile(basepath, DataStore.getStore(task.getBook()), true);
 		} catch (DataBaseException | IOException | DataStoreException e) {
 			throw new TaskErrorException("Error copying '" + basepath + "' in  DataStore : " + e.getMessage());
 		}
@@ -1067,7 +1067,7 @@ final class TaskManager
 	{
 		task.setExec(Task.Exec.CLEANUP_DATA);
 		
-		String id = task.getBook();
+		Integer id = task.getBook();
 		try {
 			CacheManager.put(id, (BufferedImage) new ImageIcon(
 				ImageTool.read(

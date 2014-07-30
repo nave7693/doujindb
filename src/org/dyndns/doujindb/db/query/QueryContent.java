@@ -9,6 +9,6 @@ import org.dyndns.doujindb.db.records.Content;
 */
 public final class QueryContent extends Query<Content>
 {
-	public String Id = null;
+	public Integer Id = null;
 	public String TagName = null;
 }

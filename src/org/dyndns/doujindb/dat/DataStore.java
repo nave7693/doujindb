@@ -45,7 +45,7 @@ public final class DataStore
 	
 	public static DataFile.MetaData getMetadata(String bookId) throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call getMeta(" + bookId + ")");
+		Logger.logDebug(TAG + "call getMetadata(" + bookId + ")");
 		checkOpen();
 		return instance.getMetadata(bookId);
 	}

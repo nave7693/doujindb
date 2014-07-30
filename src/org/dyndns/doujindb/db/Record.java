@@ -7,7 +7,7 @@ package org.dyndns.doujindb.db;
 */
 public interface Record
 {
-	public String getID() throws DataBaseException;
+	public Integer getId() throws DataBaseException;
 	public void doRecycle() throws DataBaseException;
 	public void doRestore() throws DataBaseException;
 	public boolean isRecycled() throws DataBaseException;

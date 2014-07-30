@@ -57,11 +57,11 @@ public final class DataStore
 		return instance.getThumbnail(bookId);
 	}
 	
-	public static DataFile getFile(String bookId) throws DataStoreException
+	public static DataFile getStore(String bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getFile(" + bookId + ")");
 		checkOpen();
-		return instance.getFile(bookId);
+		return instance.getStore(bookId);
 	}
 	
 	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException

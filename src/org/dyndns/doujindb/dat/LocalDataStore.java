@@ -41,7 +41,7 @@ final class LocalDataStore implements IDataStore
 	}
 
 	@Override
-	public DataFile getFile(String bookId) throws DataStoreException
+	public DataFile getStore(String bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		

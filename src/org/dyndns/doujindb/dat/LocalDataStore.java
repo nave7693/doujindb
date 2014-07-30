@@ -26,7 +26,7 @@ final class LocalDataStore implements IDataStore
 	}
 	
 	@Override
-	public DataFile.MetaData getMetadata(String bookId) throws DataStoreException
+	public DataFile.MetaData getMetadata(Integer bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		
@@ -34,7 +34,7 @@ final class LocalDataStore implements IDataStore
 	}
 
 	@Override
-	public DataFile getThumbnail(String bookId) throws DataStoreException
+	public DataFile getThumbnail(Integer bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		
@@ -42,7 +42,7 @@ final class LocalDataStore implements IDataStore
 	}
 	
 	@Override
-	public DataFile getBanner(String circleId) throws DataStoreException
+	public DataFile getBanner(Integer circleId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		
@@ -50,7 +50,7 @@ final class LocalDataStore implements IDataStore
 	}
 
 	@Override
-	public DataFile getStore(String bookId) throws DataStoreException
+	public DataFile getStore(Integer bookId) throws DataStoreException
 	{
 		DataStore.checkOpen();
 		

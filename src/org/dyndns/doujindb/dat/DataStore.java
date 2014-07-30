@@ -43,28 +43,28 @@ public final class DataStore
 			throw new DataStoreException("DataStore is closed.");
 	}
 	
-	public static DataFile.MetaData getMetadata(String bookId) throws DataStoreException
+	public static DataFile.MetaData getMetadata(Integer bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getMetadata(" + bookId + ")");
 		checkOpen();
 		return instance.getMetadata(bookId);
 	}
 	
-	public static DataFile getThumbnail(String bookId) throws DataStoreException
+	public static DataFile getThumbnail(Integer bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getThumbnail(" + bookId + ")");
 		checkOpen();
 		return instance.getThumbnail(bookId);
 	}
 	
-	public static DataFile getBanner(String circleId) throws DataStoreException
+	public static DataFile getBanner(Integer circleId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getBanner(" + circleId + ")");
 		checkOpen();
 		return instance.getBanner(circleId);
 	}
 	
-	public static DataFile getStore(String bookId) throws DataStoreException
+	public static DataFile getStore(Integer bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getFile(" + bookId + ")");
 		checkOpen();

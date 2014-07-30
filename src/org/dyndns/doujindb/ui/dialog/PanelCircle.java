@@ -55,7 +55,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{
-		tokenCircle = token;
+		tokenCircle = (token == null ? new NullCircle() : token);
 		super.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -444,4 +444,96 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	
 	@Override
 	public void databaseRollback() {}
+	
+	private final class NullCircle implements Circle
+	{
+		@Override
+		public Integer getId() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Book> getBooks() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public String getJapaneseName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getTranslatedName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getRomajiName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getWeblink() throws DataBaseException { return ""; }
+
+		@Override
+		public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+		@Override
+		public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+		@Override
+		public void setRomajiName(String romajiName) throws DataBaseException { }
+
+		@Override
+		public void setWeblink(String weblink) throws DataBaseException { }
+		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Artist> getArtists() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addArtist(Artist artist) throws DataBaseException { }
+		
+		@Override
+		public void addBook(Book book) throws DataBaseException { }
+
+		@Override
+		public void removeArtist(Artist artist) throws DataBaseException { }
+		
+		@Override
+		public void removeBook(Book book) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
+	}
 }

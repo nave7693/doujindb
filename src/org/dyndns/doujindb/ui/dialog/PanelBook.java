@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -25,6 +27,7 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
@@ -79,7 +82,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	
 	public PanelBook(Book token) throws DataBaseException
 	{
-		tokenBook = token;		
+		tokenBook = (token == null ? new NullBook() : token);
 		super.setLayout(this);
 		tabLists = new JTabbedPane();
 		tabLists.setFocusable(false);
@@ -678,4 +681,200 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	
 	@Override
 	public void databaseRollback() {}
+	
+	private final class NullBook implements Book
+	{
+		@Override
+		public Integer getId() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@Override
+		public String getJapaneseName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getTranslatedName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getRomajiName() throws DataBaseException { return ""; }
+
+		@Override
+		public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+		@Override
+		public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+		@Override
+		public void setRomajiName(String romajiName) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Circle> getCircles() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public Date getDate() throws DataBaseException { return new Date(); }
+
+		@Override
+		public Type getType() throws DataBaseException { return Type.不詳; }
+
+		@Override
+		public int getPages() throws DataBaseException { return 0; }
+
+		@Override
+		public void setPages(int pages) throws DataBaseException { }
+
+		@Override
+		public void setDate(Date date) throws DataBaseException { }
+
+		@Override
+		public void setType(Type type) throws DataBaseException { }
+
+		@Override
+		public boolean isAdult() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isDecensored() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isTranslated() throws DataBaseException { return false; }
+
+		@Override
+		public boolean isColored() throws DataBaseException { return false; }
+
+		@Override
+		public void setAdult(boolean adult) throws DataBaseException { }
+
+		@Override
+		public void setDecensored(boolean decensored) throws DataBaseException { }
+
+		@Override
+		public void setTranslated(boolean translated) throws DataBaseException { }
+
+		@Override
+		public void setColored(boolean colored) throws DataBaseException { }
+
+		@Override
+		public Rating getRating() throws DataBaseException { return Rating.UNRATED; }
+
+		@Override
+		public String getInfo() throws DataBaseException { return ""; }
+
+		@Override
+		public void setRating(Rating rating) throws DataBaseException { }
+
+		@Override
+		public void setInfo(String info) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Artist> getArtists() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Content> getContents() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public Convention getConvention() throws DataBaseException { return null; }
+
+		@Override
+		public void setConvention(Convention convention) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Parody> getParodies() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addArtist(Artist artist) throws DataBaseException { }
+		
+		@Override
+		public void addCircle(Circle circle) throws DataBaseException { }
+
+		@Override
+		public void addContent(Content content) throws DataBaseException { }
+
+		@Override
+		public void addParody(Parody parody) throws DataBaseException { }
+
+		@Override
+		public void removeArtist(Artist artist) throws DataBaseException { }
+		
+		@Override
+		public void removeCircle(Circle circle) throws DataBaseException { }
+
+		@Override
+		public void removeContent(Content content) throws DataBaseException { }
+
+		@Override
+		public void removeParody(Parody parody) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
+	}
 }

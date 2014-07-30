@@ -3,6 +3,7 @@ package org.dyndns.doujindb.ui.dialog;
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
+import java.util.Iterator;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -44,7 +45,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 	
 	public PanelArtist(Artist token) throws DataBaseException
 	{
-		tokenArtist = token;
+		tokenArtist = (token == null ? new NullArtist() : token);
 		super.setLayout(this);
 		labelJapaneseName = new JLabel("Japanese Name");
 		labelJapaneseName.setFont(font);
@@ -158,7 +159,7 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 		buttonConfirm.setEnabled(false);
 		try
 		{
-			if(tokenArtist.getID() == null)
+			if(tokenArtist instanceof NullArtist)
 				tokenArtist = DataBase.doInsert(Artist.class);
 			tokenArtist.setJapaneseName(textJapaneseName.getText());
 			tokenArtist.setTranslatedName(textTranslatedName.getText());
@@ -291,4 +292,96 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 	
 	@Override
 	public void databaseRollback() {}
+	
+	private final class NullArtist implements Artist
+	{
+		@Override
+		public Integer getId() throws DataBaseException { return null; }
+
+		@Override
+		public void doRecycle() throws DataBaseException { }
+
+		@Override
+		public void doRestore() throws DataBaseException { }
+
+		@Override
+		public boolean isRecycled() throws DataBaseException { return false; }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Book> getBooks() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addBook(Book book) throws DataBaseException { }
+
+		@Override
+		public void removeBook(Book book) throws DataBaseException { }
+
+		@Override
+		public String getJapaneseName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getTranslatedName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getRomajiName() throws DataBaseException { return ""; }
+
+		@Override
+		public String getWeblink() throws DataBaseException { return ""; }
+
+		@Override
+		public void setJapaneseName(String japaneseName) throws DataBaseException { }
+
+		@Override
+		public void setTranslatedName(String translatedName) throws DataBaseException { }
+
+		@Override
+		public void setRomajiName(String romajiName) throws DataBaseException { }
+
+		@Override
+		public void setWeblink(String weblink) throws DataBaseException { }
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
+		public RecordSet<Circle> getCircles() throws DataBaseException
+		{
+			return new RecordSet()
+			{
+
+				@Override
+				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
+
+				@Override
+				public boolean contains(Object o) throws DataBaseException { return false; }
+
+				@Override
+				public int size() throws DataBaseException { return 0; }
+				
+			};
+		}
+
+		@Override
+		public void addCircle(Circle circle) throws DataBaseException { }
+
+		@Override
+		public void removeCircle(Circle circle) throws DataBaseException { }
+
+		@Override
+		public void removeAll() throws DataBaseException { }
+	}
 }

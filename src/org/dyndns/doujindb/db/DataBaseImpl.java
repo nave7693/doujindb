@@ -59,7 +59,7 @@ final class DataBaseImpl extends IDataBase
 		List<Expression> list;
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
@@ -73,7 +73,7 @@ final class DataBaseImpl extends IDataBase
 		queryArtistOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
@@ -95,7 +95,7 @@ final class DataBaseImpl extends IDataBase
 		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
@@ -109,7 +109,7 @@ final class DataBaseImpl extends IDataBase
 		queryCircleOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		List<Expression> conventionT = new ArrayList<Expression>();
 		conventionT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
@@ -121,7 +121,7 @@ final class DataBaseImpl extends IDataBase
 		queryConventionOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		List<Expression> contentT = new ArrayList<Expression>();
 		contentT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
@@ -131,7 +131,7 @@ final class DataBaseImpl extends IDataBase
 		queryContentOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		
 		list = new ArrayList<Expression>();
-		list.add(ExpressionFactory.matchDbExp("Id", 
+		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
 		list.add(ExpressionFactory.likeExp("japaneseName", 
 		         new ExpressionParameter("JapaneseName")));
@@ -319,7 +319,7 @@ final class DataBaseImpl extends IDataBase
 	        	tags.add(t.getTagName());
 	        ejbqlq.setParameter("TAGS", tags);
 	        ejbqlq.setParameter("TAG_COUNT", tags.size());
-	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("Id", context.performQuery(ejbqlq))));
+	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
 		}
 
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);

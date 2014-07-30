@@ -85,7 +85,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void addRecord(Book record)
 	{
-		String bookId = record.getID();
+		Integer bookId = record.getId();
 		if(previewEnabled && !tableModel.containsRecord(record))
 		{
 			JButton bookButton;
@@ -93,8 +93,8 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 				bookButton = new JButton(
 					new ImageIcon(
 						ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
-				bookButton.setName(bookId);
-				bookButton.setActionCommand(bookId);
+				bookButton.setName(bookId.toString());
+				bookButton.setActionCommand(bookId.toString());
 				bookButton.addActionListener(this);
 				bookButton.setBorder(null);
 				recordPreview.add(bookButton);
@@ -108,9 +108,9 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	@Override
 	public void removeRecord(Book record)
 	{
-		String bookId = record.getID();
+		Integer bookId = record.getId();
 		for(Component comp : recordPreview.getComponents())
-			if(comp.getName().equals(bookId))
+			if(comp.getName().equals(bookId.toString()))
 				recordPreview.remove(comp);
 		super.removeRecord(record);
 	}
@@ -172,7 +172,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		if(ae.getActionCommand() != null)
 		{
 			QueryBook query = new QueryBook();
-			query.ID = ae.getActionCommand();
+			query.Id = Integer.parseInt(ae.getActionCommand());
 			RecordSet<Book> result = DataBase.getBooks(query);
 			openRecordWindow(result.iterator().next());
 		}

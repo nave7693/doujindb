@@ -91,7 +91,7 @@ public class PanelBookMedia extends JPanel
 							if(fc.showOpenDialog(PanelBookMedia.this) != JFileChooser.APPROVE_OPTION)
 								return;
 							File dataFiles[] = fc.getSelectedFiles();
-							DataFile destFolder = DataStore.getFile(tokenBook.getID());
+							DataFile destFolder = DataStore.getStore(tokenBook.getId());
 							UI.Desktop.showDialog(getTopLevelWindow(), new DialogUpload(destFolder, dataFiles));
 						} catch (Exception e) {
 							Logger.logError(TAG + e.getMessage(), e);
@@ -126,7 +126,7 @@ public class PanelBookMedia extends JPanel
 							File destFolder = fc.getSelectedFile();
 							Set<DataFile> dataFiles = new TreeSet<DataFile>();
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-							DataFile rootDf = DataStore.getFile(tokenBook.getID());
+							DataFile rootDf = DataStore.getStore(tokenBook.getId());
 							for(TreePath path : paths)
 							try
 							{
@@ -205,7 +205,7 @@ public class PanelBookMedia extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				try {
-					DataStore.getFile(tokenBook.getID()).browse();
+					DataStore.getStore(tokenBook.getId()).browse();
 				} catch (DataBaseException dbe) {
 					Logger.logError(TAG + "cannot browse Book '" + tokenBook + "'", dbe);
 				} catch (DataStoreException dse) {
@@ -267,13 +267,13 @@ public class PanelBookMedia extends JPanel
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
-				filesWalk(DataStore.getFile(tokenBook.getID()), nodeRoot);
+				filesWalk(DataStore.getStore(tokenBook.getId()), nodeRoot);
 				return null;
 			}
 			@Override
 			protected void done() {
 				try {
-					labelDiskUsage.setText(toSize(DataStore.diskUsage(DataStore.getFile(tokenBook.getID()))));
+					labelDiskUsage.setText(toSize(DataStore.diskUsage(DataStore.getStore(tokenBook.getId()))));
 				} catch (Exception e) { }
 				treeMedia.clearSelection();
 				treeMedia.CheckBoxRenderer.clearSelection();
@@ -368,7 +368,7 @@ public class PanelBookMedia extends JPanel
 			    	setIcon(Icon.desktop_explorer_book_media_repository);
 			    	try {
 						try {
-							setText(DataStore.getFile(tokenBook.getID()).toString());
+							setText(DataStore.getStore(tokenBook.getId()).toString());
 						} catch (DataStoreException dse) {
 							setText("???");
 						}
@@ -485,7 +485,7 @@ public class PanelBookMedia extends JPanel
 							try
 							{
 								TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
-								DataFile root_ds = DataStore.getFile(tokenBook.getID());
+								DataFile root_ds = DataStore.getStore(tokenBook.getId());
 								for(TreePath path : paths)
 									try
 									{
@@ -781,7 +781,7 @@ public class PanelBookMedia extends JPanel
 				@Override
 				protected Void doInBackground() throws Exception {
 					int totalFiles = 0;
-					DataFile srcDataFile = DataStore.getFile(tokenBook.getID());
+					DataFile srcDataFile = DataStore.getStore(tokenBook.getId());
 					for(DataFile file : srcDataFile.listFiles())
 						try {
 							totalFiles += filesCount(file);

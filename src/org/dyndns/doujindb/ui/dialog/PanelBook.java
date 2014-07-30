@@ -27,7 +27,6 @@ import org.dyndns.doujindb.db.records.Circle;
 import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
-import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
@@ -35,7 +34,6 @@ import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
 import org.dyndns.doujindb.ui.dialog.util.list.*;
 import org.dyndns.doujindb.util.ImageTool;
-import org.dyndns.doujindb.util.Metadata;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -112,7 +110,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			{
 				if(tokenBook.isRecycled())
 					return;
-				if(tokenBook.getID() == null)
+				if(tokenBook instanceof NullBook)
 					return;
 				
 	    		JPopupMenu popupMenu = new JPopupMenu();
@@ -142,9 +140,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								if(image == null)
 									return null;
 								try {
-									DataStore.getFile(tokenBook.getID()).mkdirs();
-									DataFile cover = DataStore.getThumbnail(tokenBook.getID());
-									OutputStream out = cover.openOutputStream();
+									DataFile thumbnail = DataStore.getThumbnail(tokenBook.getId());
+									OutputStream out = thumbnail.openOutputStream();
 									ImageTool.write(image = ImageTool.getScaledInstance(image, 256, 256, true), out);
 									
 									final ImageIcon ii = new ImageIcon(image);
@@ -190,8 +187,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 							protected Void doInBackground() throws Exception
 							{
 								try {
-									DataFile cover = DataStore.getThumbnail(tokenBook.getID());
-									cover.delete();
+									DataFile thumbnail = DataStore.getThumbnail(tokenBook.getId());
+									thumbnail.delete();
 								} catch (DataStoreException dse) {
 									Logger.logError(dse.getMessage(), dse);
 								}
@@ -325,7 +322,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		tabLists.addTab("Parodies", Icon.desktop_explorer_parody, editorParodies);
 		mediaManager = new PanelBookMedia(tokenBook);
 		tabLists.addTab("Media", Icon.desktop_explorer_book_media, mediaManager);
-		if(tokenBook.getID() == null)
+		if(tokenBook instanceof NullBook)
 		{
 			labelPreview.setEnabled(false);
 			tabLists.setEnabledAt(tabLists.getTabCount()-1, false);
@@ -470,7 +467,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		}
 		try
 		{
-			if(tokenBook.getID() == null)
+			if(tokenBook instanceof NullBook)
 				tokenBook = DataBase.doInsert(Book.class);
 			else
 				{
@@ -520,7 +517,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				public Void doInBackground() {
 					if(DataBase.isAutocommit())
 						DataBase.doCommit();
-					if(tokenBook.getID() != null)
+					if(tokenBook instanceof NullBook)
 					{
 						labelPreview.setEnabled(true);
 						tabLists.setEnabledAt(tabLists.getTabCount()-1, true);
@@ -563,9 +560,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				textPages.setText("" + tokenBook.getPages());
 				try
 				{
-					if(tokenBook.getID() == null)
+					if(tokenBook instanceof NullBook)
 						return null;
-					DataFile cover = DataStore.getThumbnail(tokenBook.getID());
+					DataFile cover = DataStore.getThumbnail(tokenBook.getId());
 					InputStream in = cover.openInputStream();
 					labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelPreview.setName("preview");

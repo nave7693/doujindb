@@ -75,7 +75,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		textWeblink.setFont(font);
 		labelBanner = new JLabel(Icon.desktop_explorer_circle_banner);
 		labelBanner.setName("no-banner");
-		if(tokenCircle.getID() == null)
+		if(tokenCircle instanceof NullCircle)
 			labelBanner.setEnabled(false);
 		labelBanner.addMouseListener(new MouseAdapter()
 		{
@@ -84,7 +84,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 			{
 				if(tokenCircle.isRecycled())
 					return;
-				if(tokenCircle.getID() == null)
+				if(tokenCircle instanceof NullCircle)
 					return;
 				
 	    		JPopupMenu popupMenu = new JPopupMenu();
@@ -115,8 +115,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									return null;
 								BufferedImage resized_image = new BufferedImage(200, 40, BufferedImage.TYPE_INT_ARGB);
 								try {
-									DataStore.getFile(tokenCircle.getID()).mkdirs();
-									DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
+									DataFile banner = DataStore.getBanner(tokenCircle.getId());
 									OutputStream out = banner.openOutputStream();
 									Graphics2D graphics2D = resized_image.createGraphics();
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -167,7 +166,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 							protected Void doInBackground() throws Exception
 							{
 								try {
-									DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
+									DataFile banner = DataStore.getBanner(tokenCircle.getId());
 									banner.delete();
 								} catch (DataStoreException dse) {
 									Logger.logError(dse.getMessage(), dse);
@@ -291,7 +290,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		buttonConfirm.setEnabled(false);
 		try
 		{
-			if(tokenCircle.getID() == null)
+			if(tokenCircle instanceof NullCircle)
 				tokenCircle = DataBase.doInsert(Circle.class);
 			tokenCircle.setJapaneseName(textJapaneseName.getText());
 			tokenCircle.setTranslatedName(textTranslatedName.getText());
@@ -342,9 +341,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				textWeblink.setText(tokenCircle.getWeblink());
 				try
 				{
-					if(tokenCircle.getID() == null)
+					if(tokenCircle instanceof NullCircle)
 						return null;
-					DataFile banner = DataStore.getThumbnail(tokenCircle.getID());
+					DataFile banner = DataStore.getBanner(tokenCircle.getId());
 					InputStream in = banner.openInputStream();
 					labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
 					labelBanner.setName("banner");
@@ -366,7 +365,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 					editorArtists.setEnabled(false);
 					buttonConfirm.setEnabled(false);
 				}
-				if(tokenCircle.getID() == null)
+				if(tokenCircle instanceof NullCircle)
 					labelBanner.setEnabled(false);
 				else
 					labelBanner.setEnabled(true);

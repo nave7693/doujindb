@@ -978,7 +978,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				@Override
 				public void actionPerformed(ActionEvent ae) {
 					QueryBook query = new QueryBook();
-					query.ID = ae.getActionCommand();
+					query.Id = Integer.parseInt(ae.getActionCommand());
 					RecordSet<Book> result = DataBase.getBooks(query);
 					UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, result.iterator().next());
 				}
@@ -1000,11 +1000,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						try {
 							bookButton = new JButton(
 							new ImageIcon(
-								ImageTool.read(DataStore.getThumbnail(o.getID()).openInputStream())));
+								ImageTool.read(DataStore.getThumbnail(o.getId()).openInputStream())));
 						} catch (DataStoreException dse) {
 							bookButton = new JButton(Icon.desktop_explorer_book_cover);
 						}
-						bookButton.setActionCommand(o.getID());
+						bookButton.setActionCommand(o.getId().toString());
 						bookButton.addActionListener(listener);
 						bookButton.setBorder(null);
 						previews.put(o, bookButton);

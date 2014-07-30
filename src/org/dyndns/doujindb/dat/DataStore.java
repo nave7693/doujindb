@@ -57,6 +57,13 @@ public final class DataStore
 		return instance.getThumbnail(bookId);
 	}
 	
+	public static DataFile getBanner(String circleId) throws DataStoreException
+	{
+		Logger.logDebug(TAG + "call getBanner(" + circleId + ")");
+		checkOpen();
+		return instance.getBanner(circleId);
+	}
+	
 	public static DataFile getStore(String bookId) throws DataStoreException
 	{
 		Logger.logDebug(TAG + "call getFile(" + bookId + ")");

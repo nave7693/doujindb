@@ -39,7 +39,7 @@ final class LocalDataStore implements IDataStore
 		 *  - ff
 		 *     - B000000ff
 		 */
-		return new File(new File(rootPath, new Integer(recordId % 256).toString()), String.format("%s%08x", prefix, recordId));
+		return new File(new File(rootPath, String.format("%02x", (recordId % 256))), String.format("%s%08x", prefix, recordId));
 	}
 	
 	@Override

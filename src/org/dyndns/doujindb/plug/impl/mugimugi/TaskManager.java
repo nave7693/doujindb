@@ -729,12 +729,13 @@ final class TaskManager
 			double bestResult = 0;
 			Set<Integer> mugimugi_list = new HashSet<Integer>();
 			for(XMLParser.XML_Book book : list.Books) {
-				mugimugi_list.add(book.ID);
-				fetchImage(book.ID);
+				Integer bid = Integer.parseInt(book.ID.substring(1));
+				mugimugi_list.add(bid);
+				fetchImage(bid);
 				double result = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
 				if(result > bestResult) {
 					bestResult = result;
-					task.setMugimugiBid(book.ID);
+					task.setMugimugiBid(bid);
 				}
 			}
 			task.setMugimugiList(mugimugi_list);
@@ -770,7 +771,7 @@ final class TaskManager
 			if(book == null) {
 				URLConnection urlc;
 				try {
-					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=B" + task.getMugimugiBid() + "").openConnection();
 					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 					book = XMLParser.readList(urlc.getInputStream()).Books.get(0);
 				} catch (IOException ioe) {
@@ -833,7 +834,7 @@ final class TaskManager
 			if(xmlbook == null) {
 				URLConnection urlc;
 				try {
-					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=" + task.getMugimugiBid() + "").openConnection();
+					urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + DoujinshiDBScanner.APIKEY + "/?S=getID&ID=B" + task.getMugimugiBid() + "").openConnection();
 					urlc.setRequestProperty("User-Agent", DoujinshiDBScanner.USER_AGENT);
 					xmlbook = XMLParser.readList(urlc.getInputStream()).Books.get(0);
 				} catch (IOException ioe) {

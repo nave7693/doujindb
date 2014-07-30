@@ -40,7 +40,7 @@ final class XMLParser
 	static final class XML_Book
 	{
 		@XmlAttribute(name="ID", required=true)
-		Integer ID = null;
+		String ID = null;
 		@XmlAttribute(name="VER", required=true)
 		int VER;
 		@XmlAttribute(name="search", required=false)

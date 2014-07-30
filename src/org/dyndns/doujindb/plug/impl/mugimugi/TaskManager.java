@@ -669,7 +669,7 @@ final class TaskManager
 				for(Integer dupe : duplicateList) {
 					long bytesBook = DataStore.diskUsage(DataStore.getStore(dupe));
 					long pagesBook = DataStore.listFiles(DataStore.getStore(dupe)).length;
-					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream());
+					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream()); //FIXME throws NPE is store folder is empty but Book is still image-cached
 					String resBook = biBook.getWidth() + "x" + biBook.getHeight();
 					if(bytesNew > bytesBook)
 						higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";

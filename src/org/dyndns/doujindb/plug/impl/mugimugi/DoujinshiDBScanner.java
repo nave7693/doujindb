@@ -1062,7 +1062,7 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								try
 								{
-									File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, id + ".jpg");
+									File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, "B" + id + ".jpg");
 									ImageIcon ii = new ImageIcon(ImageIO.read(file));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);

@@ -6,12 +6,17 @@ import java.util.*;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.*;
 
 public final class Metadata
 {
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(Metadata.class);
+
 	public static void toXML(Book book, OutputStream out)
 	{
 		XMLBook xmlbook = new XMLBook();
@@ -43,12 +48,13 @@ public final class Metadata
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			m.marshal(xmlbook, out);
 		} catch (JAXBException jaxbe) {
-			Logger.logError("Error writing XML metadata : " + jaxbe.getMessage(), jaxbe);
+			LOG.error("Error writing XML metadata : " + jaxbe.getMessage(), jaxbe);
 		}
 	}
 	
 	public static void toJSON(Book book, OutputStream out)
 	{
+		// Yeah, like that's ever gonna happen
 		throw new RuntimeException("Not Yet Implemented");
 	}
 	

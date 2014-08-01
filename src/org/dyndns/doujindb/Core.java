@@ -2,8 +2,17 @@ package org.dyndns.doujindb;
 
 import java.beans.PropertyVetoException;
 import java.io.*;
+import java.util.Iterator;
 
-import org.apache.commons.logging.*;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
 
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.plug.PluginManager;
@@ -19,7 +28,7 @@ public final class Core implements Runnable
 {
 	public final static File DOUJINDB_HOME = getHomedir();
 	
-	private static final Log Logger = getLogger();
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(Core.class);
 	
 	private static File getHomedir()
 	{
@@ -32,19 +41,6 @@ public final class Core implements Runnable
 		return homedir;
 	}
 	
-	private static Log getLogger()
-	{
-		// setup default Apache's commons-logging implementation
-		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-		System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "info");
-		System.setProperty("org.apache.commons.logging.simplelog.showlogname", "false");
-		System.setProperty("org.apache.commons.logging.simplelog.showShortLogname", "true");
-		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-		System.setProperty("org.apache.commons.logging.simplelog.dateTimeFormat", "yyyy-MM-dd'T'HH:mm:ss'Z'");
-		// return default logger instance
-		return LogFactory.getLog(Core.class);
-	}
-
 	static
 	{
 		/**
@@ -52,13 +48,42 @@ public final class Core implements Runnable
 		 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=7173464
 		 */
 		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
+		/**
+		 *  Setup SLF4J + Logback programmatically
+		 *  We don't provide any Logback configuration file (logback.groovy, logback.xml) by default
+		 *  User can provide custom logback.xml configuration running the JVM with -Dlogback.configurationFile=/path/to/config.xml
+		 *  @see http://logback.qos.ch/manual/configuration.html
+		 */
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		PatternLayoutEncoder ple = new PatternLayoutEncoder();
+        ple.setPattern("%d{yyyy-MM-dd'T'HH:mm:ss'Z'} [%thread] %-5level %logger{0} - %msg%n");
+        ple.setContext(lc);
+        ple.start();
+        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
+        consoleAppender.setEncoder(ple);
+        consoleAppender.setContext(lc);
+        consoleAppender.start();
+        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Iterator<Appender<ILoggingEvent>> i = logger.iteratorForAppenders();
+        /** 
+         * Remove all default appenders from RootLogger (probably only the default appender configured by ch.qos.logback.classic.BasicConfigurator)
+         * @see http://logback.qos.ch/manual/configuration.html (step 4)
+         */
+        while(i.hasNext())
+        	logger.detachAppender(i.next());
+        // Attach our appender to RootLogger
+        logger.addAppender(consoleAppender);
+        // Default logging level is INFO
+        logger.setLevel(Level.INFO);
+        // Don't let 'child' loggers inherit appenders
+        logger.setAdditive(false);
 	}
 
 	@Override
 	public void run()
 	{
 		Thread.currentThread().setName("core-bootstrap");
-		Logger.info("Core bootstrap started");
+		LOG.info("Core bootstrap started");
 		
 		/**
 		 * Load all Plugins without starting them:
@@ -75,8 +100,8 @@ public final class Core implements Runnable
 		try {
 			Configuration.configLoad();
 		} catch (ConfigurationException ce) {
-			Logger.error("Error loading system Configuration", ce);
-			Logger.info("Scheduling Configuration Wizard");
+			LOG.error("Error loading system Configuration", ce);
+			LOG.info("Scheduling Configuration Wizard");
 			isConfigurationWizard = true;
 		}
 		
@@ -85,19 +110,18 @@ public final class Core implements Runnable
 		 * Quit if it's not available (running "Headless")
 		 */
 		if(java.awt.GraphicsEnvironment.isHeadless()) {
-			Logger.fatal("DoujinDB cannot run on headless systems");
+			LOG.error("DoujinDB cannot run on headless systems");
 			System.exit(1);
 		}
 		
 		//FIXME should be checked by the DataStore itself
 		if(Configuration.configRead("org.dyndns.doujindb.dat.datastore").equals(Configuration.configRead("org.dyndns.doujindb.dat.temp")))
-			Logger.warn("datastore directory is set to the temporary system directory");
+			LOG.warn("datastore directory is set to the temporary system directory");
 		
 		/**
 		 * Load and setup Logging related Configuration
-		 * Defaults to level 'info' in case of any Exception
+		 * Defaults to level 'INFO' in case of any Exception
 		 */
-		String baseCommonsLogging = "org.apache.commons.logging.simplelog.log.";
 		String baseConfiguration = "org.dyndns.doujindb.log.";
 		String[] configurationSet = new String[]{
 			"org.apache.cayenne",
@@ -112,12 +136,12 @@ public final class Core implements Runnable
 		for(String configurationKey : configurationSet) {
 			try {
 				String level = (String) Configuration.configRead(baseConfiguration + configurationKey);
-				System.setProperty(baseCommonsLogging + configurationKey, level);
-				Logger.info(String.format("Configured log level [%s] for [%s]", level, configurationKey));
+				((Logger) LoggerFactory.getLogger(configurationKey)).setLevel(Level.valueOf(level));
+				LOG.info("Configured log level [{}] for [{}]", level, configurationKey);
 			} catch (Exception e) {
-				Logger.error(String.format("Error loading logging configuration level for [%s]", configurationKey), e);
-				Logger.info(String.format("Configuring log level [%s] for [%s]", "info", configurationKey));
-				System.setProperty(baseCommonsLogging + configurationKey, "info");
+				LOG.error("Error loading logging configuration level for [{}]", configurationKey, e);
+				LOG.info("Configuring log level [{}] for [{}]", "INFO", configurationKey);
+				((Logger) LoggerFactory.getLogger(configurationKey)).setLevel(Level.INFO);
 			}
 		}
 		
@@ -141,7 +165,7 @@ public final class Core implements Runnable
 			try {
 				UI.Desktop.showDialog(new DialogConfigurationWizard());
 			} catch (PropertyVetoException pve) {
-				Logger.error("Error loading Configuration Wizard", pve);
+				LOG.error("Error loading Configuration Wizard", pve);
 			}
 		}
 	}

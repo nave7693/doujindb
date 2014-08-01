@@ -8,14 +8,16 @@ import java.util.List;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
-import org.dyndns.doujindb.log.*;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
 
 final class XMLConfiguration implements IConfiguration
 {
 	private HashMap<String, Object> values;
 	private HashMap<String, String> infos;
 	
-	private static final String TAG = "XMLConfiguration : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(XMLConfiguration.class);
 	
 	public XMLConfiguration()
 	{
@@ -122,13 +124,13 @@ final class XMLConfiguration implements IConfiguration
 				}
 				if(value == null)
 				{
-					Logger.logWarning(TAG + "could not unserialize configuration key '" + xmlnode.key + "': unexpected type of data '" + xmlnode.type + "'.");
+					LOG.warn("could not unserialize configuration key [{}]: unexpected type of data [{}]", xmlnode.key, xmlnode.type);
 				} else {
 					try
 					{
 						configWrite(xmlnode.key, value);
 					} catch (ConfigurationException ce) {
-						Logger.logWarning(TAG + "could not unserialize configuration key '" + xmlnode.key + "': not found in base configuration.");
+						LOG.warn("could not unserialize configuration key [{}]: not found in base configuration", xmlnode.key);
 					}
 				}
 			}
@@ -195,7 +197,7 @@ final class XMLConfiguration implements IConfiguration
 					}
 					if(xmlnode.value == null)
 					{
-						Logger.logWarning(TAG + "could not serialize configuration key '" + key + "': unexpected type of data '" + value.getClass().getCanonicalName() + "'.");
+						LOG.warn("could not serialize configuration key [{}]: unexpected type of data [{}]", key, value.getClass().getCanonicalName());
 					} else {
 						xmlroot.nodes.add(xmlnode);
 					}

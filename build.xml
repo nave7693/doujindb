@@ -91,7 +91,7 @@
 				<attribute name="Implementation-Version" value="${build.number}"/>
 				<attribute name="Implementation-Vendor"  value="${vendor}"/>
 				<attribute name="Implementation-URL"     value="https://github.com/loli10K/doujindb/"/>
-				<attribute name="Class-Path"             value="lib/cayenne-server.jar lib/commons-collections.jar lib/commons-logging.jar lib/ashwood.jar lib/velocity.jar lib/derby.jar lib/mysql.jar lib/hsqldb.jar lib/oracle.jar lib/postgresql.jar lib/sqlite.jar lib/sqlserver.jar lib/sybase.jar"/>
+				<attribute name="Class-Path"             value="lib/cayenne-server.jar lib/commons-collections.jar lib/slf4j-api.jar lib/jcl-over-slf4j.jar lib/logback-core.jar lib/logback-classic.jar lib/ashwood.jar lib/velocity.jar lib/derby.jar lib/mysql.jar lib/hsqldb.jar lib/oracle.jar lib/postgresql.jar lib/sqlite.jar lib/sqlserver.jar lib/sybase.jar"/>
 			</manifest>
 		</jar>
 	</target>

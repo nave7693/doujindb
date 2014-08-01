@@ -374,8 +374,11 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			new String[]{ "ashwood",             "http://search.maven.org/remotecontent?filepath=org/objectstyle/ashwood/ashwood/2.0/ashwood-2.0.jar" },
 			new String[]{ "cayenne-server",      "http://search.maven.org/remotecontent?filepath=org/apache/cayenne/cayenne-server/3.0.2/cayenne-server-3.0.2.jar" },
 			new String[]{ "commons-collections", "http://search.maven.org/remotecontent?filepath=commons-collections/commons-collections/3.1/commons-collections-3.1.jar" },
-			new String[]{ "commons-logging",     "http://search.maven.org/remotecontent?filepath=commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar" },
-			new String[]{ "velocity",            "http://search.maven.org/remotecontent?filepath=velocity/velocity/1.3/velocity-1.3.jar" }
+			new String[]{ "velocity",            "http://search.maven.org/remotecontent?filepath=velocity/velocity/1.3/velocity-1.3.jar" },
+			new String[]{ "slf4j-api",           "http://search.maven.org/remotecontent?filepath=org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar" },
+			new String[]{ "jcl-over-slf4j",      "http://search.maven.org/remotecontent?filepath=org/slf4j/jcl-over-slf4j/1.7.7/jcl-over-slf4j-1.7.7.jar" },
+			new String[]{ "logback-core",        "http://search.maven.org/remotecontent?filepath=ch/qos/logback/logback-core/1.1.2/logback-core-1.1.2.jar" },
+			new String[]{ "logback-classic",     "http://search.maven.org/remotecontent?filepath=ch/qos/logback/logback-classic/1.1.2/logback-classic-1.1.2.jar" }
 		};
 		private Map<String, JLabel> mLibLabel = new HashMap<String, JLabel>();
 		private Map<String, JButton> mLibButton = new HashMap<String, JButton>();

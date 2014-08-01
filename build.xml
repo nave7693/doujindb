@@ -31,15 +31,30 @@
 			httpusecaches="true"
 			dest="lib/velocity.jar">
 			</get>
-		<get src="http://search.maven.org/remotecontent?filepath=commons-logging/commons-logging-api/1.1/commons-logging-api-1.1.jar"
-			skipexisting="true"
-			httpusecaches="true"
-			dest="lib/commons-logging.jar">
-			</get>
 		<get src="http://search.maven.org/remotecontent?filepath=commons-collections/commons-collections/3.1/commons-collections-3.1.jar"
 			skipexisting="true"
 			httpusecaches="true"
 			dest="lib/commons-collections.jar">
+			</get>
+		<get src="http://search.maven.org/remotecontent?filepath=org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar"
+			skipexisting="true"
+			httpusecaches="true"
+			dest="lib/slf4j-api.jar">
+			</get>
+		<get src="http://search.maven.org/remotecontent?filepath=org/slf4j/jcl-over-slf4j/1.7.7/jcl-over-slf4j-1.7.7.jar"
+			skipexisting="true"
+			httpusecaches="true"
+			dest="lib/jcl-over-slf4j.jar">
+			</get>
+		<get src="http://search.maven.org/remotecontent?filepath=ch/qos/logback/logback-core/1.1.2/logback-core-1.1.2.jar"
+			skipexisting="true"
+			httpusecaches="true"
+			dest="lib/logback-core.jar">
+			</get>
+		<get src="http://search.maven.org/remotecontent?filepath=ch/qos/logback/logback-classic/1.1.2/logback-classic-1.1.2.jar"
+			skipexisting="true"
+			httpusecaches="true"
+			dest="lib/logback-classic.jar">
 			</get>
     </target>
 

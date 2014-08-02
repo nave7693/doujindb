@@ -5,8 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.dyndns.doujindb.conf.Configuration;
-import org.dyndns.doujindb.log.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
+import org.dyndns.doujindb.conf.*;
 
 final class LocalDataStore implements IDataStore
 {
@@ -18,7 +21,7 @@ final class LocalDataStore implements IDataStore
 	private static final String DATAFILE_BANNER = ".thumb";
 	
 	@SuppressWarnings("unused")
-	private static final String TAG = "LocalDataStore : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(LocalDataStore.class);
 	
 	LocalDataStore(final File rootPath)
 	{
@@ -398,7 +401,7 @@ final class LocalDataStore implements IDataStore
 		
 		private static ConcurrentLinkedQueue<CachePair<File>> queue = new ConcurrentLinkedQueue<CachePair<File>>();
 		
-		private static final String TAG = "LocalCache : ";
+		private static final Logger LOG = (Logger) LoggerFactory.getLogger(LocalDataStore.class);
 		
 		private static final class CachePair<T>
 		{
@@ -435,7 +438,7 @@ final class LocalDataStore implements IDataStore
 					try {
 						Files.copy(pair.object.toPath(), new File(cachePath, pair.id).toPath(), StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException ioe) {
-						Logger.logError(TAG + "failed to put '" + pair.id + "' in local cache", ioe);
+						LOG.error("Error putting [{}] in local cache", pair.id, ioe);
 					}
 				}
 			}.start();
@@ -448,22 +451,22 @@ final class LocalDataStore implements IDataStore
 		
 		public static File get(String cacheId) throws FileNotFoundException
 		{
+			LOG.debug("call get({})", cacheId);
 			File cached =  new File(cachePath, cacheId);
 			if(!cached.exists())
 				throw new FileNotFoundException();
-			Logger.logDebug(TAG + "fetching '" + cacheId + "' from local cache");
 			return cached;
 		}
 		
 		public static void put(String cacheId, File file)
 		{
-			Logger.logDebug(TAG + "putting '" + cacheId + "' in local cache");
+			LOG.debug("call put({}, {})", cacheId, file);
 			queue.offer(new CachePair<File>(cacheId, file));
 		}
 		
 		public static void purge(String cacheId)
 		{
-			Logger.logDebug(TAG + "purging '" + cacheId + "' from local cache");
+			LOG.debug("call purge({})", cacheId);
 			File cached = new File(cachePath, cacheId);
 			if(!cached.delete())
 				cached.deleteOnExit();

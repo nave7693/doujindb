@@ -5,7 +5,9 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 
-import org.dyndns.doujindb.log.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
 
 public final class Icons
 {
@@ -152,7 +154,7 @@ public final class Icons
 	public final ImageIcon dialog_error = null;
 	public final ImageIcon dialog_confirm = null;
 	
-	private static final String TAG = "Icons : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(Icons.class);
 	
 	Icons()
 	{
@@ -164,11 +166,10 @@ public final class Icons
 				try {
 					field.setAccessible(true);
 					field.set(this, loadImage(iconPath));
-					Logger.logDebug(TAG + "loaded icon resource '" + iconPath + "'");
+					LOG.debug("Loaded ImageIcon [{}]", iconPath);
 					field.setAccessible(false);
 				} catch (IllegalArgumentException | IllegalAccessException iae) {
-					Logger.logFatal(TAG + "error loading resource icon '" + iconPath + "'", iae);
-					System.exit(-1);
+					LOG.error("Error loading ImageIcon [{}]", iconPath, iae);
 				}
 			}
 		}
@@ -178,10 +179,7 @@ public final class Icons
 	{
 		URL rc = Icons.class.getResource("icons/" + iconPath);
 		if(rc == null)
-		{
-			Logger.logFatal(TAG + "could not find resource icon '" + iconPath + "'");
-			System.exit(-1);
-		}
+			LOG.error("Error loading ImageIcon [{}]", iconPath);
 		return new ImageIcon(rc);
 	}
 }

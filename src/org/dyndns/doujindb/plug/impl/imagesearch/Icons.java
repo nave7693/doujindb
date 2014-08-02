@@ -46,9 +46,7 @@ public final class Icons
 	{
 		URL rc = Icons.class.getResource("icons/" + iconPath);
 		if(rc == null)
-		{
 			LOG.error("Error loading ImageIcon [{}]", iconPath);
-		}
 		return new ImageIcon(rc);
 	}
 }

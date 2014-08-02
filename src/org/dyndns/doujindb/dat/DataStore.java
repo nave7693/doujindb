@@ -4,18 +4,21 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.log.*;
 
 public final class DataStore
 {
 	private static IDataStore instance = null;
 	
-	private static final String TAG = "DataStore : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DataStore.class);
 	
 	public static void open() throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call open()");
+		LOG.debug("call open()");
 		if(isOpen())
 			throw new DataStoreException("DataStore is already open.");
 		File localPath = new File(Configuration.configRead("org.dyndns.doujindb.dat.datastore").toString());
@@ -26,7 +29,7 @@ public final class DataStore
 
 	public static void close() throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call close()");
+		LOG.debug("call close()");
 		if(!isOpen())
 			throw new DataStoreException("DataStore is already closed.");
 		instance = null;
@@ -34,6 +37,7 @@ public final class DataStore
 	
 	public static boolean isOpen() throws DataStoreException
 	{
+		LOG.debug("call isOpen()");
 		return instance != null;
 	}
 	
@@ -45,35 +49,35 @@ public final class DataStore
 	
 	public static DataFile.MetaData getMetadata(Integer bookId) throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call getMetadata(" + bookId + ")");
+		LOG.debug("call getMetadata({})", bookId);
 		checkOpen();
 		return instance.getMetadata(bookId);
 	}
 	
 	public static DataFile getThumbnail(Integer bookId) throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call getThumbnail(" + bookId + ")");
+		LOG.debug("call getThumbnail({})", bookId);
 		checkOpen();
 		return instance.getThumbnail(bookId);
 	}
 	
 	public static DataFile getBanner(Integer circleId) throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call getBanner(" + circleId + ")");
+		LOG.debug("call getBanner({})", circleId);
 		checkOpen();
 		return instance.getBanner(circleId);
 	}
 	
 	public static DataFile getStore(Integer bookId) throws DataStoreException
 	{
-		Logger.logDebug(TAG + "call getFile(" + bookId + ")");
+		LOG.debug("call getStore({})", bookId);
 		checkOpen();
 		return instance.getStore(bookId);
 	}
 	
 	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call fromFile(" + srcPath + "," + dstPath + "," + contentsOnly + ")");
+		LOG.debug("call fromFile({}, {}, {})", srcPath, dstPath, contentsOnly);
 		checkOpen();
 		if(contentsOnly)
 			for(File file : srcPath.listFiles())
@@ -91,7 +95,7 @@ public final class DataStore
 	 */
 	public static void fromFile(File srcPath, DataFile dstPath) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call fromFile(" + srcPath + "," + dstPath + ")");
+		LOG.debug("call fromFile({}, {})", srcPath, dstPath);
 		checkOpen();
 		DataFile dataFile = dstPath.getFile(srcPath.getName());
 		if(srcPath.isDirectory())
@@ -106,7 +110,7 @@ public final class DataStore
 	
 	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call toFile(" + srcPath + "," + dstPath + "," + contentsOnly + ")");
+		LOG.debug("call toFile({}, {}, {})", srcPath, dstPath, contentsOnly);
 		checkOpen();
 		if(contentsOnly)
 			for(DataFile file : srcPath.listFiles())
@@ -124,7 +128,7 @@ public final class DataStore
 	 */
 	public static void toFile(DataFile srcPath, File dstPath) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call toFile(" + srcPath + "," + dstPath + ")");
+		LOG.debug("call toFile({}, {})", srcPath, dstPath);
 		checkOpen();
 		File file = new File(dstPath, srcPath.getName());
 		if(srcPath.isDirectory())
@@ -143,7 +147,7 @@ public final class DataStore
 	 */
 	public static DataFile[] listFiles(DataFile parentPath) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call listFiles(" + parentPath + ")");
+		LOG.debug("call listFiles({})", parentPath);
 		checkOpen();
 		Set<DataFile> set = new HashSet<DataFile>();
 		for(DataFile file : parentPath.listFiles())
@@ -170,7 +174,7 @@ public final class DataStore
 	 */
 	public static File[] listFiles(File parentPath) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call listFiles(" + parentPath + ")");
+		LOG.debug("call listFiles({})", parentPath);
 		checkOpen();
 		Set<File> set = new HashSet<File>();
 		for(File file : parentPath.listFiles())
@@ -193,7 +197,7 @@ public final class DataStore
 	
 	public static long diskUsage(DataFile path) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call diskUsage(" + path + ")");
+		LOG.debug("call diskUsage({})", path);
 		checkOpen();
 		long du = 0;
 		for(DataFile file : listFiles(path))
@@ -204,7 +208,7 @@ public final class DataStore
 	
 	public static long diskUsage(File path) throws DataStoreException, IOException
 	{
-		Logger.logDebug(TAG + "call diskUsage(" + path + ")");
+		LOG.debug("call diskUsage({})", path);
 		checkOpen();
 		long du = 0;
 		Set<File> set = new HashSet<File>();

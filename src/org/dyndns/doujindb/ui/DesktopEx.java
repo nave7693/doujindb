@@ -78,9 +78,9 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							ImageTool.write(im, new File(Core.DOUJINDB_HOME, "doujindb.wallpaper"));
 							wallpaperImage = new ImageIcon(im);
 							wallpaper.setIcon(wallpaperImage);
-						} catch (Exception e) {
+						} catch (IOException e) {
 							e.printStackTrace();
-							Logger.logWarning(e.getMessage(), e);
+							LOG.error("Error updating wallpaper image", e);
 						}
 						return null;
 					}
@@ -103,7 +103,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				try {
 					showTrashWindow();
 				} catch (DataBaseException dbe) {
-					Logger.logError(dbe.getMessage(), dbe);
+					LOG.error("Error displaying Trash Window", dbe);
 					dbe.printStackTrace();
 				}
 			}
@@ -174,7 +174,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 							}
 						}.execute();
 					} catch (DataBaseException dbe) {
-						Logger.logError(dbe.getMessage(), dbe);
+						LOG.error("Error displaying Plugin Window", dbe);
 						dbe.printStackTrace();
 					}
 				}
@@ -232,14 +232,12 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			{
 				DropTarget dt = (DropTarget)dtde.getSource();
 				WindowEx window = ((WindowEx)dt.getComponent());
-				try
-				{
+				try {
 					window.setVisible(true);
 					window.setSelected(true);
 					window.setIcon(false);
-				} catch (PropertyVetoException pve)
-				{
-					Logger.logWarning(pve.getMessage(), pve);
+				} catch (PropertyVetoException pve) {
+					LOG.error("Error displaying Window [{}]", window, pve);
 				}
 			}
 			
@@ -249,13 +247,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		});
 		window.setDropTarget(dt);
 		super.add(window);
-		try
-		{
+		try {
 			window.setVisible(true);
 			window.setSelected(true);
-		} catch (PropertyVetoException pve)
-		{
-			Logger.logWarning(pve.getMessage(), pve);
+		} catch (PropertyVetoException pve) {
+			LOG.error("Error displaying Window [{}]", window, pve);
 		}
 		return window;
 	}
@@ -268,13 +264,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
-		try
-		{
+		try {
 			window.setVisible(true);
 			window.setSelected(true);
-		} catch (PropertyVetoException pve)
-		{
-			Logger.logWarning(pve.getMessage(), pve);
+		} catch (PropertyVetoException pve) {
+			LOG.error("Error displaying Window [{}]", window, pve);
 		}
 		return window;
 	}
@@ -287,13 +281,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
-		try
-		{
+		try {
 			window.setVisible(true);
 			window.setSelected(true);
-		} catch (PropertyVetoException pve)
-		{
-			Logger.logWarning(pve.getMessage(), pve);
+		} catch (PropertyVetoException pve) {
+			LOG.error("Error displaying Window [{}]", window, pve);
 		}
 		return window;
 	}
@@ -308,13 +300,11 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		window.setBounds(0,0,450,450);
 		window.setMinimumSize(new Dimension(400, 350));
 		super.add(window);
-		try
-		{
+		try {
 			window.setVisible(true);
 			window.setSelected(true);
-		} catch (PropertyVetoException pve)
-		{
-			Logger.logWarning(pve.getMessage(), pve);
+		} catch (PropertyVetoException pve) {
+			LOG.error("Error displaying Window [{}]", window, pve);
 		}
 		return window;
 	}
@@ -324,16 +314,13 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		for(JInternalFrame jif : getAllFrames())
 		{
 			WindowEx window = (WindowEx)jif;
-			if(window.getType().equals(type))
-			{
-				try
-				{
+			if(window.getType().equals(type)) {
+				try {
 					window.setVisible(true);
 					window.setSelected(true);
 					window.setIcon(false);
-				} catch (PropertyVetoException pve)
-				{
-					Logger.logWarning(pve.getMessage(), pve);
+				} catch (PropertyVetoException pve) {
+					LOG.error("Error displaying Window [{}]", window, pve);
 				}
 				return true;
 			}
@@ -343,29 +330,22 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private boolean checkWindow(WindowEx.Type type, Object token)
 	{
-		for(JInternalFrame jif : getAllFrames())
-		{
+		for(JInternalFrame jif : getAllFrames()) {
 			WindowEx window = (WindowEx)jif;
 			
-			if(window instanceof WindowPluginImpl)
-			{
+			if(window instanceof WindowPluginImpl) {
 				Plugin plug = ((WindowPluginImpl)window).plugin;
-				if(plug.equals(token))
-				{
-					try
-					{
+				if(plug.equals(token)) {
+					try {
 						window.setVisible(true);
 						window.setSelected(true);
 						window.setIcon(false);
-					} catch (PropertyVetoException pve)
-					{
-						Logger.logWarning(pve.getMessage(), pve);
+					} catch (PropertyVetoException pve) {
+						LOG.error("Error displaying Window [{}]", window, pve);
 					}
 					return true;
 				}
-			}
-			else
-			{
+			} else {
 				Record rcd = null;
 				if(window instanceof WindowArtistImpl)
 					rcd = ((WindowArtistImpl)window).getRecord();
@@ -380,34 +360,30 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 				if(window instanceof WindowParodyImpl)
 					rcd = ((WindowParodyImpl)window).getRecord();
 				
-				if(token == null && rcd == null)
-					if(window.getType().equals(type))
-					{
-						try
-						{
+				if(token == null && rcd == null) {
+					if(window.getType().equals(type)) {
+						try {
 							window.setVisible(true);
 							window.setSelected(true);
 							window.setIcon(false);
-						} catch (PropertyVetoException pve)
-						{
-							Logger.logWarning(pve.getMessage(), pve);
+						} catch (PropertyVetoException pve) {
+							LOG.error("Error displaying Window [{}]", window, pve);
 						}
 						return true;
 					}
-				if(token != null && rcd != null)
-					if(rcd.equals(token))
-					{
-						try
-						{
+				}
+				if(token != null && rcd != null) {
+					if(rcd.equals(token)) {
+						try {
 							window.setVisible(true);
 							window.setSelected(true);
 							window.setIcon(false);
-						} catch (PropertyVetoException pve)
-						{
-							Logger.logWarning(pve.getMessage(), pve);
+						} catch (PropertyVetoException pve) {
+							LOG.error("Error displaying Window [{}]", window, pve);
 						}
 						return true;
 					}
+				}
 			}
 		}
 		return false;
@@ -458,7 +434,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
             		dialog.setVisible(true);
             		dialog.setSelected(true);
             	} catch (PropertyVetoException pve) {
-            		Logger.logWarning(pve.getMessage(), pve);
+            		LOG.error("Error displaying Dialog [{}]", dialog, pve);
         		}
             }
         });
@@ -497,7 +473,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
             		dialog.setVisible(true);
             		dialog.setSelected(true);
             	} catch (PropertyVetoException pve) {
-            		Logger.logWarning(pve.getMessage(), pve);
+            		LOG.error("Error displaying Dialog [{}]", dialog, pve);
         		}
             }
         });
@@ -563,7 +539,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 						toolTip += "Parody : " + countParody + "<br/>";
 					toolTip += "</body></html>";
 				} catch (DataBaseException dbe) {
-					Logger.logError(TAG + "error while loading data.", dbe);
+					LOG.error("Error loading data", dbe);
 				}
 				return null;
 			}

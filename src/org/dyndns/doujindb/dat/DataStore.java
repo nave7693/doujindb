@@ -77,7 +77,7 @@ public final class DataStore
 	
 	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
-		LOG.debug("call fromFile({}, {}, {})", srcPath, dstPath, contentsOnly);
+		LOG.debug("call fromFile({}, {}, {})", new Object[]{ srcPath, dstPath, contentsOnly });
 		checkOpen();
 		if(contentsOnly)
 			for(File file : srcPath.listFiles())
@@ -110,7 +110,7 @@ public final class DataStore
 	
 	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
 	{
-		LOG.debug("call toFile({}, {}, {})", srcPath, dstPath, contentsOnly);
+		LOG.debug("call toFile({}, {}, {})", new Object[]{ srcPath, dstPath, contentsOnly });
 		checkOpen();
 		if(contentsOnly)
 			for(DataFile file : srcPath.listFiles())

@@ -76,7 +76,7 @@ public final class Configuration
 
 	public static void configAdd(String key, String info, Object value) throws ConfigurationException
 	{
-		LOG.debug("call configAdd({}, {}, {})", key, info, value);
+		LOG.debug("call configAdd({}, {}, {})", new Object[]{ key, info, value });
 		instance.configAdd(key, info, value);
 		for(ConfigurationListener cl : listeners)
 			cl.configAdded(key);

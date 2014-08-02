@@ -11,11 +11,14 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.dialog.*;
 import org.dyndns.doujindb.util.ImageTool;
@@ -34,7 +37,7 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 	
 	private Vector<JButton> buttonPlugins;
 	
-	private static final String TAG = "DesktopEx : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DesktopEx.class);
 	
 	public DesktopEx()
 	{

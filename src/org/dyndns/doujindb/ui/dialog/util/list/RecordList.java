@@ -4,13 +4,17 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.table.*;
+
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
@@ -36,6 +40,8 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 	protected JPopupMenu popupAction;
 	
 	protected static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(RecordList.class);
 	
 	public RecordList(RecordSet<T> data)
 	{
@@ -97,7 +103,7 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 					try {
 						openRecordWindow((T) tableData.getModel().getValueAt(tableSorter.convertRowIndexToModel(tableData.rowAtPoint(me.getPoint())), 0));
 					} catch (DataBaseException dbe) {
-						Logger.logError(dbe.getMessage(), dbe);
+						LOG.error("Error displaying record Window", dbe);
 					}
 				}
 			}

@@ -23,6 +23,10 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.plaf.basic.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.conf.event.*;
@@ -30,7 +34,6 @@ import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.DesktopEx.*;
 import org.dyndns.doujindb.ui.dialog.*;
@@ -74,7 +77,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JMenuItem menuHelpBugtrack;
 	private JMenuItem menuHelpUpdate;
 	
-	private static final String TAG = "UI : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(UI.class);
 	
 	public static final Icons Icon = new Icons();
 	public static final Font Font = loadFont();
@@ -134,8 +137,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			UIManager.put("ToolTip.foreground", foreground);
 			UIManager.put("ToolTip.background", background);
 		    return theme;
-		} catch(Exception e) {
-			Logger.logError(TAG + e.getMessage(), e);
+		} catch(UnsupportedLookAndFeelException ulafe) {
+			LOG.error("Error setting Look&Fell", ulafe);
 		}
 		return null;
 	}
@@ -209,9 +212,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Icon.window_icon.getImage());
 		super.setAlwaysOnTop((Boolean) Configuration.configRead("org.dyndns.doujindb.ui.always_on_top"));
-		
 		super.getContentPane().setBackground(background);
-		Logger.logInfo(TAG + "basic user interface loaded.");
+		
+		LOG.debug("Basic user interface loaded");
 		
 		ModalLayer = new JComponent()
 	    {
@@ -385,8 +388,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelTabbed.setFocusable(false);
 		super.add(uiPanelTabbed);
 		
-		if(SystemTray.isSupported())
-		{
+		if(SystemTray.isSupported()) {
 			uiTrayPopup = new JPopupMenu();
 			uiTrayPopup.setFont(Font);
 			uiTrayPopupExit = new JMenuItem("Exit",Icon.window_tray_exit);
@@ -398,8 +400,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			{
 				public void mouseReleased(MouseEvent e)
 				{
-					if (e.isPopupTrigger())
-					{
+					if (e.isPopupTrigger()) {
 						uiTrayPopup.setVisible(true);
 						uiTrayPopup.setLocation(e.getX(), e.getY() - uiTrayPopup.getHeight());
 						uiTrayPopup.setInvoker(uiTrayPopup);
@@ -407,9 +408,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				}
 			});
 			uiTrayIcon.addActionListener(this);
-			Logger.logInfo(TAG + "system tray loaded.");
+			LOG.debug("System tray loaded.");
 		} else
-			Logger.logWarning(TAG + "system tray not supported.");
+			LOG.warn("System tray not supported.");
 
 		/*
 		 * 16/4/2011 - Bug introduced migrating from JDK6 to JDK7
@@ -518,161 +519,124 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		if(event.getSource() == uiPanelSettingsSave)
-		{
-			try
-			{
+		if(event.getSource() == uiPanelSettingsSave) {
+			try {
 				Configuration.configSave();
-				Logger.logInfo(TAG + "system properties saved.");
-			}catch(Exception e)
-			{
-				Logger.logError(TAG + e.getMessage(), e);
+			} catch(ConfigurationException ce) {
+				LOG.debug("Error saving Configuration", ce);
 			}
 			return;
 		}
-		if(event.getSource() == uiPanelPluginsReload)
-		{
-			try
-			{
-				uiPanelPlugins.clear();
-				for(Plugin plugin : PluginManager.listAll())
-					uiPanelPlugins.add(plugin);
-			}catch(Exception e)
-			{
-				Logger.logError(TAG + e.getMessage(), e);
-			}
+		if(event.getSource() == uiPanelPluginsReload) {
+			uiPanelPlugins.clear();
+			for(Plugin plugin : PluginManager.listAll())
+				uiPanelPlugins.add(plugin);
 			return;
 		}
-		if(event.getSource() == uiPanelSettingsLoad)
-		{
-			try
-			{
+		if(event.getSource() == uiPanelSettingsLoad) {
+			try {
 				Configuration.configLoad();
 				uiPanelSettings.reload();
-				Logger.logInfo(TAG + "system properties loaded.");
-			}catch(Exception e)
-			{
-				Logger.logError(TAG + e.getMessage(), e);
+			} catch(ConfigurationException ce) {
+				LOG.debug("Error loading Configuration", ce);
 			}
 			return;
 		}
-		if(event.getSource() == menuHelpAbout)
-		{
+		if(event.getSource() == menuHelpAbout) {
 			try {
 				Desktop.showDialog(new DialogAbout());
 			} catch (PropertyVetoException pve) {
-				Logger.logWarning(pve.getMessage(), pve);
+				LOG.error("Error displaying About Dialog", pve);
 			}
 			return;
 		}
-		if(event.getSource() == menuHelpBugtrack)
-		{
-			try
-			{
+		if(event.getSource() == menuHelpBugtrack) {
+			try {
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 				desktop.browse(new URI("https://github.com/loli10K/doujindb/issues/new"));
-			} catch (IOException ioe) {
-				Logger.logError(TAG + ioe.getMessage(), ioe);
-			} catch (URISyntaxException use) {
-				Logger.logError(TAG + use.getMessage(), use);
+			} catch (IOException | URISyntaxException e) {
+				LOG.error("Error opening issue page in browser", e);
 			}
 			return;
 		}
-		if(event.getSource() == menuHelpUpdate)
-		{
+		if(event.getSource() == menuHelpUpdate) {
 			try
 			{
 				java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 				desktop.browse(new URI("https://github.com/loli10K/doujindb/releases/latest"));
-			} catch (IOException ioe) {
-				Logger.logError(TAG + ioe.getMessage(), ioe);
-			} catch (URISyntaxException use) {
-				Logger.logError(TAG + use.getMessage(), use);
+			} catch (IOException | URISyntaxException e) {
+				LOG.error("Error opening download page in browser", e);
 			}
 			return;
 		}
-		if(event.getSource() == uiPanelDesktopShow)
-		{
+		if(event.getSource() == uiPanelDesktopShow) {
 			Desktop.showDesktop();
+			return;
 		}
-		if(event.getSource() == uiPanelDesktopSearch)
-		{
+		if(event.getSource() == uiPanelDesktopSearch) {
 			try {
 				Desktop.showSearchWindow();
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Search Window", dbe);
 			}
 			return;
 		}
-		if(event.getSource() == uiTrayIcon)
-		{
-			try
-			{
-				SystemTray uiTray = SystemTray.getSystemTray();
-				uiTray.remove(uiTrayIcon);
-				setVisible(true);
-				setState(JFrame.NORMAL);
-			}catch(Exception e){
-				Logger.logError(TAG + e.getMessage(), e);
-			}
+		if(event.getSource() == uiTrayIcon) {
+			SystemTray uiTray = SystemTray.getSystemTray();
+			setVisible(true);
+			setState(JFrame.NORMAL);
+			uiTray.remove(uiTrayIcon);
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Artist}"))
-		{
+		if(event.getActionCommand().equals("Add:{Artist}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Artist Window", dbe);
 			}
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Book}"))
-		{
+		if(event.getActionCommand().equals("Add:{Book}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Book Window", dbe);
 			}
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Circle}"))
-		{
+		if(event.getActionCommand().equals("Add:{Circle}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Circle Window", dbe);
 			}
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Convention}"))
-		{
+		if(event.getActionCommand().equals("Add:{Convention}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Convention Window", dbe);
 			}
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Content}"))
-		{
+		if(event.getActionCommand().equals("Add:{Content}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Content Window", dbe);
 			}
 			return;
 		}
-		if(event.getActionCommand().equals("Add:{Parody}"))
-		{
+		if(event.getActionCommand().equals("Add:{Parody}")) {
 			try {
 				Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, null);
 			} catch (DataBaseException dbe) {
-				Logger.logError(TAG + dbe.getMessage(), dbe);
+				LOG.error("Error displaying Parody Window", dbe);
 			}
 			return;
 		}
-		if(event.getSource() == uiTrayPopupExit)
-		{
+		if(event.getSource() == uiTrayPopupExit) {
 			System.exit(0);
 			return;
 		}
@@ -688,30 +652,26 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 				{
 					if(DataBase.isConnected()) {
 						try {
-							Logger.logInfo(TAG + "disconnecting from DataBase ...");
 							DataBase.disconnect();
 						} catch (DataBaseException dbe) {
-							Logger.logError(TAG + dbe.getMessage(), dbe);
+							LOG.error("Error disconnecting from DataBase", dbe);
 						}
 						try {
-							Logger.logInfo(TAG + "closing DataStore ...");
 							DataStore.close();
 						} catch (DataStoreException dse) {
-							Logger.logError(TAG + dse.getMessage(), dse);
+							LOG.error("Error closing DataStore", dse);
 						}
 					} else {
 						try {
-							Logger.logInfo(TAG + "connecting to DataBase ...");
 							DataBase.connect();
 						} catch (DataBaseException dbe) {
-							Logger.logError(TAG + dbe.getMessage(), dbe);
+							LOG.error("Error connecting to DataBase", dbe);
 							return null;
 						}
 						try {
-							Logger.logInfo(TAG + "opening DataStore ...");
 							DataStore.open();
 						} catch (DataStoreException dse) {
-							Logger.logError(TAG + dse.getMessage(), dse);
+							LOG.error("Error opening DataStore", dse);
 							return null;
 						}
 					}
@@ -747,16 +707,15 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	public void windowClosing(WindowEvent event)
 	{
-		if(! ((Boolean)Configuration.configRead("org.dyndns.doujindb.ui.tray_on_exit")))
+		if(!((Boolean)Configuration.configRead("org.dyndns.doujindb.ui.tray_on_exit")))
 			System.exit(0);
 		setState(JFrame.ICONIFIED);
-		try
-		{
+		try {
 			SystemTray uiTray = SystemTray.getSystemTray();
 			uiTray.add(uiTrayIcon);
 			setVisible(false);
 		} catch(AWTException awte) {
-			Logger.logError(TAG + awte.getMessage(), awte);
+			LOG.error("Error minimizing User Interface to Tray icon", awte);
 		}
 	}
 	

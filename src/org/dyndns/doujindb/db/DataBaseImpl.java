@@ -8,6 +8,10 @@ import javax.sql.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.DataNode;
@@ -24,7 +28,6 @@ import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.Logger;
 
 /**  
 * DataBaseImpl.java - DoujinDB database instance implementation.
@@ -53,7 +56,7 @@ final class DataBaseImpl extends IDataBase
 	private static SelectQuery queryContentOr;
 	private static SelectQuery queryParodyOr;
 	
-	private static final String TAG = "DataBaseImpl : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DataBaseImpl.class);
 	
 	{
 		List<Expression> list;
@@ -174,7 +177,7 @@ final class DataBaseImpl extends IDataBase
 				try {
 					return _ds.getConnection();
 				} catch (SQLException sqle) {
-					Logger.logError(TAG + "Cannot initialize connection", sqle);
+					LOG.error("Cannot initialize connection", sqle);
 					return null;
 				}
 			}

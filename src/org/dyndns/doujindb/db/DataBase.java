@@ -2,12 +2,15 @@ package org.dyndns.doujindb.db;
 
 import java.util.concurrent.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
-import org.dyndns.doujindb.log.*;
 
 public final class DataBase
 {
@@ -15,7 +18,7 @@ public final class DataBase
 	private static CopyOnWriteArraySet<DataBaseListener> listeners = new CopyOnWriteArraySet<DataBaseListener>();
 	private static ConcurrentLinkedQueue<DataBaseEvent> queue = new ConcurrentLinkedQueue<DataBaseEvent>();
 	
-	private static final String TAG = "DataBase : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DataBase.class);
 	
 	static
 	{
@@ -92,122 +95,122 @@ public final class DataBase
 	
 	public static void doCommit() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call doCommit()");
+		LOG.debug("call doCommit()");
 		getInstace().doCommit();
 	}
 
 	public static void doRollback() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call doRollback()");
+		LOG.debug("call doRollback()");
 		getInstace().doRollback();
 	}
 	
 	public static void doDelete(Record record) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call doDelete(" + record + ")");
+		LOG.debug("call doDelete({})", record);
 		getInstace().doDelete(record);
 	}
 	
 	public static RecordSet<Book> getBooks(QueryBook query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getBooks(" + query + ")");
+		LOG.debug("call getBooks({})", query);
 		return getInstace().getBooks(query);
 	}
 
 	public static RecordSet<Circle> getCircles(QueryCircle query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getCircles(" + query + ")");
+		LOG.debug("call getCircles({})", query);
 		return getInstace().getCircles(query);
 	}
 
 	public static RecordSet<Artist> getArtists(QueryArtist query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getArtists(" + query + ")");
+		LOG.debug("call getArtists({})", query);
 		return getInstace().getArtists(query);
 	}
 
 	public static RecordSet<Parody> getParodies(QueryParody query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getParodies(" + query + ")");
+		LOG.debug("call getParodies({})", query);
 		return getInstace().getParodies(query);
 	}
 
 	public static RecordSet<Content> getContents(QueryContent query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getContents(" + query + ")");
+		LOG.debug("call getContents({})", query);
 		return getInstace().getContents(query);
 	}
 
 	public static RecordSet<Convention> getConventions(QueryConvention query) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getConventions(" + query + ")");
+		LOG.debug("call getConventions({})", query);
 		return getInstace().getConventions(query);
 	}
 	
 	public static RecordSet<Record> getRecycled() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getRecycled()");
+		LOG.debug("call getRecycled()");
 		return getInstace().getRecycled();
 	}
 
 	public static RecordSet<Record> getDeleted() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getDeleted()");
+		LOG.debug("call getDeleted()");
 		return getInstace().getDeleted();
 	}
 
 	public static RecordSet<Record> getModified() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getModified()");
+		LOG.debug("call getModified()");
 		return getInstace().getModified();
 	}
 
 	public static RecordSet<Record> getUncommitted() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call getUncommitted()");
+		LOG.debug("call getUncommitted()");
 		return getInstace().getUncommitted();
 	}
 	
 	public static <T> T doInsert(Class<? extends Record> clazz) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call doInsert(" + clazz + ")");
+		LOG.debug("call doInsert({})", clazz);
 		return getInstace().doInsert(clazz);
 	}
 	
 	public static void connect() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call connect()");
+		LOG.debug("call connect()");
 		getInstace().connect();
 	}
 	
 	public static void disconnect() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call disconnect()");
+		LOG.debug("call disconnect()");
 		getInstace().disconnect();
 	}
 	
 	public static boolean isConnected() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call isConnected()");
+		LOG.debug("call isConnected()");
 		return getInstace().isConnected();
 	}
 	
 	public static String getConnection() throws DataBaseException
 	{
 
-		Logger.logDebug(TAG + "call getConnection()");
+		LOG.debug("call getConnection()");
 		return getInstace().getConnection();
 	}
 
 	public static boolean isAutocommit() throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call isAutocommit()");
+		LOG.debug("call isAutocommit()");
 		return getInstace().isAutocommit();
 	}
 	
 	public static void addDataBaseListener(DataBaseListener dbl)
 	{
-		Logger.logDebug(TAG + "call addDataBaseListener(" + dbl + ")");
+		LOG.debug("call addDataBaseListener({})", dbl);
 		synchronized(listeners) {
 			if(!listeners.contains(dbl))
 				listeners.add(dbl);
@@ -216,7 +219,7 @@ public final class DataBase
 	
 	public static void removeDataBaseListener(DataBaseListener dbl)
 	{
-		Logger.logDebug(TAG + "call removeDataBaseListener(" + dbl + ")");
+		LOG.debug("call removeDataBaseListener({})", dbl);
 		synchronized(listeners) {
 			listeners.remove(dbl);
 		}
@@ -307,19 +310,19 @@ public final class DataBase
 
 	static ContentAlias newContentAlias()
 	{
-		Logger.logDebug(TAG + "call newContentAlias()");
+		LOG.debug("call newContentAlias()");
 		return getInstace().newContentAlias();
 	}
 	
 	static ConventionAlias newConventionAlias()
 	{
-		Logger.logDebug(TAG + "call newConventionAlias()");
+		LOG.debug("call newConventionAlias()");
 		return getInstace().newConventionAlias();
 	}
 	
 	static void deleteObject(Object o) throws DataBaseException
 	{
-		Logger.logDebug(TAG + "call deleteObject(" + o + ")");
+		LOG.debug("call deleteObject({})", o);
 		getInstace().deleteObject(o);
 	}
 }

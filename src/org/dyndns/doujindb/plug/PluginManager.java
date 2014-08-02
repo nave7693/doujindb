@@ -4,11 +4,15 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
+
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.log.*;
 
 /**  
 * PluginManager.java - DoujinDB Plugin Manager.
@@ -22,8 +26,8 @@ public final class PluginManager
 	private static int PLUGIN_TIMEOUT = 60;
 	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
 
-	private static final String TAG = "PluginManager : ";
-
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
+	
 	private PluginManager() { }
 	
 	static
@@ -32,7 +36,7 @@ public final class PluginManager
 		 * Register a shutdown hook to handle the shutdown of this JVM for every Plugin
 		 * If the Plugin doesn't shutdown after PLUGIN_TIMEOUT (seconds), skip it
 		 */
-		Logger.logInfo(TAG + "registering shutdown hook for this JVM ...");
+		LOG.info("Registering shutdown hook for this JVM");
 		Runtime.getRuntime().addShutdownHook(new Thread("pluginmanager-shutdownhook")
 		{
 			@Override
@@ -77,7 +81,6 @@ public final class PluginManager
 	private static void discoverAll()
 	{
 		File libDirectory = new File(Core.DOUJINDB_HOME, "lib");
-		Logger.logInfo(TAG + "discovering plugins ...");
 		// check if lib directory is present
 		if(!libDirectory.exists())
 			return;
@@ -102,7 +105,7 @@ public final class PluginManager
 				    }
 				    if(classes.contains(Plugin.class.getCanonicalName()))
 				    {
-				    	Logger.logInfo(TAG + "found '" + className + "'.");
+				    	LOG.info("Found plugin [{}]", className);
 				    	; //TODO Add file.jar to SystemClassLoader, then load Plugin
 				    }
 				}
@@ -115,7 +118,7 @@ public final class PluginManager
 				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
 			})
 			try {
-				Logger.logInfo(TAG + "found '" + pluginName + "'.");
+				LOG.info("Found plugin [{}]", pluginName);
 				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
 				plugins.add(plugin);
 			} catch (Exception e) {
@@ -125,7 +128,7 @@ public final class PluginManager
 	
 	public static void loadAll()
 	{
-		Logger.logInfo(TAG + "loading plugins ...");
+		LOG.debug("call loadAll()");
 		FileInputStream in = null;
 		try
 		{
@@ -139,22 +142,14 @@ public final class PluginManager
 				try {
 					if(xmlnode.enabled)
 						plugins.add((Plugin) Class.forName(pluginName).newInstance());
-				} catch (RuntimeException re) {
-					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + re.getMessage(), re);
-				} catch (InstantiationException ie) {
-					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + ie.getMessage(), ie);
-				} catch (IllegalAccessException iae) {
-					Logger.logError(TAG + "failed to load plugin '" + pluginName + "' : " + iae.getMessage(), iae);
+				} catch (RuntimeException | InstantiationException | IllegalAccessException e) {
+					LOG.error("Error loading plugin [{}]", pluginName, e);
 				}
 			}
 		} catch (FileNotFoundException fnfe) {
 			;
-		} catch (NullPointerException npe) {
-			Logger.logError(TAG + "failed to load plugins : " + npe.getMessage(), npe);
-		} catch (JAXBException jaxbe) {
-			Logger.logError(TAG + "failed to load plugins : " + jaxbe.getMessage(), jaxbe);
-		} catch (ClassNotFoundException cnfe) {
-			Logger.logError(TAG + "failed to load plugins : " + cnfe.getMessage(), cnfe);
+		} catch (JAXBException | ClassNotFoundException | NullPointerException e) {
+			LOG.error("Error loading plugins", e);
 		} finally {
 			try { in.close(); } catch (Exception e) { }
 		}
@@ -164,7 +159,7 @@ public final class PluginManager
 	
 	public static void saveAll()
 	{
-		Logger.logInfo(TAG + "saving plugins ...");
+		LOG.debug("call saveAll()");
 		FileOutputStream out = null;
 		try
 		{
@@ -181,10 +176,8 @@ public final class PluginManager
 				xmlroot.nodes.add(xmlnode);
 			}
 			m.marshal(xmlroot, out);
-		} catch (IOException ioe) {
-			Logger.logError(TAG + "failed to save plugins : " + ioe.getMessage(), ioe);
-		} catch (JAXBException jaxbe) {
-			Logger.logError(TAG + "failed to save plugins : " + jaxbe.getMessage(), jaxbe);
+		} catch (IOException | JAXBException e) {
+			LOG.error("Error saving plugins", e);
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
@@ -192,7 +185,7 @@ public final class PluginManager
 	
 	public static void startAll()
 	{
-		Logger.logInfo(TAG + "starting all plugins ...");
+		LOG.debug("call startAll()");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -202,7 +195,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.startup();
-						Logger.logInfo(TAG + "plugin '" + plugin.getName() + "' started");
+						LOG.info("Plugin [{}] started", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -214,11 +207,11 @@ public final class PluginManager
 			{
 				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Logger.logWarning(TAG + "TimeoutException : Cannot startup plugin '" + plugin.getName() + "'", te);
+				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
 			} catch (InterruptedException ie) {
-				Logger.logWarning(TAG + "InterruptedException : Cannot startup plugin '" + plugin.getName() + "'", ie);
+				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getName(), ie);
 			} catch (ExecutionException ee) {
-				Logger.logWarning(TAG + "ExecutionException : Cannot startup plugin '" + plugin.getName() + "'", ee);
+				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getName(), ee);
 			} finally {
 			   future.cancel(true);
 			}
@@ -227,7 +220,7 @@ public final class PluginManager
 	
 	public static void stopAll()
 	{
-		Logger.logInfo(TAG + "stopping all plugins ...");
+		LOG.debug("call stopAll()");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -237,7 +230,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.shutdown();
-						Logger.logInfo(TAG + "plugin '" + plugin.getName() + "' stopped");
+						LOG.info("Plugin [{}] stopped", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -249,11 +242,11 @@ public final class PluginManager
 			{
 				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				Logger.logWarning(TAG + "TimeoutException : Cannot shutdown plugin '" + plugin.getName() + "'", te);
+				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);
 			} catch (InterruptedException ie) {
-				Logger.logWarning(TAG + "InterruptedException : Cannot shutdown plugin '" + plugin.getName() + "'", ie);
+				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getName(), ie);
 			} catch (ExecutionException ee) {
-				Logger.logWarning(TAG + "ExecutionException : Cannot shutdown plugin '" + plugin.getName() + "'", ee);
+				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getName(), ee);
 			} finally {
 			   future.cancel(true);
 			}

@@ -16,6 +16,10 @@ import javax.xml.bind.annotation.*;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.dyndns.doujindb.dat.*;
@@ -23,7 +27,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.plug.impl.imagesearch.CacheManager;
 import org.dyndns.doujindb.util.*;
 
@@ -36,7 +39,7 @@ final class TaskManager
 	
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(tasks);
 	
-	private static final String TAG = "DoujinshiDBScanner.TaskManager : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
 	static {
 		loadTasks();
@@ -62,7 +65,7 @@ final class TaskManager
 						fetch(bookid);
 						queue.poll();
 					} catch (IOException ioe) {
-						Logger.logWarning(TAG + "failed to download image of bookid '" + bookid + "'");
+						LOG.error("Error downloading image for [{}]", bookid, ioe);
 					} catch (InterruptedException ie) { }
 				}
 			}
@@ -341,7 +344,7 @@ final class TaskManager
 		{
 			worker.resume();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Logger.logInfo("Worker started");
+			LOG.info("Worker started");
 		}
 	}
 	
@@ -351,7 +354,7 @@ final class TaskManager
 		{
 			worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			Logger.logInfo("Worker stopped");
+			LOG.info("Worker stopped");
 		}
 	}
 	
@@ -435,7 +438,7 @@ final class TaskManager
 				int queryCount = DoujinshiDBScanner.UserInfo.Queries;
 				if( queryCount < 2)
 				{
-					Logger.logWarning("Not enough (" + queryCount + ") API queries to process more Tasks");
+					LOG.warn("Not enough API queries to process more Tasks [{}]", queryCount);
 					TaskManager.stop();
 					pcs.firePropertyChange("api-info", 0, 1);
 					continue;

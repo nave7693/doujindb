@@ -4,7 +4,8 @@ Requirements
 * [Ashwood] - ObjectStyle Ashwood Graph Library (required by Cayenne)
 * [Velocity] - Apache Velocity Template Engine (required by Cayenne)
 * [Commons Collections] - Apache Commons Collections (required by Cayenne)
-* [Commons Logging] - Apache Commons Logging (required by Cayenne)
+* [SLF4J] - The Simple Logging Facade for Java
+* [Logback] - Logback
 * JDBC drivers - [MySQL], [SQLite], [Derby] ...
 
 Download Cayenne binaries (3.0.2 is the supported version, 3.1+ won't work) which also contain required libraries (Ashwood, Velocity, Commons) in lib/third-party
@@ -19,8 +20,11 @@ Your lib directory should look like this
 ashwood.jar
 cayenne-server.jar
 commons-collections.jar
-commons-logging.jar
+jcl-over-slf4j.jar
+logback-classic.jar
+logback-core.jar
 README.md
+slf4j-api.jar
 velocity.jar
 ```
 
@@ -37,7 +41,8 @@ sqlite.jar
   [ashwood]: http://objectstyle.org/ashwood/
   [velocity]: http://jakarta.apache.org/velocity/
   [commons collections]: http://jakarta.apache.org/commons/collections
-  [commons logging]: http://jakarta.apache.org/commons/logging/
+  [slf4j]: http://www.slf4j.org/
+  [logback]: http://logback.qos.ch/
   [mysql]: http://dev.mysql.com/downloads/connector/j/
   [sqlite]: https://bitbucket.org/xerial/sqlite-jdbc
   [Derby]: http://db.apache.org/derby/

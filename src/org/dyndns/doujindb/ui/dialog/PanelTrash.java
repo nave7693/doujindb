@@ -13,10 +13,13 @@ import javax.swing.table.TableRowSorter;
 import java.beans.*;
 import java.util.Vector;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
@@ -44,6 +47,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	private static DialogTrash m_PopupDialog = null;
 	
 	private static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelTrash.class);
 	
 	public PanelTrash()
 	{
@@ -104,7 +109,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 									super.setProgress(100 * ++processedCount / selectedCount);
 									selected.add(o);
 								} catch (DataBaseException dbe) {
-									Logger.logError(dbe.getMessage(), dbe);
+									LOG.error("Error restoring deleted record", dbe);
 								}
 							}
 						
@@ -112,9 +117,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							LOG.error("Error restoring deleted record", dbe);
 						}
 						
 						publish(selected);
@@ -218,7 +221,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 									super.setProgress(100 * ++processedCount / selectedCount);
 									selected.add(o);
 								} catch (DataBaseException dbe) {
-									Logger.logError(dbe.getMessage(), dbe);
+									LOG.error("Error deleting record", dbe);
 								}
 							}
 						
@@ -226,9 +229,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							LOG.error("Error deleting record", dbe);
 						}
 						
 						publish(selected);
@@ -329,7 +330,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 									super.setProgress(100 * ++processedCount / selectedCount);
 									selected.add(o);
 								} catch (DataBaseException dbe) {
-									Logger.logError(dbe.getMessage(), dbe);
+									LOG.error("Error deleting record", dbe);
 								}
 							}
 						
@@ -337,9 +338,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							if(DataBase.isAutocommit())
 								DataBase.doCommit();
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+							LOG.error("Error deleting record", dbe);
 						}
 						
 						publish(selected);
@@ -463,12 +462,8 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 							continue;
 						}
 					}
-				} catch(ArrayIndexOutOfBoundsException aioobe) {
-					Logger.logError(aioobe.getMessage(), aioobe);
 				} catch (DataBaseException dbe) {
-					Logger.logError(dbe.getMessage(), dbe);
-				} catch (Exception e) {
-					Logger.logError(e.getMessage(), e);
+					LOG.error("Error loading deleted record", dbe);
 				}
 				return null;
 			}
@@ -543,8 +538,7 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				try {
 					recycledCount = DataBase.getRecycled().size();
 				} catch (DataBaseException dbe) {
-					Logger.logError(dbe.getMessage(), dbe);
-					dbe.printStackTrace();
+					LOG.error("Error reloading deleted record count", dbe);
 				}
 				return null;
 			}

@@ -11,10 +11,13 @@ import java.util.TooManyListenersException;
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
@@ -40,6 +43,8 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelParody.class);
 	
 	public PanelParody(Parody token) throws DataBaseException
 	{
@@ -182,8 +187,7 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
+			LOG.error("Error saving record [{}]", tokenParody, dbe);
 		}
 	}
 	

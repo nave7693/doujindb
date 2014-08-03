@@ -6,6 +6,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +19,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.TabbedPaneUI;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
@@ -28,7 +33,6 @@ import org.dyndns.doujindb.db.records.Content;
 import org.dyndns.doujindb.db.records.Convention;
 import org.dyndns.doujindb.db.records.Parody;
 import org.dyndns.doujindb.db.records.Book.Type;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.*;
@@ -76,7 +80,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	
 	protected static final Font font = UI.Font;
 	
-	private static final String TAG = "PanelBook : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelBook.class);
 	
 	public PanelBook(Book token) throws DataBaseException
 	{
@@ -132,10 +136,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								if(fc.showOpenDialog(PanelBook.this) != JFileChooser.APPROVE_OPTION)
 									return null;
 								BufferedImage image = null;
+								File imageFile = fc.getSelectedFile();
 								try {
-									image = ImageTool.read(fc.getSelectedFile());
+									image = ImageTool.read(imageFile);
 								} catch (IOException ioe) {
-									Logger.logError(ioe.getMessage(), ioe);
+									LOG.error("Error loading cover image for [{}] from file [{}]", new Object[]{tokenBook, imageFile}, ioe);
 								}
 								if(image == null)
 									return null;
@@ -155,8 +160,8 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									});
 									
 									out.close();
-								} catch (Exception e) {
-									Logger.logError(e.getMessage(), e);
+								} catch (DataStoreException dse) {
+									LOG.error("Error storing cover image in DataStore", dse);
 									
 									SwingUtilities.invokeLater(new Runnable()
 									{
@@ -190,7 +195,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 									DataFile thumbnail = DataStore.getThumbnail(tokenBook.getId());
 									thumbnail.delete();
 								} catch (DataStoreException dse) {
-									Logger.logError(dse.getMessage(), dse);
+									LOG.error("Error deleting cover image from DataStore", dse);
 								}
 								return null;
 							}
@@ -408,12 +413,11 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		int pages = 0;
 		_pages:
 		{
-			try
-			{
+			try {
 				if(textPages.getText().equals(""))
 					break _pages;
 				pages = Integer.parseInt(textPages.getText());
-			}catch(NumberFormatException nfe){
+			} catch(NumberFormatException nfe) {
 				final Border brd1 = textPages.getBorder();
 				final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
 				final Timer tmr = new Timer(100, new AbstractAction () {
@@ -435,11 +439,9 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			}
 		}
 		if(!textDate.getText().equals("--/--/----"))
-		try
-		{
+		try {
 			date = new java.text.SimpleDateFormat("dd/MM/yyyy").parse(textDate.getText());
-		} catch(ParseException pe)
-		{
+		} catch(ParseException pe) {
 			final Border brd1 = textDate.getBorder();
 			final Border brd2 = BorderFactory.createLineBorder(Color.ORANGE);
 			final Timer tmr = new Timer(100, new AbstractAction () {
@@ -456,24 +458,18 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				}
 			});
 			tmr.start();
-		} catch (DataBaseException dbe) {
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
 		}
-		if(date == null && !textDate.getText().equals("--/--/----"))
-		{
+		if(date == null && !textDate.getText().equals("--/--/----")) {
 			buttonConfirm.setEnabled(true);
 			return;
 		}
-		try
-		{
+		try {
 			if(tokenBook instanceof NullBook)
 				tokenBook = DataBase.doInsert(Book.class);
-			else
-				{
-					labelPreview.setEnabled(true);
-					tabLists.setEnabledAt(tabLists.getTabCount()-1, true);
-				}
+			else {
+				labelPreview.setEnabled(true);
+				tabLists.setEnabledAt(tabLists.getTabCount()-1, true);
+			}
 			tokenBook.setJapaneseName(textJapaneseName.getText());
 			tokenBook.setTranslatedName(textTranslatedName.getText());
 			tokenBook.setRomajiName(textRomajiName.getText());
@@ -531,8 +527,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
+			LOG.error("Error saving record [{}]", tokenBook, dbe);
 		}
 	}
 	
@@ -570,7 +565,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				} catch (NullPointerException npe) {
 					npe.printStackTrace();
 				} catch (DataStoreException dse) {
-					Logger.logWarning(TAG + "error loading cover image : " + dse.getMessage());
+					LOG.error("Error loading cover image for [{}]", tokenBook, dse);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

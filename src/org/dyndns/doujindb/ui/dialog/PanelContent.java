@@ -16,12 +16,15 @@ import javax.swing.event.DocumentListener;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
@@ -51,6 +54,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelContent.class);
 	
 	public PanelContent(Content token) throws DataBaseException
 	{
@@ -155,8 +160,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 						if(DataBase.isAutocommit())
 							DataBase.doCommit();
 					} catch (DataBaseException dbe) {
-						Logger.logError(dbe.getMessage(), dbe);
-						dbe.printStackTrace();
+						LOG.error("Error removing alias record from [{}]", tokenContent, dbe);
 					}
 					return;
 				}
@@ -216,8 +220,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 									});
 								}
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
-							dbe.printStackTrace();
+							LOG.error("Error removing alias record(s) from [{}]", tokenContent, dbe);
 						}
 						listAlias.validate();
 					}
@@ -371,8 +374,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
+			LOG.error("Error saving record [{}]", tokenContent, dbe);
 		}
 	}
 	

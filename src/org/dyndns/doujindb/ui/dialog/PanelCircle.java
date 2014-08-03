@@ -12,6 +12,10 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.dat.DataStoreException;
@@ -20,7 +24,6 @@ import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Artist;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Circle;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListArtist;
@@ -51,7 +54,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 	
 	protected static final Font font = UI.Font;
 	
-	private static final String TAG = "PanelCircle : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelCircle.class);
 	
 	public PanelCircle(Circle token) throws DataBaseException
 	{
@@ -106,10 +109,11 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								if(fc.showOpenDialog(PanelCircle.this) != JFileChooser.APPROVE_OPTION)
 									return null;
 								BufferedImage image = null;
+								File imageFile = fc.getSelectedFile();
 								try {
-									image = ImageTool.read(fc.getSelectedFile());
+									image = ImageTool.read(imageFile);
 								} catch (IOException ioe) {
-									Logger.logError(ioe.getMessage(), ioe);
+									LOG.error("Error loading banner image for [{}] from file [{}]", new Object[]{tokenCircle, imageFile}, ioe);
 								}
 								if(image == null)
 									return null;
@@ -134,8 +138,8 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									});
 									
 									out.close();
-								} catch (Exception e) {
-									Logger.logError(e.getMessage(), e);
+								} catch (DataStoreException dse) {
+									LOG.error("Error storing banner image in DataStore", dse);
 									
 									SwingUtilities.invokeLater(new Runnable()
 									{
@@ -169,7 +173,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									DataFile banner = DataStore.getBanner(tokenCircle.getId());
 									banner.delete();
 								} catch (DataStoreException dse) {
-									Logger.logError(dse.getMessage(), dse);
+									LOG.error("Error deleting banner image from DataStore", dse);
 								}
 								return null;
 							}
@@ -323,8 +327,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
+			LOG.error("Error saving record [{}]", tokenCircle, dbe);
 		}
 	}
 	
@@ -351,7 +354,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 				} catch (NullPointerException npe) {
 					npe.printStackTrace();
 				} catch (DataStoreException dse) {
-					Logger.logWarning(TAG + "error loading banner image : " + dse.getMessage());
+					LOG.error("Error loading banner image for [{}]", tokenCircle, dse);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

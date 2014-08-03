@@ -16,12 +16,15 @@ import javax.swing.event.DocumentListener;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.text.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Convention;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
@@ -53,6 +56,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	private JButton buttonConfirm;
 	
 	protected static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelConvention.class);
 	
 	public PanelConvention(Convention token) throws DataBaseException
 	{
@@ -161,8 +166,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 						if(DataBase.isAutocommit())
 							DataBase.doCommit();
 					} catch (DataBaseException dbe) {
-						Logger.logError(dbe.getMessage(), dbe);
-						dbe.printStackTrace();
+						LOG.error("Error removing alias record from [{}]", tokenConvention, dbe);
 					}
 					return;
 				}
@@ -222,8 +226,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 									});
 								}
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
-							dbe.printStackTrace();
+							LOG.error("Error removing alias record(s) from [{}]", tokenConvention, dbe);
 						}
 						listAlias.validate();
 					}
@@ -382,8 +385,7 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 			}.execute();
 		} catch (DataBaseException dbe) {
 			buttonConfirm.setEnabled(true);
-			Logger.logError(dbe.getMessage(), dbe);
-			dbe.printStackTrace();
+			LOG.error("Error saving record [{}]", tokenConvention, dbe);
 		}
 	}
 	

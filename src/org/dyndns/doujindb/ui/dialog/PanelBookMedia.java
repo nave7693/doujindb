@@ -15,12 +15,15 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.records.Book.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.*;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.util.Metadata;
@@ -48,7 +51,7 @@ public class PanelBookMedia extends JPanel
 	public static final Icons Icon = UI.Icon;
 	public static final Font Font = UI.Font;
 	
-	private static final String TAG = "PanelBook.Media : ";
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelBookMedia.class);
 	
 	public PanelBookMedia(Book book)
 	{
@@ -93,8 +96,8 @@ public class PanelBookMedia extends JPanel
 							File dataFiles[] = fc.getSelectedFiles();
 							DataFile destFolder = DataStore.getStore(tokenBook.getId());
 							UI.Desktop.showDialog(getTopLevelWindow(), new DialogUpload(destFolder, dataFiles));
-						} catch (Exception e) {
-							Logger.logError(TAG + e.getMessage(), e);
+						} catch (DataBaseException | DataStoreException | PropertyVetoException e) {
+							LOG.error("Error uploading files to DataStore", e);
 						}
 					}
 				}.start();
@@ -128,7 +131,6 @@ public class PanelBookMedia extends JPanel
 							TreePath[] paths = treeMedia.CheckBoxRenderer.getCheckedPaths();
 							DataFile rootDf = DataStore.getStore(tokenBook.getId());
 							for(TreePath path : paths)
-							try
 							{
 								StringBuilder sb = new StringBuilder();
 								Object[] nodes = path.getPath();
@@ -137,12 +139,10 @@ public class PanelBookMedia extends JPanel
 								}
 								DataFile dataFile = rootDf.getFile(sb.toString());
 								dataFiles.add(dataFile);
-							} catch (Exception e) {
-								Logger.logError(TAG + e.getMessage(), e);
 							}
 							UI.Desktop.showDialog(getTopLevelWindow(), new DialogDownload(destFolder, dataFiles.toArray(new DataFile[]{})));
-						} catch (Exception e) {
-							Logger.logError(TAG + e.getMessage(), e);
+						} catch (DataBaseException | DataStoreException | PropertyVetoException e) {
+							LOG.error("Error downloading files from DataStore", e);
 						}
 					}
 				}.start();				
@@ -162,7 +162,7 @@ public class PanelBookMedia extends JPanel
 				try {
 					UI.Desktop.showDialog(getTopLevelWindow(), new DialogDelete());
 				} catch (PropertyVetoException pve) {
-					Logger.logWarning(TAG + pve.getMessage(), pve);
+					LOG.error("Error displaying Delete Dialog", pve);
 				}
 			}
 		});
@@ -189,8 +189,8 @@ public class PanelBookMedia extends JPanel
 								return;
 							File destFolder = fc.getSelectedFile();
 							UI.Desktop.showDialog(getTopLevelWindow(), new DialogArchive(destFolder));
-						} catch (Exception e) {
-							Logger.logError(TAG + e.getMessage(), e);
+						} catch (PropertyVetoException pve) {
+							LOG.error("Error displaying Archive Dialog", pve);
 						}
 					}
 				}.start();
@@ -206,10 +206,8 @@ public class PanelBookMedia extends JPanel
 			public void actionPerformed(ActionEvent ae) {
 				try {
 					DataStore.getStore(tokenBook.getId()).browse();
-				} catch (DataBaseException dbe) {
-					Logger.logError(TAG + "cannot browse Book '" + tokenBook + "'", dbe);
-				} catch (DataStoreException dse) {
-					Logger.logError(TAG + "cannot browse Book '" + tokenBook + "'", dse);
+				} catch (DataBaseException | DataStoreException e) {
+					LOG.error("Error browsing DataStore for record [{}]", tokenBook, e);
 				}
 			}
 		});
@@ -368,12 +366,12 @@ public class PanelBookMedia extends JPanel
 			    	setIcon(Icon.desktop_explorer_book_media_repository);
 			    	try {
 						try {
-							setText(DataStore.getStore(tokenBook.getId()).toString());
+							setText(DataStore.getStore(tokenBook.getId()).toString()); //FIXME Avoid useless calls to DataStore/DataBase caching this result
 						} catch (DataStoreException dse) {
 							setText("???");
 						}
 					} catch (DataBaseException dbe) {
-						Logger.logError(dbe.getMessage(), dbe);
+						LOG.error("Error rendering tree-node for record [{}]", tokenBook, dbe);
 					}
 			    	return this;
 			    }
@@ -497,11 +495,11 @@ public class PanelBookMedia extends JPanel
 											else
 												ds = ds.getFile(os[k].toString());
 										ds.delete(true);
-									} catch (Exception e) {
-										Logger.logError(TAG + e.getMessage(), e);
+									} catch (DataStoreException dse) {
+										LOG.error("Error deleting data files for record [{}]", tokenBook, dse);
 									}
-							} catch (Exception e) {
-								Logger.logError(e.getMessage(), e);
+							} catch (DataStoreException dse) {
+								LOG.error("Error deleting data files for record [{}]", tokenBook, dse);
 							}
 							return null;
 						}
@@ -582,8 +580,8 @@ public class PanelBookMedia extends JPanel
 						try
 						{
 							doUpload(file, destFolder);
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+						} catch (IOException ioe) {
+							LOG.error("Error uploading files for record [{}]", tokenBook, ioe);
 						}
 					}
 					return null;
@@ -689,8 +687,8 @@ public class PanelBookMedia extends JPanel
 						try
 						{
 							doDownload(file, destFolder);
-						} catch (Exception e) {
-							Logger.logError(e.getMessage(), e);
+						} catch (IOException ioe) {
+							LOG.error("Error downloading files for record [{}]", tokenBook, ioe);
 						}
 					}
 					return null;
@@ -804,7 +802,7 @@ public class PanelBookMedia extends JPanel
 						zout.close();
 					} catch (IOException ioe) {
 						zip.delete();
-						Logger.logWarning(ioe.getMessage(), ioe);
+						LOG.error("Error archiving files for record [{}]", tokenBook, ioe);
 					}
 					return null;
 				}
@@ -830,11 +828,10 @@ public class PanelBookMedia extends JPanel
 						zout.putNextEntry(entry);
 						zout.closeEntry();
 					} catch (IOException ioe) {
-						Logger.logWarning(ioe.getMessage(), ioe);
+						LOG.error("Error zipping files for record [{}]", tokenBook, ioe);
 					}
 					doZip(base + ds.getName() + File.separator, ds.listFiles(), zout);
-				}else
-				{
+				} else {
 					int read;
 					byte[] buff = new byte[0x800];
 					ZipEntry entry = new ZipEntry(base + ds.getName());
@@ -853,7 +850,7 @@ public class PanelBookMedia extends JPanel
 						in.close();
 						progressbar.setValue(progressbar.getValue() + 1);
 					} catch (IOException ioe) {
-						Logger.logWarning(ioe.getMessage(), ioe);
+						LOG.error("Error archiving files for record [{}]", tokenBook, ioe);
 					}
 				}
 			}

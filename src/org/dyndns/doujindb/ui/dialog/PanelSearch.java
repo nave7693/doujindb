@@ -16,6 +16,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.*;
+
 import org.dyndns.doujindb.conf.Configuration;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.dat.DataStoreException;
@@ -23,7 +27,6 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.log.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
@@ -51,6 +54,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	private static DialogSearch m_PopupDialog = null;
 	
 	private static final Font font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelSearch.class);
 	
 	public PanelSearch(JTabbedPane tab, int index)
 	{
@@ -410,7 +415,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Artist Window", dbe);
 						}
 						return;
 					}
@@ -479,13 +484,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									if(DataBase.isAutocommit())
-										DataBase.doCommit();
+									try {
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
+									}
 									publish(selected);
 									return null;
 								}
@@ -735,7 +743,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Book Window", dbe);
 						}
 						return;
 					}
@@ -802,21 +810,15 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									try
-									{
+									try {
 										if(DataBase.isAutocommit())
 											DataBase.doCommit();
-									} catch (DataBaseException dbe)
-									{
-										Logger.logError(dbe.getMessage(), dbe);
-									} catch (Exception e)
-									{
-										Logger.logError(e.getMessage(), e);
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
 									}
 									publish(selected);
 									return null;
@@ -1229,7 +1231,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Circle Window", dbe);
 						}
 						return;
 					}
@@ -1296,13 +1298,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									if(DataBase.isAutocommit())
-										DataBase.doCommit();
+									try {
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
+									}
 									publish(selected);
 									return null;
 								}
@@ -1493,7 +1498,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Content Window", dbe);
 						}
 						return;
 					}
@@ -1560,13 +1565,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									if(DataBase.isAutocommit())
-										DataBase.doCommit();
+									try {
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
+									}
 									publish(selected);
 									return null;
 								}
@@ -1740,7 +1748,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Convention Window", dbe);
 						}
 						return;
 					}
@@ -1807,13 +1815,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									if(DataBase.isAutocommit())
-										DataBase.doCommit();
+									try {
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
+									}
 									publish(selected);
 									return null;
 								}
@@ -2002,7 +2013,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 										tableResults.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 						} catch (DataBaseException dbe) {
-							Logger.logError(dbe.getMessage(), dbe);
+							LOG.error("Error displaying Parody Window", dbe);
 						}
 						return;
 					}
@@ -2069,13 +2080,16 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 											o.doRecycle();
 											super.setProgress(100 * ++cProcessed / cSelected);
 											selected.add(o);
-										} catch (DataBaseException dbe)
-										{
-											Logger.logError(dbe.getMessage(), dbe);
+										} catch (DataBaseException dbe) {
+											LOG.error("Error recycling record", dbe);
 										}
 									}
-									if(DataBase.isAutocommit())
-										DataBase.doCommit();
+									try {
+										if(DataBase.isAutocommit())
+											DataBase.doCommit();
+									} catch (DataBaseException dbe) {
+										LOG.error("Error committing changes to the DataBase", dbe);
+									}
 									publish(selected);
 									return null;
 								}

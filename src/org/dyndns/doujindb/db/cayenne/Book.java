@@ -7,7 +7,8 @@ import org.dyndns.doujindb.db.records.Book.Rating;
 import org.dyndns.doujindb.db.records.Book.Type;
 
 @SuppressWarnings("serial")
-public class Book extends _Book {
+public class Book extends _Book
+{
 	@Override
 	protected void postAdd() {
 		super.setJapaneseName("");
@@ -23,5 +24,9 @@ public class Book extends _Book {
 		super.setPages(0);
 		super.setPublished(new Date());
 		super.setRecycled(false);
+	}
+	
+	public Integer getID() {
+		return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
 	}
 }

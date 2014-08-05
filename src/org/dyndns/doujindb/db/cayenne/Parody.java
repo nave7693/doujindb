@@ -3,7 +3,8 @@ package org.dyndns.doujindb.db.cayenne;
 import org.dyndns.doujindb.db.cayenne.auto._Parody;
 
 @SuppressWarnings("serial")
-public class Parody extends _Parody {
+public class Parody extends _Parody
+{
 	@Override
 	protected void postAdd() {
 		super.setJapaneseName("");
@@ -11,5 +12,9 @@ public class Parody extends _Parody {
 		super.setRomajiName("");
 		super.setWeblink("");
 		super.setRecycled(false);
+	}
+	
+	public Integer getID() {
+		return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
 	}
 }

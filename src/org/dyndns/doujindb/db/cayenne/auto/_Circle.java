@@ -12,28 +12,30 @@ import org.dyndns.doujindb.db.cayenne.Book;
  * since it may be overwritten next time code is regenerated.
  * If you need to make any customizations, please use subclass.
  */
-@SuppressWarnings("serial")
 public abstract class _Circle extends CayenneDataObject {
 
     public static final String JAPANESE_NAME_PROPERTY = "japaneseName";
+    public static final String RECYCLED_PROPERTY = "recycled";
     public static final String ROMAJI_NAME_PROPERTY = "romajiName";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
     public static final String WEBLINK_PROPERTY = "weblink";
     public static final String ARTISTS_PROPERTY = "artists";
     public static final String BOOKS_PROPERTY = "books";
-    public static final String RECYCLED_PROPERTY = "recycled";
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public Integer getID() {
-    	return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
-    }
-    
     public void setJapaneseName(String japaneseName) {
         writeProperty("japaneseName", japaneseName);
     }
     public String getJapaneseName() {
         return (String)readProperty("japaneseName");
+    }
+
+    public void setRecycled(Boolean recycled) {
+        writeProperty("recycled", recycled);
+    }
+    public Boolean getRecycled() {
+        return (Boolean)readProperty("recycled");
     }
 
     public void setRomajiName(String romajiName) {
@@ -68,6 +70,7 @@ public abstract class _Circle extends CayenneDataObject {
         return (Set<Artist>)readProperty("artists");
     }
 
+
     public void addToBooks(Book obj) {
         addToManyTarget("books", obj, true);
     }
@@ -79,12 +82,7 @@ public abstract class _Circle extends CayenneDataObject {
         return (Set<Book>)readProperty("books");
     }
 
-    public void setRecycled(Boolean recycled) {
-        writeProperty("recycled", recycled);
-    }
-    public Boolean getRecycled() {
-        return (Boolean)readProperty("recycled");
-    }
-    
+
     protected abstract void postAdd();
+
 }

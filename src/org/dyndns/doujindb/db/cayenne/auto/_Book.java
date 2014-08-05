@@ -18,17 +18,18 @@ import org.dyndns.doujindb.db.records.Book.Type;
  * since it may be overwritten next time code is regenerated.
  * If you need to make any customizations, please use subclass.
  */
-@SuppressWarnings("serial")
 public abstract class _Book extends CayenneDataObject {
 
     public static final String ADULT_PROPERTY = "adult";
     public static final String COLOR_PROPERTY = "color";
     public static final String DECENSORED_PROPERTY = "decensored";
+    public static final String ID_PROPERTY = "id";
     public static final String INFO_PROPERTY = "info";
     public static final String JAPANESE_NAME_PROPERTY = "japaneseName";
     public static final String PAGES_PROPERTY = "pages";
     public static final String PUBLISHED_PROPERTY = "published";
     public static final String RATING_PROPERTY = "rating";
+    public static final String RECYCLED_PROPERTY = "recycled";
     public static final String ROMAJI_NAME_PROPERTY = "romajiName";
     public static final String TRANSLATED_PROPERTY = "translated";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
@@ -38,14 +39,8 @@ public abstract class _Book extends CayenneDataObject {
     public static final String CONTENTS_PROPERTY = "contents";
     public static final String CONVENTIONOF_PROPERTY = "conventionof";
     public static final String PARODIES_PROPERTY = "parodies";
-    public static final String RECYCLED_PROPERTY = "recycled";
-    public static final String ID_PROPERTY = "id";
 
     public static final String ID_PK_COLUMN = "ID";
-    
-    public Integer getID() {
-    	return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
-    }
 
     public void setAdult(Boolean adult) {
         writeProperty("adult", adult);
@@ -66,6 +61,13 @@ public abstract class _Book extends CayenneDataObject {
     }
     public Boolean getDecensored() {
         return (Boolean)readProperty("decensored");
+    }
+
+    public void setId(Integer id) {
+        writeProperty("id", id);
+    }
+    public Integer getId() {
+        return (Integer)readProperty("id");
     }
 
     public void setInfo(String info) {
@@ -101,6 +103,13 @@ public abstract class _Book extends CayenneDataObject {
     }
     public Rating getRating() {
         return (Rating)readProperty("rating");
+    }
+
+    public void setRecycled(Boolean recycled) {
+        writeProperty("recycled", recycled);
+    }
+    public Boolean getRecycled() {
+        return (Boolean)readProperty("recycled");
     }
 
     public void setRomajiName(String romajiName) {
@@ -187,12 +196,7 @@ public abstract class _Book extends CayenneDataObject {
         return (Set<Parody>)readProperty("parodies");
     }
 
-    public void setRecycled(Boolean recycled) {
-        writeProperty("recycled", recycled);
-    }
-    public Boolean getRecycled() {
-        return (Boolean)readProperty("recycled");
-    }
-    
+
     protected abstract void postAdd();
+
 }

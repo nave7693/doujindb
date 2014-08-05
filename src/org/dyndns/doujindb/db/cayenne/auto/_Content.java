@@ -12,7 +12,6 @@ import org.dyndns.doujindb.db.cayenne.ContentAlias;
  * since it may be overwritten next time code is regenerated.
  * If you need to make any customizations, please use subclass.
  */
-@SuppressWarnings("serial")
 public abstract class _Content extends CayenneDataObject {
 
     public static final String INFO_PROPERTY = "info";
@@ -23,10 +22,6 @@ public abstract class _Content extends CayenneDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public Integer getID() {
-    	return (Integer) getObjectId().getIdSnapshot().get(ID_PK_COLUMN);
-    }
-    
     public void setInfo(String info) {
         writeProperty("info", info);
     }
@@ -59,6 +54,7 @@ public abstract class _Content extends CayenneDataObject {
         return (Set<ContentAlias>)readProperty("aliases");
     }
 
+
     public void addToBooks(Book obj) {
         addToManyTarget("books", obj, true);
     }
@@ -70,5 +66,7 @@ public abstract class _Content extends CayenneDataObject {
         return (Set<Book>)readProperty("books");
     }
 
+
     protected abstract void postAdd();
+
 }

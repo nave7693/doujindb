@@ -29,11 +29,6 @@ import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.records.*;
 
-/**  
-* DataBaseImpl.java - DoujinDB database instance implementation.
-* @author  nozomu
-* @version 1.0
-*/
 final class DataBaseImpl extends IDataBase
 {
 	private DataDomain domain;

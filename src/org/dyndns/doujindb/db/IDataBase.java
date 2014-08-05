@@ -5,11 +5,6 @@ import org.dyndns.doujindb.db.records.*;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 
-/**  
-* DataBase.java - DoujinDB database interface.
-* @author  nozomu
-* @version 1.0
-*/
 public abstract class IDataBase
 {
 	public abstract void doCommit() throws DataBaseException;

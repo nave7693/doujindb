@@ -5,11 +5,6 @@ import java.util.Set;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-/**  
-* Content.java - Interface Content.
-* @author nozomu
-* @version 1.0
-*/
 public interface Content extends Record, BookContainer
 {
 	public String getTagName() throws DataBaseException;

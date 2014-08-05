@@ -5,11 +5,6 @@ import java.util.Date;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-/**  
-* Book.java - Interface Book.
-* @author nozomu
-* @version 1.0
-*/
 public interface Book extends Record, ArtistContainer, CircleContainer, ContentContainer, ConventionContainer, ParodyContainer
 {
 	public enum Type implements org.apache.cayenne.ExtendedEnumeration

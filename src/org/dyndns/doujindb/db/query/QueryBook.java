@@ -5,11 +5,6 @@ import java.util.*;
 import org.dyndns.doujindb.db.records.Book;
 import org.dyndns.doujindb.db.records.Content;
 
-/**  
-* QueryBook.java - Used to query Book(s)
-* @author nozomu
-* @version 1.0
-*/
 public final class QueryBook extends Query<Book>
 {
 	public Integer Id = null;

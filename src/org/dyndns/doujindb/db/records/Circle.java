@@ -3,11 +3,6 @@ package org.dyndns.doujindb.db.records;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-/**  
-* Circle.java - Interface Circle.
-* @author nozomu
-* @version 1.0
-*/
 public interface Circle extends Record, ArtistContainer, BookContainer
 {
 	public String getJapaneseName() throws DataBaseException;

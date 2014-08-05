@@ -3,11 +3,6 @@ package org.dyndns.doujindb.db.records;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-/**  
-* Artist.java - Interface Artist.
-* @author nozomu
-* @version 1.0
-*/
 public interface Artist extends Record, BookContainer, CircleContainer
 {
 	public String getJapaneseName() throws DataBaseException;

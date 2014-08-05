@@ -3,11 +3,6 @@ package org.dyndns.doujindb.db.records;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-/**  
-* Parody.java - Interface Parody.
-* @author nozomu
-* @version 1.0
-*/
 public interface Parody extends Record, BookContainer
 {
 	public String getJapaneseName() throws DataBaseException;

@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Comparable<Parody>
+final class ParodyImpl extends RecordImpl implements Parody, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -149,5 +149,10 @@ final class ParodyImpl extends RecordImpl implements Parody, Serializable//, Com
 	{
 		for(Book book : getBooks())
 			removeBook(book);
+	}
+
+	@Override
+	public int compareTo(Parody o) {
+		return this.getId().compareTo(o.getId());
 	}
 }

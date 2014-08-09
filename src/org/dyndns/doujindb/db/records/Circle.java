@@ -3,7 +3,7 @@ package org.dyndns.doujindb.db.records;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-public interface Circle extends Record, ArtistContainer, BookContainer
+public interface Circle extends Record, ArtistContainer, BookContainer, Comparable<Circle>
 {
 	public String getJapaneseName() throws DataBaseException;
 	public String getTranslatedName() throws DataBaseException;

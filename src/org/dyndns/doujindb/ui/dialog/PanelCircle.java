@@ -537,5 +537,10 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Circle o) {
+			return 1;
+		}
 	}
 }

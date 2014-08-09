@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class ContentImpl extends RecordImpl implements Content, Serializable//, Comparable<Content>
+final class ContentImpl extends RecordImpl implements Content, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -156,5 +156,10 @@ final class ContentImpl extends RecordImpl implements Content, Serializable//, C
 	{
 		for(Book book : getBooks())
 			removeBook(book);
+	}
+
+	@Override
+	public int compareTo(Content o) {
+		return this.getId().compareTo(o.getId());
 	}
 }

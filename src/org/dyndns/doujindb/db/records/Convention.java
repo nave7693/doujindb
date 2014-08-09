@@ -5,7 +5,7 @@ import java.util.Set;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.containers.*;
 
-public interface Convention extends Record, BookContainer
+public interface Convention extends Record, BookContainer, Comparable<Convention>
 {
 	public String getTagName() throws DataBaseException;
 	public String getInfo() throws DataBaseException;

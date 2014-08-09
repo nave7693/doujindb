@@ -541,5 +541,10 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Convention o) {
+			return 1;
+		}
 	}
 }

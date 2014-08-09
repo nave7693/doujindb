@@ -387,5 +387,10 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Artist o) {
+			return 1;
+		}
 	}
 }

@@ -868,5 +868,10 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Book o) {
+			return 1;
+		}
 	}
 }

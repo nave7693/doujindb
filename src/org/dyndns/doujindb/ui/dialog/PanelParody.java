@@ -343,5 +343,10 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Parody o) {
+			return 1;
+		}
 	}
 }

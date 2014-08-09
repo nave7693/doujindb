@@ -521,5 +521,10 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 
 		@Override
 		public void removeAll() throws DataBaseException { }
+
+		@Override
+		public int compareTo(Content o) {
+			return 1;
+		}
 	}
 }

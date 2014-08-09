@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Comparable<Artist>
+final class ArtistImpl extends RecordImpl implements Artist, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -185,5 +185,10 @@ final class ArtistImpl extends RecordImpl implements Artist, Serializable//, Com
 			removeBook(book);
 		for(Circle circle : getCircles())
 			removeCircle(circle);
+	}
+
+	@Override
+	public int compareTo(Artist o) {
+		return this.getId().compareTo(o.getId());
 	}
 }

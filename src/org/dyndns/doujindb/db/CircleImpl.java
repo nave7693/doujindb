@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class CircleImpl extends RecordImpl implements Circle, Serializable//, Comparable<Circle>
+final class CircleImpl extends RecordImpl implements Circle, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
@@ -186,5 +186,10 @@ final class CircleImpl extends RecordImpl implements Circle, Serializable//, Com
 			removeArtist(artist);
 		for(Book book : getBooks())
 			removeBook(book);
+	}
+
+	@Override
+	public int compareTo(Circle o) {
+		return this.getId().compareTo(o.getId());
 	}
 }

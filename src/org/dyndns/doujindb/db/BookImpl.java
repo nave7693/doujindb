@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class BookImpl extends RecordImpl implements Book, Serializable//, Comparable<Book>
+final class BookImpl extends RecordImpl implements Book, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -420,5 +420,10 @@ final class BookImpl extends RecordImpl implements Book, Serializable//, Compara
 			DataBase.fireRecordUpdated(getConvention(), UpdateData.unlink(this));
 		}
 		setConvention(null);
+	}
+
+	@Override
+	public int compareTo(Book o) {
+		return this.getId().compareTo(o.getId());
 	}
 }

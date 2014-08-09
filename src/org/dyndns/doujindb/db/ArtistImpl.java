@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class ArtistImpl extends RecordImpl implements Artist, Serializable
+final class ArtistImpl extends org.dyndns.doujindb.db.cayenne.Artist implements Artist, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	

@@ -6,7 +6,7 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.records.*;
 
-final class ContentImpl extends RecordImpl implements Content, Serializable
+final class ContentImpl extends org.dyndns.doujindb.db.cayenne.Content implements Content, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 

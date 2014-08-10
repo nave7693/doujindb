@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <domains project-version="3.0.0.1">
 <domain name="doujindb">
-	<map name="map" location="map.xml"/>
+	<map name="doujindb" location="doujindb.map.xml"/>
 </domain>
 </domains>

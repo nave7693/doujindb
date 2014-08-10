@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <data-map xmlns="http://cayenne.apache.org/schema/3.0/modelMap"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://cayenne.apache.org/schema/3.0/modelMap http://cayenne.apache.org/schema/3.0/modelMap.xsd"
@@ -97,10 +97,10 @@
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
-		<obj-attribute name="id" type="java.lang.Integer" db-attribute-path="ID"/>
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
 		<obj-attribute name="color" type="java.lang.Boolean" db-attribute-path="COLOR"/>
 		<obj-attribute name="decensored" type="java.lang.Boolean" db-attribute-path="DECENSORED"/>
+		<obj-attribute name="id" type="java.lang.Integer" db-attribute-path="ID"/>
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="pages" type="java.lang.Integer" db-attribute-path="PAGES"/>
@@ -177,32 +177,20 @@
 	<db-relationship name="memberof" source="Circle" target="MemberOf" toMany="true">
 		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
 	</db-relationship>
+	<db-relationship name="book" source="CircleOf" target="Book" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="BOOK_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="circle" source="CircleOf" target="Circle" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
+	</db-relationship>
 	<db-relationship name="contentalias" source="Content" target="ContentAlias" toMany="true">
 		<db-attribute-pair source="ID" target="CONTENT_ID"/>
 	</db-relationship>
 	<db-relationship name="contentof" source="Content" target="ContentOf" toMany="true">
 		<db-attribute-pair source="ID" target="CONTENT_ID"/>
 	</db-relationship>
-	<db-relationship name="conventionalias" source="Convention" target="ConventionAlias" toMany="true">
-		<db-attribute-pair source="ID" target="CONVENTION_ID"/>
-	</db-relationship>
-	<db-relationship name="conventionof" source="Convention" target="Book" toMany="true">
-		<db-attribute-pair source="ID" target="CONVENTION"/>
-	</db-relationship>
-	<db-relationship name="parodyof" source="Parody" target="ParodyOf" toMany="true">
-		<db-attribute-pair source="ID" target="PARODY_ID"/>
-	</db-relationship>
-	<db-relationship name="artist" source="DrawnBy" target="Artist" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="ARTIST_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="book" source="DrawnBy" target="Book" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="BOOK_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="book" source="CircleOf" target="Book" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="BOOK_ID" target="ID"/>
-	</db-relationship>
-	<db-relationship name="circle" source="CircleOf" target="Circle" toDependentPK="true" toMany="false">
-		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
+	<db-relationship name="contentalias" source="ContentAlias" target="Content" toMany="false">
+		<db-attribute-pair source="CONTENT_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="book" source="ContentOf" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>
@@ -210,17 +198,29 @@
 	<db-relationship name="content" source="ContentOf" target="Content" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="CONTENT_ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="contentalias" source="ContentAlias" target="Content" toMany="false">
-		<db-attribute-pair source="CONTENT_ID" target="ID"/>
+	<db-relationship name="conventionalias" source="Convention" target="ConventionAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CONVENTION_ID"/>
+	</db-relationship>
+	<db-relationship name="conventionof" source="Convention" target="Book" toMany="true">
+		<db-attribute-pair source="ID" target="CONVENTION"/>
 	</db-relationship>
 	<db-relationship name="conventionalias" source="ConventionAlias" target="Convention" toMany="false">
 		<db-attribute-pair source="CONVENTION_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="artist" source="DrawnBy" target="Artist" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="ARTIST_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="book" source="DrawnBy" target="Book" toDependentPK="true" toMany="false">
+		<db-attribute-pair source="BOOK_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="artist" source="MemberOf" target="Artist" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="ARTIST_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="circle" source="MemberOf" target="Circle" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="parodyof" source="Parody" target="ParodyOf" toMany="true">
+		<db-attribute-pair source="ID" target="PARODY_ID"/>
 	</db-relationship>
 	<db-relationship name="book" source="ParodyOf" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>

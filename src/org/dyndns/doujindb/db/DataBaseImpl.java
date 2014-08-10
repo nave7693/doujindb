@@ -153,7 +153,7 @@ final class DataBaseImpl extends IDataBase
 		node.setDataSourceFactory("org.apache.cayenne.conf.DriverDataSourceFactory");
 		node.setSchemaUpdateStrategy(new org.apache.cayenne.access.dbsync.ThrowOnPartialOrCreateSchemaStrategy());
 		
-		node.addDataMap(domain.getMap("map"));
+		node.addDataMap(domain.getMap("doujindb"));
 
 		domain.addNode(node);
 

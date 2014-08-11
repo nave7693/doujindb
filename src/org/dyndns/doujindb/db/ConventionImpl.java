@@ -20,7 +20,7 @@ final class ConventionImpl implements Convention, Serializable
 	@Override
 	public synchronized String getTagName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getTagName();
+		return ref.getTagName();
 	}
 
 	@Override
@@ -28,14 +28,14 @@ final class ConventionImpl implements Convention, Serializable
 	{
 		if(getTagName().equals(tagName))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).setTagName(tagName);
+		ref.setTagName(tagName);
 		DataBase.fireRecordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
 	public synchronized String getInfo() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getInfo();
+		return ref.getInfo();
 	}
 
 	@Override
@@ -43,14 +43,14 @@ final class ConventionImpl implements Convention, Serializable
 	{
 		if(getInfo().equals(info))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).setInfo(info);
+		ref.setInfo(info);
 		DataBase.fireRecordUpdated(this, UpdateData.property("info"));
 	}	
 	
 	@Override
 	public synchronized String getWeblink() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getWeblink();
+		return ref.getWeblink();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ final class ConventionImpl implements Convention, Serializable
 	{
 		if(getWeblink().equals(weblink))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).setWeblink(weblink);
+		ref.setWeblink(weblink);
 		DataBase.fireRecordUpdated(this, UpdateData.property("weblink"));
 	}
 
@@ -66,7 +66,7 @@ final class ConventionImpl implements Convention, Serializable
 	public synchronized RecordSet<Book> getBooks() throws DataBaseException
 	{
 		Set<Book> set = new TreeSet<Book>();
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getBooks();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ref.getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
@@ -76,7 +76,7 @@ final class ConventionImpl implements Convention, Serializable
 	public synchronized Set<String> getAliases() throws DataBaseException
 	{
 		Set<String> set = new TreeSet<String>();
-		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> result = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getAliases();
+		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> result = ref.getAliases();
 		for(org.dyndns.doujindb.db.cayenne.ConventionAlias r : result)
 			set.add(r.getTagName());
 		return set;
@@ -93,7 +93,7 @@ final class ConventionImpl implements Convention, Serializable
 	{
 		if(getBooks().contains(book))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToBooks(
+		ref.addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -104,7 +104,7 @@ final class ConventionImpl implements Convention, Serializable
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromBooks(
+		ref.removeFromBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -119,13 +119,13 @@ final class ConventionImpl implements Convention, Serializable
 			return;
 		org.dyndns.doujindb.db.cayenne.ConventionAlias object = DataBase.newConventionAlias();
 		object.setTagName(alias);
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).addToAliases(object);
+		ref.addToAliases(object);
 	}
 
 	@Override
 	public void removeAlias(String alias) throws DataBaseException
 	{
-		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> set = ((org.dyndns.doujindb.db.cayenne.Convention)ref).getAliases();
+		Set<org.dyndns.doujindb.db.cayenne.ConventionAlias> set = ref.getAliases();
 		synchronized(set)
 		{
 			Iterator<org.dyndns.doujindb.db.cayenne.ConventionAlias> i = set.iterator();
@@ -135,7 +135,7 @@ final class ConventionImpl implements Convention, Serializable
 				if(a.getTagName().equals(alias))
 				{
 					i.remove();
-					((org.dyndns.doujindb.db.cayenne.Convention)ref).removeFromAliases(a);
+					ref.removeFromAliases(a);
 					DataBase.deleteObject(a);
 				}
 			}
@@ -145,27 +145,27 @@ final class ConventionImpl implements Convention, Serializable
 	@Override
 	public synchronized Integer getId() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getID();
+		return ref.getID();
 	}
 	
 	@Override
 	public void doRecycle() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(true);
+		ref.setRecycled(true);
 		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Convention)ref).setRecycled(false);
+		ref.setRecycled(false);
 		DataBase.fireRecordRestored(this);
 	}
 
 	@Override
 	public boolean isRecycled() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Convention)ref).getRecycled();
+		return ref.getRecycled();
 	}
 
 	@Override

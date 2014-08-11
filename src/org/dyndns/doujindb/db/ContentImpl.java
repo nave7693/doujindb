@@ -20,7 +20,7 @@ final class ContentImpl implements Content, Serializable
 	@Override
 	public synchronized String getTagName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getTagName();
+		return ref.getTagName();
 	}
 
 	@Override
@@ -28,14 +28,14 @@ final class ContentImpl implements Content, Serializable
 	{
 		if(getTagName().equals(tagName))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Content)ref).setTagName(tagName);
+		ref.setTagName(tagName);
 		DataBase.fireRecordUpdated(this, UpdateData.property("tag_name"));
 	}
 
 	@Override
 	public synchronized String getInfo() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getInfo();
+		return ref.getInfo();
 	}
 
 	@Override
@@ -43,7 +43,7 @@ final class ContentImpl implements Content, Serializable
 	{
 		if(getInfo().equals(info))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Content)ref).setInfo(info);
+		ref.setInfo(info);
 		DataBase.fireRecordUpdated(this, UpdateData.property("info"));
 	}
 	
@@ -51,7 +51,7 @@ final class ContentImpl implements Content, Serializable
 	public synchronized RecordSet<Book> getBooks() throws DataBaseException
 	{
 		Set<Book> set = new TreeSet<Book>();
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getBooks();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ref.getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
@@ -61,7 +61,7 @@ final class ContentImpl implements Content, Serializable
 	public synchronized Set<String> getAliases() throws DataBaseException
 	{
 		Set<String> set = new TreeSet<String>();
-		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> result = ((org.dyndns.doujindb.db.cayenne.Content)ref).getAliases();
+		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> result = ref.getAliases();
 		for(org.dyndns.doujindb.db.cayenne.ContentAlias r : result)
 			set.add(r.getTagName());
 		return set;
@@ -78,7 +78,7 @@ final class ContentImpl implements Content, Serializable
 	{
 		if(getBooks().contains(book))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Content)ref).addToBooks(
+		ref.addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -89,7 +89,7 @@ final class ContentImpl implements Content, Serializable
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromBooks(
+		ref.removeFromBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -104,13 +104,13 @@ final class ContentImpl implements Content, Serializable
 			return;
 		org.dyndns.doujindb.db.cayenne.ContentAlias object = DataBase.newContentAlias();
 		object.setTagName(alias);
-		((org.dyndns.doujindb.db.cayenne.Content)ref).addToAliases(object);
+		ref.addToAliases(object);
 	}
 
 	@Override
 	public void removeAlias(String alias) throws DataBaseException
 	{
-		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> set = ((org.dyndns.doujindb.db.cayenne.Content)ref).getAliases();
+		Set<org.dyndns.doujindb.db.cayenne.ContentAlias> set = ref.getAliases();
 		synchronized(set)
 		{
 			Iterator<org.dyndns.doujindb.db.cayenne.ContentAlias> i = set.iterator();
@@ -120,7 +120,7 @@ final class ContentImpl implements Content, Serializable
 				if(a.getTagName().equals(alias))
 				{
 					i.remove();
-					((org.dyndns.doujindb.db.cayenne.Content)ref).removeFromAliases(a);
+					ref.removeFromAliases(a);
 					DataBase.deleteObject(a);
 				}
 			}
@@ -130,27 +130,27 @@ final class ContentImpl implements Content, Serializable
 	@Override
 	public synchronized Integer getId() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getID();
+		return ref.getID();
 	}
 	
 	@Override
 	public void doRecycle() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(true);
+		ref.setRecycled(true);
 		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Content)ref).setRecycled(false);
+		ref.setRecycled(false);
 		DataBase.fireRecordRestored(this);
 	}
 
 	@Override
 	public boolean isRecycled() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Content)ref).getRecycled();
+		return ref.getRecycled();
 	}
 
 	@Override

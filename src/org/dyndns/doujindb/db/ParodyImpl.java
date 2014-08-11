@@ -20,7 +20,7 @@ final class ParodyImpl implements Parody, Serializable
 	@Override
 	public synchronized String getJapaneseName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getJapaneseName();
+		return ref.getJapaneseName();
 	}
 
 	@Override
@@ -28,14 +28,14 @@ final class ParodyImpl implements Parody, Serializable
 	{
 		if(getJapaneseName().equals(japaneseName))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setJapaneseName(japaneseName);
+		ref.setJapaneseName(japaneseName);
 		DataBase.fireRecordUpdated(this, UpdateData.property("japanese_name"));
 	}
 
 	@Override
 	public synchronized String getTranslatedName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getTranslatedName();
+		return ref.getTranslatedName();
 	}
 
 	@Override
@@ -43,14 +43,14 @@ final class ParodyImpl implements Parody, Serializable
 	{
 		if(getTranslatedName().equals(translatedName))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setTranslatedName(translatedName);
+		ref.setTranslatedName(translatedName);
 		DataBase.fireRecordUpdated(this, UpdateData.property("translated_name"));
 	}
 
 	@Override
 	public synchronized String getRomajiName() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getRomajiName();
+		return ref.getRomajiName();
 	}
 
 	@Override
@@ -58,14 +58,14 @@ final class ParodyImpl implements Parody, Serializable
 	{
 		if(getRomajiName().equals(romajiName))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRomajiName(romajiName);
+		ref.setRomajiName(romajiName);
 		DataBase.fireRecordUpdated(this, UpdateData.property("romaji_name"));
 	}
 
 	@Override
 	public synchronized String getWeblink() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getWeblink();
+		return ref.getWeblink();
 	}
 
 	@Override
@@ -73,7 +73,7 @@ final class ParodyImpl implements Parody, Serializable
 	{
 		if(getWeblink().equals(weblink))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setWeblink(weblink);
+		ref.setWeblink(weblink);
 		DataBase.fireRecordUpdated(this, UpdateData.property("weblink"));
 	}
 
@@ -81,7 +81,7 @@ final class ParodyImpl implements Parody, Serializable
 	public synchronized RecordSet<Book> getBooks() throws DataBaseException
 	{
 		Set<Book> set = new TreeSet<Book>();
-		Set<org.dyndns.doujindb.db.cayenne.Book> result = ((org.dyndns.doujindb.db.cayenne.Parody)ref).getBooks();
+		Set<org.dyndns.doujindb.db.cayenne.Book> result = ref.getBooks();
 		for(org.dyndns.doujindb.db.cayenne.Book r : result)
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
@@ -101,7 +101,7 @@ final class ParodyImpl implements Parody, Serializable
 	{
 		if(getBooks().contains(book))
 			return;
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).addToBooks(
+		ref.addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -112,7 +112,7 @@ final class ParodyImpl implements Parody, Serializable
 	@Override
 	public void removeBook(Book book) throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).removeFromBooks(
+		ref.removeFromBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
 		);
@@ -123,27 +123,27 @@ final class ParodyImpl implements Parody, Serializable
 	@Override
 	public synchronized Integer getId() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getID();
+		return ref.getID();
 	}
 	
 	@Override
 	public void doRecycle() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(true);
+		ref.setRecycled(true);
 		DataBase.fireRecordRecycled(this);
 	}
 
 	@Override
 	public void doRestore() throws DataBaseException
 	{
-		((org.dyndns.doujindb.db.cayenne.Parody)ref).setRecycled(false);
+		ref.setRecycled(false);
 		DataBase.fireRecordRestored(this);
 	}
 
 	@Override
 	public boolean isRecycled() throws DataBaseException
 	{
-		return ((org.dyndns.doujindb.db.cayenne.Parody)ref).getRecycled();
+		return ref.getRecycled();
 	}
 
 	@Override

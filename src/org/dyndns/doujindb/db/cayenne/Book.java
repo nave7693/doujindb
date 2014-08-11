@@ -3,8 +3,8 @@ package org.dyndns.doujindb.db.cayenne;
 import java.util.Date;
 
 import org.dyndns.doujindb.db.cayenne.auto._Book;
-import org.dyndns.doujindb.db.records.Book.Rating;
-import org.dyndns.doujindb.db.records.Book.Type;
+import org.dyndns.doujindb.db.record.Book.Rating;
+import org.dyndns.doujindb.db.record.Book.Type;
 
 @SuppressWarnings("serial")
 public class Book extends _Book

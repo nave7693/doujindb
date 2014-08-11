@@ -1,11 +1,12 @@
 package org.dyndns.doujindb.ui.dialog.util.combobox;
 
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryContent;
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.record.Content;
 
 @SuppressWarnings("serial")
 public class ComboBoxContent extends SearchComboBox<Content>

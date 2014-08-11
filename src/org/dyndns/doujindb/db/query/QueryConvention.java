@@ -1,6 +1,6 @@
 package org.dyndns.doujindb.db.query;
 
-import org.dyndns.doujindb.db.records.Convention;
+import org.dyndns.doujindb.db.record.Convention;
 
 public final class QueryConvention extends Query<Convention>
 {

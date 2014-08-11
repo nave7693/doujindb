@@ -1,11 +1,12 @@
 package org.dyndns.doujindb.ui.dialog.util.dnd;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.Artist;
+import org.dyndns.doujindb.db.record.Artist;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

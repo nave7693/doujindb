@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.record.Book;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

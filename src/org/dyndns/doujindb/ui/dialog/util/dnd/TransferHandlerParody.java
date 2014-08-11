@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.record.Parody;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

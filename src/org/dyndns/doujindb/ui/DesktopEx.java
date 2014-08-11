@@ -18,7 +18,7 @@ import ch.qos.logback.classic.*;
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.dialog.*;
 import org.dyndns.doujindb.util.ImageTool;

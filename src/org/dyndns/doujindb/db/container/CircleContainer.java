@@ -1,7 +1,7 @@
-package org.dyndns.doujindb.db.containers;
+package org.dyndns.doujindb.db.container;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 
 public interface CircleContainer
 {

@@ -1,6 +1,6 @@
 package org.dyndns.doujindb.db.query;
 
-import org.dyndns.doujindb.db.records.Artist;
+import org.dyndns.doujindb.db.record.Artist;
 
 public final class QueryArtist extends Query<Artist>
 {

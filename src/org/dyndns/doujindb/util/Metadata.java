@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.*;
 
-import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.db.records.Book.*;
+import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.db.record.Book.*;
 
 public final class Metadata
 {

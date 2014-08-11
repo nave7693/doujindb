@@ -1,6 +1,6 @@
 package org.dyndns.doujindb.db.query;
 
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.record.Content;
 
 public final class QueryContent extends Query<Content>
 {

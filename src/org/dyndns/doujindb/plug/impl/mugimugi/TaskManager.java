@@ -25,8 +25,8 @@ import org.xml.sax.*;
 import org.dyndns.doujindb.dat.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.records.*;
-import org.dyndns.doujindb.db.records.Book.*;
+import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.db.record.Book.*;
 import org.dyndns.doujindb.plug.impl.imagesearch.CacheManager;
 import org.dyndns.doujindb.util.*;
 

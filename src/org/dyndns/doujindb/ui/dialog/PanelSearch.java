@@ -26,7 +26,7 @@ import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
@@ -941,7 +941,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						q.TranslatedName = textTranslatedName.getText();
 					if(!textRomajiName.getText().equals(""))
 						q.RomajiName = textRomajiName.getText();
-					q.Type = (org.dyndns.doujindb.db.records.Book.Type) comboType.getSelectedItem();
+					q.Type = (org.dyndns.doujindb.db.record.Book.Type) comboType.getSelectedItem();
 					if(checkAdult.isSelected())
 						q.Adult = true;
 					if(checkColored.isSelected())

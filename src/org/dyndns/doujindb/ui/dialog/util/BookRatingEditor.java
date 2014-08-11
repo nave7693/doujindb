@@ -3,9 +3,10 @@ package org.dyndns.doujindb.ui.dialog.util;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
-import org.dyndns.doujindb.db.records.Book.Rating;
+import org.dyndns.doujindb.db.record.Book.Rating;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 

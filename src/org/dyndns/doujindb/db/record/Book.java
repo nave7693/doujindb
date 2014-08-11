@@ -1,9 +1,9 @@
-package org.dyndns.doujindb.db.records;
+package org.dyndns.doujindb.db.record;
 
 import java.util.Date;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.containers.*;
+import org.dyndns.doujindb.db.container.*;
 
 public interface Book extends Record, ArtistContainer, CircleContainer, ContentContainer, ConventionContainer, ParodyContainer, Comparable<Book>
 {

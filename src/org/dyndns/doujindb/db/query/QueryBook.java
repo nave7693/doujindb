@@ -2,8 +2,8 @@ package org.dyndns.doujindb.db.query;
 
 import java.util.*;
 
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Content;
+import org.dyndns.doujindb.db.record.Book;
+import org.dyndns.doujindb.db.record.Content;
 
 public final class QueryBook extends Query<Book>
 {

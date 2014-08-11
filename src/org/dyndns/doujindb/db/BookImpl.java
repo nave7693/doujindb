@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 
 final class BookImpl extends org.dyndns.doujindb.db.cayenne.Book implements Book, Serializable
 {

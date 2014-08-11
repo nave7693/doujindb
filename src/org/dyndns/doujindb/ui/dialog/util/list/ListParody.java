@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 
 import org.dyndns.doujindb.db.DataBaseException;
 import org.dyndns.doujindb.db.Record;
-import org.dyndns.doujindb.db.containers.ParodyContainer;
+import org.dyndns.doujindb.db.container.ParodyContainer;
 import org.dyndns.doujindb.db.event.UpdateData;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.record.Parody;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxParody;

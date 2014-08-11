@@ -1,6 +1,6 @@
 package org.dyndns.doujindb.db.query;
 
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.record.Parody;
 
 public final class QueryParody extends Query<Parody>
 {

@@ -7,7 +7,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.Query.Type;
 import org.dyndns.doujindb.db.query.QueryBook;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.record.Book;
 
 @SuppressWarnings("serial")
 public class ComboBoxBook extends SearchComboBox<Book>

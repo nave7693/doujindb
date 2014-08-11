@@ -7,7 +7,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.Query.Type;
 import org.dyndns.doujindb.db.query.QueryArtist;
-import org.dyndns.doujindb.db.records.Artist;
+import org.dyndns.doujindb.db.record.Artist;
 
 @SuppressWarnings("serial")
 public class ComboBoxArtist extends SearchComboBox<Artist>

@@ -7,7 +7,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.Query.Type;
 import org.dyndns.doujindb.db.query.QueryCircle;
-import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.db.record.Circle;
 
 @SuppressWarnings("serial")
 public class ComboBoxCircle extends SearchComboBox<Circle>

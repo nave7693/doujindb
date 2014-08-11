@@ -8,7 +8,7 @@ import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 

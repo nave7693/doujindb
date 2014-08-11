@@ -1,7 +1,7 @@
-package org.dyndns.doujindb.db.containers;
+package org.dyndns.doujindb.db.container;
 
 import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.records.Convention;
+import org.dyndns.doujindb.db.record.Convention;
 
 public interface ConventionContainer
 {

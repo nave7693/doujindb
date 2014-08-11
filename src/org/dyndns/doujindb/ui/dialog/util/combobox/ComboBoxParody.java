@@ -7,7 +7,7 @@ import javax.swing.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.Query.Type;
 import org.dyndns.doujindb.db.query.QueryParody;
-import org.dyndns.doujindb.db.records.Parody;
+import org.dyndns.doujindb.db.record.Parody;
 
 @SuppressWarnings("serial")
 public class ComboBoxParody extends SearchComboBox<Parody>

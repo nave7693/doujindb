@@ -27,7 +27,7 @@ import org.dyndns.doujindb.conf.event.ConfigurationListener;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
-import org.dyndns.doujindb.db.records.Book;
+import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;

@@ -17,7 +17,7 @@ import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;

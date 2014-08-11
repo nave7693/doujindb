@@ -15,9 +15,9 @@ import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
-import org.dyndns.doujindb.db.records.Artist;
-import org.dyndns.doujindb.db.records.Book;
-import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.db.record.Artist;
+import org.dyndns.doujindb.db.record.Book;
+import org.dyndns.doujindb.db.record.Circle;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;

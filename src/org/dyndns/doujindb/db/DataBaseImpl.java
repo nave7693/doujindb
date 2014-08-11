@@ -27,7 +27,7 @@ import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
 import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.records.*;
+import org.dyndns.doujindb.db.record.*;
 
 final class DataBaseImpl extends IDataBase
 {

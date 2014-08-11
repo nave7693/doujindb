@@ -1,6 +1,6 @@
 package org.dyndns.doujindb.db.query;
 
-import org.dyndns.doujindb.db.records.Circle;
+import org.dyndns.doujindb.db.record.Circle;
 
 public final class QueryCircle extends Query<Circle>
 {

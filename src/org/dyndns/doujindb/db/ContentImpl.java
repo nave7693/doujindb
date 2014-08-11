@@ -1,15 +1,12 @@
 package org.dyndns.doujindb.db;
 
-import java.io.*;
 import java.util.*;
 
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ContentImpl implements Content, Serializable
+final class ContentImpl implements Content
 {
-	private static final long serialVersionUID = 0xFEED0001L;
-	
 	org.dyndns.doujindb.db.cayenne.Content ref;
 
 	public ContentImpl(org.dyndns.doujindb.db.cayenne.Content ref) throws DataBaseException

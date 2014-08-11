@@ -1,15 +1,12 @@
 package org.dyndns.doujindb.db;
 
-import java.io.*;
 import java.util.*;
 
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ArtistImpl implements Artist, Serializable
+final class ArtistImpl implements Artist
 {
-	private static final long serialVersionUID = 0xFEED0001L;
-	
 	org.dyndns.doujindb.db.cayenne.Artist ref;
 	
 	public ArtistImpl(org.dyndns.doujindb.db.cayenne.Artist ref) throws DataBaseException

@@ -1,15 +1,12 @@
 package org.dyndns.doujindb.db;
 
-import java.io.*;
 import java.util.*;
 
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ConventionImpl implements Convention, Serializable
+final class ConventionImpl implements Convention
 {
-	private static final long serialVersionUID = 0xFEED0001L;
-	
 	org.dyndns.doujindb.db.cayenne.Convention ref;
 
 	public ConventionImpl(org.dyndns.doujindb.db.cayenne.Convention ref) throws DataBaseException

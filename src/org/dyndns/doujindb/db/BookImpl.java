@@ -1,15 +1,12 @@
 package org.dyndns.doujindb.db;
 
-import java.io.*;
 import java.util.*;
 
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class BookImpl implements Book, Serializable
+final class BookImpl implements Book
 {
-	private static final long serialVersionUID = 0xFEED0001L;
-	
 	org.dyndns.doujindb.db.cayenne.Book ref;
 	
 	public BookImpl(org.dyndns.doujindb.db.cayenne.Book ref) throws DataBaseException

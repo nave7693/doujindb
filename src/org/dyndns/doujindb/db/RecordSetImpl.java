@@ -1,10 +1,8 @@
 package org.dyndns.doujindb.db;
 
-import java.io.Serializable;
 import java.util.*;
 
-@SuppressWarnings("serial")
-final class RecordSetImpl<T extends Record> implements RecordSet<T>, Serializable
+final class RecordSetImpl<T extends Record> implements RecordSet<T>
 {
 	private Set<T> set;
 	
@@ -16,13 +14,13 @@ final class RecordSetImpl<T extends Record> implements RecordSet<T>, Serializabl
 	protected RecordSetImpl(Set<T> data)
 	{
 		this();
-		set.addAll(data);
+		set.addAll(data); //FIXME This kills query pagination
 	}
 	
 	protected RecordSetImpl(List<T> data)
 	{
 		this();
-		set.addAll(data);
+		set.addAll(data); //FIXME This kills query pagination
 	}
 
 	@Override

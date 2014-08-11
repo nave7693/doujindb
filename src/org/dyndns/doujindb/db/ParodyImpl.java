@@ -6,10 +6,12 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ParodyImpl extends org.dyndns.doujindb.db.cayenne.Parody implements Parody, Serializable
+final class ParodyImpl implements Parody, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 
+	org.dyndns.doujindb.db.cayenne.Parody ref;
+	
 	public ParodyImpl(org.dyndns.doujindb.db.cayenne.Parody ref) throws DataBaseException
 	{
 		this.ref = ref;

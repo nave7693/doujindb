@@ -6,9 +6,11 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ConventionImpl extends org.dyndns.doujindb.db.cayenne.Convention implements Convention, Serializable
+final class ConventionImpl implements Convention, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
+	
+	org.dyndns.doujindb.db.cayenne.Convention ref;
 
 	public ConventionImpl(org.dyndns.doujindb.db.cayenne.Convention ref) throws DataBaseException
 	{

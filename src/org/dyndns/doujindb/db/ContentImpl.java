@@ -6,9 +6,11 @@ import java.util.*;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ContentImpl extends org.dyndns.doujindb.db.cayenne.Content implements Content, Serializable
+final class ContentImpl implements Content, Serializable
 {
 	private static final long serialVersionUID = 0xFEED0001L;
+	
+	org.dyndns.doujindb.db.cayenne.Content ref;
 
 	public ContentImpl(org.dyndns.doujindb.db.cayenne.Content ref) throws DataBaseException
 	{

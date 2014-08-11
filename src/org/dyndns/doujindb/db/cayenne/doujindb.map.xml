@@ -105,12 +105,12 @@
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="pages" type="java.lang.Integer" db-attribute-path="PAGES"/>
 		<obj-attribute name="published" type="java.util.Date" db-attribute-path="PUBLISHED"/>
-		<obj-attribute name="rating" type="org.dyndns.doujindb.db.records.Book.Rating" db-attribute-path="RATING"/>
+		<obj-attribute name="rating" type="org.dyndns.doujindb.db.record.Book.Rating" db-attribute-path="RATING"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
 		<obj-attribute name="translated" type="java.lang.Boolean" db-attribute-path="TRANSLATED"/>
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
-		<obj-attribute name="type" type="org.dyndns.doujindb.db.records.Book.Type" db-attribute-path="TYPE"/>
+		<obj-attribute name="type" type="org.dyndns.doujindb.db.record.Book.Type" db-attribute-path="TYPE"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
 	<obj-entity name="Circle" className="org.dyndns.doujindb.db.cayenne.Circle" dbEntityName="Circle">

@@ -6,6 +6,8 @@ import org.dyndns.doujindb.db.Record;
 
 public abstract class Query<T extends Record>
 {
+	public int pagesize = 0; // Query pagination is by default disabled
+	
 	public enum Type
 	{
 		OR,

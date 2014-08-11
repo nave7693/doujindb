@@ -319,6 +319,8 @@ final class DataBaseImpl extends IDataBase
 	        ejbqlq.setParameter("TAG_COUNT", tags.size());
 	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
 		}
+		
+		select.setPageSize(query.pagesize);
 
 		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
 		Set<Book> buff = new TreeSet<Book>();
@@ -348,6 +350,9 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Circle.class, Expression.fromString("recycled = FALSE"));
 		}
+		
+		select.setPageSize(query.pagesize);
+		
 		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
 		Set<Circle> buff = new TreeSet<Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
@@ -376,6 +381,9 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = FALSE"));
 		}
+		
+		select.setPageSize(query.pagesize);
+		
 		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
 		Set<Artist> buff = new TreeSet<Artist>();
 		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
@@ -404,6 +412,9 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Parody.class, Expression.fromString("recycled = FALSE"));
 		}
+		
+		select.setPageSize(query.pagesize);
+		
 		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
 		Set<Parody> buff = new TreeSet<Parody>();
 		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
@@ -432,6 +443,9 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Content.class, Expression.fromString("recycled = FALSE"));
 		}
+		
+		select.setPageSize(query.pagesize);
+		
 		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
 		Set<Content> buff = new TreeSet<Content>();
 		for(org.dyndns.doujindb.db.cayenne.Content o : list)
@@ -460,6 +474,9 @@ final class DataBaseImpl extends IDataBase
 		} else {
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Convention.class, Expression.fromString("recycled = FALSE"));
 		}
+		
+		select.setPageSize(query.pagesize);
+		
 		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
 		Set<Convention> buff = new TreeSet<Convention>();
 		for(org.dyndns.doujindb.db.cayenne.Convention o : list)

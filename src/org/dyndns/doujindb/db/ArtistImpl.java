@@ -106,8 +106,6 @@ final class ArtistImpl implements Artist
 	@Override
 	public void addBook(Book book) throws DataBaseException
 	{
-		if(getBooks().contains(book))
-			return;
 		ref.addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref
@@ -119,8 +117,6 @@ final class ArtistImpl implements Artist
 	@Override
 	public void addCircle(Circle circle) throws DataBaseException
 	{
-		if(getCircles().contains(circle))
-			return;
 		ref.addToCircles(
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.CircleImpl)circle).ref

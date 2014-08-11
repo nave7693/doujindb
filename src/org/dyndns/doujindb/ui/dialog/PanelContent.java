@@ -496,9 +496,6 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
 
 				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
 				public int size() throws DataBaseException { return 0; }
 				
 			};

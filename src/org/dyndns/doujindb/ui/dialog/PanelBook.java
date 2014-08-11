@@ -717,9 +717,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
 
 				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
 				public int size() throws DataBaseException { return 0; }
 				
 			};
@@ -790,9 +787,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
 
 				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
 				public int size() throws DataBaseException { return 0; }
 				
 			};
@@ -807,9 +801,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 
 				@Override
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
 
 				@Override
 				public int size() throws DataBaseException { return 0; }
@@ -832,9 +823,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 
 				@Override
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
 
 				@Override
 				public int size() throws DataBaseException { return 0; }

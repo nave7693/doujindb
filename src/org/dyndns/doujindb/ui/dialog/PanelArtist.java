@@ -322,9 +322,6 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
 
 				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
 				public int size() throws DataBaseException { return 0; }
 				
 			};
@@ -369,9 +366,6 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 
 				@Override
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
-
-				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
 
 				@Override
 				public int size() throws DataBaseException { return 0; }

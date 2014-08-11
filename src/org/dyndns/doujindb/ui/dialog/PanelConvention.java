@@ -510,9 +510,6 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 				public Iterator iterator() { return new java.util.ArrayList().iterator(); }
 
 				@Override
-				public boolean contains(Object o) throws DataBaseException { return false; }
-
-				@Override
 				public int size() throws DataBaseException { return 0; }
 				
 			};

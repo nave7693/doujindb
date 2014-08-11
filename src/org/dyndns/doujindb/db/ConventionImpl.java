@@ -88,8 +88,6 @@ final class ConventionImpl implements Convention
 	@Override
 	public void addBook(Book book) throws DataBaseException
 	{
-		if(getBooks().contains(book))
-			return;
 		ref.addToBooks(
 			(org.dyndns.doujindb.db.cayenne.Book)
 			((org.dyndns.doujindb.db.BookImpl)book).ref

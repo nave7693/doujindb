@@ -283,8 +283,6 @@ final class BookImpl implements Book
 	@Override
 	public void addArtist(Artist artist) throws DataBaseException
 	{
-		if(getArtists().contains(artist))
-			return;
 		ref.addToArtists(
 			(org.dyndns.doujindb.db.cayenne.Artist)
 			((org.dyndns.doujindb.db.ArtistImpl)artist).ref
@@ -307,8 +305,6 @@ final class BookImpl implements Book
 	@Override
 	public void addCircle(Circle circle) throws DataBaseException
 	{
-		if(getCircles().contains(circle))
-			return;
 		ref.addToCircles(
 			(org.dyndns.doujindb.db.cayenne.Circle)
 			((org.dyndns.doujindb.db.CircleImpl)circle).ref
@@ -331,8 +327,6 @@ final class BookImpl implements Book
 	@Override
 	public void addContent(Content content) throws DataBaseException
 	{
-		if(getContents().contains(content))
-			return;
 		ref.addToContents(
 			(org.dyndns.doujindb.db.cayenne.Content)
 			((org.dyndns.doujindb.db.ContentImpl)content).ref
@@ -344,8 +338,6 @@ final class BookImpl implements Book
 	@Override
 	public void addParody(Parody parody) throws DataBaseException
 	{
-		if(getParodies().contains(parody))
-			return;
 		ref.addToParodies(
 			(org.dyndns.doujindb.db.cayenne.Parody)
 			((org.dyndns.doujindb.db.ParodyImpl)parody).ref

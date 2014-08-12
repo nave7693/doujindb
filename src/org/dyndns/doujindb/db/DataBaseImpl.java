@@ -719,7 +719,7 @@ final class DataBaseImpl extends IDataBase
 			conn.close();
 			if(auto_pk_support)
 			{
-				DbGenerator generator = new DbGenerator(adpt, domain.getMap("map"));
+				DbGenerator generator = new DbGenerator(adpt, domain.getMap("doujindb"));
 				generator.setShouldCreatePKSupport(true);
 				generator.setShouldDropPKSupport(false);
 				generator.setShouldCreateTables(false);

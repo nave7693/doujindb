@@ -322,11 +322,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 
-		List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Book> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Book> buff = new TreeSet<Book>();
 		for(org.dyndns.doujindb.db.cayenne.Book o : list)
 			buff.add(new BookImpl(o));
 		return new RecordSetImpl<Book>(buff);
+		 */
+		return new RecordSetImpl<Book>(new Iterator<Book>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Book> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Book next() {
+				return new BookImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 
 	@SuppressWarnings("unchecked")

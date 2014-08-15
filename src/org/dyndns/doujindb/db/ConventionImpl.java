@@ -174,4 +174,12 @@ final class ConventionImpl implements Convention
 	public int compareTo(Convention o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Convention))
+			return false;
+		else
+			return compareTo((Convention)obj) == 0;
+	}
 }

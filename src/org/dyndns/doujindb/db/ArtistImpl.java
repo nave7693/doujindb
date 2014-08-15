@@ -186,4 +186,12 @@ final class ArtistImpl implements Artist
 	public int compareTo(Artist o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Artist))
+			return false;
+		else
+			return compareTo((Artist)obj) == 0;
+	}
 }

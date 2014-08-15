@@ -187,4 +187,12 @@ final class CircleImpl implements Circle
 	public int compareTo(Circle o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Circle))
+			return false;
+		else
+			return compareTo((Circle)obj) == 0;
+	}
 }

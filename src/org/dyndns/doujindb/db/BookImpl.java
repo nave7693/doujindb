@@ -417,4 +417,12 @@ final class BookImpl implements Book
 	public int compareTo(Book o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Book))
+			return false;
+		else
+			return compareTo((Book)obj) == 0;
+	}
 }

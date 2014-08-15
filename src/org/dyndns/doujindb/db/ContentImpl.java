@@ -159,4 +159,12 @@ final class ContentImpl implements Content
 	public int compareTo(Content o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Content))
+			return false;
+		else
+			return compareTo((Content)obj) == 0;
+	}
 }

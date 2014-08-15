@@ -152,4 +152,12 @@ final class ParodyImpl implements Parody
 	public int compareTo(Parody o) {
 		return this.getId().compareTo(o.getId());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Parody))
+			return false;
+		else
+			return compareTo((Parody)obj) == 0;
+	}
 }

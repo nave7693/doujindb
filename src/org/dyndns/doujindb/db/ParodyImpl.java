@@ -83,6 +83,16 @@ final class ParodyImpl implements Parody
 				set.add(new BookImpl(r));
 		return new RecordSetImpl<Book>(set);
 	}
+	
+	@Override
+	public synchronized Set<String> getAliases() throws DataBaseException
+	{
+		Set<String> set = new TreeSet<String>();
+		Set<org.dyndns.doujindb.db.cayenne.ParodyAlias> result = ref.getAliases();
+		for(org.dyndns.doujindb.db.cayenne.ParodyAlias r : result)
+			set.add(r.getName());
+		return set;
+	}
 
 	@Override
 	public synchronized String toString()
@@ -113,6 +123,36 @@ final class ParodyImpl implements Parody
 		);
 		DataBase.fireRecordUpdated(this, UpdateData.unlink(book));
 		DataBase.fireRecordUpdated(book, UpdateData.unlink(this));
+	}
+	
+	@Override
+	public void addAlias(String alias) throws DataBaseException
+	{
+		if(getAliases().contains(alias))
+			return;
+		org.dyndns.doujindb.db.cayenne.ParodyAlias object = DataBase.newParodyAlias();
+		object.setName(alias);
+		ref.addToAliases(object);
+	}
+
+	@Override
+	public void removeAlias(String alias) throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.ParodyAlias> set = ref.getAliases();
+		synchronized(set)
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.ParodyAlias> i = set.iterator();
+			while(i.hasNext())
+			{
+				org.dyndns.doujindb.db.cayenne.ParodyAlias a = i.next();
+				if(a.getName().equals(alias))
+				{
+					i.remove();
+					ref.removeFromAliases(a);
+					DataBase.deleteObject(a);
+				}
+			}
+		}
 	}
 	
 	@Override

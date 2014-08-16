@@ -227,6 +227,16 @@ final class BookImpl implements Book
 	}
 	
 	@Override
+	public synchronized Set<String> getAliases() throws DataBaseException
+	{
+		Set<String> set = new TreeSet<String>();
+		Set<org.dyndns.doujindb.db.cayenne.BookAlias> result = ref.getAliases();
+		for(org.dyndns.doujindb.db.cayenne.BookAlias r : result)
+			set.add(r.getName());
+		return set;
+	}
+	
+	@Override
 	public synchronized String toString()
 	{
 		String translation;
@@ -321,6 +331,36 @@ final class BookImpl implements Book
 			);
 		DataBase.fireRecordUpdated(this, UpdateData.unlink(parody));
 		DataBase.fireRecordUpdated(parody, UpdateData.unlink(this));
+	}
+	
+	@Override
+	public void addAlias(String alias) throws DataBaseException
+	{
+		if(getAliases().contains(alias))
+			return;
+		org.dyndns.doujindb.db.cayenne.BookAlias object = DataBase.newBookAlias();
+		object.setName(alias);
+		ref.addToAliases(object);
+	}
+
+	@Override
+	public void removeAlias(String alias) throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.BookAlias> set = ref.getAliases();
+		synchronized(set)
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.BookAlias> i = set.iterator();
+			while(i.hasNext())
+			{
+				org.dyndns.doujindb.db.cayenne.BookAlias a = i.next();
+				if(a.getName().equals(alias))
+				{
+					i.remove();
+					ref.removeFromAliases(a);
+					DataBase.deleteObject(a);
+				}
+			}
+		}
 	}
 	
 	@Override

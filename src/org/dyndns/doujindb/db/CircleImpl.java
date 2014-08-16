@@ -95,6 +95,16 @@ final class CircleImpl implements Circle
 	}
 	
 	@Override
+	public synchronized Set<String> getAliases() throws DataBaseException
+	{
+		Set<String> set = new TreeSet<String>();
+		Set<org.dyndns.doujindb.db.cayenne.CircleAlias> result = ref.getAliases();
+		for(org.dyndns.doujindb.db.cayenne.CircleAlias r : result)
+			set.add(r.getName());
+		return set;
+	}
+	
+	@Override
 	public synchronized String toString()
 	{
 		String translation;
@@ -146,6 +156,36 @@ final class CircleImpl implements Circle
 		);
 		DataBase.fireRecordUpdated(this, UpdateData.unlink(book));
 		DataBase.fireRecordUpdated(book, UpdateData.unlink(this));
+	}
+	
+	@Override
+	public void addAlias(String alias) throws DataBaseException
+	{
+		if(getAliases().contains(alias))
+			return;
+		org.dyndns.doujindb.db.cayenne.CircleAlias object = DataBase.newCircleAlias();
+		object.setName(alias);
+		ref.addToAliases(object);
+	}
+
+	@Override
+	public void removeAlias(String alias) throws DataBaseException
+	{
+		Set<org.dyndns.doujindb.db.cayenne.CircleAlias> set = ref.getAliases();
+		synchronized(set)
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.CircleAlias> i = set.iterator();
+			while(i.hasNext())
+			{
+				org.dyndns.doujindb.db.cayenne.CircleAlias a = i.next();
+				if(a.getName().equals(alias))
+				{
+					i.remove();
+					ref.removeFromAliases(a);
+					DataBase.deleteObject(a);
+				}
+			}
+		}
 	}
 	
 	@Override

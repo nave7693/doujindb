@@ -638,9 +638,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JLabel labelType;
 		private JComboBox<Book.Type> comboType;
 		private JCheckBox checkAdult;
-		private JCheckBox checkDecensored;
-		private JCheckBox checkTranslated;
-		private JCheckBox checkColored;
 		private DynamicListContent listSearchContent;
 		private JTable tableResults;
 		private JScrollPane scrollResults;
@@ -680,15 +677,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			checkAdult = new JCheckBox("Adult", false);
 			checkAdult.setFont(font);
 			checkAdult.setFocusable(false);
-			checkDecensored = new JCheckBox("Decensored", false);
-			checkDecensored.setFont(font);
-			checkDecensored.setFocusable(false);
-			checkTranslated = new JCheckBox("Translated", false);
-			checkTranslated.setFont(font);
-			checkTranslated.setFocusable(false);
-			checkColored = new JCheckBox("Colored", false);
-			checkColored.setFont(font);
-			checkColored.setFocusable(false);
 			
 			listSearchContent = new DynamicListContent();
 					
@@ -863,9 +851,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			super.add(labelType);
 			super.add(comboType);
 			super.add(checkAdult);
-			super.add(checkDecensored);
-			super.add(checkTranslated);
-			super.add(checkColored);
 			super.add(listSearchContent);
 			super.add(scrollResults);
 			if(previewEnabled)
@@ -892,9 +877,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			labelType.setBounds(3, 3 + 45, 100, 20);
 			comboType.setBounds(103, 3 + 45, 100, 20);
 			checkAdult.setBounds(width - 105, 3 + 55, 100, 15);
-			checkDecensored.setBounds(width - 105, 3 + 70, 100, 15);
-			checkTranslated.setBounds(width - 105, 3 + 85, 100, 15);
-			checkColored.setBounds(width - 105, 3 + 100, 100, 15);
 			listSearchContent.setBounds(3, 3 + 65, width - 110, 95);
 			m_LabelResults.setBounds(3, 3 + 160, width / 2 - 6, 15);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
@@ -944,12 +926,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					q.Type = (org.dyndns.doujindb.db.record.Book.Type) comboType.getSelectedItem();
 					if(checkAdult.isSelected())
 						q.Adult = true;
-					if(checkColored.isSelected())
-						q.Colored = true;
-					if(checkTranslated.isSelected())
-						q.Translated = true;
-					if(checkDecensored.isSelected())
-						q.Decensored = true;
 					for(Content tag : listSearchContent.getContents())
 						q.Contents.add(tag);
 

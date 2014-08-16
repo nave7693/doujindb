@@ -13,8 +13,5 @@ public final class QueryBook extends Query<Book>
 	public String TranslatedName = null;
 	public Book.Type Type = null;
 	public Boolean Adult = null;
-	public Boolean Decensored = null;
-	public Boolean Translated = null;
-	public Boolean Colored = null;
 	public Set<Content> Contents = new HashSet<Content>();
 }

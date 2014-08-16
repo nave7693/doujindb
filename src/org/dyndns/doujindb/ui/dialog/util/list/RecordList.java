@@ -199,9 +199,6 @@ public abstract class RecordList<T extends Record> extends JPanel implements Dat
 											clone.setType(book.getType());
 											clone.setPages(book.getPages());
 											clone.setAdult(book.isAdult());
-											clone.setDecensored(book.isDecensored());
-											clone.setTranslated(book.isTranslated());
-											clone.setColored(book.isColored());
 											for(Artist a : book.getArtists())
 												clone.addArtist(a);
 											for(Circle c : book.getCircles())

@@ -66,9 +66,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	private JLabel labelConvention;
 	private ComboBoxConvention comboConvention;
 	private JCheckBox checkAdult;
-	private JCheckBox checkDecensored;
-	private JCheckBox checkTranslated;
-	private JCheckBox checkColored;
 	private BookRatingEditor editorRating;
 	private JTabbedPane tabLists;
 	private ListArtist editorArtists;
@@ -231,15 +228,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		checkAdult = new JCheckBox("Adult", false);
 		checkAdult.setFont(font);
 		checkAdult.setFocusable(false);
-		checkDecensored = new JCheckBox("Decensored", false);
-		checkDecensored.setFont(font);
-		checkDecensored.setFocusable(false);
-		checkTranslated = new JCheckBox("Translated", false);
-		checkTranslated.setFont(font);
-		checkTranslated.setFocusable(false);
-		checkColored = new JCheckBox("Colored", false);
-		checkColored.setFont(font);
-		checkColored.setFocusable(false);
 		labelDate = new JLabel("Date");
 		labelDate.setFont(font);
 		textDate = new JTextField("");
@@ -267,9 +255,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				labelType.setBounds(3, 3 + 65, 100, 20);
 				comboType.setBounds(103, 3 + 65, 100, 20);				
 				checkAdult.setBounds(3, 3 + 90, 100, 15);
-				checkDecensored.setBounds(3, 3 + 105, 100, 15);
-				checkTranslated.setBounds(3, 3 + 120, 100, 15);
-				checkColored.setBounds(3, 3 + 135, 100, 15);
 				editorRating.setBounds(width - 86 - 2, 80, 80, 15);
 				labelDate.setBounds(3, 3 + 155, 80, 15);
 				textDate.setBounds(3, 3 + 170, 80, 15);
@@ -304,9 +289,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		panelInfo.add(scrollInfo);
 		panelInfo.add(editorRating);
 		panelInfo.add(checkAdult);
-		panelInfo.add(checkDecensored);
-		panelInfo.add(checkTranslated);
-		panelInfo.add(checkColored);
 		panelInfo.add(labelConvention);
 		panelInfo.add(comboConvention);
 		panelInfo.add(labelDate);
@@ -480,9 +462,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			tokenBook.setType((Type)comboType.getSelectedItem());
 			tokenBook.setPages(pages);
 			tokenBook.setAdult(checkAdult.isSelected());
-			tokenBook.setDecensored(checkDecensored.isSelected());
-			tokenBook.setTranslated(checkTranslated.isSelected());
-			tokenBook.setColored(checkColored.isSelected());
 			for(Artist a : tokenBook.getArtists())
 				if(!editorArtists.contains(a))
 					tokenBook.removeArtist(a);
@@ -548,9 +527,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				comboType.setSelectedItem(tokenBook.getType());
 				comboConvention.setSelectedItem(tokenBook.getConvention());
 				checkAdult.setSelected(tokenBook.isAdult());
-				checkDecensored.setSelected(tokenBook.isDecensored());
-				checkTranslated.setSelected(tokenBook.isTranslated());
-				checkColored.setSelected(tokenBook.isColored());
 				textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
 				textPages.setText("" + tokenBook.getPages());
 				try
@@ -609,12 +585,6 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				comboType.setSelectedItem(tokenBook.getType());
 			if(data.getProperty().equals("adult"))
 				checkAdult.setSelected(tokenBook.isAdult());
-			if(data.getProperty().equals("decensored"))
-				checkDecensored.setSelected(tokenBook.isDecensored());
-			if(data.getProperty().equals("translated"))
-				checkTranslated.setSelected(tokenBook.isTranslated());
-			if(data.getProperty().equals("color"))
-				checkColored.setSelected(tokenBook.isColored());
 			if(data.getProperty().equals("released"))
 				textDate.setText(((tokenBook.getDate()==null)?"--/--/----":new java.text.SimpleDateFormat("dd/MM/yyyy").format(tokenBook.getDate())));
 			if(data.getProperty().equals("pages"))
@@ -744,25 +714,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 		public boolean isAdult() throws DataBaseException { return false; }
 
 		@Override
-		public boolean isDecensored() throws DataBaseException { return false; }
-
-		@Override
-		public boolean isTranslated() throws DataBaseException { return false; }
-
-		@Override
-		public boolean isColored() throws DataBaseException { return false; }
-
-		@Override
 		public void setAdult(boolean adult) throws DataBaseException { }
-
-		@Override
-		public void setDecensored(boolean decensored) throws DataBaseException { }
-
-		@Override
-		public void setTranslated(boolean translated) throws DataBaseException { }
-
-		@Override
-		public void setColored(boolean colored) throws DataBaseException { }
 
 		@Override
 		public Rating getRating() throws DataBaseException { return Rating.UNRATED; }

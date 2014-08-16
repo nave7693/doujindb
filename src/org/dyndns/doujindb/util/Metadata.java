@@ -28,9 +28,6 @@ public final class Metadata
 		xmlbook.Type = book.getType();
 		xmlbook.Pages = book.getPages();
 		xmlbook.Adult = book.isAdult();
-		xmlbook.Decensored = book.isDecensored();
-		xmlbook.Colored = book.isColored();
-		xmlbook.Translated = book.isTranslated();
 		xmlbook.Rating = book.getRating();
 		xmlbook.Info = book.getInfo();
 		for(Artist a : book.getArtists())
@@ -77,12 +74,6 @@ public final class Metadata
 		private int Pages;
 		@XmlElement(required=false)
 		private boolean Adult;
-		@XmlElement(required=false)
-		private boolean Decensored;
-		@XmlElement(required=false)
-		private boolean Translated;
-		@XmlElement(required=false)
-		private boolean Colored;
 		@XmlElement(required=false)
 		private Rating Rating;
 		@XmlElement(required=false)

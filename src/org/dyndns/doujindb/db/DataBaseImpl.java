@@ -373,11 +373,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 		
-		List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Circle> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Circle> buff = new TreeSet<Circle>();
 		for(org.dyndns.doujindb.db.cayenne.Circle o : list)
 			buff.add(new CircleImpl(o));
 		return new RecordSetImpl<Circle>(buff);
+		 */
+		return new RecordSetImpl<Circle>(new Iterator<Circle>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Circle> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Circle next() {
+				return new CircleImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -404,11 +424,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 		
-		List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Artist> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Artist> buff = new TreeSet<Artist>();
 		for(org.dyndns.doujindb.db.cayenne.Artist o : list)
 			buff.add(new ArtistImpl(o));
 		return new RecordSetImpl<Artist>(buff);
+		 */
+		return new RecordSetImpl<Artist>(new Iterator<Artist>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Artist> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Artist next() {
+				return new ArtistImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -435,11 +475,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 		
-		List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Parody> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Parody> buff = new TreeSet<Parody>();
 		for(org.dyndns.doujindb.db.cayenne.Parody o : list)
 			buff.add(new ParodyImpl(o));
 		return new RecordSetImpl<Parody>(buff);
+		 */
+		return new RecordSetImpl<Parody>(new Iterator<Parody>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Parody> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Parody next() {
+				return new ParodyImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -466,11 +526,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 		
-		List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Content> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Content> buff = new TreeSet<Content>();
 		for(org.dyndns.doujindb.db.cayenne.Content o : list)
 			buff.add(new ContentImpl(o));
 		return new RecordSetImpl<Content>(buff);
+		 */
+		return new RecordSetImpl<Content>(new Iterator<Content>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Content> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Content next() {
+				return new ContentImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -497,11 +577,31 @@ final class DataBaseImpl extends IDataBase
 		
 		select.setPageSize(query.pagesize);
 		
-		List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
+		final List<org.dyndns.doujindb.db.cayenne.Convention> list = context.performQuery(select);
+		/**
+		 * This kills query pagination
+		 * 
 		Set<Convention> buff = new TreeSet<Convention>();
 		for(org.dyndns.doujindb.db.cayenne.Convention o : list)
 			buff.add(new ConventionImpl(o));
 		return new RecordSetImpl<Convention>(buff);
+		 */
+		return new RecordSetImpl<Convention>(new Iterator<Convention>()
+		{
+			Iterator<org.dyndns.doujindb.db.cayenne.Convention> i = list.iterator();
+			@Override
+			public boolean hasNext() {
+				return i.hasNext();
+			}
+			@Override
+			public Convention next() {
+				return new ConventionImpl(i.next());
+			}
+			@Override
+			public void remove() {
+				i.remove();
+			}
+		}, list.size());
 	}
 	
 	@SuppressWarnings("unchecked")

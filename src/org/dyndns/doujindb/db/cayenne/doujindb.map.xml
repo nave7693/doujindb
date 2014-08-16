@@ -12,6 +12,11 @@
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
 	</db-entity>
+	<db-entity name="ArtistAlias">
+		<db-attribute name="ARTIST_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" length="255"/>
+	</db-entity>
 	<db-entity name="Book">
 		<db-attribute name="ADULT" type="BOOLEAN"/>
 		<db-attribute name="CONVENTION" type="INTEGER"/>
@@ -26,6 +31,11 @@
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TYPE" type="INTEGER" isMandatory="true"/>
 	</db-entity>
+	<db-entity name="BookAlias">
+		<db-attribute name="BOOK_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" length="255"/>
+	</db-entity>
 	<db-entity name="Circle">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
@@ -33,6 +43,11 @@
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="CircleAlias">
+		<db-attribute name="CIRCLE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="CircleOf">
 		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
@@ -80,6 +95,11 @@
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="WEBLINK" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="ParodyAlias">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" length="255"/>
+		<db-attribute name="PARODY_ID" type="INTEGER" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="ParodyOf">
 		<db-attribute name="BOOK_ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
@@ -143,11 +163,20 @@
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
+	<db-relationship name="artistalias" source="Artist" target="ArtistAlias" toMany="true">
+		<db-attribute-pair source="ID" target="ARTIST_ID"/>
+	</db-relationship>
 	<db-relationship name="drawnby" source="Artist" target="DrawnBy" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>
 	</db-relationship>
 	<db-relationship name="memberof" source="Artist" target="MemberOf" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>
+	</db-relationship>
+	<db-relationship name="artistalias" source="ArtistAlias" target="Artist" toMany="false">
+		<db-attribute-pair source="ARTIST_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="bookalias" source="Book" target="BookAlias" toMany="true">
+		<db-attribute-pair source="ID" target="BOOK_ID"/>
 	</db-relationship>
 	<db-relationship name="circleof" source="Book" target="CircleOf" toMany="true">
 		<db-attribute-pair source="ID" target="BOOK_ID"/>
@@ -164,11 +193,20 @@
 	<db-relationship name="parodyof" source="Book" target="ParodyOf" toMany="true">
 		<db-attribute-pair source="ID" target="BOOK_ID"/>
 	</db-relationship>
+	<db-relationship name="bookalias" source="BookAlias" target="Book" toMany="false">
+		<db-attribute-pair source="BOOK_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="circlealias" source="Circle" target="CircleAlias" toMany="true">
+		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
+	</db-relationship>
 	<db-relationship name="circleof" source="Circle" target="CircleOf" toMany="true">
 		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
 	</db-relationship>
 	<db-relationship name="memberof" source="Circle" target="MemberOf" toMany="true">
 		<db-attribute-pair source="ID" target="CIRCLE_ID"/>
+	</db-relationship>
+	<db-relationship name="circlealias" source="CircleAlias" target="Circle" toMany="false">
+		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="book" source="CircleOf" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>
@@ -212,8 +250,14 @@
 	<db-relationship name="circle" source="MemberOf" target="Circle" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="CIRCLE_ID" target="ID"/>
 	</db-relationship>
+	<db-relationship name="parodyalias" source="Parody" target="ParodyAlias" toMany="true">
+		<db-attribute-pair source="ID" target="PARODY_ID"/>
+	</db-relationship>
 	<db-relationship name="parodyof" source="Parody" target="ParodyOf" toMany="true">
 		<db-attribute-pair source="ID" target="PARODY_ID"/>
+	</db-relationship>
+	<db-relationship name="parodyalias" source="ParodyAlias" target="Parody" toMany="false">
+		<db-attribute-pair source="PARODY_ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="book" source="ParodyOf" target="Book" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="BOOK_ID" target="ID"/>

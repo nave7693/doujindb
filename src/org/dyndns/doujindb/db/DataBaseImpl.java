@@ -23,9 +23,13 @@ import org.apache.cayenne.exp.*;
 import org.apache.cayenne.query.EJBQLQuery;
 import org.apache.cayenne.query.SelectQuery;
 import org.dyndns.doujindb.conf.Configuration;
+import org.dyndns.doujindb.db.cayenne.ArtistAlias;
+import org.dyndns.doujindb.db.cayenne.BookAlias;
+import org.dyndns.doujindb.db.cayenne.CircleAlias;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
 import org.dyndns.doujindb.db.cayenne.EmbeddedConfiguration;
+import org.dyndns.doujindb.db.cayenne.ParodyAlias;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
 
@@ -197,6 +201,13 @@ final class DataBaseImpl extends IDataBase
 		org.dyndns.doujindb.db.cayenne.Artist o = context.newObject(org.dyndns.doujindb.db.cayenne.Artist.class);
 		return new ArtistImpl(o);
 	}
+	
+	@Override
+	protected synchronized ArtistAlias newArtistAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.ArtistAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.ArtistAlias.class);
+		return o;
+	}
 
 	@Override
 	protected synchronized Book newBook() throws DataBaseException
@@ -204,12 +215,26 @@ final class DataBaseImpl extends IDataBase
 		org.dyndns.doujindb.db.cayenne.Book o = context.newObject(org.dyndns.doujindb.db.cayenne.Book.class);
 		return new BookImpl(o);
 	}
+	
+	@Override
+	protected synchronized BookAlias newBookAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.BookAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.BookAlias.class);
+		return o;
+	}
 
 	@Override
 	protected synchronized Circle newCircle() throws DataBaseException
 	{
 		org.dyndns.doujindb.db.cayenne.Circle o = context.newObject(org.dyndns.doujindb.db.cayenne.Circle.class);
 		return new CircleImpl(o);
+	}
+	
+	@Override
+	protected synchronized CircleAlias newCircleAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.CircleAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.CircleAlias.class);
+		return o;
 	}
 
 	@Override
@@ -245,6 +270,13 @@ final class DataBaseImpl extends IDataBase
 	{
 		org.dyndns.doujindb.db.cayenne.Parody o = context.newObject(org.dyndns.doujindb.db.cayenne.Parody.class);
 		return new ParodyImpl(o);
+	}
+	
+	@Override
+	protected synchronized ParodyAlias newParodyAlias() throws DataBaseException
+	{
+		org.dyndns.doujindb.db.cayenne.ParodyAlias o = context.newObject(org.dyndns.doujindb.db.cayenne.ParodyAlias.class);
+		return o;
 	}
 	
 	@Override

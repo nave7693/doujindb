@@ -2,8 +2,12 @@ package org.dyndns.doujindb.db;
 
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.db.cayenne.ArtistAlias;
+import org.dyndns.doujindb.db.cayenne.BookAlias;
+import org.dyndns.doujindb.db.cayenne.CircleAlias;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
+import org.dyndns.doujindb.db.cayenne.ParodyAlias;
 
 public abstract class IDataBase
 {
@@ -27,12 +31,16 @@ public abstract class IDataBase
 	public abstract String getConnection() throws DataBaseException;
 	public abstract boolean isAutocommit() throws DataBaseException;
 	protected abstract Artist newArtist() throws DataBaseException;
+	protected abstract ArtistAlias newArtistAlias() throws DataBaseException;
 	protected abstract Book newBook() throws DataBaseException;
+	protected abstract BookAlias newBookAlias() throws DataBaseException;
 	protected abstract Circle newCircle() throws DataBaseException;
+	protected abstract CircleAlias newCircleAlias() throws DataBaseException;
 	protected abstract Content newContent() throws DataBaseException;
 	protected abstract ContentAlias newContentAlias() throws DataBaseException;
 	protected abstract Convention newConvention() throws DataBaseException;
 	protected abstract ConventionAlias newConventionAlias() throws DataBaseException;
 	protected abstract Parody newParody() throws DataBaseException;
+	protected abstract ParodyAlias newParodyAlias() throws DataBaseException;
 	protected abstract void deleteObject(Object o) throws DataBaseException;
 }

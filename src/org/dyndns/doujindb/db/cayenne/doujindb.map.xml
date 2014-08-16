@@ -113,6 +113,9 @@
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
+	<obj-entity name="ArtistAlias" className="org.dyndns.doujindb.db.cayenne.ArtistAlias" dbEntityName="ArtistAlias">
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
@@ -126,6 +129,9 @@
 		<obj-attribute name="type" type="org.dyndns.doujindb.db.record.Book.Type" db-attribute-path="TYPE"/>
 		<post-add method-name="postAdd"/>
 	</obj-entity>
+	<obj-entity name="BookAlias" className="org.dyndns.doujindb.db.cayenne.BookAlias" dbEntityName="BookAlias">
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+	</obj-entity>
 	<obj-entity name="Circle" className="org.dyndns.doujindb.db.cayenne.Circle" dbEntityName="Circle">
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
@@ -133,6 +139,9 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="CircleAlias" className="org.dyndns.doujindb.db.cayenne.CircleAlias" dbEntityName="CircleAlias">
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
 	</obj-entity>
 	<obj-entity name="Content" className="org.dyndns.doujindb.db.cayenne.Content" dbEntityName="Content">
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
@@ -162,6 +171,9 @@
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="weblink" type="java.lang.String" db-attribute-path="WEBLINK"/>
 		<post-add method-name="postAdd"/>
+	</obj-entity>
+	<obj-entity name="ParodyAlias" className="org.dyndns.doujindb.db.cayenne.ParodyAlias" dbEntityName="ParodyAlias">
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
 	</obj-entity>
 	<db-relationship name="artistalias" source="Artist" target="ArtistAlias" toMany="true">
 		<db-attribute-pair source="ID" target="ARTIST_ID"/>
@@ -265,18 +277,22 @@
 	<db-relationship name="parody" source="ParodyOf" target="Parody" toDependentPK="true" toMany="false">
 		<db-attribute-pair source="PARODY_ID" target="ID"/>
 	</db-relationship>
+	<obj-relationship name="aliases" source="Artist" target="ArtistAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="artistalias"/>
 	<obj-relationship name="books" source="Artist" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.book"/>
 	<obj-relationship name="circles" source="Artist" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.circle"/>
+	<obj-relationship name="aliases" source="Book" target="BookAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="bookalias"/>
 	<obj-relationship name="artists" source="Book" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="drawnby.artist"/>
 	<obj-relationship name="circles" source="Book" target="Circle" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="circleof.circle"/>
 	<obj-relationship name="contents" source="Book" target="Content" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.content"/>
 	<obj-relationship name="conventionof" source="Book" target="Convention" deleteRule="Deny" db-relationship-path="conventionof"/>
 	<obj-relationship name="parodies" source="Book" target="Parody" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.parody"/>
+	<obj-relationship name="aliases" source="Circle" target="CircleAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="circlealias"/>
 	<obj-relationship name="artists" source="Circle" target="Artist" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="memberof.artist"/>
 	<obj-relationship name="books" source="Circle" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="circleof.book"/>
 	<obj-relationship name="aliases" source="Content" target="ContentAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="contentalias"/>
 	<obj-relationship name="books" source="Content" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="contentof.book"/>
 	<obj-relationship name="aliases" source="Convention" target="ConventionAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="conventionalias"/>
 	<obj-relationship name="books" source="Convention" target="Book" collection-type="java.util.Set" deleteRule="Nullify" db-relationship-path="conventionof"/>
+	<obj-relationship name="aliases" source="Parody" target="ParodyAlias" collection-type="java.util.Set" deleteRule="Cascade" db-relationship-path="parodyalias"/>
 	<obj-relationship name="books" source="Parody" target="Book" collection-type="java.util.Set" deleteRule="Deny" db-relationship-path="parodyof.book"/>
 </data-map>

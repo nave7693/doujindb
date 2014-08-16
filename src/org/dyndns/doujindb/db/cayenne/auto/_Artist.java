@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db.cayenne.auto;
 import java.util.Set;
 
 import org.apache.cayenne.CayenneDataObject;
+import org.dyndns.doujindb.db.cayenne.ArtistAlias;
 import org.dyndns.doujindb.db.cayenne.Book;
 import org.dyndns.doujindb.db.cayenne.Circle;
 
@@ -19,6 +20,7 @@ public abstract class _Artist extends CayenneDataObject {
     public static final String ROMAJI_NAME_PROPERTY = "romajiName";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
     public static final String WEBLINK_PROPERTY = "weblink";
+    public static final String ALIASES_PROPERTY = "aliases";
     public static final String BOOKS_PROPERTY = "books";
     public static final String CIRCLES_PROPERTY = "circles";
 
@@ -58,6 +60,18 @@ public abstract class _Artist extends CayenneDataObject {
     public String getWeblink() {
         return (String)readProperty("weblink");
     }
+
+    public void addToAliases(ArtistAlias obj) {
+        addToManyTarget("aliases", obj, true);
+    }
+    public void removeFromAliases(ArtistAlias obj) {
+        removeToManyTarget("aliases", obj, true);
+    }
+    @SuppressWarnings("unchecked")
+    public Set<ArtistAlias> getAliases() {
+        return (Set<ArtistAlias>)readProperty("aliases");
+    }
+
 
     public void addToBooks(Book obj) {
         addToManyTarget("books", obj, true);

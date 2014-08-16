@@ -6,6 +6,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -337,6 +338,15 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 
 		@Override
 		public void setWeblink(String weblink) throws DataBaseException { }
+		
+		@Override
+		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+		@Override
+		public void addAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAlias(String alias) throws DataBaseException { }
 
 		@Override
 		public void removeAll() throws DataBaseException { }

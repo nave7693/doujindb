@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -805,6 +806,15 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 
 		@Override
 		public void removeParody(Parody parody) throws DataBaseException { }
+		
+		@Override
+		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+		@Override
+		public void addAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAlias(String alias) throws DataBaseException { }
 
 		@Override
 		public void removeAll() throws DataBaseException { }

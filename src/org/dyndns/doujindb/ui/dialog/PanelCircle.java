@@ -528,6 +528,15 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 		
 		@Override
 		public void removeBook(Book book) throws DataBaseException { }
+		
+		@Override
+		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+		@Override
+		public void addAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAlias(String alias) throws DataBaseException { }
 
 		@Override
 		public void removeAll() throws DataBaseException { }

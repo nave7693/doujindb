@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.*;
@@ -378,6 +379,15 @@ public final class PanelArtist extends JPanel implements DataBaseListener, Layou
 
 		@Override
 		public void removeCircle(Circle circle) throws DataBaseException { }
+		
+		@Override
+		public Set<String> getAliases() throws DataBaseException { return new java.util.TreeSet<String>(); }
+
+		@Override
+		public void addAlias(String alias) throws DataBaseException { }
+
+		@Override
+		public void removeAlias(String alias) throws DataBaseException { }
 
 		@Override
 		public void removeAll() throws DataBaseException { }

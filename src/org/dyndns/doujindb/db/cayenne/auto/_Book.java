@@ -23,7 +23,6 @@ public abstract class _Book extends CayenneDataObject {
     public static final String ADULT_PROPERTY = "adult";
     public static final String COLOR_PROPERTY = "color";
     public static final String DECENSORED_PROPERTY = "decensored";
-    public static final String ID_PROPERTY = "id";
     public static final String INFO_PROPERTY = "info";
     public static final String JAPANESE_NAME_PROPERTY = "japaneseName";
     public static final String PAGES_PROPERTY = "pages";
@@ -61,13 +60,6 @@ public abstract class _Book extends CayenneDataObject {
     }
     public Boolean getDecensored() {
         return (Boolean)readProperty("decensored");
-    }
-
-    public void setId(Integer id) {
-        writeProperty("id", id);
-    }
-    public Integer getId() {
-        return (Integer)readProperty("id");
     }
 
     public void setInfo(String info) {

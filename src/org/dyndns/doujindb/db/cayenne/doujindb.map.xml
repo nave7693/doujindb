@@ -100,7 +100,6 @@
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
 		<obj-attribute name="color" type="java.lang.Boolean" db-attribute-path="COLOR"/>
 		<obj-attribute name="decensored" type="java.lang.Boolean" db-attribute-path="DECENSORED"/>
-		<obj-attribute name="id" type="java.lang.Integer" db-attribute-path="ID"/>
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="pages" type="java.lang.Integer" db-attribute-path="PAGES"/>

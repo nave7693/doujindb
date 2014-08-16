@@ -83,12 +83,6 @@ final class DataBaseImpl extends IDataBase
 		         new ExpressionParameter("Type")));
 		list.add(ExpressionFactory.matchExp("adult", 
 		         new ExpressionParameter("Adult")));
-		list.add(ExpressionFactory.matchExp("color", 
-		         new ExpressionParameter("Colored")));
-		list.add(ExpressionFactory.matchExp("translated", 
-		         new ExpressionParameter("Translated")));
-		list.add(ExpressionFactory.matchExp("decensored", 
-		         new ExpressionParameter("Decensored")));
 		queryBookAnd = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.AND, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		queryBookOr = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, ExpressionFactory.joinExp(Expression.OR, list).joinExp(Expression.AND, Expression.fromString("recycled = FALSE")));
 		

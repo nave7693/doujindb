@@ -854,9 +854,6 @@ final class TaskManager
 			book.setDate(xmlbook.DATE_RELEASED);
 			book.setPages(xmlbook.DATA_PAGES);
 			book.setAdult(xmlbook.DATA_AGE == 1);
-			book.setDecensored(false);
-			book.setTranslated(false);
-			book.setColored(false);
 			book.setRating(Rating.UNRATED);
 			book.setInfo(xmlbook.DATA_INFO.length() > 255 ? xmlbook.DATA_INFO.substring(0, 255) : xmlbook.DATA_INFO);
 			

@@ -14,9 +14,7 @@
 	</db-entity>
 	<db-entity name="Book">
 		<db-attribute name="ADULT" type="BOOLEAN"/>
-		<db-attribute name="COLOR" type="BOOLEAN"/>
 		<db-attribute name="CONVENTION" type="INTEGER"/>
-		<db-attribute name="DECENSORED" type="BOOLEAN"/>
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
 		<db-attribute name="JAPANESE_NAME" type="VARCHAR" length="255"/>
@@ -25,7 +23,6 @@
 		<db-attribute name="RATING" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="ROMAJI_NAME" type="VARCHAR" length="255"/>
-		<db-attribute name="TRANSLATED" type="BOOLEAN"/>
 		<db-attribute name="TRANSLATED_NAME" type="VARCHAR" length="255"/>
 		<db-attribute name="TYPE" type="INTEGER" isMandatory="true"/>
 	</db-entity>
@@ -98,8 +95,6 @@
 	</obj-entity>
 	<obj-entity name="Book" className="org.dyndns.doujindb.db.cayenne.Book" dbEntityName="Book">
 		<obj-attribute name="adult" type="java.lang.Boolean" db-attribute-path="ADULT"/>
-		<obj-attribute name="color" type="java.lang.Boolean" db-attribute-path="COLOR"/>
-		<obj-attribute name="decensored" type="java.lang.Boolean" db-attribute-path="DECENSORED"/>
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
 		<obj-attribute name="japaneseName" type="java.lang.String" db-attribute-path="JAPANESE_NAME"/>
 		<obj-attribute name="pages" type="java.lang.Integer" db-attribute-path="PAGES"/>
@@ -107,7 +102,6 @@
 		<obj-attribute name="rating" type="org.dyndns.doujindb.db.record.Book.Rating" db-attribute-path="RATING"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="romajiName" type="java.lang.String" db-attribute-path="ROMAJI_NAME"/>
-		<obj-attribute name="translated" type="java.lang.Boolean" db-attribute-path="TRANSLATED"/>
 		<obj-attribute name="translatedName" type="java.lang.String" db-attribute-path="TRANSLATED_NAME"/>
 		<obj-attribute name="type" type="org.dyndns.doujindb.db.record.Book.Type" db-attribute-path="TYPE"/>
 		<post-add method-name="postAdd"/>

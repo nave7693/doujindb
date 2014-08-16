@@ -42,13 +42,7 @@ public interface Book extends Record, ArtistContainer, CircleContainer, ContentC
 	public void setDate(Date date) throws DataBaseException;
 	public void setType(Type type) throws DataBaseException;
 	public boolean isAdult() throws DataBaseException;
-	public boolean isDecensored() throws DataBaseException;
-	public boolean isTranslated() throws DataBaseException;
-	public boolean isColored() throws DataBaseException;
 	public void setAdult(boolean adult) throws DataBaseException;
-	public void setDecensored(boolean decensored) throws DataBaseException;
-	public void setTranslated(boolean translated) throws DataBaseException;
-	public void setColored(boolean colored) throws DataBaseException;
 	public Rating getRating() throws DataBaseException;
 	public String getInfo() throws DataBaseException;
 	public void setRating(Rating rating) throws DataBaseException;

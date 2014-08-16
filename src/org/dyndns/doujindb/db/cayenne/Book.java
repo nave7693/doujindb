@@ -19,9 +19,6 @@ public class Book extends _Book
 		super.setRating(Rating.UNRATED);
 		super.setType(Type.不詳);
 		super.setAdult(true);
-		super.setColor(false);
-		super.setDecensored(false);
-		super.setTranslated(false);
 		super.setPages(0);
 		super.setPublished(new Date());
 		super.setRecycled(false);

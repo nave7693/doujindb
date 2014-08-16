@@ -21,8 +21,6 @@ import org.dyndns.doujindb.db.record.Book.Type;
 public abstract class _Book extends CayenneDataObject {
 
     public static final String ADULT_PROPERTY = "adult";
-    public static final String COLOR_PROPERTY = "color";
-    public static final String DECENSORED_PROPERTY = "decensored";
     public static final String INFO_PROPERTY = "info";
     public static final String JAPANESE_NAME_PROPERTY = "japaneseName";
     public static final String PAGES_PROPERTY = "pages";
@@ -30,7 +28,6 @@ public abstract class _Book extends CayenneDataObject {
     public static final String RATING_PROPERTY = "rating";
     public static final String RECYCLED_PROPERTY = "recycled";
     public static final String ROMAJI_NAME_PROPERTY = "romajiName";
-    public static final String TRANSLATED_PROPERTY = "translated";
     public static final String TRANSLATED_NAME_PROPERTY = "translatedName";
     public static final String TYPE_PROPERTY = "type";
     public static final String ARTISTS_PROPERTY = "artists";
@@ -46,20 +43,6 @@ public abstract class _Book extends CayenneDataObject {
     }
     public Boolean getAdult() {
         return (Boolean)readProperty("adult");
-    }
-
-    public void setColor(Boolean color) {
-        writeProperty("color", color);
-    }
-    public Boolean getColor() {
-        return (Boolean)readProperty("color");
-    }
-
-    public void setDecensored(Boolean decensored) {
-        writeProperty("decensored", decensored);
-    }
-    public Boolean getDecensored() {
-        return (Boolean)readProperty("decensored");
     }
 
     public void setInfo(String info) {
@@ -109,13 +92,6 @@ public abstract class _Book extends CayenneDataObject {
     }
     public String getRomajiName() {
         return (String)readProperty("romajiName");
-    }
-
-    public void setTranslated(Boolean translated) {
-        writeProperty("translated", translated);
-    }
-    public Boolean getTranslated() {
-        return (Boolean)readProperty("translated");
     }
 
     public void setTranslatedName(String translatedName) {

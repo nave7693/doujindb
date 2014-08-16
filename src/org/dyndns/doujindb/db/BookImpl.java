@@ -136,51 +136,6 @@ final class BookImpl implements Book
 	}
 
 	@Override
-	public synchronized boolean isDecensored() throws DataBaseException
-	{
-		return ref.getDecensored();
-	}
-
-	@Override
-	public synchronized void setDecensored(boolean decensored) throws DataBaseException
-	{
-		if(isDecensored() == decensored)
-			return;
-		ref.setDecensored(decensored);
-		DataBase.fireRecordUpdated(this, UpdateData.property("decensored"));
-	}
-
-	@Override
-	public synchronized boolean isTranslated() throws DataBaseException
-	{
-		return ref.getTranslated();
-	}
-
-	@Override
-	public synchronized void setTranslated(boolean translated) throws DataBaseException
-	{
-		if(isTranslated() == translated)
-			return;
-		ref.setTranslated(translated);
-		DataBase.fireRecordUpdated(this, UpdateData.property("translated"));
-	}
-	
-	@Override
-	public synchronized boolean isColored() throws DataBaseException
-	{
-		return ref.getColor();
-	}
-
-	@Override
-	public synchronized void setColored(boolean colored) throws DataBaseException
-	{
-		if(isColored() == colored)
-			return;
-		ref.setColor(colored);
-		DataBase.fireRecordUpdated(this, UpdateData.property("color"));
-	}
-
-	@Override
 	public synchronized Rating getRating() throws DataBaseException
 	{
 		return ref.getRating();

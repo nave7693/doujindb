@@ -9,8 +9,12 @@ import ch.qos.logback.classic.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.db.cayenne.ArtistAlias;
+import org.dyndns.doujindb.db.cayenne.BookAlias;
+import org.dyndns.doujindb.db.cayenne.CircleAlias;
 import org.dyndns.doujindb.db.cayenne.ContentAlias;
 import org.dyndns.doujindb.db.cayenne.ConventionAlias;
+import org.dyndns.doujindb.db.cayenne.ParodyAlias;
 
 public final class DataBase
 {
@@ -308,6 +312,24 @@ public final class DataBase
 		queue.offer(new DataBaseEvent(DataBaseEvent.Type.DATABASE_ROLLBACK));
 	}
 
+	static ArtistAlias newArtistAlias()
+	{
+		LOG.debug("call newArtistAlias()");
+		return getInstace().newArtistAlias();
+	}
+	
+	static BookAlias newBookAlias()
+	{
+		LOG.debug("call newBookAlias()");
+		return getInstace().newBookAlias();
+	}
+	
+	static CircleAlias newCircleAlias()
+	{
+		LOG.debug("call newCircleAlias()");
+		return getInstace().newCircleAlias();
+	}
+	
 	static ContentAlias newContentAlias()
 	{
 		LOG.debug("call newContentAlias()");
@@ -318,6 +340,12 @@ public final class DataBase
 	{
 		LOG.debug("call newConventionAlias()");
 		return getInstace().newConventionAlias();
+	}
+	
+	static ParodyAlias newParodyAlias()
+	{
+		LOG.debug("call newParodyAlias()");
+		return getInstace().newParodyAlias();
 	}
 	
 	static void deleteObject(Object o) throws DataBaseException

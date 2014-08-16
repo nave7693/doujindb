@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.db.record;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.container.*;
@@ -61,5 +62,8 @@ public interface Book extends Record, ArtistContainer, CircleContainer, ContentC
 	public void removeCircle(Circle circle) throws DataBaseException;
 	public void removeContent(Content content) throws DataBaseException;
 	public void removeParody(Parody parody) throws DataBaseException;
+	public Set<String> getAliases() throws DataBaseException;
+	public void addAlias(String alias) throws DataBaseException;
+	public void removeAlias(String alias) throws DataBaseException;
 	public void removeAll() throws DataBaseException;
 }

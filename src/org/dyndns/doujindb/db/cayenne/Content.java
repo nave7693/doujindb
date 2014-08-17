@@ -3,6 +3,7 @@ package org.dyndns.doujindb.db.cayenne;
 import java.util.Set;
 
 import org.dyndns.doujindb.db.cayenne.auto._Content;
+import org.dyndns.doujindb.db.record.Content.Namespace;
 
 @SuppressWarnings("serial")
 public class Content extends _Content
@@ -11,6 +12,7 @@ public class Content extends _Content
 	protected void postAdd() {
 		super.setTagName("");
 		super.setInfo("");
+		super.setNamespace(Namespace.Misc);
 		super.setRecycled(false);
 	}
 	

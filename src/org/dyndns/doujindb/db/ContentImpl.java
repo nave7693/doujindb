@@ -169,13 +169,17 @@ final class ContentImpl implements Content
 	}
 
 	@Override
-	public Namespace getNamespace() throws DataBaseException {
-		// TODO Auto-generated method stub
-		return null;
+	public Namespace getNamespace() throws DataBaseException
+	{
+		return ref.getNamespace();
 	}
 
 	@Override
-	public void setNamespace(Namespace namespace) throws DataBaseException {
-		// TODO Auto-generated method stub
+	public void setNamespace(Namespace namespace) throws DataBaseException
+	{
+		if(getNamespace().equals(namespace))
+			return;
+		ref.setNamespace(namespace);
+		DataBase.fireRecordUpdated(this, UpdateData.property("namespace"));
 	}
 }

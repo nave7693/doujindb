@@ -56,6 +56,7 @@
 	<db-entity name="Content">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="INFO" type="VARCHAR" length="255"/>
+		<db-attribute name="NAMESPACE" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="RECYCLED" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="TAG_NAME" type="VARCHAR" length="255"/>
 	</db-entity>
@@ -145,6 +146,7 @@
 	</obj-entity>
 	<obj-entity name="Content" className="org.dyndns.doujindb.db.cayenne.Content" dbEntityName="Content">
 		<obj-attribute name="info" type="java.lang.String" db-attribute-path="INFO"/>
+		<obj-attribute name="namespace" type="org.dyndns.doujindb.db.record.Content.Namespace" db-attribute-path="NAMESPACE"/>
 		<obj-attribute name="recycled" type="java.lang.Boolean" db-attribute-path="RECYCLED"/>
 		<obj-attribute name="tagName" type="java.lang.String" db-attribute-path="TAG_NAME"/>
 		<post-add method-name="postAdd"/>

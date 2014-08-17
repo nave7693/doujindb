@@ -256,7 +256,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 				labelType.setBounds(3, 3 + 65, 100, 20);
 				comboType.setBounds(103, 3 + 65, 100, 20);				
 				checkAdult.setBounds(3, 3 + 90, 100, 15);
-				editorRating.setBounds(width - 86 - 2, 80, 80, 15);
+				editorRating.setBounds(width - editorRating.getPreferredSize().width - 3, 3 + 65, editorRating.getPreferredSize().width, editorRating.getPreferredSize().height);
 				labelDate.setBounds(3, 3 + 155, 80, 15);
 				textDate.setBounds(3, 3 + 170, 80, 15);
 				labelPages.setBounds(3, 3 + 185, 60, 15);

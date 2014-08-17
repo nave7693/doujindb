@@ -167,4 +167,15 @@ final class ContentImpl implements Content
 		else
 			return compareTo((Content)obj) == 0;
 	}
+
+	@Override
+	public Namespace getNamespace() throws DataBaseException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setNamespace(Namespace namespace) throws DataBaseException {
+		// TODO Auto-generated method stub
+	}
 }

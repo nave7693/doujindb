@@ -523,5 +523,11 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		public int compareTo(Content o) {
 			return 1;
 		}
+
+		@Override
+		public Namespace getNamespace() throws DataBaseException { return Namespace.Misc; }
+
+		@Override
+		public void setNamespace(Namespace namespace) throws DataBaseException { }
 	}
 }

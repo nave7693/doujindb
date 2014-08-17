@@ -13,23 +13,35 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 @SuppressWarnings("serial")
 public class BookRatingEditor extends JPanel
 {
-	private JButton[] buttons = new JButton[5];
+	private JButton[] buttons = new JButton[Rating.values().length - 1]; // UNRATED should not be "counted"
 	private Rating bookRating;
 	private final ImageIcon CHECKED = Icon.desktop_explorer_book_rating_checked;
 	private final ImageIcon UNCHECKED = Icon.desktop_explorer_book_rating_unchecked;
 	
 	public BookRatingEditor(Rating rating)
 	{
-		super();
 		bookRating = rating;
-		for(int k=0;k<buttons.length;k++)
+		int index = 0;
+		for(final Rating r : Rating.values())
 		{
-			buttons[k] = new JButton(UNCHECKED);
-			buttons[k].setSize(16,16);
-			buttons[k].setFocusable(false);
-			buttons[k].setBorder(null);
-			add(buttons[k]);
+			if(r.equals(Rating.UNRATED))
+				continue; // skip UNRATED
+			buttons[index] = new JButton(UNCHECKED);
+			buttons[index].setSize(16,16);
+			buttons[index].setFocusable(false);
+			buttons[index].setBorder(null);
+			buttons[index].addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					bookRating = r;
+					doRender();
+				}			
+			});
+			add(buttons[index]);
+			index++;
 		}
+		super.setPreferredSize(new Dimension(16*buttons.length, 20));
 		setLayout(new LayoutManager()
 		{
 			@Override
@@ -45,83 +57,48 @@ public class BookRatingEditor extends JPanel
 			@Override
 			public Dimension minimumLayoutSize(Container parent)
 			{
-			     return parent.getMinimumSize();
+			     return getPreferredSize();
 			}
 			@Override
 			public Dimension preferredLayoutSize(Container parent)
 			{
-			     return parent.getPreferredSize();
+			     return getPreferredSize();
 			}
 		});
-		buttons[0].addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				bookRating = Rating.R1;
-				_render();
-			}			
-		});
-		buttons[1].addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				bookRating = Rating.R2;
-				_render();
-			}			
-		});
-		buttons[2].addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				bookRating = Rating.R3;
-				_render();
-			}			
-		});
-		buttons[3].addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				bookRating = Rating.R4;
-				_render();
-			}			
-		});
-		buttons[4].addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				bookRating = Rating.R5;
-				_render();
-			}			
-		});
-		_render();
+		doRender();
 	}
 	
-	private void _render()
+	private void doRender()
 	{
-		for(int k=0;k<buttons.length;k++)
-			buttons[k].setIcon(UNCHECKED);
-		switch(bookRating)
+		if(bookRating.equals(Rating.UNRATED))
 		{
-		case R5:
-			buttons[4].setIcon(CHECKED);
-		case R4:
-			buttons[3].setIcon(CHECKED);
-		case R3:
-			buttons[2].setIcon(CHECKED);
-		case R2:
-			buttons[1].setIcon(CHECKED);
-		case R1:
-			buttons[0].setIcon(CHECKED);
-		case UNRATED:
-			;
+			for(JButton b : buttons)
+				b.setIcon(UNCHECKED);
+			return;
+		}
+		boolean unchecked = false;
+		int index = 0;
+		for(Rating r : Rating.values())
+		{
+			if(r.equals(Rating.UNRATED))
+				continue; // skip UNRATED
+			JButton b = buttons[index++];
+			if(unchecked)
+				b.setIcon(UNCHECKED);
+			else
+				b.setIcon(CHECKED);
+			if(r.equals(bookRating))
+				unchecked = true;
 		}
 	}
+	
 	@Override
 	public void setEnabled(boolean enabled)
 	{
 		for(JButton b : buttons)
 			b.setEnabled(enabled);
 	}
+	
 	public Rating getRating()
 	{
 		return bookRating;

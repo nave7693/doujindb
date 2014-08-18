@@ -1421,6 +1421,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	{
 		private JLabel labelTagName;
 		private JTextField textTagName;
+		private JLabel labelNamespace;
+		private JComboBox<Content.Namespace> comboNamespace;
 		private JLabel labelResults;
 		private JTable tableResults;
 		private JScrollPane scrollResults;
@@ -1434,6 +1436,15 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			labelTagName.setFont(font);
 			textTagName = new JTextField("");
 			textTagName.setFont(font);
+			labelNamespace = new JLabel("Type");
+			labelNamespace.setFont(font);
+			comboNamespace = new JComboBox<Content.Namespace>();
+			comboNamespace.setFont(font);
+			comboNamespace.setFocusable(false);
+			comboNamespace.addItem(null);
+			for(Content.Namespace tokenNamespace : Content.Namespace.values())
+				comboNamespace.addItem(tokenNamespace);
+			comboNamespace.setSelectedItem(null);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
 			tableResults = new JTable();
@@ -1587,6 +1598,8 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			tableResults.setTransferHandler(thex);
 			super.add(labelTagName);
 			super.add(textTagName);
+			super.add(labelNamespace);
+			super.add(comboNamespace);
 			super.add(labelResults);
 			super.add(scrollResults);
 			
@@ -1600,8 +1613,10 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				height = parent.getHeight();
 			labelTagName.setBounds(3, 3, 100, 15);
 			textTagName.setBounds(103, 3, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
+			labelNamespace.setBounds(3, 3 + 15, 100, 15);
+			comboNamespace.setBounds(103, 3 + 15, width - 106, 15);
+			m_LabelResults.setBounds(3, 3 + 30, width / 2 - 6, 15);
+			scrollResults.setBounds(3, 3 + 45, width - 5, height - 30 - 45);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 
@@ -1614,6 +1629,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				QueryContent q = new QueryContent();
 				if(!textTagName.getText().equals(""))
 					q.TagName = textTagName.getText();
+				q.Namespace = (org.dyndns.doujindb.db.record.Content.Namespace) comboNamespace.getSelectedItem();
 				
 				// Clean result
 				while(m_TableModel.getRowCount()>0)

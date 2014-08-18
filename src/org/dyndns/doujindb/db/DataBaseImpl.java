@@ -119,6 +119,8 @@ final class DataBaseImpl extends IDataBase
 		list = new ArrayList<Expression>();
 		list.add(ExpressionFactory.matchDbExp("ID", 
 		         new ExpressionParameter("Id")));
+		list.add(ExpressionFactory.matchExp("namespace", 
+		         new ExpressionParameter("Namespace")));
 		List<Expression> contentT = new ArrayList<Expression>();
 		contentT.add(ExpressionFactory.likeExp("tagName", new ExpressionParameter("TagName")));
 		contentT.add(ExpressionFactory.likeExp("aliases+.tagName", new ExpressionParameter("TagName")));

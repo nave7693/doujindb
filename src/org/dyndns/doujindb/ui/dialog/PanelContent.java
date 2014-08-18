@@ -25,6 +25,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.db.record.Content;
+import org.dyndns.doujindb.db.record.Content.Namespace;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
@@ -42,6 +43,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	
 	private JLabel labelTagName;
 	private JTextField textTagName;
+	private JLabel labelNamespace;
+	private JComboBox<Content.Namespace> comboNamespace;
 	private JLabel labelInfo;
 	private JTextArea textInfo;
 	private JScrollPane scrollInfo;
@@ -65,6 +68,11 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		labelTagName.setFont(font);
 		textTagName = new JTextField("");
 		textTagName.setFont(font);
+		labelNamespace = new JLabel("Namespace");
+		labelNamespace.setFont(font);
+		comboNamespace = new JComboBox<Content.Namespace>();
+		comboNamespace.setFont(font);
+		comboNamespace.setFocusable(false);
 		labelInfo = new JLabel("Info");
 		labelInfo.setFont(font);
 		textInfo = new JTextArea("");
@@ -293,6 +301,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		buttonConfirm.addActionListener(this);
 		super.add(labelTagName);
 		super.add(textTagName);
+		super.add(labelNamespace);
+		super.add(comboNamespace);
 		super.add(labelInfo);
 		super.add(scrollInfo);
 		super.add(tabLists);
@@ -308,9 +318,11 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			height = parent.getHeight();
 		labelTagName.setBounds(3, 3, 100, 15);
 		textTagName.setBounds(103, 3, width - 106, 15);
-		labelInfo.setBounds(3, 3 + 15, 100, 15);
-		scrollInfo.setBounds(3, 3 + 30, width - 6, 60);
-		tabLists.setBounds(3, 3 + 90, width - 6, height - 120);
+		labelNamespace.setBounds(3, 3 + 15, 100, 15);
+		comboNamespace.setBounds(103, 3 + 15, width - 106, 15);
+		labelInfo.setBounds(3, 3 + 30, 100, 15);
+		scrollInfo.setBounds(3, 3 + 45, width - 6, 60);
+		tabLists.setBounds(3, 3 + 105, width - 6, height - 135);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	
@@ -346,6 +358,7 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			if(tokenContent instanceof NullContent)
 				tokenContent = DataBase.doInsert(Content.class);
 			tokenContent.setTagName(textTagName.getText());
+			tokenContent.setNamespace((Namespace)comboNamespace.getSelectedItem());
 			tokenContent.setInfo(textInfo.getText());
 			for(String a : tokenContent.getAliases())
 				if(!((DefaultListModel<String>)listAlias.getModel()).contains(a))
@@ -386,6 +399,10 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 			public Void doInBackground()
 			{
 				textTagName.setText(tokenContent.getTagName());
+				comboNamespace.removeAllItems();
+				for(Namespace tokenNamespace : Namespace.values())
+					comboNamespace.addItem(tokenNamespace);
+				comboNamespace.setSelectedItem(tokenContent.getNamespace());
 				textInfo.setText(tokenContent.getInfo());
 				for(String alias : tokenContent.getAliases())
 					((DefaultListModel<String>)listAlias.getModel()).add(0, alias);
@@ -420,6 +437,8 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 		case PROPERTY:
 			if(data.getProperty().equals("tag_name"))
 				textTagName.setText(tokenContent.getTagName());
+			if(data.getProperty().equals("type"))
+				comboNamespace.setSelectedItem(tokenContent.getNamespace());
 			if(data.getProperty().equals("info"))
 				textInfo.setText(tokenContent.getInfo());
 			break;

@@ -20,7 +20,9 @@ import ch.qos.logback.classic.*;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.ui.DialogEx;
 import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.WindowEx;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -43,8 +45,6 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 	private JButton m_ButtonRestore;
 	private JButton m_ButtonDelete;
 	private JButton m_ButtonEmpty;
-	
-	private static DialogTrash m_PopupDialog = null;
 	
 	private static final Font font = UI.Font;
 	
@@ -84,89 +84,11 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				if(selectedCount == 0)
 					return;
 				
-				m_PopupDialog = new DialogTrash(PanelTrash.this,
-					"Restore",
-					"<html>" +
-					"<body>" +
-					"Restore selected items?<br/>" +
-					"</body>" +
-					"</html>", new SwingWorker<Void,Iterable<Record>>()
-				{
-					@Override
-					protected Void doInBackground() throws Exception {
-						int selectedCount = 0,
-							processedCount = 0;
-						Vector<Record> selected = new Vector<Record>();
-						
-						for(TrashTab<?> tab : m_Tabs)
-							selectedCount += tab.m_Table.getSelectedRowCount();
-						
-						for(TrashTab<?> tab : m_Tabs)
-							for(int index : tab.m_Table.getSelectedRows()) {
-								try {
-									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
-									o.doRestore();
-									super.setProgress(100 * ++processedCount / selectedCount);
-									selected.add(o);
-								} catch (DataBaseException dbe) {
-									LOG.error("Error restoring deleted record", dbe);
-								}
-							}
-						
-						try {
-							if(DataBase.isAutocommit())
-								DataBase.doCommit();
-						} catch (DataBaseException dbe) {
-							LOG.error("Error restoring deleted record", dbe);
-						}
-						
-						publish(selected);
-						
-						return null;
-					}
-					@Override
-					protected void process(java.util.List<Iterable<Record>> data) {
-						for(Iterable<Record> records : data)
-							for(Record record : records) {
-								if(record instanceof Artist) {
-									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
-									continue;
-								}
-								if(record instanceof Book) {
-									removeFromTable(m_TabBook.m_TableModel, (Book) record);
-									continue;
-								}
-								if(record instanceof Circle) {
-									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
-									continue;
-								}
-								if(record instanceof Convention) {
-									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
-									continue;
-								}
-								if(record instanceof Content) {
-									removeFromTable(m_TabContent.m_TableModel, (Content) record);
-									continue;
-								}
-								if(record instanceof Parody) {
-									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
-									continue;
-								}
-							}
-					}
-					@Override
-					protected void done() {
-						m_PopupDialog.dispose();
-				    }
-					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
-						for(int index=0; index<model.getRowCount(); index++)
-							if((model.getValueAt(index, 0)).equals(record)) {
-								model.removeRow(index);
-								break;
-							}
-						model.fireTableDataChanged();
-					}
-				});
+				try {
+					UI.Desktop.showDialog(getTopLevelWindow(), new DialogRestore());
+				} catch (PropertyVetoException pve) {
+					LOG.error("Error displaying Trash restore-dialog", pve);
+				}
 			}			
 		});
 		panel1.add(m_ButtonRestore);
@@ -184,101 +106,11 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 				if(selectedCount == 0)
 					return;
 				
-				m_PopupDialog = new DialogTrash(PanelTrash.this,
-					"Delete",
-					"<html>" +
-					"<body>" +
-					"Delete selected items?<br/>" +
-					"</body>" +
-					"</html>", new SwingWorker<Void,Iterable<Record>>()
-				{
-					@Override
-					protected Void doInBackground() throws Exception {
-						int selectedCount = 0,
-							processedCount = 0;
-						Vector<Record> selected = new Vector<Record>();
-						
-						for(TrashTab<?> tab : m_Tabs)
-							selectedCount += tab.m_Table.getSelectedRowCount();
-						
-						for(TrashTab<?> tab : m_Tabs)
-							for(int index : tab.m_Table.getSelectedRows()) {
-								try {
-									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
-									if(o instanceof Artist)
-										((Artist)o).removeAll();
-									if(o instanceof Book)
-										((Book)o).removeAll();
-									if(o instanceof Circle)
-										((Circle)o).removeAll();
-									if(o instanceof Convention)
-										((Convention)o).removeAll();
-									if(o instanceof Content)
-										((Content)o).removeAll();
-									if(o instanceof Parody)
-										((Parody)o).removeAll();
-									DataBase.doDelete(o);
-									super.setProgress(100 * ++processedCount / selectedCount);
-									selected.add(o);
-								} catch (DataBaseException dbe) {
-									LOG.error("Error deleting record", dbe);
-								}
-							}
-						
-						try {
-							if(DataBase.isAutocommit())
-								DataBase.doCommit();
-						} catch (DataBaseException dbe) {
-							LOG.error("Error deleting record", dbe);
-						}
-						
-						publish(selected);
-						
-						return null;
-					}
-					@Override
-					protected void process(java.util.List<Iterable<Record>> data) {
-						for(Iterable<Record> records : data)
-							for(Record record : records) {
-								if(record instanceof Artist) {
-									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
-									continue;
-								}
-								if(record instanceof Book) {
-									removeFromTable(m_TabBook.m_TableModel, (Book) record);
-									continue;
-								}
-								if(record instanceof Circle) {
-									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
-									continue;
-								}
-								if(record instanceof Convention) {
-									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
-									continue;
-								}
-								if(record instanceof Content) {
-									removeFromTable(m_TabContent.m_TableModel, (Content) record);
-									continue;
-								}
-								if(record instanceof Parody) {
-									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
-									continue;
-								}
-							}
-					}
-					@Override
-					protected void done() {
-						m_PopupDialog.dispose();
-				    }
-					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
-						for(int index=0; index<model.getRowCount(); index++)
-							if((model.getValueAt(index, 0)).equals(record)) {
-								model.removeRow(index);
-								break;
-							}
-						model.fireTableDataChanged();
-					}
-				});
+				try {
+					UI.Desktop.showDialog(getTopLevelWindow(), new DialogDelete());
+				} catch (PropertyVetoException pve) {
+					LOG.error("Error displaying Trash delete-dialog", pve);
+				}
 			}			
 		});
 		panel1.add(m_ButtonDelete);
@@ -290,104 +122,11 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 			@Override
 			public void actionPerformed(ActionEvent ae)
 			{
-				m_PopupDialog = new DialogTrash(PanelTrash.this,
-					"Empty",
-					"<html>" +
-					"<body>" +
-					"Empty all of the items from the trash?<br/>" +
-					"</body>" +
-					"</html>", new SwingWorker<Void,Iterable<Record>>()
-				{
-					@Override
-					protected Void doInBackground() throws Exception {
-						int selectedCount = 0,
-							processedCount = 0;
-						Vector<Record> selected = new Vector<Record>();
-						
-						for(TrashTab<?> tab : m_Tabs)
-						{
-							tab.m_Table.selectAll();
-							selectedCount += tab.m_Table.getSelectedRowCount();
-						}
-						
-						for(TrashTab<?> tab : m_Tabs)
-							for(int index : tab.m_Table.getSelectedRows()) {
-								try {
-									Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
-									if(o instanceof Artist)
-										((Artist)o).removeAll();
-									if(o instanceof Book)
-										((Book)o).removeAll();
-									if(o instanceof Circle)
-										((Circle)o).removeAll();
-									if(o instanceof Convention)
-										((Convention)o).removeAll();
-									if(o instanceof Content)
-										((Content)o).removeAll();
-									if(o instanceof Parody)
-										((Parody)o).removeAll();
-									DataBase.doDelete(o);
-									super.setProgress(100 * ++processedCount / selectedCount);
-									selected.add(o);
-								} catch (DataBaseException dbe) {
-									LOG.error("Error deleting record", dbe);
-								}
-							}
-						
-						try {
-							if(DataBase.isAutocommit())
-								DataBase.doCommit();
-						} catch (DataBaseException dbe) {
-							LOG.error("Error deleting record", dbe);
-						}
-						
-						publish(selected);
-						
-						return null;
-					}
-					@Override
-					protected void process(java.util.List<Iterable<Record>> data) {
-						for(Iterable<Record> records : data)
-							for(Record record : records) {
-								if(record instanceof Artist) {
-									removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
-									continue;
-								}
-								if(record instanceof Book) {
-									removeFromTable(m_TabBook.m_TableModel, (Book) record);
-									continue;
-								}
-								if(record instanceof Circle) {
-									removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
-									continue;
-								}
-								if(record instanceof Convention) {
-									removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
-									continue;
-								}
-								if(record instanceof Content) {
-									removeFromTable(m_TabContent.m_TableModel, (Content) record);
-									continue;
-								}
-								if(record instanceof Parody) {
-									removeFromTable(m_TabParody.m_TableModel, (Parody) record);
-									continue;
-								}
-							}
-					}
-					@Override
-					protected void done() {
-						m_PopupDialog.dispose();
-				    }
-					private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
-						for(int index=0; index<model.getRowCount(); index++)
-							if((model.getValueAt(index, 0)).equals(record)) {
-								model.removeRow(index);
-								break;
-							}
-						model.fireTableDataChanged();
-					}
-				});
+				try {
+					UI.Desktop.showDialog(getTopLevelWindow(), new DialogEmpty());
+				} catch (PropertyVetoException pve) {
+					LOG.error("Error displaying Trash empty-dialog", pve);
+				}
 			}			
 		});
 		panel1.add(m_ButtonEmpty);
@@ -549,163 +288,6 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		}.execute();
 	}
 
-	private final class DialogTrash extends JInternalFrame implements LayoutManager
-	{
-		private JComponent m_GlassPane;
-		private JComponent m_Component;
-		private JLabel m_LabelMessage;
-		private JButton m_ButtonOk;
-		private JButton m_ButtonCancel;
-		private JProgressBar m_ProgressBar;
-		
-		private SwingWorker<?,?> m_Worker;
-		
-		public DialogTrash(JComponent parent, String title, String message, SwingWorker<?,?> worker)
-		{
-			super();
-			super.setFrameIcon(Icon.desktop_explorer_trash);
-			super.setTitle(title);
-			super.setMaximizable(false);
-			super.setIconifiable(false);
-			super.setResizable(false);
-			super.setClosable(false);
-			super.setPreferredSize(new Dimension(300, 150));
-			super.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
-			super.addInternalFrameListener(new InternalFrameAdapter()
-			{
-				@Override
-				public void internalFrameClosed(InternalFrameEvent ife)
-				{
-					hideDialog();
-				}
-
-				@Override
-				public void internalFrameClosing(InternalFrameEvent ife)
-				{
-					hideDialog();
-				}
-			});
-			
-			m_GlassPane = (JComponent) ((RootPaneContainer) parent.getRootPane().getParent()).getGlassPane();
-			
-			m_Worker = worker;
-			m_Worker.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					if ("progress".equals(evt.getPropertyName())) {
-						m_ProgressBar.setValue((Integer) evt.getNewValue());
-						return;
-					}
-				}
-			});
-			
-			m_Component = new JPanel();
-			m_Component.setSize(250, 150);
-			m_Component.setLayout(new GridLayout(3, 1));
-			m_LabelMessage = new JLabel(message);
-			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
-			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
-			m_LabelMessage.setFont(font);
-			m_Component.add(m_LabelMessage);
-			
-			m_ProgressBar = new JProgressBar();
-			m_ProgressBar.setValue(0);
-			m_ProgressBar.setMinimum(0);
-			m_ProgressBar.setMaximum(100);
-			m_ProgressBar.setStringPainted(true);
-			m_ProgressBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_Component.add(m_ProgressBar);
-			
-			JPanel bottomPanel = new JPanel();
-			bottomPanel.setLayout(new GridLayout(1, 2));
-			m_ButtonCancel = new JButton("Cancel");
-			m_ButtonCancel.setFont(font);
-			m_ButtonCancel.setMnemonic('C');
-			m_ButtonCancel.setFocusable(false);
-			m_ButtonCancel.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					m_Worker.cancel(true);
-					dispose();
-				}					
-			});
-			m_ButtonOk = new JButton("Ok");
-			m_ButtonOk.setFont(font);
-			m_ButtonOk.setMnemonic('O');
-			m_ButtonOk.setFocusable(false);
-			m_ButtonOk.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					m_ButtonOk.setEnabled(false);
-					m_Worker.execute();
-				}					
-			});
-			bottomPanel.add(m_ButtonOk);
-			bottomPanel.add(m_ButtonCancel);
-			m_Component.add(bottomPanel);
-			super.add(m_Component);
-			super.setVisible(true);
-			
-			showDialog();
-		}
-		
-		
-		private void showDialog()
-		{
-			m_GlassPane.add(this);
-			m_GlassPane.setEnabled(true);
-			m_GlassPane.setVisible(true);
-			m_GlassPane.setEnabled(false);
-			Dimension size = super.getPreferredSize();
-			int x = (int) (m_GlassPane.getWidth() - size.getWidth()) / 2;
-			int y = (int) (m_GlassPane.getHeight() - size.getHeight()) / 2;
-			setBounds(x, y, (int) size.getWidth(), (int) size.getHeight());
-			try {
-				setSelected(true);
-			} catch (PropertyVetoException pve) {
-				pve.printStackTrace();
-			}
-		}
-		
-		private void hideDialog()
-		{
-			m_GlassPane.remove(this);
-			m_GlassPane.setEnabled(true);
-			m_GlassPane.setVisible(false);
-			m_GlassPane.setEnabled(false);
-		}
-
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-				height = parent.getHeight();
-			m_Component.setBounds(0, 0, width, height);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return getPreferredSize();
-		}
-	}
-	
 	@Override
 	public void recordAdded(Record record) {}
 	
@@ -1179,6 +761,496 @@ public final class PanelTrash extends JPanel implements DataBaseListener, Layout
 		{
 			super(tab, index, new RecordTableModel.IParody());
 			m_Name = "Parody";
+		}
+	}
+	
+	private WindowEx getTopLevelWindow()
+	{
+		return (WindowEx) SwingUtilities.getAncestorOfClass(WindowEx.class, this);
+	}
+	
+	private final class DialogRestore extends DialogEx
+	{
+		private SwingWorker<Void,Iterable<Record>> swingWorker;
+		private JProgressBar message;
+		
+		protected DialogRestore()
+		{
+			super(Icon.window_trash_restore, "Restore");
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			message = new JProgressBar();
+			message.setString("Restore selected items?");
+			message.setStringPainted(true);
+			message.setMaximum(100);
+			message.setMinimum(0);
+			message.setValue(0);
+			message.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			message.setFont(font);
+			panel.add(message);
+			JPanel bottom = new JPanel();
+			bottom.setLayout(new GridLayout(1, 2));
+			JButton canc = new JButton("Cancel");
+			canc.setFont(font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					swingWorker.cancel(true);
+					dispose();
+				}					
+			});
+			final JButton ok = new JButton("Ok");
+			ok.setFont(font);
+			ok.setIcon(null);
+			ok.setMnemonic('O');
+			ok.setFocusable(false);
+			ok.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					ok.setEnabled(false);
+					message.setString("Restoring ...");
+					swingWorker.execute();
+				}					
+			});
+			bottom.add(ok);
+			bottom.add(canc);
+			bottom.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(bottom);
+			
+			swingWorker = new SwingWorker<Void,Iterable<Record>>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int selectedCount = 0,
+						processedCount = 0;
+					Vector<Record> selected = new Vector<Record>();
+					
+					for(TrashTab<?> tab : m_Tabs)
+						selectedCount += tab.m_Table.getSelectedRowCount();
+					
+					for(TrashTab<?> tab : m_Tabs)
+						for(int index : tab.m_Table.getSelectedRows()) {
+							try {
+								Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+								o.doRestore();
+								super.setProgress(100 * ++processedCount / selectedCount);
+								selected.add(o);
+								
+								if(super.isCancelled())
+									return null;
+								
+							} catch (DataBaseException dbe) {
+								LOG.error("Error restoring deleted record", dbe);
+							}
+						}
+					
+					try {
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
+					} catch (DataBaseException dbe) {
+						LOG.error("Error restoring deleted record", dbe);
+					}
+					
+					publish(selected);
+					
+					return null;
+				}
+				@Override
+				protected void process(java.util.List<Iterable<Record>> data) {
+					for(Iterable<Record> records : data)
+						for(Record record : records) {
+							if(record instanceof Artist) {
+								removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+								continue;
+							}
+							if(record instanceof Book) {
+								removeFromTable(m_TabBook.m_TableModel, (Book) record);
+								continue;
+							}
+							if(record instanceof Circle) {
+								removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+								continue;
+							}
+							if(record instanceof Convention) {
+								removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+								continue;
+							}
+							if(record instanceof Content) {
+								removeFromTable(m_TabContent.m_TableModel, (Content) record);
+								continue;
+							}
+							if(record instanceof Parody) {
+								removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+								continue;
+							}
+						}
+				}
+				@Override
+				protected void done() {
+					dispose();
+			    }
+				private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+					for(int index=0; index<model.getRowCount(); index++)
+						if((model.getValueAt(index, 0)).equals(record)) {
+							model.removeRow(index);
+							break;
+						}
+					model.fireTableDataChanged();
+				}
+			};
+			swingWorker.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent evt) {
+					if ("progress".equals(evt.getPropertyName())) {
+						message.setValue((Integer) evt.getNewValue());
+						return;
+					}
+				}
+			});
+			
+			return panel;
+		}
+	}
+	
+	private final class DialogDelete extends DialogEx
+	{
+		private SwingWorker<Void,Iterable<Record>> swingWorker;
+		private JProgressBar message;
+		
+		protected DialogDelete()
+		{
+			super(Icon.window_trash_restore, "Delete");
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			message = new JProgressBar();
+			message.setString("Delete selected items?");
+			message.setStringPainted(true);
+			message.setMaximum(100);
+			message.setMinimum(0);
+			message.setValue(0);
+			message.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			message.setFont(font);
+			panel.add(message);
+			JPanel bottom = new JPanel();
+			bottom.setLayout(new GridLayout(1, 2));
+			JButton canc = new JButton("Cancel");
+			canc.setFont(font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					swingWorker.cancel(true);
+					dispose();
+				}					
+			});
+			final JButton ok = new JButton("Ok");
+			ok.setFont(font);
+			ok.setIcon(null);
+			ok.setMnemonic('O');
+			ok.setFocusable(false);
+			ok.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					ok.setEnabled(false);
+					message.setString("Deleting ...");
+					swingWorker.execute();
+				}					
+			});
+			bottom.add(ok);
+			bottom.add(canc);
+			bottom.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(bottom);
+			
+			swingWorker = new SwingWorker<Void,Iterable<Record>>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int selectedCount = 0,
+						processedCount = 0;
+					Vector<Record> selected = new Vector<Record>();
+					
+					for(TrashTab<?> tab : m_Tabs)
+						selectedCount += tab.m_Table.getSelectedRowCount();
+					
+					for(TrashTab<?> tab : m_Tabs)
+						for(int index : tab.m_Table.getSelectedRows()) {
+							try {
+								Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+								if(o instanceof Artist)
+									((Artist)o).removeAll();
+								if(o instanceof Book)
+									((Book)o).removeAll();
+								if(o instanceof Circle)
+									((Circle)o).removeAll();
+								if(o instanceof Convention)
+									((Convention)o).removeAll();
+								if(o instanceof Content)
+									((Content)o).removeAll();
+								if(o instanceof Parody)
+									((Parody)o).removeAll();
+								DataBase.doDelete(o);
+								super.setProgress(100 * ++processedCount / selectedCount);
+								selected.add(o);
+								
+								if(super.isCancelled())
+									return null;
+								
+							} catch (DataBaseException dbe) {
+								LOG.error("Error deleting record", dbe);
+							}
+						}
+					
+					try {
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
+					} catch (DataBaseException dbe) {
+						LOG.error("Error deleting record", dbe);
+					}
+					
+					publish(selected);
+					
+					return null;
+				}
+				@Override
+				protected void process(java.util.List<Iterable<Record>> data) {
+					for(Iterable<Record> records : data)
+						for(Record record : records) {
+							if(record instanceof Artist) {
+								removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+								continue;
+							}
+							if(record instanceof Book) {
+								removeFromTable(m_TabBook.m_TableModel, (Book) record);
+								continue;
+							}
+							if(record instanceof Circle) {
+								removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+								continue;
+							}
+							if(record instanceof Convention) {
+								removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+								continue;
+							}
+							if(record instanceof Content) {
+								removeFromTable(m_TabContent.m_TableModel, (Content) record);
+								continue;
+							}
+							if(record instanceof Parody) {
+								removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+								continue;
+							}
+						}
+				}
+				@Override
+				protected void done() {
+					dispose();
+			    }
+				private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+					for(int index=0; index<model.getRowCount(); index++)
+						if((model.getValueAt(index, 0)).equals(record)) {
+							model.removeRow(index);
+							break;
+						}
+					model.fireTableDataChanged();
+				}
+			};
+			swingWorker.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent evt) {
+					if ("progress".equals(evt.getPropertyName())) {
+						message.setValue((Integer) evt.getNewValue());
+						return;
+					}
+				}
+			});
+			
+			return panel;
+		}
+	}
+	
+	private final class DialogEmpty extends DialogEx
+	{
+		private SwingWorker<Void,Iterable<Record>> swingWorker;
+		private JProgressBar message;
+		
+		protected DialogEmpty()
+		{
+			super(Icon.window_trash_restore, "Empty");
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			message = new JProgressBar();
+			message.setString("Empty all of the items from the trash?");
+			message.setStringPainted(true);
+			message.setMaximum(100);
+			message.setMinimum(0);
+			message.setValue(0);
+			message.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			message.setFont(font);
+			panel.add(message);
+			JPanel bottom = new JPanel();
+			bottom.setLayout(new GridLayout(1, 2));
+			JButton canc = new JButton("Cancel");
+			canc.setFont(font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					swingWorker.cancel(true);
+					dispose();
+				}					
+			});
+			final JButton ok = new JButton("Ok");
+			ok.setFont(font);
+			ok.setIcon(null);
+			ok.setMnemonic('O');
+			ok.setFocusable(false);
+			ok.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					ok.setEnabled(false);
+					message.setString("Deleting ...");
+					swingWorker.execute();
+				}					
+			});
+			bottom.add(ok);
+			bottom.add(canc);
+			bottom.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(bottom);
+			
+			swingWorker = new SwingWorker<Void,Iterable<Record>>()
+			{
+				@Override
+				protected Void doInBackground() throws Exception {
+					int selectedCount = 0,
+						processedCount = 0;
+					Vector<Record> selected = new Vector<Record>();
+					
+					for(TrashTab<?> tab : m_Tabs) {
+						tab.m_Table.selectAll();
+						selectedCount += tab.m_Table.getSelectedRowCount();
+					}
+					
+					for(TrashTab<?> tab : m_Tabs)
+						for(int index : tab.m_Table.getSelectedRows()) {
+							try {
+								Record o = (Record) tab.m_TableModel.getValueAt(tab.m_TableSorter.convertRowIndexToModel(index), 0);
+								if(o instanceof Artist)
+									((Artist)o).removeAll();
+								if(o instanceof Book)
+									((Book)o).removeAll();
+								if(o instanceof Circle)
+									((Circle)o).removeAll();
+								if(o instanceof Convention)
+									((Convention)o).removeAll();
+								if(o instanceof Content)
+									((Content)o).removeAll();
+								if(o instanceof Parody)
+									((Parody)o).removeAll();
+								DataBase.doDelete(o);
+								super.setProgress(100 * ++processedCount / selectedCount);
+								selected.add(o);
+								
+								if(super.isCancelled())
+									return null;
+								
+							} catch (DataBaseException dbe) {
+								LOG.error("Error deleting record", dbe);
+							}
+						}
+					
+					try {
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
+					} catch (DataBaseException dbe) {
+						LOG.error("Error deleting record", dbe);
+					}
+					
+					publish(selected);
+					
+					return null;
+				}
+				@Override
+				protected void process(java.util.List<Iterable<Record>> data) {
+					for(Iterable<Record> records : data)
+						for(Record record : records) {
+							if(record instanceof Artist) {
+								removeFromTable(m_TabArtist.m_TableModel, (Artist) record);
+								continue;
+							}
+							if(record instanceof Book) {
+								removeFromTable(m_TabBook.m_TableModel, (Book) record);
+								continue;
+							}
+							if(record instanceof Circle) {
+								removeFromTable(m_TabCircle.m_TableModel, (Circle) record);
+								continue;
+							}
+							if(record instanceof Convention) {
+								removeFromTable(m_TabConvention.m_TableModel, (Convention) record);
+								continue;
+							}
+							if(record instanceof Content) {
+								removeFromTable(m_TabContent.m_TableModel, (Content) record);
+								continue;
+							}
+							if(record instanceof Parody) {
+								removeFromTable(m_TabParody.m_TableModel, (Parody) record);
+								continue;
+							}
+						}
+				}
+				@Override
+				protected void done() {
+					dispose();
+			    }
+				private <T extends Record> void removeFromTable(TrashTab.RecordTableModel<T> model, T record) {
+					for(int index=0; index<model.getRowCount(); index++)
+						if((model.getValueAt(index, 0)).equals(record)) {
+							model.removeRow(index);
+							break;
+						}
+					model.fireTableDataChanged();
+				}
+			};
+			swingWorker.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent evt) {
+					if ("progress".equals(evt.getPropertyName())) {
+						message.setValue((Integer) evt.getNewValue());
+						return;
+					}
+				}
+			});
+			
+			return panel;
 		}
 	}
 }

@@ -43,6 +43,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	
 	protected SearchWorker<T> m_Worker;
 	
+	protected JTable m_Table;
 	protected RecordTableModel<T> m_TableModel;
 	protected RecordTableRenderer m_TableRenderer;
 	protected RecordTableEditor m_TableEditor;
@@ -350,7 +351,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		
 		public IArtist(JTabbedPane tab, int index)
@@ -374,42 +374,42 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
-			tableResults = new JTable();
+			m_Table = new JTable();
 			
 			m_TableModel = new RecordTableModel.IArtist();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_ARTIST, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Artist Window", dbe);
@@ -445,7 +445,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -456,7 +456,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Artist>(IArtist.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Artist>(IArtist.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -468,11 +468,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerArtist thex = new TransferHandlerArtist();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelJapaneseName);
 			super.add(textJapaneseName);
 			super.add(labelTranslatedName);
@@ -584,7 +584,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JComboBox<Book.Type> comboType;
 		private JCheckBox checkAdult;
 		private DynamicListContent listSearchContent;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		private JPanel recordPreview;
 		private JScrollPane scrollRecordPreview;
@@ -639,41 +638,41 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			togglePreview.addActionListener(this);
 			togglePreview.setFocusable(false);
 			
-			tableResults = new JTable();
+			m_Table = new JTable();
 			m_TableModel = new RecordTableModel.IBook();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Book Window", dbe);
@@ -709,7 +708,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -720,7 +719,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Book>(IBook.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Book>(IBook.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -732,11 +731,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerBook thex = new TransferHandlerBook();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelJapaneseName);
 			super.add(textJapaneseName);
 			super.add(labelTranslatedName);
@@ -1040,7 +1039,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		
 		public ICircle(JTabbedPane tab, int index)
@@ -1064,42 +1062,42 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
-			tableResults = new JTable();
+			m_Table = new JTable();
 			
 			m_TableModel = new RecordTableModel.ICircle();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CIRCLE, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Circle Window", dbe);
@@ -1135,7 +1133,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -1146,7 +1144,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Circle>(ICircle.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Circle>(ICircle.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -1158,11 +1156,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerCircle thex = new TransferHandlerCircle();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelJapaneseName);
 			super.add(textJapaneseName);
 			super.add(labelTranslatedName);
@@ -1269,7 +1267,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JLabel labelNamespace;
 		private JComboBox<Content.Namespace> comboNamespace;
 		private JLabel labelResults;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		
 		public IContent(JTabbedPane tab, int index)
@@ -1292,42 +1289,42 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			comboNamespace.setSelectedItem(null);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			tableResults = new JTable();
+			m_Table = new JTable();
 			
 			m_TableModel = new RecordTableModel.IContent();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONTENT, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Content Window", dbe);
@@ -1363,7 +1360,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -1374,7 +1371,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Content>(IContent.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Content>(IContent.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -1386,11 +1383,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerContent thex = new TransferHandlerContent();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelTagName);
 			super.add(textTagName);
 			super.add(labelNamespace);
@@ -1483,7 +1480,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JLabel labelTagName;
 		private JTextField textTagName;
 		private JLabel labelResults;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		
 		public IConvention(JTabbedPane tab, int index)
@@ -1497,42 +1493,42 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			textTagName.setFont(font);
 			labelResults = new JLabel("Found");
 			labelResults.setFont(font);
-			tableResults = new JTable();
+			m_Table = new JTable();
 			
 			m_TableModel = new RecordTableModel.IConvention();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_CONVENTION, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Convention Window", dbe);
@@ -1568,7 +1564,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -1579,7 +1575,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Convention>(IConvention.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Convention>(IConvention.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -1591,11 +1587,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerConvention thex = new TransferHandlerConvention();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelTagName);
 			super.add(textTagName);
 			super.add(labelResults);
@@ -1688,7 +1684,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JTextField textRomajiName;
 		private JLabel labelWeblink;
 		private JTextField textWeblink;
-		private JTable tableResults;
 		private JScrollPane scrollResults;
 		
 		public IParody(JTabbedPane tab, int index)
@@ -1712,42 +1707,42 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 			labelWeblink.setFont(font);
 			textWeblink = new JTextField("");
 			textWeblink.setFont(font);
-			tableResults = new JTable();
+			m_Table = new JTable();
 			
 			m_TableModel = new RecordTableModel.IParody();
-			tableResults.setModel(m_TableModel);
+			m_Table.setModel(m_TableModel);
 			m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
-			tableResults.setRowSorter(m_TableSorter);
+			m_Table.setRowSorter(m_TableSorter);
 			m_TableRenderer = new RecordTableRenderer(getBackground(), getForeground());
 			m_TableEditor = new RecordTableEditor();
-			tableResults.setFont(font);
-			tableResults.getTableHeader().setFont(font);
-			tableResults.getTableHeader().setReorderingAllowed(true);
-			tableResults.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
-			tableResults.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
-			tableResults.getColumnModel().getColumn(0).setResizable(false);
-			tableResults.getColumnModel().getColumn(0).setMinWidth(0);
-			tableResults.getColumnModel().getColumn(0).setMaxWidth(0);
-			tableResults.getColumnModel().getColumn(0).setWidth(0);
-			for(int k = 1;k<tableResults.getColumnModel().getColumnCount();k++)
+			m_Table.setFont(font);
+			m_Table.getTableHeader().setFont(font);
+			m_Table.getTableHeader().setReorderingAllowed(true);
+			m_Table.getColumnModel().getColumn(0).setCellRenderer(m_TableRenderer);
+			m_Table.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
+			m_Table.getColumnModel().getColumn(0).setResizable(false);
+			m_Table.getColumnModel().getColumn(0).setMinWidth(0);
+			m_Table.getColumnModel().getColumn(0).setMaxWidth(0);
+			m_Table.getColumnModel().getColumn(0).setWidth(0);
+			for(int k = 1;k<m_Table.getColumnModel().getColumnCount();k++)
 			{
-				tableResults.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
-				tableResults.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
-				tableResults.getColumnModel().getColumn(k).setResizable(true);
-				tableResults.getColumnModel().getColumn(k).setMinWidth(125);
+				m_Table.getColumnModel().getColumn(k).setCellRenderer(m_TableRenderer);
+				m_Table.getColumnModel().getColumn(k).setCellEditor(m_TableEditor);
+				m_Table.getColumnModel().getColumn(k).setResizable(true);
+				m_Table.getColumnModel().getColumn(k).setMinWidth(125);
 			}
-			scrollResults = new JScrollPane(tableResults);
-			tableResults.addMouseListener(new MouseListener()
+			scrollResults = new JScrollPane(m_Table);
+			m_Table.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent me)
 				{
 					if(me.getClickCount() == 2 && !me.isPopupTrigger())
 					{
 						try {
-							final Record item = (Record) tableResults.getModel()
+							final Record item = (Record) m_Table.getModel()
 								.getValueAt(
 									m_TableSorter.convertRowIndexToModel(
-										tableResults.rowAtPoint(me.getPoint())), 0);
+										m_Table.rowAtPoint(me.getPoint())), 0);
 							UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_PARODY, item);
 						} catch (DataBaseException dbe) {
 							LOG.error("Error displaying Parody Window", dbe);
@@ -1783,7 +1778,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						return;
 					
 					// If not item is selected don't show any popup
-					if(tableResults.getSelectedRowCount() < 1)
+					if(m_Table.getSelectedRowCount() < 1)
 						return;
 					
 					JPopupMenu popupMenu = new JPopupMenu();
@@ -1794,7 +1789,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						public void actionPerformed(ActionEvent ae)
 						{
 							try {
-								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Parody>(IParody.this, tableResults));
+								UI.Desktop.showDialog(getTopLevelWindow(m_Table), new DialogTrash<Parody>(IParody.this));
 							} catch (PropertyVetoException pve) {
 								LOG.error("Error displaying Trash empty-dialog", pve);
 							}
@@ -1806,11 +1801,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					popupMenu.show(me.getComponent(), me.getX(), me.getY());
 				}
 			});
-			tableResults.setDragEnabled(true);
+			m_Table.setDragEnabled(true);
 			TransferHandlerParody thex = new TransferHandlerParody();
 			thex.setDragEnabled(true);
 			thex.setDropEnabled(false);
-			tableResults.setTransferHandler(thex);
+			m_Table.setTransferHandler(thex);
 			super.add(labelJapaneseName);
 			super.add(textJapaneseName);
 			super.add(labelTranslatedName);
@@ -1920,14 +1915,12 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private SwingWorker<Void,Iterable<K>> swingWorker;
 		private JProgressBar message;
 		private PanelSearch<K> parentPanel;
-		private JTable tableData;
 		
-		protected DialogTrash(PanelSearch<K> parentPanel, JTable tableData)
+		protected DialogTrash(PanelSearch<K> parentPanel)
 		{
 			super(Icon.window_trash_restore, "Trash");
 			
 			this.parentPanel = parentPanel;
-			this.tableData = tableData;
 		}
 
 		@Override
@@ -1988,9 +1981,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						processedCount = 0;
 					Vector<K> selected = new Vector<K>();
 					
-					selectedCount = tableData.getSelectedRowCount();
+					selectedCount = parentPanel.m_Table.getSelectedRowCount();
 					
-					for(int index : tableData.getSelectedRows()) {
+					for(int index : parentPanel.m_Table.getSelectedRows()) {
 						if(super.isCancelled())
 							break;
 						try {

@@ -636,7 +636,7 @@ final class DataBaseImpl extends IDataBase
 	@Override
 	public RecordSet<Record> getRecycled() throws DataBaseException
 	{
-		Set<Record> buff = new TreeSet<Record>();
+		Set<Record> buff = new HashSet<Record>();
 		SelectQuery select;
 		select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Artist.class, Expression.fromString("recycled = TRUE"));
 		List<org.dyndns.doujindb.db.cayenne.Artist> artist_list = context.performQuery(select);
@@ -669,7 +669,7 @@ final class DataBaseImpl extends IDataBase
 	public RecordSet<Record> getDeleted() throws DataBaseException
 	{
 		Collection<?> deleted0 = context.deletedObjects();
-		Set<Record> deleted1 = new TreeSet<Record>();
+		Set<Record> deleted1 = new HashSet<Record>();
 		for(Object o : deleted0)
 		{
 			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)
@@ -692,7 +692,7 @@ final class DataBaseImpl extends IDataBase
 	public RecordSet<Record> getModified() throws DataBaseException
 	{
 		Collection<?> modified0 = context.modifiedObjects();
-		Set<Record> modified1 = new TreeSet<Record>();
+		Set<Record> modified1 = new HashSet<Record>();
 		for(Object o : modified0)
 		{
 			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)
@@ -715,7 +715,7 @@ final class DataBaseImpl extends IDataBase
 	public RecordSet<Record> getUncommitted() throws DataBaseException
 	{
 		Collection<?> uncommitted0 = context.uncommittedObjects();
-		Set<Record> uncommitted1 = new TreeSet<Record>();
+		Set<Record> uncommitted1 = new HashSet<Record>();
 		for(Object o : uncommitted0)
 		{
 			if(o instanceof org.dyndns.doujindb.db.cayenne.Artist)

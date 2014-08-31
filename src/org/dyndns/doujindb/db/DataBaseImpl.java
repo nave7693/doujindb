@@ -335,17 +335,17 @@ final class DataBaseImpl extends IDataBase
 
 		if(!query.Contents.isEmpty())
 		{
-	        EJBQLQuery ejbqlq = new EJBQLQuery("SELECT b.id FROM Book b"
-	        		+ " JOIN b.contents t"
-	        		+ " WHERE (t.tagName IN (:TAGS))"
-	        		+ " GROUP BY b.id"
-	        		+ " HAVING COUNT(b.id) = :TAG_COUNT");
-	        Set<String> tags = new HashSet<String>();
-	        for(Content t : query.Contents)
-	        	tags.add(t.getTagName());
-	        ejbqlq.setParameter("TAGS", tags);
-	        ejbqlq.setParameter("TAG_COUNT", tags.size());
-	        select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
+			EJBQLQuery ejbqlq = new EJBQLQuery("SELECT b.id FROM Book b"
+					+ " JOIN b.contents t"
+					+ " WHERE (t.tagName IN (:TAGS))"
+					+ " GROUP BY b.id"
+					+ " HAVING COUNT(b.id) = :TAG_COUNT");
+			Set<String> tags = new HashSet<String>();
+			for(Content t : query.Contents)
+				tags.add(t.getTagName());
+			ejbqlq.setParameter("TAGS", tags);
+			ejbqlq.setParameter("TAG_COUNT", tags.size());
+			select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
 		}
 		
 		select.setPageSize(query.pagesize);

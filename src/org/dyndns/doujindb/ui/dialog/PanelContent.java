@@ -315,14 +315,15 @@ public final class PanelContent extends JPanel implements DataBaseListener, Layo
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-			height = parent.getHeight();
-		labelTagName.setBounds(3, 3, 100, 15);
-		textTagName.setBounds(103, 3, width - 106, 15);
-		labelNamespace.setBounds(3, 3 + 15, 100, 15);
-		comboNamespace.setBounds(103, 3 + 15, width - 106, 15);
-		labelInfo.setBounds(3, 3 + 30, 100, 15);
-		scrollInfo.setBounds(3, 3 + 45, width - 6, 60);
-		tabLists.setBounds(3, 3 + 105, width - 6, height - 135);
+			height = parent.getHeight(),
+			hsize = 18;
+		labelTagName.setBounds(3, 3, 100, hsize);
+		textTagName.setBounds(103, 3, width - 106, hsize);
+		labelNamespace.setBounds(3, 3 + hsize, 100, hsize);
+		comboNamespace.setBounds(103, 3 + hsize, width - 106, hsize);
+		labelInfo.setBounds(3, 3 + hsize*2, 100, hsize);
+		scrollInfo.setBounds(3, 3 + hsize*3, width - 6, hsize*3);
+		tabLists.setBounds(3, 3 + hsize*6, width - 6, height - hsize*6 - 40);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	

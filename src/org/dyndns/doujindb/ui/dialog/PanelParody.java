@@ -119,16 +119,17 @@ public final class PanelParody extends JPanel implements DataBaseListener, Layou
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-		height = parent.getHeight();
-		labelJapaneseName.setBounds(3, 3, 100, 15);
-		textJapaneseName.setBounds(103, 3, width - 106, 15);
-		labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-		textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-		labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-		textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-		labelWeblink.setBounds(3, 3 + 45, 100, 15);
-		textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-		tabLists.setBounds(3, 3 + 60, width - 6, height - 90);
+			height = parent.getHeight(),
+			hsize = 18;
+		labelJapaneseName.setBounds(3, 3, 100, hsize);
+		textJapaneseName.setBounds(103, 3, width - 106, hsize);
+		labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+		textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+		labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+		textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+		labelWeblink.setBounds(3, 3 + hsize*3, 100, hsize);
+		textWeblink.setBounds(103, 3 + hsize*3, width - 106, hsize);
+		tabLists.setBounds(3, 3 + hsize*4, width - 6, height - hsize*6);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	

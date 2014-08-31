@@ -490,17 +490,18 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelJapaneseName.setBounds(3, 3, 100, 15);
-			textJapaneseName.setBounds(103, 3, width - 106, 15);
-			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-			labelWeblink.setBounds(3, 3 + 45, 100, 15);
-			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelJapaneseName.setBounds(3, 3, 100, hsize);
+			textJapaneseName.setBounds(103, 3, width - 106, hsize);
+			labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+			textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+			labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+			textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+			labelWeblink.setBounds(3, 3 + hsize*3, 100, hsize);
+			textWeblink.setBounds(103, 3 + hsize*3, width - 106, hsize);
+			m_LabelResults.setBounds(3, 3 + hsize*4, width / 2 - 6, hsize);
+			scrollResults.setBounds(3, 3 + hsize*5, width - 5, height - hsize*7);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 
@@ -761,30 +762,31 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelJapaneseName.setBounds(3, 3, 100, 15);
-			textJapaneseName.setBounds(103, 3, width - 106, 15);
-			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);		
-			labelType.setBounds(3, 3 + 45, 100, 20);
-			comboType.setBounds(103, 3 + 45, 100, 20);
-			checkAdult.setBounds(width - 105, 3 + 55, 100, 15);
-			listSearchContent.setBounds(3, 3 + 65, width - 110, 95);
-			m_LabelResults.setBounds(3, 3 + 160, width / 2 - 6, 15);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelJapaneseName.setBounds(3, 3, 100, hsize);
+			textJapaneseName.setBounds(103, 3, width - 106, hsize);
+			labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+			textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+			labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+			textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+			labelType.setBounds(3, 3 + hsize*3, 100, hsize);
+			comboType.setBounds(103, 3 + hsize*3, 100, hsize);
+			checkAdult.setBounds(width - 106, 3 + hsize*3, 100, hsize);
+			listSearchContent.setBounds(3, 3 + hsize*4, width - 6, hsize*4);
+			m_LabelResults.setBounds(3, 3 + hsize*8, width / 2 - 6, hsize);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 			if(!previewToggled)
 			{
 				toggleList.setBounds(0, 0, 0, 0);
-				scrollResults.setBounds(3, 3 + 175, width - 5, height - 205);
-				togglePreview.setBounds(width - 22, 3 + 155, 20, 20);
+				scrollResults.setBounds(3, 3 + hsize*9, width - 5, height - hsize*11);
+				togglePreview.setBounds(width - 22, 3 + hsize*8, 20, 20);
 				scrollRecordPreview.setBounds(0, 0, 0, 0);
 			} else {
-				toggleList.setBounds(width - 22, 3 + 155, 20, 20);
+				toggleList.setBounds(width - 22, 3 + hsize*8, 20, 20);
 				scrollResults.setBounds(0, 0, 0, 0);
 				togglePreview.setBounds(0, 0, 0, 0);
-				scrollRecordPreview.setBounds(3, 3 + 175, width - 5, height - 205);
+				scrollRecordPreview.setBounds(3, 3 + hsize*9, width - 5, height - hsize*11);
 			}
 		}
 
@@ -1242,17 +1244,18 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelJapaneseName.setBounds(3, 3, 100, 15);
-			textJapaneseName.setBounds(103, 3, width - 106, 15);
-			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-			labelWeblink.setBounds(3, 3 + 45, 100, 15);
-			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelJapaneseName.setBounds(3, 3, 100, hsize);
+			textJapaneseName.setBounds(103, 3, width - 106, hsize);
+			labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+			textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+			labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+			textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+			labelWeblink.setBounds(3, 3 + hsize*3, 100, hsize);
+			textWeblink.setBounds(103, 3 + hsize*3, width - 106, hsize);
+			m_LabelResults.setBounds(3, 3 + hsize*4, width / 2 - 6, hsize);
+			scrollResults.setBounds(3, 3 + hsize*5, width - 5, height - hsize*7);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 
@@ -1466,13 +1469,14 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelTagName.setBounds(3, 3, 100, 15);
-			textTagName.setBounds(103, 3, width - 106, 15);
-			labelNamespace.setBounds(3, 3 + 15, 100, 15);
-			comboNamespace.setBounds(103, 3 + 15, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 30, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 45, width - 5, height - 30 - 45);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelTagName.setBounds(3, 3, 100, hsize);
+			textTagName.setBounds(103, 3, width - 106, hsize);
+			labelNamespace.setBounds(3, 3 + hsize, 100, hsize);
+			comboNamespace.setBounds(103, 3 + hsize, width - 106, hsize);
+			m_LabelResults.setBounds(3, 3 + hsize*2, width / 2 - 6, hsize);
+			scrollResults.setBounds(3, 3 + hsize*3, width - 5, height - hsize*5);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 
@@ -1668,11 +1672,12 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelTagName.setBounds(3, 3, 100, 15);
-			textTagName.setBounds(103, 3, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 15, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 30, width - 5, height - 30 - 30);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelTagName.setBounds(3, 3, 100, hsize);
+			textTagName.setBounds(103, 3, width - 106, hsize);
+			m_LabelResults.setBounds(3, 3 + hsize, width / 2 - 6, hsize);
+			scrollResults.setBounds(3, 3 + hsize*2, width - 5, height - hsize*4);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 
@@ -1887,17 +1892,18 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		public void layoutContainer(Container parent)
 		{
 			int width = parent.getWidth(),
-				height = parent.getHeight();
-			labelJapaneseName.setBounds(3, 3, 100, 15);
-			textJapaneseName.setBounds(103, 3, width - 106, 15);
-			labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-			textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-			labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-			textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-			labelWeblink.setBounds(3, 3 + 45, 100, 15);
-			textWeblink.setBounds(103, 3 + 45, width - 106, 15);
-			m_LabelResults.setBounds(3, 3 + 60, width / 2 - 6, 15);
-			scrollResults.setBounds(3, 3 + 75, width - 5, height - 75 - 30);
+				height = parent.getHeight(),
+				hsize = 18;
+			labelJapaneseName.setBounds(3, 3, 100, hsize);
+			textJapaneseName.setBounds(103, 3, width - 106, hsize);
+			labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+			textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+			labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+			textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+			labelWeblink.setBounds(3, 3 + hsize*3, 100, hsize);
+			textWeblink.setBounds(103, 3 + hsize*3, width - 106, hsize);
+			m_LabelResults.setBounds(3, 3 + hsize*4, width / 2 - 6, hsize);
+			scrollResults.setBounds(3, 3 + hsize*5, width - 5, height - hsize*7);
 			m_ButtonSearch.setBounds(width / 2 - 40, height - 25, 80,  20);
 		}
 

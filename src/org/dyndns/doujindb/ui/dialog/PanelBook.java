@@ -244,26 +244,27 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 			public void layoutContainer(Container parent)
 			{
 				int width = parent.getWidth(),
-				height = parent.getHeight();
-				labelJapaneseName.setBounds(3, 3, 100, 15);
-				textJapaneseName.setBounds(103, 3, width - 106, 15);
-				labelTranslatedName.setBounds(3, 3 + 15, 100, 15);
-				textTranslatedName.setBounds(103, 3 + 15, width - 106, 15);
-				labelRomajiName.setBounds(3, 3 + 30, 100, 15);
-				textRomajiName.setBounds(103, 3 + 30, width - 106, 15);
-				labelConvention.setBounds(3, 3 + 45, 100, 20);
-				comboConvention.setBounds(103, 3 + 45, width - 106, 20);				
-				labelType.setBounds(3, 3 + 65, 100, 20);
-				comboType.setBounds(103, 3 + 65, 100, 20);				
-				checkAdult.setBounds(3, 3 + 90, 100, 15);
-				editorRating.setBounds(width - editorRating.getPreferredSize().width - 3, 3 + 65, editorRating.getPreferredSize().width, editorRating.getPreferredSize().height);
-				labelDate.setBounds(3, 3 + 155, 80, 15);
-				textDate.setBounds(3, 3 + 170, 80, 15);
-				labelPages.setBounds(3, 3 + 185, 60, 15);
-				textPages.setBounds(3, 3 + 200, 60, 15);
-				labelInfo.setBounds(3, 3 + 355, 60, 15);
-				scrollInfo.setBounds(3, 3 + 370, width - 6, height - 375);
-				labelPreview.setBounds(width - 6 - 256, 100, 256, 256);
+					height = parent.getHeight(),
+					hsize = 18;
+				labelJapaneseName.setBounds(3, 3, 100, hsize);
+				textJapaneseName.setBounds(103, 3, width - 106, hsize);
+				labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+				textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+				labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+				textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+				labelConvention.setBounds(3, 3 + hsize*3, 100, hsize);
+				comboConvention.setBounds(103, 3 + hsize*3, width - 106, hsize);
+				labelType.setBounds(3, 3 + hsize*4, 100, hsize);
+				comboType.setBounds(103, 3 + hsize*4, 100, hsize);
+				editorRating.setBounds(width - editorRating.getPreferredSize().width - 3, 3 + hsize*4, editorRating.getPreferredSize().width, editorRating.getPreferredSize().height);
+				labelDate.setBounds(3, 3 + hsize*5, 80, hsize);
+				textDate.setBounds(3, 3 + hsize*6, 80, hsize);
+				labelPages.setBounds(3, 3 + hsize*7, 60, hsize);
+				textPages.setBounds(3, 3 + hsize*8, 60, hsize);
+				checkAdult.setBounds(3, 3 + hsize*9, 100, hsize);
+				labelInfo.setBounds(3, 3 + hsize*5 + 256, 60, hsize);
+				scrollInfo.setBounds(3, 3 + hsize*6 + 256, width - 6, height - hsize*6 - 256 - 10);
+				labelPreview.setBounds(width - 6 - 256, hsize*6, 256, 256);
 			}
 			@Override
 			public void addLayoutComponent(String key,Component c){}
@@ -360,7 +361,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-		height = parent.getHeight();
+			height = parent.getHeight();
 		tabLists.setBounds(1, 1, width - 6, height - 30);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}

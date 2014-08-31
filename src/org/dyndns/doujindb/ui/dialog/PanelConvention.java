@@ -313,14 +313,15 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 	public void layoutContainer(Container parent)
 	{
 		int width = parent.getWidth(),
-			height = parent.getHeight();
-		labelTagName.setBounds(3, 3, 100, 15);
-		textTagName.setBounds(103, 3, width - 106, 15);
-		labelWeblink.setBounds(3, 3 + 15, 100, 15);
-		textWeblink.setBounds(103, 3 + 15, width - 106, 15);
-		labelInfo.setBounds(3, 3 + 30, 100, 15);
-		scrollInfo.setBounds(3, 3 + 45, width - 6, 60);
-		tabLists.setBounds(3, 3 + 105, width - 6, height - 135);
+			height = parent.getHeight(),
+			hsize = 18;
+		labelTagName.setBounds(3, 3, 100, hsize);
+		textTagName.setBounds(103, 3, width - 106, hsize);
+		labelWeblink.setBounds(3, 3 + hsize, 100, hsize);
+		textWeblink.setBounds(103, 3 + hsize, width - 106, hsize);
+		labelInfo.setBounds(3, 3 + hsize*2, 100, hsize);
+		scrollInfo.setBounds(3, 3 + hsize*3, width - 6, hsize*3);
+		tabLists.setBounds(3, 3 + hsize*6, width - 6, height - hsize*6 - 40);
 		buttonConfirm.setBounds(width / 2 - 40, height - 25, 80,  20);
 	}
 	

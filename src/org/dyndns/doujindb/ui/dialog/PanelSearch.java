@@ -9,8 +9,6 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.SwingWorker.StateValue;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -27,6 +25,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.ui.DialogEx;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
@@ -50,8 +49,6 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 	protected TableRowSorter<DefaultTableModel> m_TableSorter;
 	protected JButton m_ButtonSearch;
 	protected JLabel m_LabelResults;
-	
-	private static DialogSearch m_PopupDialog = null;
 	
 	private static final Font font = UI.Font;
 	
@@ -458,63 +455,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(IArtist.this,
-								"<html>" +
-								"<body>" +
-								"Move selected items to the Trash?<br/>" +
-								"</body>" +
-								"</html>", new SwingWorker<Void,Iterable<Artist>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Artist> selected = new Vector<Artist>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										if(super.isCancelled())
-											break;
-										try
-										{
-											Artist o = (Artist) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Artist>> data) {
-									for(Iterable<Artist> i : data)
-										for(Artist o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Artist>(IArtist.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -774,61 +719,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(IBook.this,
-									"<html>" +
-									"<body>" +
-									"Move selected items to the Trash?<br/>" +
-									"</body>" +
-									"</html>", new SwingWorker<Void,Iterable<Book>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Book> selected = new Vector<Book>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										try
-										{
-											Book o = (Book) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Book>> data) {
-									for(Iterable<Book> i : data)
-										for(Book o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Book>(IBook.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1250,61 +1145,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(ICircle.this,
-									"<html>" +
-									"<body>" +
-									"Move selected items to the Trash?<br/>" +
-									"</body>" +
-									"</html>", new SwingWorker<Void,Iterable<Circle>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Circle> selected = new Vector<Circle>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										try
-										{
-											Circle o = (Circle) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Circle>> data) {
-									for(Iterable<Circle> i : data)
-										for(Circle o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Circle>(ICircle.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1528,61 +1373,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(IContent.this,
-									"<html>" +
-									"<body>" +
-									"Move selected items to the Trash?<br/>" +
-									"</body>" +
-									"</html>", new SwingWorker<Void,Iterable<Content>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Content> selected = new Vector<Content>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										try
-										{
-											Content o = (Content) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Content>> data) {
-									for(Iterable<Content> i : data)
-										for(Content o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Content>(IContent.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -1783,61 +1578,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(IConvention.this,
-									"<html>" +
-									"<body>" +
-									"Move selected items to the Trash?<br/>" +
-									"</body>" +
-									"</html>", new SwingWorker<Void,Iterable<Convention>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Convention> selected = new Vector<Convention>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										try
-										{
-											Convention o = (Convention) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Convention>> data) {
-									for(Iterable<Convention> i : data)
-										for(Convention o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Convention>(IConvention.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -2048,61 +1793,11 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						@Override
 						public void actionPerformed(ActionEvent ae)
 						{
-							m_PopupDialog = new DialogSearch(IParody.this,
-									"<html>" +
-									"<body>" +
-									"Move selected items to the Trash?<br/>" +
-									"</body>" +
-									"</html>", new SwingWorker<Void,Iterable<Parody>>()
-							{
-								@Override
-								protected Void doInBackground() throws Exception
-								{
-									int cSelected, cProcessed;
-									Vector<Parody> selected = new Vector<Parody>();
-									
-									cProcessed = 0;
-									cSelected = tableResults.getSelectedRowCount();
-									
-									for(int index : tableResults.getSelectedRows())
-									{
-										try
-										{
-											Parody o = (Parody) m_TableModel.getValueAt(m_TableSorter.convertRowIndexToModel(index), 0);
-											o.doRecycle();
-											super.setProgress(100 * ++cProcessed / cSelected);
-											selected.add(o);
-										} catch (DataBaseException dbe) {
-											LOG.error("Error recycling record", dbe);
-										}
-									}
-									try {
-										if(DataBase.isAutocommit())
-											DataBase.doCommit();
-									} catch (DataBaseException dbe) {
-										LOG.error("Error committing changes to the DataBase", dbe);
-									}
-									publish(selected);
-									return null;
-								}
-								@Override
-								protected void process(java.util.List<Iterable<Parody>> data) {
-									for(Iterable<Parody> i : data)
-										for(Parody o : i)
-											for(int index=0; index<m_TableModel.getRowCount(); index++)
-												if((m_TableModel.getValueAt(index, 0)).equals(o))
-												{
-													m_TableModel.removeRow(index);
-													break;
-												}
-									m_TableModel.fireTableDataChanged();
-							    }
-								@Override
-								protected void done() {
-									tableResults.clearSelection();
-									m_PopupDialog.dispose();
-							    }
-							});
+							try {
+								UI.Desktop.showDialog(getTopLevelWindow(tableResults), new DialogTrash<Parody>(IParody.this, tableResults));
+							} catch (PropertyVetoException pve) {
+								LOG.error("Error displaying Trash empty-dialog", pve);
+							}
 						}
 					});
 		    		menuItem.setName("delete");
@@ -2215,160 +1910,137 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		}
 	}
 	
-	private static final class DialogSearch extends JInternalFrame implements LayoutManager
+	private static WindowEx getTopLevelWindow(Component comp)
 	{
-		private JComponent m_GlassPane;
-		private JComponent m_Component;
-		private JLabel m_LabelMessage;
-		private JButton m_ButtonOk;
-		private JButton m_ButtonCancel;
-		private JProgressBar m_ProgressBar;
+		return (WindowEx) SwingUtilities.getAncestorOfClass(WindowEx.class, comp);
+	}
+	
+	private static final class DialogTrash<K extends Record> extends DialogEx
+	{
+		private SwingWorker<Void,Iterable<K>> swingWorker;
+		private JProgressBar message;
+		private PanelSearch<K> parentPanel;
+		private JTable tableData;
 		
-		private SwingWorker<?,?> m_Worker;
-		
-		public DialogSearch(JComponent parent, String message, SwingWorker<?,?> worker)
+		protected DialogTrash(PanelSearch<K> parentPanel, JTable tableData)
 		{
-			super();
-			super.setFrameIcon(Icon.desktop_explorer_trash);
-			super.setTitle("Trash");
-			super.setMaximizable(false);
-			super.setIconifiable(false);
-			super.setResizable(false);
-			super.setClosable(false);
-			super.setPreferredSize(new Dimension(300, 150));
-			super.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
-			super.addInternalFrameListener(new InternalFrameAdapter()
+			super(Icon.window_trash_restore, "Trash");
+			
+			this.parentPanel = parentPanel;
+			this.tableData = tableData;
+		}
+
+		@Override
+		public JComponent createComponent()
+		{
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 1));
+			message = new JProgressBar();
+			message.setString("Move selected items to Trash?");
+			message.setStringPainted(true);
+			message.setMaximum(100);
+			message.setMinimum(0);
+			message.setValue(0);
+			message.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			message.setFont(font);
+			panel.add(message);
+			JPanel bottom = new JPanel();
+			bottom.setLayout(new GridLayout(1, 2));
+			JButton canc = new JButton("Cancel");
+			canc.setFont(font);
+			canc.setMnemonic('C');
+			canc.setFocusable(false);
+			canc.addActionListener(new ActionListener()
 			{
 				@Override
-				public void internalFrameClosed(InternalFrameEvent ife)
+				public void actionPerformed(ActionEvent ae) 
 				{
-					hideDialog();
-				}
-
-				@Override
-				public void internalFrameClosing(InternalFrameEvent ife)
-				{
-					hideDialog();
-				}
+					swingWorker.cancel(true);
+					dispose();
+				}					
 			});
+			final JButton ok = new JButton("Ok");
+			ok.setFont(font);
+			ok.setIcon(null);
+			ok.setMnemonic('O');
+			ok.setFocusable(false);
+			ok.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent ae) 
+				{
+					ok.setEnabled(false);
+					message.setString("Moving ...");
+					swingWorker.execute();
+				}					
+			});
+			bottom.add(ok);
+			bottom.add(canc);
+			bottom.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.add(bottom);
 			
-			m_GlassPane = (JComponent) ((RootPaneContainer) parent.getRootPane().getParent()).getGlassPane();
-			
-			m_Worker = worker;
-			m_Worker.addPropertyChangeListener(new PropertyChangeListener() {
+			swingWorker = new SwingWorker<Void,Iterable<K>>()
+			{
+				@SuppressWarnings("unchecked")
+				@Override
+				protected Void doInBackground() throws Exception {
+					int selectedCount = 0,
+						processedCount = 0;
+					Vector<K> selected = new Vector<K>();
+					
+					selectedCount = tableData.getSelectedRowCount();
+					
+					for(int index : tableData.getSelectedRows()) {
+						if(super.isCancelled())
+							break;
+						try {
+							K o = (K) parentPanel.m_TableModel.getValueAt(parentPanel.m_TableSorter.convertRowIndexToModel(index), 0);
+							o.doRecycle();
+							super.setProgress(100 * ++processedCount / selectedCount);
+							selected.add(o);
+						} catch (DataBaseException dbe) {
+							LOG.error("Error recycling record", dbe);
+						}
+					}
+					
+					try {
+						if(DataBase.isAutocommit())
+							DataBase.doCommit();
+					} catch (DataBaseException dbe) {
+						LOG.error("Error committing changes", dbe);
+					}
+					
+					publish(selected);
+					
+					return null;
+				}
+				@Override
+				protected void process(java.util.List<Iterable<K>> data) {
+					for(Iterable<K> i : data)
+						for(K o : i)
+							for(int index=0; index<parentPanel.m_TableModel.getRowCount(); index++)
+								if((parentPanel.m_TableModel.getValueAt(index, 0)).equals(o))
+								{
+									parentPanel.m_TableModel.removeRow(index);
+									break;
+								}
+					parentPanel.m_TableModel.fireTableDataChanged();
+				}
+				@Override
+				protected void done() {
+					dispose();
+			    }
+			};
+			swingWorker.addPropertyChangeListener(new PropertyChangeListener() {
 				public void propertyChange(PropertyChangeEvent evt) {
 					if ("progress".equals(evt.getPropertyName())) {
-						m_ProgressBar.setValue((Integer) evt.getNewValue());
+						message.setValue((Integer) evt.getNewValue());
 						return;
 					}
 				}
 			});
 			
-			m_Component = new JPanel();
-			m_Component.setSize(250, 150);
-			m_Component.setLayout(new GridLayout(3, 1));
-			m_LabelMessage = new JLabel(message);
-			m_LabelMessage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_LabelMessage.setVerticalAlignment(JLabel.CENTER);
-			m_LabelMessage.setHorizontalAlignment(JLabel.CENTER);
-			m_LabelMessage.setFont(font);
-			m_Component.add(m_LabelMessage);
-			
-			m_ProgressBar = new JProgressBar();
-			m_ProgressBar.setValue(0);
-			m_ProgressBar.setMinimum(0);
-			m_ProgressBar.setMaximum(100);
-			m_ProgressBar.setStringPainted(true);
-			m_ProgressBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			m_Component.add(m_ProgressBar);
-			
-			JPanel bottomPanel = new JPanel();
-			bottomPanel.setLayout(new GridLayout(1, 2));
-			m_ButtonCancel = new JButton("Cancel");
-			m_ButtonCancel.setFont(font);
-			m_ButtonCancel.setMnemonic('C');
-			m_ButtonCancel.setFocusable(false);
-			m_ButtonCancel.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					m_Worker.cancel(true);
-					dispose();
-				}					
-			});
-			m_ButtonOk = new JButton("Ok");
-			m_ButtonOk.setFont(font);
-			m_ButtonOk.setMnemonic('O');
-			m_ButtonOk.setFocusable(false);
-			m_ButtonOk.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae) 
-				{
-					m_ButtonOk.setEnabled(false);
-					m_Worker.execute();
-				}					
-			});
-			bottomPanel.add(m_ButtonOk);
-			bottomPanel.add(m_ButtonCancel);
-			m_Component.add(bottomPanel);
-			super.add(m_Component);
-			super.setVisible(true);
-			
-			showDialog();
-		}
-		
-		
-		private void showDialog()
-		{
-			m_GlassPane.add(this);
-			m_GlassPane.setEnabled(true);
-			m_GlassPane.setVisible(true);
-			m_GlassPane.setEnabled(false);
-			Dimension size = super.getPreferredSize();
-			int x = (int) (m_GlassPane.getWidth() - size.getWidth()) / 2;
-			int y = (int) (m_GlassPane.getHeight() - size.getHeight()) / 2;
-			setBounds(x, y, (int) size.getWidth(), (int) size.getHeight());
-			try {
-				setSelected(true);
-			} catch (PropertyVetoException pve) {
-				pve.printStackTrace();
-			}
-		}
-		
-		private void hideDialog()
-		{
-			m_GlassPane.remove(this);
-			m_GlassPane.setEnabled(true);
-			m_GlassPane.setVisible(false);
-			m_GlassPane.setEnabled(false);
-		}
-
-		@Override
-		public void layoutContainer(Container parent)
-		{
-			int width = parent.getWidth(),
-				height = parent.getHeight();
-			m_Component.setBounds(0, 0, width, height);
-		}
-		
-		@Override
-		public void addLayoutComponent(String key,Component c) {}
-		
-		@Override
-		public void removeLayoutComponent(Component c) {}
-		
-		@Override
-		public Dimension minimumLayoutSize(Container parent)
-		{
-			return getMinimumSize();
-		}
-		
-		@Override
-		public Dimension preferredLayoutSize(Container parent)
-		{
-			return getPreferredSize();
+			return panel;
 		}
 	}
 }

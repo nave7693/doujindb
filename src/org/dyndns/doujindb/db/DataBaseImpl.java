@@ -333,7 +333,7 @@ final class DataBaseImpl extends IDataBase
 			select = new SelectQuery(org.dyndns.doujindb.db.cayenne.Book.class, Expression.fromString("recycled = FALSE"));
 		}
 
-		if(!query.Contents.isEmpty())
+		if(!query.IncludeContents.isEmpty())
 		{
 			EJBQLQuery ejbqlq = new EJBQLQuery("SELECT b.id FROM Book b"
 					+ " JOIN b.contents t"
@@ -341,11 +341,25 @@ final class DataBaseImpl extends IDataBase
 					+ " GROUP BY b.id"
 					+ " HAVING COUNT(b.id) = :TAG_COUNT");
 			Set<String> tags = new HashSet<String>();
-			for(Content t : query.Contents)
+			for(Content t : query.IncludeContents)
 				tags.add(t.getTagName());
 			ejbqlq.setParameter("TAGS", tags);
 			ejbqlq.setParameter("TAG_COUNT", tags.size());
 			select.setQualifier(select.getQualifier().andExp(ExpressionFactory.inDbExp("ID", context.performQuery(ejbqlq))));
+		}
+		if(!query.ExcludeContents.isEmpty())
+		{
+			EJBQLQuery ejbqlq = new EJBQLQuery("SELECT b.id FROM Book b"
+					+ " JOIN b.contents t"
+					+ " WHERE (t.tagName IN (:TAGS))"
+					+ " GROUP BY b.id"
+					+ " HAVING COUNT(b.id) = :TAG_COUNT");
+			Set<String> tags = new HashSet<String>();
+			for(Content t : query.ExcludeContents)
+				tags.add(t.getTagName());
+			ejbqlq.setParameter("TAGS", tags);
+			ejbqlq.setParameter("TAG_COUNT", tags.size());
+			select.setQualifier(select.getQualifier().andExp(ExpressionFactory.notInDbExp("ID", context.performQuery(ejbqlq))));
 		}
 		
 		select.setPageSize(query.pagesize);

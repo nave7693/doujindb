@@ -19,6 +19,7 @@ public final class Icons
 	public final ImageIcon window_tab_explorer_desktop = null;
 	public final ImageIcon window_tab_explorer_search = null;
 	public final ImageIcon window_tab_explorer_add = null;
+	public final ImageIcon window_tab_explorer_remove = null;
 	public final ImageIcon window_tab_explorer_statusbar_connect = null;
 	public final ImageIcon window_tab_explorer_statusbar_disconnect = null;
 	public final ImageIcon window_tab_explorer_statusbar_connected = null;

@@ -820,8 +820,10 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					q.Type = (org.dyndns.doujindb.db.record.Book.Type) comboType.getSelectedItem();
 					if(checkAdult.isSelected())
 						q.Adult = true;
-					for(Content tag : listSearchContent.getContents())
-						q.Contents.add(tag);
+					for(Content tag : listSearchContent.getIncludeContents())
+						q.IncludeContents.add(tag);
+					for(Content tag : listSearchContent.getExcludeContents())
+						q.ExcludeContents.add(tag);
 
 					// Clean result
 					while(m_TableModel.getRowCount()>0)
@@ -913,11 +915,13 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		{
 			private JLabel labelContent;
 			private ComboBoxContent comboboxContent;
-			private JButton addSearchContent;
+			private JButton searchContentInclude;
+			private JButton searchContentExclude;
 			private JPanel listSearchContent;
 			private JScrollPane scrollSearchContent;
 			
-			private Map<JButton, Content> contents = new HashMap<JButton, Content>();
+			private Map<JButton, Content> includeContents = new HashMap<JButton, Content>();
+			private Map<JButton, Content> excludeContents = new HashMap<JButton, Content>();
 			
 			private DynamicListContent()
 			{
@@ -929,18 +933,18 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				super.add(labelContent);
 				comboboxContent = new ComboBoxContent();
 				super.add(comboboxContent);
-				addSearchContent = new JButton(Icon.window_tab_explorer_add);
-				addSearchContent.setBorder(null);
-				addSearchContent.setFocusable(false);
-				addSearchContent.setToolTipText("Add Content");
-				addSearchContent.addActionListener(new ActionListener()
+				searchContentInclude = new JButton(Icon.window_tab_explorer_add);
+				searchContentInclude.setBorder(null);
+				searchContentInclude.setFocusable(false);
+				searchContentInclude.setToolTipText("Include");
+				searchContentInclude.addActionListener(new ActionListener()
 				{
 					ActionListener listener = new ActionListener()
 					{
 						@Override
 						public void actionPerformed(ActionEvent ae) {
 							JButton btnContent = (JButton) ae.getSource();
-							contents.remove(btnContent);
+							includeContents.remove(btnContent);
 							listSearchContent.remove(btnContent);
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -953,26 +957,25 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 							});
 						}
 					};
-					
 					@Override
 					public void actionPerformed(ActionEvent ae) {
 						Object selectedItem = comboboxContent.getSelectedItem();
 						if(selectedItem != null && selectedItem instanceof Content)
 						{
 							Content content = (Content) selectedItem;
-							if(contents.containsValue(content))
+							if(includeContents.containsValue(content))
 								return;
 							JButton btnContent = new JButton(content.getTagName());
 							btnContent.setFocusable(false);
 							btnContent.setBorderPainted(true);
 							btnContent.setContentAreaFilled(false);
 							btnContent.setFocusPainted(false);
-							btnContent.setIcon(Icon.desktop_explorer_delete);
-							btnContent.setHorizontalTextPosition(SwingConstants.LEFT);
+							btnContent.setIcon(Icon.window_tab_explorer_add);
+							btnContent.setHorizontalTextPosition(SwingConstants.RIGHT);
 							btnContent.addActionListener(listener);
 							btnContent.setMargin(new Insets(1,1,1,1));
 							listSearchContent.add(btnContent);
-							contents.put(btnContent, content);
+							includeContents.put(btnContent, content);
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run()
@@ -985,7 +988,63 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 						}
 					}
 				});
-				super.add(addSearchContent);
+				super.add(searchContentInclude);
+				searchContentExclude = new JButton(Icon.window_tab_explorer_remove);
+				searchContentExclude.setBorder(null);
+				searchContentExclude.setFocusable(false);
+				searchContentExclude.setToolTipText("Exclude");
+				searchContentExclude.addActionListener(new ActionListener()
+				{
+					ActionListener listener = new ActionListener()
+					{
+						@Override
+						public void actionPerformed(ActionEvent ae) {
+							JButton btnContent = (JButton) ae.getSource();
+							excludeContents.remove(btnContent);
+							listSearchContent.remove(btnContent);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run()
+								{
+									listSearchContent.doLayout();
+									scrollSearchContent.doLayout();
+									listSearchContent.repaint();
+								}
+							});
+						}
+					};
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						Object selectedItem = comboboxContent.getSelectedItem();
+						if(selectedItem != null && selectedItem instanceof Content)
+						{
+							Content content = (Content) selectedItem;
+							if(excludeContents.containsValue(content))
+								return;
+							JButton btnContent = new JButton(content.getTagName());
+							btnContent.setFocusable(false);
+							btnContent.setBorderPainted(true);
+							btnContent.setContentAreaFilled(false);
+							btnContent.setFocusPainted(false);
+							btnContent.setIcon(Icon.window_tab_explorer_remove);
+							btnContent.setHorizontalTextPosition(SwingConstants.RIGHT);
+							btnContent.addActionListener(listener);
+							btnContent.setMargin(new Insets(1,1,1,1));
+							listSearchContent.add(btnContent);
+							excludeContents.put(btnContent, content);
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run()
+								{
+									listSearchContent.doLayout();
+									scrollSearchContent.doLayout();
+									listSearchContent.repaint();
+								}
+							});
+						}
+					}
+				});
+				super.add(searchContentExclude);
 				listSearchContent = new JPanel();
 				FlowLayout layout = new WrapLayout();
 				layout.setHgap(2);
@@ -996,9 +1055,13 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				super.add(scrollSearchContent);
 			}
 			
-			public Iterable<Content> getContents()
+			public Iterable<Content> getIncludeContents()
 			{
-				return contents.values();
+				return includeContents.values();
+			}
+			public Iterable<Content> getExcludeContents()
+			{
+				return excludeContents.values();
 			}
 
 			@Override
@@ -1022,8 +1085,9 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 				int width = parent.getWidth(),
 					height = parent.getHeight();
 				labelContent.setBounds(0, 0, 100, 20);
-				comboboxContent.setBounds(100, 0, width - 100 - 20, 20);
-				addSearchContent.setBounds(width - 20, 0, 20, 20);
+				comboboxContent.setBounds(100, 0, width - 100 - 40, 20);
+				searchContentInclude.setBounds(width - 40, 0, 20, 20);
+				searchContentExclude.setBounds(width - 20, 0, 20, 20);
 				scrollSearchContent.setBounds(0, 20 + 3, width, height - 26);
 			}
 		}

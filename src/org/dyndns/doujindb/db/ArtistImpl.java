@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ArtistImpl implements Artist
+@SuppressWarnings("serial")
+final class ArtistImpl extends RecordImpl implements Artist
 {
 	org.dyndns.doujindb.db.cayenne.Artist ref;
 	
@@ -233,5 +235,10 @@ final class ArtistImpl implements Artist
 			return false;
 		else
 			return compareTo((Artist)obj) == 0;
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

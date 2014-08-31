@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class CircleImpl implements Circle
+@SuppressWarnings("serial")
+final class CircleImpl extends RecordImpl implements Circle
 {
 	org.dyndns.doujindb.db.cayenne.Circle ref;
 
@@ -234,5 +236,10 @@ final class CircleImpl implements Circle
 			return false;
 		else
 			return compareTo((Circle)obj) == 0;
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ContentImpl implements Content
+@SuppressWarnings("serial")
+final class ContentImpl extends RecordImpl implements Content
 {
 	org.dyndns.doujindb.db.cayenne.Content ref;
 
@@ -181,5 +183,10 @@ final class ContentImpl implements Content
 			return;
 		ref.setNamespace(namespace);
 		DataBase.fireRecordUpdated(this, UpdateData.property("namespace"));
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

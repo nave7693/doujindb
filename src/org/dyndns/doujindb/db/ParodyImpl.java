@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ParodyImpl implements Parody
+@SuppressWarnings("serial")
+final class ParodyImpl extends RecordImpl implements Parody
 {
 	org.dyndns.doujindb.db.cayenne.Parody ref;
 	
@@ -199,5 +201,10 @@ final class ParodyImpl implements Parody
 			return false;
 		else
 			return compareTo((Parody)obj) == 0;
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

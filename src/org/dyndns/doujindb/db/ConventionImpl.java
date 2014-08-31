@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class ConventionImpl implements Convention
+@SuppressWarnings("serial")
+final class ConventionImpl extends RecordImpl implements Convention
 {
 	org.dyndns.doujindb.db.cayenne.Convention ref;
 
@@ -181,5 +183,10 @@ final class ConventionImpl implements Convention
 			return false;
 		else
 			return compareTo((Convention)obj) == 0;
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

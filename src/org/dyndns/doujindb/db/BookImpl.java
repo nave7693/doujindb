@@ -2,10 +2,12 @@ package org.dyndns.doujindb.db;
 
 import java.util.*;
 
+import org.apache.cayenne.CayenneDataObject;
 import org.dyndns.doujindb.db.event.UpdateData;
 import org.dyndns.doujindb.db.record.*;
 
-final class BookImpl implements Book
+@SuppressWarnings("serial")
+final class BookImpl extends RecordImpl implements Book
 {
 	org.dyndns.doujindb.db.cayenne.Book ref;
 	
@@ -419,5 +421,10 @@ final class BookImpl implements Book
 			return false;
 		else
 			return compareTo((Book)obj) == 0;
+	}
+
+	@Override
+	protected CayenneDataObject getRef() {
+		return ref;
 	}
 }

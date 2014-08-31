@@ -306,7 +306,7 @@ final class DataBaseImpl extends IDataBase
 	@Override
 	public synchronized void doDelete(Record record) throws DataBaseException
 	{
-		context.deleteObject(record);
+		context.deleteObject(((RecordImpl)record).getRef());
 		
 		DataBase.fireRecordDeleted(record);
 	}

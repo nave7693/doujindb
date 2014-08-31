@@ -741,36 +741,42 @@ final class DataBaseImpl extends IDataBase
 		if(clazz == Artist.class)
 		{
 			T record = (T) newArtist();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Book.class)
 		{
 			T record = (T) newBook();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Circle.class)
 		{
 			T record = (T) newCircle();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Content.class)
 		{
 			T record = (T) newContent();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Convention.class)
 		{
 			T record = (T) newConvention();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}
 		if(clazz == Parody.class)
 		{
 			T record = (T) newParody();
+			DataBase.doCommit();
 			DataBase.fireRecordAdded((Record)record);
 			return record;
 		}

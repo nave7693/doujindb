@@ -953,7 +953,7 @@ public final class DoujinshiDBScanner extends Plugin
 								Matcher matcher = pattern.matcher(data);
 								if(matcher.find())
 								{
-									String mugimugi_id = "B" + matcher.group(3);
+									String mugimugi_id = matcher.group(3);
 									publish(mugimugi_id);
 								}
 							} catch (ClassCastException | UnsupportedFlavorException | PatternSyntaxException | IOException ee) {

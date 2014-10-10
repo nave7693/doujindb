@@ -56,7 +56,7 @@ public final class Core implements Runnable
 		 */
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		PatternLayoutEncoder ple = new PatternLayoutEncoder();
-        ple.setPattern("%d{yyyy-MM-dd'T'HH:mm:ss'Z'} [%thread] %-5level %logger{0} - %msg%n");
+        ple.setPattern("%d{yyyy-MM-dd'T'HH:mm:ss'Z'} [%-20.-20thread] %-5level %logger{0} - %msg%n");
         ple.setContext(lc);
         ple.start();
         ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();

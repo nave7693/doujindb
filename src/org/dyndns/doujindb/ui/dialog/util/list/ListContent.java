@@ -20,6 +20,7 @@ public class ListContent extends RecordList<Content>
 	{
 		super(token.getContents());
 		searchComboBox = new ComboBoxContent();
+		searchComboBox.setHotkeyTarget(addRecord);
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Content");
 		addRecord.addActionListener(new ActionListener()

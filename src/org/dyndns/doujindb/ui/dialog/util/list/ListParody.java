@@ -20,6 +20,7 @@ public class ListParody extends RecordList<Parody>
 	{
 		super(token.getParodies());
 		searchComboBox = new ComboBoxParody();
+		searchComboBox.setHotkeyTarget(addRecord);
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Parody");
 		addRecord.addActionListener(new ActionListener()

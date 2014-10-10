@@ -16,6 +16,7 @@ import org.dyndns.doujindb.db.*;
 public abstract class SearchComboBox<T extends Record> extends JComboBox<T> implements KeyListener
 {
 	protected final Vector<T> records = new Vector<T>();
+	private JButton hotkeyTarget = null;
 	
 	public SearchComboBox()
 	{
@@ -32,6 +33,10 @@ public abstract class SearchComboBox<T extends Record> extends JComboBox<T> impl
 	{
 		if(ke.getKeyCode() != KeyEvent.VK_ENTER)
 			return;
+		if((ke.isControlDown() || ke.isShiftDown()) && hotkeyTarget != null) {
+			hotkeyTarget.doClick();
+			return;
+		}
 		EventQueue.invokeLater(new Runnable()
 		{
 			@Override public void run()
@@ -67,4 +72,12 @@ public abstract class SearchComboBox<T extends Record> extends JComboBox<T> impl
 	}
 	
 	protected abstract ComboBoxModel<T> getSuggestedModel(String text);
+	
+	/**
+	 * Simulates a 'click' action on target button
+	 * @param button
+	 */
+	public void setHotkeyTarget(JButton button) {
+		hotkeyTarget = button;
+	}
 }

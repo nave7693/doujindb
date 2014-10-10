@@ -991,6 +991,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					}
 				});
 				super.add(searchContentInclude);
+				comboboxContent.setHotkeyTarget(searchContentInclude);
 				searchContentExclude = new JButton(Icon.window_tab_explorer_remove);
 				searchContentExclude.setBorder(null);
 				searchContentExclude.setFocusable(false);

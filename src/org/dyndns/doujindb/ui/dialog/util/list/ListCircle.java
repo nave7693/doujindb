@@ -20,6 +20,7 @@ public class ListCircle extends RecordList<Circle>
 	{
 		super(token.getCircles());
 		searchComboBox = new ComboBoxCircle();
+		searchComboBox.setHotkeyTarget(addRecord);
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Circle");
 		addRecord.addActionListener(new ActionListener()

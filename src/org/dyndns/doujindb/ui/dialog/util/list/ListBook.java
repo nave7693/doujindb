@@ -39,6 +39,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		super.setLayout(this);
 		
 		searchComboBox = new ComboBoxBook();
+		searchComboBox.setHotkeyTarget(addRecord);
 		addRecord.setToolTipText("Add Book");
 		addRecord.addActionListener(new ActionListener()
 		{

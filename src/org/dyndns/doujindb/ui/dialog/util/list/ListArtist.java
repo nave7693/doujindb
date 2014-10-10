@@ -20,6 +20,7 @@ public class ListArtist extends RecordList<Artist>
 	{
 		super(token.getArtists());
 		searchComboBox = new ComboBoxArtist();
+		searchComboBox.setHotkeyTarget(addRecord);
 		add(searchComboBox);
 		addRecord.setToolTipText("Add Artist");
 		addRecord.addActionListener(new ActionListener()

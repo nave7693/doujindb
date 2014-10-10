@@ -13,26 +13,6 @@ import org.dyndns.doujindb.db.record.Book;
 public class ComboBoxBook extends SearchComboBox<Book>
 {
 	@Override
-	public void keyPressed(KeyEvent ke)
-	{
-		JTextField textField = (JTextField) ke.getSource();
-		String text = textField.getText();
-		switch(ke.getKeyCode())
-		{
-			case KeyEvent.VK_RIGHT:
-				for(Book e : (Iterable<Book>) records) {
-					if(e.getJapaneseName().startsWith(text)) {
-						textField.setText(e.getJapaneseName());
-						return;
-					}
-				}
-				break;
-			default:
-				break;
-		}
-	}
-	
-	@Override
 	protected ComboBoxModel<Book> getSuggestedModel(String text)
 	{
 	    DefaultComboBoxModel<Book> mdl = new DefaultComboBoxModel<Book>();

@@ -28,8 +28,10 @@ public abstract class SearchComboBox<T extends Record> extends JComboBox<T> impl
 	}
 	
 	@Override
-	public void keyTyped(final KeyEvent ke)
+	public void keyPressed(final KeyEvent ke)
 	{
+		if(ke.getKeyCode() != KeyEvent.VK_ENTER)
+			return;
 		EventQueue.invokeLater(new Runnable()
 		{
 			@Override public void run()
@@ -50,10 +52,13 @@ public abstract class SearchComboBox<T extends Record> extends JComboBox<T> impl
 			}
 		});
 	}
-	
+
 	@Override
 	public void keyReleased(KeyEvent ke) { }
-	
+
+	@Override
+	public void keyTyped(KeyEvent ke) { }
+
 	private void setSuggestionModel(JComboBox<T> comboBox, ComboBoxModel<T> mdl, String text)
 	{
 	    comboBox.setModel(mdl);

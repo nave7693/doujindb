@@ -12,26 +12,6 @@ import org.dyndns.doujindb.db.record.Convention;
 public class ComboBoxConvention extends SearchComboBox<Convention>
 {
 	@Override
-	public void keyPressed(KeyEvent ke)
-	{
-		JTextField textField = (JTextField) ke.getSource();
-		String text = textField.getText();
-		switch(ke.getKeyCode())
-		{
-			case KeyEvent.VK_RIGHT:
-				for(Convention e : (Iterable<Convention>) records) {
-					if(e.getTagName().startsWith(text)) {
-						textField.setText(e.getTagName());
-						return;
-					}
-				}
-				break;
-			default:
-				break;
-		}
-	}
-	
-	@Override
 	protected ComboBoxModel<Convention> getSuggestedModel(String text)
 	{
 	    DefaultComboBoxModel<Convention> mdl = new DefaultComboBoxModel<Convention>();

@@ -13,26 +13,6 @@ import org.dyndns.doujindb.db.record.Parody;
 public class ComboBoxParody extends SearchComboBox<Parody>
 {
 	@Override
-	public void keyPressed(KeyEvent ke)
-	{
-		JTextField textField = (JTextField) ke.getSource();
-		String text = textField.getText();
-		switch(ke.getKeyCode())
-		{
-			case KeyEvent.VK_RIGHT:
-				for(Parody e : (Iterable<Parody>) records) {
-					if(e.getJapaneseName().startsWith(text)) {
-						textField.setText(e.getJapaneseName());
-						return;
-					}
-				}
-				break;
-			default:
-				break;
-		}
-	}
-	
-	@Override
 	protected ComboBoxModel<Parody> getSuggestedModel(String text)
 	{
 	    DefaultComboBoxModel<Parody> mdl = new DefaultComboBoxModel<Parody>();

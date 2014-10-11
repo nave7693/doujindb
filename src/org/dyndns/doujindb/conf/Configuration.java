@@ -46,8 +46,6 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.db.username",                  "<html><body>Database username.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.password",                  "<html><body>Database password.</body></html>", "");
 		configAdd("org.dyndns.doujindb.db.connection_timeout",        "<html><body>JDBC connection timeout in seconds.</body></html>", 5);
-//		configAdd("org.dyndns.doujindb.plugin.discovery",             "<html><body>Automatic Plugin discovery.</body></html>", false);
-//		configAdd("org.dyndns.doujindb.plugin.timeout",               "<html><body>Timeout (in seconds) which PluginManager will wait for plugins to start/stop.</body></html>", 60);
 		configAdd("org.dyndns.doujindb.log.org.dyndns.doujindb.conf", "<html><body>Log LEVEL for doujindb configuration.</body></html>", "info");
 		configAdd("org.dyndns.doujindb.log.org.dyndns.doujindb.dat",  "<html><body>Log LEVEL for doujindb datastore.</body></html>", "info");
 		configAdd("org.dyndns.doujindb.log.org.dyndns.doujindb.db",   "<html><body>Log LEVEL for doujindb database.</body></html>", "info");
@@ -56,6 +54,10 @@ public final class Configuration
 		configAdd("org.dyndns.doujindb.log.org.dyndns.doujindb.util", "<html><body>Log LEVEL for doujindb utility.</body></html>", "info");
 		configAdd("org.dyndns.doujindb.log.org.dyndns.doujindb.net",  "<html><body>Log LEVEL for doujindb network.</body></html>", "info");
 		configAdd("org.dyndns.doujindb.log.org.apache.cayenne",       "<html><body>Log LEVEL for cayenne.</body></html>", "info");
+		configAdd("org.dyndns.doujindb.plugin.auto_discovery",        "<html><body>Enable automatic Plugin discovery.</body></html>", true);
+		configAdd("org.dyndns.doujindb.plugin.auto_update",           "<html><body>Automatically update Plugins.</body></html>", true);
+		configAdd("org.dyndns.doujindb.plugin.load_timeout",          "<html><body>Timeout (in seconds) which PluginManager will wait for a plugin to start.</body></html>", 30);
+		configAdd("org.dyndns.doujindb.plugin.unload_timeout",        "<html><body>Timeout (in seconds) which PluginManager will wait for a plugin to stop.</body></html>", 30);
 	}
 
 	public static Object configRead(String key) throws ConfigurationException

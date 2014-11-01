@@ -10,7 +10,10 @@ import javax.swing.JComponent;
 */
 public abstract class Plugin
 {
-	public abstract String getUUID();
+	public final String getNamespace()
+	{
+		return getClass().getCanonicalName();
+	}
 	
 	public abstract Icon getIcon();
 	
@@ -26,26 +29,26 @@ public abstract class Plugin
 	
 	public abstract JComponent getUI();
 	
-	protected abstract void install() throws PluginException;
+	protected abstract void doInstall() throws PluginException;
 	
-	protected abstract void update() throws PluginException;
+	protected abstract void doUpdate() throws PluginException;
 	
-	protected abstract void uninstall() throws PluginException;
+	protected abstract void doUninstall() throws PluginException;
 
-	protected void startup() throws PluginException { }
+	protected void doStartup() throws PluginException { }
 	
-	protected void shutdown() throws PluginException { }
+	protected void doShutdown() throws PluginException { }
 
 	@Override
 	public boolean equals(Object obj) {
 		if(!(obj instanceof Plugin))
 			return false;
 		else
-			return ((Plugin)obj).getUUID().equals(getUUID());
+			return ((Plugin)obj).getNamespace().equals(getNamespace());
 	}
 	
 	@Override
 	public int hashCode() {
-		return getUUID().hashCode();
+		return getNamespace().hashCode();
 	}
 }

@@ -10,11 +10,19 @@ import javax.swing.JComponent;
 */
 public abstract class Plugin
 {
+	public enum State
+	{
+		RUNNING,
+		STOPPED,
+		LOADING,
+		UPDATING
+	}
+
 	public final String getNamespace()
 	{
 		return getClass().getCanonicalName();
 	}
-	
+
 	public abstract Icon getIcon();
 	
 	public abstract String getName();
@@ -28,7 +36,9 @@ public abstract class Plugin
 	public abstract String getWeblink();
 	
 	public abstract JComponent getUI();
-	
+
+	public abstract State getState();
+
 	protected abstract void doInstall() throws PluginException;
 	
 	protected abstract void doUpdate() throws PluginException;

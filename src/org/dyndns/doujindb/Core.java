@@ -86,13 +86,6 @@ public final class Core implements Runnable
 		LOG.info("Core bootstrap started");
 		
 		/**
-		 * Load all Plugins without starting them:
-		 *    some Plugins may need the DataBase and/or DataStore online to be started
-		 *    also Configuration properties have yet to be loaded
-		 */
-		PluginManager.loadAll();
-		
-		/**
 		 * Load global Configuration properties
 		 * In case of Exception (e.g missing configuration file on first run) schedule the Configuration Wizard
 		 */
@@ -153,10 +146,10 @@ public final class Core implements Runnable
 		new UI();
 		
 		/**
-		 * Now that we have up and running Logging, Configuration and User Interface we can manually start every Plugin instance
-		 * //FIXME Plugins should register listeners for DataBase/DataStore/UI/Configuration and decide for themselves when to "start"
+		 * Bootstrap PluginManager: discover, load and run every Plugin
+		 * //TODO Plugins should register listeners for DataBase/DataStore/UI/Configuration and decide for themselves when to "act"
 		 */
-		PluginManager.startAll();
+		PluginManager.doBootstrap();
 		
 		/**
 		 * Run now the Configuration Wizard if an Exception occurred during Configuration load

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.Core;
+import org.dyndns.doujindb.conf.Configuration;
 
 /**  
 * PluginManager.java - DoujinDB Plugin Manager.
@@ -23,7 +24,6 @@ public final class PluginManager
 {
 	private static Set<Plugin> plugins = new HashSet<Plugin>();
 	
-	private static int PLUGIN_TIMEOUT = 60;
 	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
@@ -42,35 +42,10 @@ public final class PluginManager
 			@Override
 			public void run()
 			{
-				stopAll();
-				saveAll();
+				shutdown();
+				serialize();
 			}
 		});
-	}
-	
-	public static void install(Plugin plugin) throws PluginException
-	{
-		if(plugins.contains(plugin))
-			throw new PluginException("Plugin '" + plugin.getName() + "' is already installed.");
-		plugin.install();
-		plugins.add(plugin);
-		saveAll();
-	}
-	
-	public static void update(Plugin plugin) throws PluginException
-	{
-		if(!plugins.contains(plugin))
-			throw new PluginException("Plugin '" + plugin.getName() + "' is not installed.");
-		plugin.update();
-	}
-	
-	public static void uninstall(Plugin plugin) throws PluginException
-	{
-		if(!plugins.contains(plugin))
-			throw new PluginException("Plugin '" + plugin.getName() + "' is not installed.");
-		plugin.uninstall(); //TODO force removal even if PluginException is thrown?
-		plugins.remove(plugin);
-		saveAll();
 	}
 	
 	public static Iterable<Plugin> listAll()
@@ -78,7 +53,13 @@ public final class PluginManager
 		return plugins;
 	}
 	
-	private static void discoverAll()
+	public static void doBootstrap()
+	{
+		discover();
+		startup();
+	}
+	
+	private static void discover()
 	{
 		File libDirectory = new File(Core.DOUJINDB_HOME, "lib");
 		// check if lib directory is present
@@ -126,9 +107,9 @@ public final class PluginManager
 			}
 	}
 	
-	public static void loadAll()
+	private static void unserialize()
 	{
-		LOG.debug("call loadAll()");
+		LOG.debug("call unserialize()");
 		FileInputStream in = null;
 		try
 		{
@@ -153,13 +134,11 @@ public final class PluginManager
 		} finally {
 			try { in.close(); } catch (Exception e) { }
 		}
-		
-		discoverAll();
 	}
 	
-	public static void saveAll()
+	private static void serialize()
 	{
-		LOG.debug("call saveAll()");
+		LOG.debug("call serialize()");
 		FileOutputStream out = null;
 		try
 		{
@@ -183,9 +162,10 @@ public final class PluginManager
 		}
 	}
 	
-	public static void startAll()
+	private static void startup()
 	{
-		LOG.debug("call startAll()");
+		LOG.debug("call startup()");
+		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.load_timeout");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -194,7 +174,7 @@ public final class PluginManager
 				public Void call()
 				{
 					try {
-						plugin.startup();
+						plugin.doStartup();
 						LOG.info("Plugin [{}] started", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
@@ -205,7 +185,7 @@ public final class PluginManager
 			Future<Void> future = executor.submit(task);
 			try
 			{
-				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
+				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
 			} catch (InterruptedException ie) {
@@ -218,9 +198,10 @@ public final class PluginManager
 		}
 	}
 	
-	public static void stopAll()
+	private static void shutdown()
 	{
-		LOG.debug("call stopAll()");
+		LOG.debug("call shutdown()");
+		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.unload_timeout");
 		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
@@ -229,7 +210,7 @@ public final class PluginManager
 				public Void call()
 				{
 					try {
-						plugin.shutdown();
+						plugin.doShutdown();
 						LOG.info("Plugin [{}] stopped", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
@@ -240,7 +221,7 @@ public final class PluginManager
 			Future<Void> future = executor.submit(task);
 			try
 			{
-				future.get(PLUGIN_TIMEOUT, TimeUnit.SECONDS);
+				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);
 			} catch (InterruptedException ie) {

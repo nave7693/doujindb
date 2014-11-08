@@ -73,7 +73,7 @@ public final class Configuration
 		LOG.debug("call configWrite({}, {})", key, value);
 		instance.configWrite(key, value);
 		for(ConfigurationListener cl : listeners)
-			cl.configUpdated(key);
+			cl.configurationUpdated(key);
 	}
 
 	public static void configAdd(String key, String info, Object value) throws ConfigurationException
@@ -81,14 +81,14 @@ public final class Configuration
 		LOG.debug("call configAdd({}, {}, {})", new Object[]{ key, info, value });
 		instance.configAdd(key, info, value);
 		for(ConfigurationListener cl : listeners)
-			cl.configAdded(key);
+			cl.configurationAdded(key);
 	}
 
 	public static void configRemove(String key) throws ConfigurationException
 	{
 		LOG.debug("call configRemove({})", key);
 		for(ConfigurationListener cl : listeners)
-			cl.configDeleted(key);
+			cl.configurationDeleted(key);
 		instance.configRemove(key);
 	}
 

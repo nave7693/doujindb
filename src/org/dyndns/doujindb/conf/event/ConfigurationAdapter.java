@@ -3,9 +3,9 @@ package org.dyndns.doujindb.conf.event;
 public class ConfigurationAdapter implements ConfigurationListener
 {
 	@Override
-	public void configAdded(String key) { }
+	public void configurationAdded(String key) { }
 	@Override
-	public void configDeleted(String key) { }
+	public void configurationDeleted(String key) { }
 	@Override
-	public void configUpdated(String key) { }
+	public void configurationUpdated(String key) { }
 }

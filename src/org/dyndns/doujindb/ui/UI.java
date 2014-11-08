@@ -1655,19 +1655,19 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	}
 
 	@Override
-	public void configAdded(String key)
+	public void configurationAdded(String key)
 	{
 		//TODO dynamically add new config keys to UI tree
 	}
 
 	@Override
-	public void configDeleted(String key)
+	public void configurationDeleted(String key)
 	{
 		//TODO dynamically remove config keys to UI tree
 	}
 
 	@Override
-	public void configUpdated(final String key)
+	public void configurationUpdated(final String key)
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{

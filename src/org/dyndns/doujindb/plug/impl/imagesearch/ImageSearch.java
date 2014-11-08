@@ -531,13 +531,13 @@ public final class ImageSearch extends Plugin
 		}
 		
 		@Override
-		public void configAdded(String key) { }
+		public void configurationAdded(String key) { }
 
 		@Override
-		public void configDeleted(String key) { }
+		public void configurationDeleted(String key) { }
 
 		@Override
-		public void configUpdated(final String key) {
+		public void configurationUpdated(final String key) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run()

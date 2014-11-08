@@ -10,10 +10,13 @@ interface IConfiguration
 	public static enum Type
 	{
 		BOOLEAN,
-		NUMBER,
+		INTEGER,
+		FLOAT,
 		STRING,
 		FONT,
 		COLOR,
+		FILE,
+		LOG
 	}
 	
 	public Object configRead(String key) throws ConfigurationException;

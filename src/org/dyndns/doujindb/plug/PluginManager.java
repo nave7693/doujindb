@@ -14,6 +14,7 @@ import ch.qos.logback.classic.*;
 
 import org.dyndns.doujindb.Core;
 import org.dyndns.doujindb.conf.Configuration;
+import org.dyndns.doujindb.plug.event.PluginListener;
 
 /**  
 * PluginManager.java - DoujinDB Plugin Manager.
@@ -23,6 +24,8 @@ import org.dyndns.doujindb.conf.Configuration;
 public final class PluginManager
 {
 	private static Set<Plugin> plugins = new HashSet<Plugin>();
+	
+	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
 	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
 
@@ -43,14 +46,8 @@ public final class PluginManager
 			public void run()
 			{
 				shutdown();
-				serialize();
 			}
 		});
-	}
-	
-	public static Iterable<Plugin> listAll()
-	{
-		return plugins;
 	}
 	
 	public static void doBootstrap()
@@ -101,7 +98,7 @@ public final class PluginManager
 			try {
 				LOG.info("Found plugin [{}]", pluginName);
 				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
-				plugins.add(plugin);
+				install(plugin);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -175,6 +172,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.doStartup();
+						firePluginStarted(plugin);
 						LOG.info("Plugin [{}] started", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
@@ -211,6 +209,7 @@ public final class PluginManager
 				{
 					try {
 						plugin.doShutdown();
+						firePluginStopped(plugin);
 						LOG.info("Plugin [{}] stopped", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
@@ -234,6 +233,13 @@ public final class PluginManager
 		}
 	}
 	
+	private static void install(Plugin plugin) throws PluginException
+	{
+		plugin.doInstall();
+		firePluginInstalled(plugin);
+		plugins.add(plugin);
+	}
+	
 	@XmlRootElement(namespace = "org.dyndns.doujindb.plug", name="PluginManager")
 	private static final class XMLPluginManager
 	{
@@ -250,5 +256,52 @@ public final class PluginManager
 		private String namespace;
 		@XmlAttribute(name="Enabled", required=true)
 		private boolean enabled;
+	}
+	
+	public static void addPluginListener(PluginListener pl)
+	{
+		LOG.debug("call addPluginListener({})", pl);
+		listeners.add(pl);
+	}
+	
+	public static void removePluginListener(PluginListener pl)
+	{
+		LOG.debug("call removePluginListener({})", pl);
+		listeners.remove(pl);
+	}
+	
+	static void firePluginInstalled(Plugin plugin)
+	{
+		LOG.debug("call firePluginInstalled({})", plugin);
+		for(PluginListener pl : listeners)
+			pl.pluginInstalled(plugin);
+	}
+	
+	static void firePluginUninstalled(Plugin plugin)
+	{
+		LOG.debug("call firePluginUninstalled({})", plugin);
+		for(PluginListener pl : listeners)
+			pl.pluginUninstalled(plugin);
+	}
+	
+	static void firePluginStarted(Plugin plugin)
+	{
+		LOG.debug("call firePluginStarted({})", plugin);
+		for(PluginListener pl : listeners)
+			pl.pluginStarted(plugin);
+	}
+	
+	static void firePluginStopped(Plugin plugin)
+	{
+		LOG.debug("call firePluginStopped({})", plugin);
+		for(PluginListener pl : listeners)
+			pl.pluginStopped(plugin);
+	}
+	
+	static void firePluginUpdated(Plugin plugin)
+	{
+		LOG.debug("call firePluginUpdated({})", plugin);
+		for(PluginListener pl : listeners)
+			pl.pluginUpdated(plugin);
 	}
 }

@@ -35,6 +35,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.plug.*;
+import org.dyndns.doujindb.plug.event.PluginListener;
 import org.dyndns.doujindb.ui.DesktopEx.*;
 import org.dyndns.doujindb.ui.dialog.*;
 
@@ -44,7 +45,7 @@ import org.dyndns.doujindb.ui.dialog.*;
 * @version 1.0
 */
 @SuppressWarnings("unused")
-public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, ConfigurationListener
+public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, ConfigurationListener, PluginListener
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -61,7 +62,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	private PanelPlugins uiPanelPlugins;
 	private JScrollPane uiPanelPluginsScroll;
-	private JButton uiPanelPluginsReload;
+	private JButton uiPanelPluginsUpdate;
 	
 	private JButton uiPanelDesktopShow;
 	private JButton uiPanelDesktopSearch;
@@ -366,16 +367,12 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelPlugins = new PanelPlugins();
 		uiPanelPluginsScroll = new JScrollPane(uiPanelPlugins);
 		bogus.add(uiPanelPluginsScroll);
-		uiPanelPluginsReload = new JButton(Icon.window_tab_plugins_reload);
-		uiPanelPluginsReload.addActionListener(this);
-		uiPanelPluginsReload.setBorder(null);
-		uiPanelPluginsReload.setFocusable(false);
-		uiPanelPluginsReload.setToolTipText("Reload");
-		bogus.add(uiPanelPluginsReload);
-		
-		uiPanelPlugins.clear();
-		for(Plugin plugin : PluginManager.listAll())
-			uiPanelPlugins.add(plugin);
+		uiPanelPluginsUpdate = new JButton(Icon.window_tab_plugins_update);
+		uiPanelPluginsUpdate.addActionListener(this);
+		uiPanelPluginsUpdate.setBorder(null);
+		uiPanelPluginsUpdate.setFocusable(false);
+		uiPanelPluginsUpdate.setToolTipText("Update");
+		bogus.add(uiPanelPluginsUpdate);
 		
 		uiPanelTabbed.addTab("Plugins", Icon.window_tab_plugins, bogus);
 		
@@ -420,6 +417,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setVisible(true);
 		
 		Configuration.addConfigurationListener(this);
+		
+		PluginManager.addPluginListener(this);
 		
 		DataBase.addDataBaseListener(new DataBaseAdapter()
 		{
@@ -494,7 +493,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelSettingsSave.setBounds(21,1,20,20);
 		uiPanelSettings.setBounds(0,22,width-5,height-48);
 		uiPanelPluginsScroll.setBounds(0,22,width-5,height-48);
-		uiPanelPluginsReload.setBounds(1,1,20,20);
+		uiPanelPluginsUpdate.setBounds(1,1,20,20);
 		uiPanelTabbed.setBounds(0,0,width,height);
 	}
 	
@@ -527,11 +526,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			}
 			return;
 		}
-		if(event.getSource() == uiPanelPluginsReload) {
-			uiPanelPlugins.clear();
-			for(Plugin plugin : PluginManager.listAll())
-				uiPanelPlugins.add(plugin);
-			return;
+		if(event.getSource() == uiPanelPluginsUpdate) {
+			//TODO
 		}
 		if(event.getSource() == uiPanelSettingsLoad) {
 			try {
@@ -1682,4 +1678,23 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			}
 		});
 	}
+
+	@Override
+	public void pluginInstalled(Plugin plugin) {
+		uiPanelPlugins.add(plugin);
+	}
+
+	@Override
+	public void pluginUninstalled(Plugin plugin) {
+		//TODO uiPanelPlugins.remove(plugin);
+	}
+
+	@Override
+	public void pluginStarted(Plugin plugin) { }
+
+	@Override
+	public void pluginStopped(Plugin plugin) { }
+
+	@Override
+	public void pluginUpdated(Plugin plugin) { }
 }

@@ -20,6 +20,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.event.*;
 import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.plug.*;
+import org.dyndns.doujindb.plug.event.PluginListener;
 import org.dyndns.doujindb.ui.dialog.*;
 import org.dyndns.doujindb.util.ImageTool;
 
@@ -27,7 +28,7 @@ import static org.dyndns.doujindb.ui.UI.Icon;
 import static org.dyndns.doujindb.ui.UI.ModalLayer;
 
 @SuppressWarnings("serial")
-public final class DesktopEx extends JDesktopPane implements DataBaseListener
+public final class DesktopEx extends JDesktopPane implements DataBaseListener, PluginListener
 {
 	private JLabel wallpaper;
 	private ImageIcon wallpaperImage;
@@ -144,46 +145,10 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 		super.add(wallpaper);
 		
 		buttonPlugins = new Vector<JButton>();
-		for(Plugin plug : PluginManager.listAll())
-		{
-			JButton buttonPlugin;
-			final Plugin plugin = plug;
-			buttonPlugin = new JButton(plug.getIcon());
-			buttonPlugin.setToolTipText("<html><body><b>" + plug.getName() + "</b><br>" +
-					"<b>Author</b> : " + plug.getAuthor() + "<br>" + 
-					"<b>Version</b> : " + plug.getVersion() + "<br>" + 
-					"<b>Weblink</b> : " + plug.getWeblink() + 
-					"</body></html>");
-			buttonPlugin.setFocusable(false);
-			buttonPlugin.setEnabled(false);
-			buttonPlugin.setContentAreaFilled(false);
-			buttonPlugin.setBorder(null);
-			buttonPlugin.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae)
-				{
-					try {
-						new SwingWorker<Void, Object>()
-						{
-							@Override
-							protected Void doInBackground() throws Exception
-							{
-								showPluginWindow(plugin);
-								return null;
-							}
-						}.execute();
-					} catch (DataBaseException dbe) {
-						LOG.error("Error displaying Plugin Window", dbe);
-						dbe.printStackTrace();
-					}
-				}
-			});
-			super.add(buttonPlugin);
-			buttonPlugins.add(buttonPlugin);
-		}
 		
 		DataBase.addDataBaseListener(this);
+		
+		PluginManager.addPluginListener(this);
 	}
 	
 	@Deprecated
@@ -1104,4 +1069,56 @@ public final class DesktopEx extends JDesktopPane implements DataBaseListener
 			super.setVisible(true);
 		}
 	}
+
+	@Override
+	public void pluginInstalled(final Plugin plugin) {
+		JButton buttonPlugin;
+		buttonPlugin = new JButton(plugin.getIcon());
+		buttonPlugin.setToolTipText("<html><body><b>" + plugin.getName() + "</b><br>" +
+				"<b>Author</b> : " + plugin.getAuthor() + "<br>" + 
+				"<b>Version</b> : " + plugin.getVersion() + "<br>" + 
+				"<b>Weblink</b> : " + plugin.getWeblink() + 
+				"</body></html>");
+		buttonPlugin.setFocusable(false);
+		buttonPlugin.setEnabled(false);
+		buttonPlugin.setContentAreaFilled(false);
+		buttonPlugin.setBorder(null);
+		buttonPlugin.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent ae)
+			{
+				try {
+					new SwingWorker<Void, Object>()
+					{
+						@Override
+						protected Void doInBackground() throws Exception
+						{
+							showPluginWindow(plugin);
+							return null;
+						}
+					}.execute();
+				} catch (DataBaseException dbe) {
+					LOG.error("Error displaying Plugin Window", dbe);
+					dbe.printStackTrace();
+				}
+			}
+		});
+		super.add(buttonPlugin);
+		buttonPlugins.add(buttonPlugin);
+		
+		doLayout();
+	}
+
+	@Override
+	public void pluginUninstalled(Plugin plugin) { }
+
+	@Override
+	public void pluginStarted(Plugin plugin) { }
+
+	@Override
+	public void pluginStopped(Plugin plugin) { }
+
+	@Override
+	public void pluginUpdated(Plugin plugin) { }
 }

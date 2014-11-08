@@ -1,6 +1,8 @@
 package org.dyndns.doujindb.plug;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
@@ -27,7 +29,7 @@ public final class PluginManager
 	
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
-	private static final File PLUGIN_INDEX = new File(Core.DOUJINDB_HOME, "plugins.xml");
+	private static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
 	
@@ -58,37 +60,42 @@ public final class PluginManager
 	
 	private static void discover()
 	{
-		File libDirectory = new File(Core.DOUJINDB_HOME, "lib");
-		// check if lib directory is present
-		if(!libDirectory.exists())
-			return;
-		// check each .jar file
-		for(File file : libDirectory.listFiles(new FilenameFilter()
-		{
+		LOG.debug("call discover()");
+		// Search for .jar files in PLUGIN_HOME directory
+		for(File file : PLUGIN_HOME.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".jar");
 			}
 		}))
 		{
-			JarFile jf;
+			LOG.debug("scanning file {} ...", file.getName());
 			try {
-				jf = new JarFile(file);
+				// Open .jar file as JarFile
+				JarFile jf = new JarFile(file);
+				// Search 'Main-Class' manifest attribute
 				if(jf.getManifest().getMainAttributes().getValue("Main-Class") != null) {
 				    String className = jf.getManifest().getMainAttributes().getValue("Main-Class");
 				    Set<String> classes = new HashSet<String>();
-				    for(Class<?> clazz : Class.forName(className).getClasses())
-				    {
-				    	classes.add(clazz.getCanonicalName());
-				    }
-				    if(classes.contains(Plugin.class.getCanonicalName()))
-				    {
+				    // Create a new ClassLoader from the .jar file
+				    URLClassLoader child = new URLClassLoader(new URL[]{file.toURI().toURL()}, PluginManager.class.getClassLoader());
+				    try {
+				    	// List 'Main-Class' public classes
+				    	for(Class<?> clazz : Class.forName(className, false, child).getClasses()) {
+				    		classes.add(clazz.getCanonicalName());
+				    	}
+					} catch (ClassNotFoundException cnfe) {
+						LOG.error("IOException while inspecting class {}", className, cnfe);
+					}
+				    // Check if Plugin.class is implemented
+				    if(classes.contains(Plugin.class.getCanonicalName())) {
 				    	LOG.info("Found plugin [{}]", className);
 				    	; //TODO Add file.jar to SystemClassLoader, then load Plugin
 				    }
 				}
+				jf.close();
 			} catch (IOException ioe) {
-			} catch (ClassNotFoundException cnfe) {
+				LOG.error("IOException while scanning jar file {}", file, ioe);
 			}
 		}
 		for(String pluginName : new String[]{

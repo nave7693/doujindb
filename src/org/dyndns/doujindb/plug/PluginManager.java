@@ -7,9 +7,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.jar.*;
 
-import javax.xml.bind.*;
-import javax.xml.bind.annotation.*;
-
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.*;
@@ -190,24 +187,6 @@ public final class PluginManager
 		plugin.doInstall();
 		firePluginInstalled(plugin);
 		plugins.add(plugin);
-	}
-	
-	@XmlRootElement(namespace = "org.dyndns.doujindb.plug", name="PluginManager")
-	private static final class XMLPluginManager
-	{
-		@XmlElements({
-		    @XmlElement(name="Plugin", type=XMLPlugin.class)
-		  })
-		private List<XMLPlugin> nodes = new Vector<XMLPlugin>();
-	}
-	
-	@XmlRootElement(namespace = "org.dyndns.doujindb.plug", name="Plugin")
-	private static final class XMLPlugin
-	{
-		@XmlAttribute(name="Namespace", required=true)
-		private String namespace;
-		@XmlAttribute(name="Enabled", required=true)
-		private boolean enabled;
 	}
 	
 	public static void addPluginListener(PluginListener pl)

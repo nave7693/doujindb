@@ -58,7 +58,6 @@ public final class ImageSearch extends Plugin
 		Configuration.configAdd(fConfigBase + "image_scaling", "<html><body>Scaling factor of cover image in index file.</body></html>", 16);
 	}
 	
-	@Override
 	public String getUUID() {
 		return fUUID;
 	}
@@ -567,16 +566,16 @@ public final class ImageSearch extends Plugin
 	}
 
 	@Override
-	protected void install() { }
+	protected void doInstall() { }
 
 	@Override
-	protected void update() { }
+	protected void doUpdate() { }
 
 	@Override
-	protected void uninstall() { }
+	protected void doUninstall() { }
 	
 	@Override
-	protected void startup() {
+	protected void doStartup() {
 		fThreshold = (Integer) Configuration.configRead(fConfigBase + "threshold");
 		fMaxResults = (Integer) Configuration.configRead(fConfigBase + "max_result");
 		fImageScaling = (Integer) Configuration.configRead(fConfigBase + "image_scaling");
@@ -592,7 +591,13 @@ public final class ImageSearch extends Plugin
 	}
 	
 	@Override
-	protected void shutdown() {
+	protected void doShutdown() {
 		CacheManager.write();
+	}
+
+	@Override
+	public State getState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

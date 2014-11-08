@@ -82,7 +82,6 @@ public final class DoujinshiDBScanner extends Plugin
 		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
 	}
 	
-	@Override
 	public String getUUID() {
 		return UUID;
 	}
@@ -1451,16 +1450,16 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 
 	@Override
-	protected void install() throws TaskErrorException { }
+	protected void doInstall() throws TaskErrorException { }
 
 	@Override
-	protected void update() throws TaskErrorException { }
+	protected void doUpdate() throws TaskErrorException { }
 
 	@Override
-	protected void uninstall() throws TaskErrorException { }
+	protected void doUninstall() throws TaskErrorException { }
 	
 	@Override
-	protected void startup() throws TaskErrorException
+	protected void doStartup() throws TaskErrorException
 	{
 		APIKEY = (String) Configuration.configRead(configBase + "apikey");
 		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
@@ -1479,8 +1478,14 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 	
 	@Override
-	protected void shutdown() throws TaskErrorException
+	protected void doShutdown() throws TaskErrorException
 	{
 		TaskManager.saveTasks();
+	}
+
+	@Override
+	public State getState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

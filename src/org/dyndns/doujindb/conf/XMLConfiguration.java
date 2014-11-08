@@ -97,16 +97,21 @@ final class XMLConfiguration implements IConfiguration
 			JAXBContext context = JAXBContext.newInstance(XMLRoot.class);
 			Unmarshaller um = context.createUnmarshaller();
 			XMLRoot xmlroot = (XMLRoot) um.unmarshal(in);
-			for(XMLNode xmlnode : xmlroot.nodes)
-			{
+			for(XMLNode xmlnode : xmlroot.nodes) {
+				if(xmlnode.type == null) {
+					LOG.warn("could not unserialize configuration key [{}]: unknown data type", xmlnode.key);
+					continue;
+				}
 				Object value = null;
-				switch(xmlnode.type)
-				{
+				switch(xmlnode.type) {
 					case BOOLEAN:
 						value = Boolean.parseBoolean(xmlnode.value);
 						break;
-					case NUMBER:
+					case INTEGER:
 						value = Integer.parseInt(xmlnode.value);
+						break;
+					case FLOAT:
+						value = Float.parseFloat(xmlnode.value);
 						break;
 					case STRING:
 						value = xmlnode.value;
@@ -121,22 +126,19 @@ final class XMLConfiguration implements IConfiguration
 							Integer.parseInt(values[2]),
 							Integer.parseInt(values[3]));
 						break;
+					case FILE:
+						value = new File(xmlnode.value);
+						break;
+					case LOG:
+						value = Level.valueOf(xmlnode.value);
+						break;
 				}
-				if(value == null)
-				{
-					LOG.warn("could not unserialize configuration key [{}]: unexpected type of data [{}]", xmlnode.key, xmlnode.type);
-				} else {
-					try
-					{
-						configWrite(xmlnode.key, value);
-					} catch (ConfigurationException ce) {
-						LOG.warn("could not unserialize configuration key [{}]: not found in base configuration", xmlnode.key);
-					}
+				try {
+					configWrite(xmlnode.key, value);
+				} catch (ConfigurationException ce) {
+					LOG.warn("could not unserialize configuration key [{}]", xmlnode.key, ce);
 				}
 			}
-		} catch (NullPointerException npe) {
-			try { in.close(); } catch (Exception e) { }
-			throw new ConfigurationException(npe);
 		} catch (JAXBException jaxbe) {
 			try { in.close(); } catch (Exception e) { }
 			throw new ConfigurationException(jaxbe);
@@ -166,28 +168,27 @@ final class XMLConfiguration implements IConfiguration
 					XMLNode xmlnode = new XMLNode();
 					xmlnode.key = key;
 					xmlnode.value = null;
-					if(value instanceof Boolean)
-					{
+					if(value instanceof Boolean) {
 						xmlnode.value = ((Boolean) value).toString();
 						xmlnode.type = Type.BOOLEAN;
 					}
-					if(value instanceof Integer)
-					{
+					if(value instanceof Integer) {
 						xmlnode.value = ((Integer) value).toString();
-						xmlnode.type = Type.NUMBER;
+						xmlnode.type = Type.INTEGER;
 					}
-					if(value instanceof String)
-					{
+					if(value instanceof Float) {
+						xmlnode.value = ((Float) value).toString();
+						xmlnode.type = Type.FLOAT;
+					}
+					if(value instanceof String) {
 						xmlnode.value = ((String) value);
 						xmlnode.type = Type.STRING;
 					}
-					if(value instanceof Font)
-					{
+					if(value instanceof Font) {
 						xmlnode.value = ((Font) value).getName();
 						xmlnode.type = Type.FONT;
 					}
-					if(value instanceof Color)
-					{
+					if(value instanceof Color) {
 						Color color = (Color) value;
 						xmlnode.value = "" + color.getRed() + "," + 
 											color.getGreen() + "," + 
@@ -195,8 +196,15 @@ final class XMLConfiguration implements IConfiguration
 											color.getAlpha();
 						xmlnode.type = Type.COLOR;
 					}
-					if(xmlnode.value == null)
-					{
+					if(value instanceof File) {
+						xmlnode.value = ((File) value).toString();
+						xmlnode.type = Type.FILE;
+					}
+					if(value instanceof Level) {
+						xmlnode.value = ((Level) value).toString();
+						xmlnode.type = Type.LOG;
+					}
+					if(xmlnode.value == null) {
 						LOG.warn("could not serialize configuration key [{}]: unexpected type of data [{}]", key, value.getClass().getCanonicalName());
 					} else {
 						xmlroot.nodes.add(xmlnode);

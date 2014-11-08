@@ -9,14 +9,24 @@ interface IConfiguration
 {
 	public static enum Type
 	{
-		BOOLEAN,
-		INTEGER,
-		FLOAT,
-		STRING,
-		FONT,
-		COLOR,
-		FILE,
-		LOG
+		BOOLEAN (java.lang.Boolean.class),
+		INTEGER (java.lang.Integer.class),
+		FLOAT (java.lang.Float.class),
+		STRING (java.lang.String.class),
+		FONT (java.awt.Font.class),
+		COLOR (java.awt.Color.class),
+		FILE (java.io.File.class),
+		LOG (java.util.logging.Level.class);
+		
+		private Class<?> clazz;
+		
+		Type(Class<?> clazz) {
+			this.clazz = clazz;
+		}
+		
+		public final Class<?> getBaseClass() {
+			return clazz;
+		}
 	}
 	
 	public Object configRead(String key) throws ConfigurationException;

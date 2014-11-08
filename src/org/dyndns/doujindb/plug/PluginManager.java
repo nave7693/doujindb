@@ -111,61 +111,6 @@ public final class PluginManager
 			}
 	}
 	
-	private static void unserialize()
-	{
-		LOG.debug("call unserialize()");
-		FileInputStream in = null;
-		try
-		{
-			in = new FileInputStream(PLUGIN_INDEX);
-			JAXBContext context = JAXBContext.newInstance(XMLPluginManager.class);
-			Unmarshaller um = context.createUnmarshaller();
-			XMLPluginManager xmlroot = (XMLPluginManager) um.unmarshal(in);
-			for(XMLPlugin xmlnode : xmlroot.nodes)
-			{
-				String pluginName = xmlnode.namespace;
-				try {
-					if(xmlnode.enabled)
-						plugins.add((Plugin) Class.forName(pluginName).newInstance());
-				} catch (RuntimeException | InstantiationException | IllegalAccessException e) {
-					LOG.error("Error loading plugin [{}]", pluginName, e);
-				}
-			}
-		} catch (FileNotFoundException fnfe) {
-			;
-		} catch (JAXBException | ClassNotFoundException | NullPointerException e) {
-			LOG.error("Error loading plugins", e);
-		} finally {
-			try { in.close(); } catch (Exception e) { }
-		}
-	}
-	
-	private static void serialize()
-	{
-		LOG.debug("call serialize()");
-		FileOutputStream out = null;
-		try
-		{
-			out = new FileOutputStream(PLUGIN_INDEX);
-			JAXBContext context = JAXBContext.newInstance(XMLPluginManager.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			XMLPluginManager xmlroot = new XMLPluginManager();
-			for(Plugin plugin : plugins)
-			{
-				XMLPlugin xmlnode = new XMLPlugin();
-				xmlnode.namespace = plugin.getClass().getCanonicalName();
-				xmlnode.enabled = true;
-				xmlroot.nodes.add(xmlnode);
-			}
-			m.marshal(xmlroot, out);
-		} catch (IOException | JAXBException e) {
-			LOG.error("Error saving plugins", e);
-		} finally {
-			try { out.close(); } catch (Exception e) { }
-		}
-	}
-	
 	private static void startup()
 	{
 		LOG.debug("call startup()");

@@ -164,7 +164,6 @@ final class DataBaseImpl extends IDataBase
 	{
 		final DataSource _ds = ds;
 		final int _timeout = timeout;
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Callable<Connection> task = new Callable<Connection>()
 		{
 			public Connection call()
@@ -177,9 +176,10 @@ final class DataBaseImpl extends IDataBase
 				}
 			}
 		};
-		Future<Connection> future = executor.submit(task);
+		FutureTask<Connection> future = new FutureTask<Connection>(task);
 		try
 		{
+			new Thread(future, "database-checkcontext").start();
 			Connection conn = future.get(_timeout, TimeUnit.SECONDS);
 			if(conn == null)
 				throw new DataBaseException("Cannot initialize connection.");

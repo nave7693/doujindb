@@ -599,7 +599,6 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 						{
 							try {
 								Class.forName(dbDriver);
-								ExecutorService executor = Executors.newCachedThreadPool();
 								Callable<Connection> task = new Callable<Connection>()
 								{
 								   public Connection call()
@@ -622,9 +621,10 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 									}
 								   }
 								};
-								Future<Connection> future = executor.submit(task);
+								FutureTask<Connection> future = new FutureTask<Connection>(task);
 								try
 								{
+									new Thread(future, "configwiz-checkconnection").start();
 									Connection conn = future.get(3, TimeUnit.SECONDS);
 									if(conn != null)
 									{

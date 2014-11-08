@@ -112,12 +112,11 @@ public final class PluginManager
 	{
 		LOG.debug("call startup()");
 		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.load_timeout");
-		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
 			{
-				public Void call()
+				public Void call() throws Exception
 				{
 					try {
 						plugin.doStartup();
@@ -125,13 +124,15 @@ public final class PluginManager
 						LOG.info("Plugin [{}] started", plugin.getName());
 						return null;
 					} catch (PluginException pe) {
+						pe.printStackTrace();
 						return null;
 					}
 				}
 			};
-			Future<Void> future = executor.submit(task);
+			FutureTask<Void> future = new FutureTask<Void>(task);
 			try
 			{
+				new Thread(future, "pluginmanager-pluginstartup").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
@@ -149,7 +150,6 @@ public final class PluginManager
 	{
 		LOG.debug("call shutdown()");
 		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.unload_timeout");
-		ExecutorService executor = Executors.newCachedThreadPool();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -166,9 +166,10 @@ public final class PluginManager
 					}
 				}
 			};
-			Future<Void> future = executor.submit(task);
+			FutureTask<Void> future = new FutureTask<Void>(task);
 			try
 			{
+				new Thread(future, "pluginmanager-pluginshutdown").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);

@@ -6,7 +6,20 @@ public final class ConfigurationItem<T>
 	private T defaultValue;
 	private String info;
 	private Validator<T> validator;
-	
+
+	public ConfigurationItem(T defaultValue, String info) {
+		this(defaultValue, defaultValue, info);
+	}
+
+	public ConfigurationItem(T defaultValue, T value, String info) {
+		this(defaultValue, value, info, new Validator<T>() {
+			@Override
+			public boolean isValid(T value) {
+				return true;
+			}
+		});
+	}
+
 	public ConfigurationItem(T defaultValue, T value, String info, Validator<T> validator) {
 		this.defaultValue = defaultValue;
 		this.value = value;

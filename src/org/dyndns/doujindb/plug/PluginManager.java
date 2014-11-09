@@ -132,7 +132,7 @@ public final class PluginManager
 			FutureTask<Void> future = new FutureTask<Void>(task);
 			try
 			{
-				new Thread(future, "pluginmanager-pluginstartup").start();
+				new Thread(future, "pluginmanager-startup-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
@@ -169,7 +169,7 @@ public final class PluginManager
 			FutureTask<Void> future = new FutureTask<Void>(task);
 			try
 			{
-				new Thread(future, "pluginmanager-pluginshutdown").start();
+				new Thread(future, "pluginmanager-shutdown-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
 				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);

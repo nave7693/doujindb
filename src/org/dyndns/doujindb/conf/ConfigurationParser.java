@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public final class ConfigurationWriter
+public final class ConfigurationParser
 {
-	private static final Logger LOG = (Logger) LoggerFactory.getLogger(ConfigurationWriter.class);
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(ConfigurationParser.class);
 	
 	@SuppressWarnings("rawtypes")
 	private static final HashMap<Class<?>, ItemParser> itemParsers = new HashMap<Class<?>, ItemParser>();

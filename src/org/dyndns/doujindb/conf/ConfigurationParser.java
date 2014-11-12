@@ -209,8 +209,6 @@ public final class ConfigurationParser
 			throw new ConfigurationException(npe);
 		} catch (JAXBException jaxbe) {
 			throw new ConfigurationException(jaxbe);
-		} finally {
-			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	
@@ -236,8 +234,6 @@ public final class ConfigurationParser
 			throw new ConfigurationException(npe);
 		} catch (JAXBException jaxbe) {
 			throw new ConfigurationException(jaxbe);
-		} finally {
-			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	

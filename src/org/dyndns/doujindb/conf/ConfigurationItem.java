@@ -54,6 +54,10 @@ public final class ConfigurationItem<T>
 		return value.toString();
 	}
 	
+	public Class<?> getType() {
+		return value.getClass();
+	}
+	
 	public interface Validator<T>
 	{
 		public abstract boolean isValid(T value);

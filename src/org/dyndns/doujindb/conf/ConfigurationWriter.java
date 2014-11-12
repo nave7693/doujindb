@@ -163,6 +163,7 @@ public final class ConfigurationWriter
 		return xmlConfig;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static XMLConfiguration parseConfiguration(Object config)
 	{
 		LOG.debug("call parseConfiguration({})", config);
@@ -252,6 +253,7 @@ public final class ConfigurationWriter
 	{
 		LOG.debug("call toJSON({}, {})", config, out);
 		//TODO parseConfiguration(config);
+		throw new IOException("Method toJSON() not yet implemented");
 	}
 	
 	public static void toJSON(Object config, File file) throws IOException

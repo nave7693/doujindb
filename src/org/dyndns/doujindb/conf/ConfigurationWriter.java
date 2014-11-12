@@ -1,5 +1,7 @@
 package org.dyndns.doujindb.conf;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -9,12 +11,127 @@ import javax.xml.bind.annotation.*;
 
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public final class ConfigurationWriter
 {
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(ConfigurationWriter.class);
 	
+	@SuppressWarnings("rawtypes")
+	private static final HashMap<Class<?>, ItemParser> itemParsers = new HashMap<Class<?>, ItemParser>();
+	
+	static
+	{
+		itemParsers.put(String.class, new ItemParser<String>() {
+			@Override
+			public String fromString(String data) throws IllegalArgumentException {
+				return data;
+			}
+			@Override
+			public String toString(String item) throws IllegalArgumentException {
+				return item;
+			}
+		});
+		itemParsers.put(Integer.class, new ItemParser<Integer>() {
+			@Override
+			public Integer fromString(String data) throws IllegalArgumentException {
+				try {
+					return Integer.parseInt(data);
+				} catch (NumberFormatException nfe) {
+					throw new IllegalArgumentException(nfe);
+				}
+			}
+			@Override
+			public String toString(Integer item) throws IllegalArgumentException {
+				return item.toString();
+			}
+		});
+		itemParsers.put(Float.class, new ItemParser<Float>() {
+			@Override
+			public Float fromString(String data) throws IllegalArgumentException {
+				try {
+					return Float.parseFloat(data);
+				} catch (NumberFormatException nfe) {
+					throw new IllegalArgumentException(nfe);
+				}
+			}
+			@Override
+			public String toString(Float item) throws IllegalArgumentException {
+				return item.toString();
+			}
+		});
+		itemParsers.put(Boolean.class, new ItemParser<Boolean>() {
+			@Override
+			public Boolean fromString(String data) throws IllegalArgumentException {
+				return Boolean.parseBoolean(data);
+			}
+			@Override
+			public String toString(Boolean item) throws IllegalArgumentException {
+				return item.toString();
+			}
+		});
+		itemParsers.put(Level.class, new ItemParser<Level>() {
+			@Override
+			public Level fromString(String data) throws IllegalArgumentException {
+				return Level.valueOf(data);
+			}
+			@Override
+			public String toString(Level item) throws IllegalArgumentException {
+				return item.toString();
+			}
+		});
+		itemParsers.put(Color.class, new ItemParser<Color>() {
+			@Override
+			public Color fromString(String data) throws IllegalArgumentException {
+				try {
+					String[] argb = data.split(":");
+					return new Color(Integer.parseInt(argb[0]), Integer.parseInt(argb[1]), Integer.parseInt(argb[2]), Integer.parseInt(argb[3]));
+				} catch (Exception e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			@Override
+			public String toString(Color item) throws IllegalArgumentException {
+				return String.format("%d:%d:%d:%d", item.getAlpha(), item.getRed(), item.getGreen(), item.getBlue());
+			}
+		});
+		itemParsers.put(File.class, new ItemParser<File>() {
+			@Override
+			public File fromString(String data) throws IllegalArgumentException {
+				try {
+					return new File(data);
+				} catch (Exception e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			@Override
+			public String toString(File item) throws IllegalArgumentException {
+				try {
+					return item.getCanonicalPath();
+				} catch (IOException ioe) {
+					throw new IllegalArgumentException(ioe);
+				}
+			}
+		});
+		itemParsers.put(Font.class, new ItemParser<Font>() {
+			@Override
+			public Font fromString(String data) throws IllegalArgumentException {
+				try {
+					String[] fontData = data.split(":");
+					return new Font(fontData[0], Integer.parseInt(fontData[1]), Integer.parseInt(fontData[2]));
+				} catch (Exception e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			@Override
+			public String toString(Font item) throws IllegalArgumentException {
+				return String.format("%s:%d:%d", item.getFontName(), item.getSize(), item.getStyle());
+			}
+		});
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static XMLConfiguration parseConfiguration(Class<?> config)
 	{
 		LOG.debug("call parseConfiguration({})", config);
@@ -25,10 +142,17 @@ public final class ConfigurationWriter
 			{
 				String configName = field.getName().replaceAll("_", ".");
 				try {
+					ConfigurationItem<?> configItem = (ConfigurationItem<?>) field.get(config);
 					XMLConfigurationItem xmlConfigItem = new XMLConfigurationItem();
 					xmlConfigItem.key = configName;
-					xmlConfigItem.value = field.get(config).toString(); //FIXME
-					xmlConfigItem.type = field.get(config).getClass().toString(); //FIXME
+					xmlConfigItem.type = configItem.getType().getName();
+					ItemParser parser = itemParsers.get(configItem.getType());
+					if(parser == null) {
+						LOG.warn("Error parsing ConfigurationItem [{}]: unsupported type [{}]", xmlConfigItem.key, xmlConfigItem.type);
+						continue;
+					} else {
+						xmlConfigItem.value = parser.toString(configItem.get());
+					}
 					xmlConfig.items.add(xmlConfigItem);
 					LOG.debug("Parsed ConfigurationItem [{}, {}]", xmlConfigItem.key, xmlConfigItem.value);
 				} catch (IllegalArgumentException | IllegalAccessException iae) {
@@ -129,5 +253,11 @@ public final class ConfigurationWriter
 		private String type;
 		@XmlAttribute(name="value")
 		private String value;
+	}
+	
+	interface ItemParser<T>
+	{
+		public abstract T fromString(String data) throws IllegalArgumentException;
+		public abstract String toString(T item) throws IllegalArgumentException;
 	}
 }

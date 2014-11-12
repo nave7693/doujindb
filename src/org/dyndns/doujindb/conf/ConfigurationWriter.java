@@ -163,21 +163,35 @@ public final class ConfigurationWriter
 		return xmlConfig;
 	}
 	
-	private static void parseConfiguration(Object config)
+	private static XMLConfiguration parseConfiguration(Object config)
 	{
 		LOG.debug("call parseConfiguration({})", config);
+		XMLConfiguration xmlConfig = new XMLConfiguration();
 		for(Field field : config.getClass().getDeclaredFields())
 		{
 			if(field.getType().equals(ConfigurationItem.class))
 			{
 				String configName = field.getName().replaceAll("_", ".");
 				try {
-					LOG.debug("Parsed ConfigurationItem [{}, {}]", configName, field.get(config));
+					ConfigurationItem<?> configItem = (ConfigurationItem<?>) field.get(config);
+					XMLConfigurationItem xmlConfigItem = new XMLConfigurationItem();
+					xmlConfigItem.key = configName;
+					xmlConfigItem.type = configItem.getType().getName();
+					ItemParser parser = itemParsers.get(configItem.getType());
+					if(parser == null) {
+						LOG.warn("Error parsing ConfigurationItem [{}]: unsupported type [{}]", xmlConfigItem.key, xmlConfigItem.type);
+						continue;
+					} else {
+						xmlConfigItem.value = parser.toString(configItem.get());
+					}
+					xmlConfig.items.add(xmlConfigItem);
+					LOG.debug("Parsed ConfigurationItem [{}, {}]", xmlConfigItem.key, xmlConfigItem.value);
 				} catch (IllegalArgumentException | IllegalAccessException iae) {
 					LOG.debug("Error parsing ConfigurationItem [{}]", configName, iae);
 				}
 			}
 		}
+		return xmlConfig;
 	}
 	
 	public static void toXML(Class<?> config, OutputStream out) throws IOException
@@ -210,7 +224,20 @@ public final class ConfigurationWriter
 	public static void toXML(Object config, OutputStream out) throws IOException
 	{
 		LOG.debug("call toXML({}, {})", config, out);
-		//TODO parseConfiguration(config);
+		XMLConfiguration xmlConfig = parseConfiguration(config);
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLConfiguration.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.marshal(xmlConfig, out);
+		} catch (NullPointerException npe) {
+			throw new ConfigurationException(npe);
+		} catch (JAXBException jaxbe) {
+			throw new ConfigurationException(jaxbe);
+		} finally {
+			try { out.close(); } catch (Exception e) { }
+		}
 	}
 	
 	public static void toXML(Object config, File file) throws IOException

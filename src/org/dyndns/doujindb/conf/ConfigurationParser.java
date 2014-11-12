@@ -253,6 +253,16 @@ public final class ConfigurationParser
 	{
 		LOG.debug("call fromXML({}, {})", config, in);
 		//TODO
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLConfiguration.class);
+			Unmarshaller um = context.createUnmarshaller();
+			XMLConfiguration xmlConfig = (XMLConfiguration) um.unmarshal(in);
+		} catch (NullPointerException npe) {
+			throw new ConfigurationException(npe);
+		} catch (JAXBException jaxbe) {
+			throw new ConfigurationException(jaxbe);
+		}
 	}
 	
 	public static void fromXML(Class<?> config, File file) throws IOException
@@ -267,6 +277,16 @@ public final class ConfigurationParser
 	{
 		LOG.debug("call fromXML({}, {})", config, in);
 		//TODO
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance(XMLConfiguration.class);
+			Unmarshaller um = context.createUnmarshaller();
+			XMLConfiguration xmlConfig = (XMLConfiguration) um.unmarshal(in);
+		} catch (NullPointerException npe) {
+			throw new ConfigurationException(npe);
+		} catch (JAXBException jaxbe) {
+			throw new ConfigurationException(jaxbe);
+		}
 	}
 	
 	public static void fromXML(Object config, File file) throws IOException

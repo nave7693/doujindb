@@ -249,6 +249,34 @@ public final class ConfigurationParser
 		out.close();
 	}
 	
+	public static void fromXML(Class<?> config, InputStream in) throws IOException
+	{
+		LOG.debug("call fromXML({}, {})", config, in);
+		//TODO
+	}
+	
+	public static void fromXML(Class<?> config, File file) throws IOException
+	{
+		LOG.debug("call fromXML({}, {})", config, file);
+		FileInputStream in = new FileInputStream(file);
+		fromXML(config, in);
+		in.close();
+	}
+	
+	public static void fromXML(Object config, InputStream in) throws IOException
+	{
+		LOG.debug("call fromXML({}, {})", config, in);
+		//TODO
+	}
+	
+	public static void fromXML(Object config, File file) throws IOException
+	{
+		LOG.debug("call fromXML({}, {})", config, file);
+		FileInputStream in = new FileInputStream(file);
+		fromXML(config, in);
+		in.close();
+	}
+	
 	public static void toJSON(Object config, OutputStream out) throws IOException
 	{
 		LOG.debug("call toJSON({}, {})", config, out);

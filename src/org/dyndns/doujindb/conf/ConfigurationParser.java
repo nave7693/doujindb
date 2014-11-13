@@ -138,7 +138,7 @@ public final class ConfigurationParser
 		XMLConfiguration xmlConfig = new XMLConfiguration();
 		for(Field field : config.getDeclaredFields())
 		{
-			if(field.getType().equals(ConfigurationItem.class))
+			if(field.getType().equals(ConfigurationItem.class) && Modifier.isStatic(field.getModifiers()))
 			{
 				String configName = field.getName().replaceAll("_", ".");
 				try {
@@ -262,7 +262,7 @@ public final class ConfigurationParser
 			// try loading every field that is a ConfigurationItem
 			for(Field field : config.getDeclaredFields())
 			{
-				if(field.getType().equals(ConfigurationItem.class))
+				if(field.getType().equals(ConfigurationItem.class) && Modifier.isStatic(field.getModifiers()))
 				{
 					String configName = field.getName().replaceAll("_", ".");
 					if(!items.containsKey(configName))

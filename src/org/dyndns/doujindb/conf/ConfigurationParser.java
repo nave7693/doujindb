@@ -126,7 +126,7 @@ public final class ConfigurationParser
 			}
 			@Override
 			public String toString(Font item) throws IllegalArgumentException {
-				return String.format("%s:%d:%d", item.getFontName(), item.getSize(), item.getStyle());
+				return String.format("%s:%d:%d", item.getFontName(), item.getStyle(), item.getSize());
 			}
 		});
 	}

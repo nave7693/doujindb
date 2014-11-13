@@ -249,7 +249,6 @@ public final class ConfigurationParser
 	public static void fromXML(Class<?> config, InputStream in) throws IOException
 	{
 		LOG.debug("call fromXML({}, {})", config, in);
-		//TODO
 		try
 		{
 			JAXBContext context = JAXBContext.newInstance(XMLConfiguration.class);
@@ -271,6 +270,7 @@ public final class ConfigurationParser
 						ConfigurationItem configItem = (ConfigurationItem) field.get(config);
 						ItemParser parser = itemParsers.get(configItem.getType());
 						if(parser == null) {
+							LOG.warn("Error parsing ConfigurationItem [{}]: unsupported type [{}]", configName, configItem.getType().getName());
 							continue;
 						}
 						configItem.set(parser.fromString(items.get(configName).value));
@@ -294,15 +294,40 @@ public final class ConfigurationParser
 		in.close();
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void fromXML(Object config, InputStream in) throws IOException
 	{
 		LOG.debug("call fromXML({}, {})", config, in);
-		//TODO
 		try
 		{
 			JAXBContext context = JAXBContext.newInstance(XMLConfiguration.class);
 			Unmarshaller um = context.createUnmarshaller();
 			XMLConfiguration xmlConfig = (XMLConfiguration) um.unmarshal(in);
+			// create a key=>value map which is simpler and faster to access
+			HashMap<String, XMLConfigurationItem> items = new HashMap<String, XMLConfigurationItem>();
+			for(XMLConfigurationItem item : xmlConfig.items)
+				items.put(item.key, item);
+			// try loading every field that is a ConfigurationItem
+			for(Field field : config.getClass().getDeclaredFields())
+			{
+				if(field.getType().equals(ConfigurationItem.class))
+				{
+					String configName = field.getName().replaceAll("_", ".");
+					if(!items.containsKey(configName))
+						continue;
+					try {
+						ConfigurationItem configItem = (ConfigurationItem) field.get(config);
+						ItemParser parser = itemParsers.get(configItem.getType());
+						if(parser == null) {
+							LOG.warn("Error parsing ConfigurationItem [{}]: unsupported type [{}]", configName, configItem.getType().getName());
+							continue;
+						}
+						configItem.set(parser.fromString(items.get(configName).value));
+					} catch (IllegalArgumentException | IllegalAccessException iae) {
+						LOG.debug("Error parsing ConfigurationItem [{}]", configName, iae);
+					}
+				}
+			}
 		} catch (NullPointerException npe) {
 			throw new ConfigurationException(npe);
 		} catch (JAXBException jaxbe) {

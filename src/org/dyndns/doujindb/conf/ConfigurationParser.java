@@ -93,7 +93,7 @@ public final class ConfigurationParser
 			}
 			@Override
 			public String toString(Color item) throws IllegalArgumentException {
-				return String.format("%d:%d:%d:%d", item.getAlpha(), item.getRed(), item.getGreen(), item.getBlue());
+				return String.format("%d:%d:%d:%d", item.getRed(), item.getGreen(), item.getBlue(), item.getAlpha());
 			}
 		});
 		itemParsers.put(File.class, new ItemParser<File>() {

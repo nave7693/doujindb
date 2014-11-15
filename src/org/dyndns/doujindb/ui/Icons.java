@@ -39,6 +39,7 @@ public final class Icons
 	public final ImageIcon window_tab_settings_editor_close = null;
 	public final ImageIcon window_tab_settings_editor_apply = null;
 	public final ImageIcon window_tab_settings_editor_discard = null;
+	public final ImageIcon window_tab_settings_editor_reset = null;
 	public final ImageIcon window_tab_plugins = null;
 	public final ImageIcon window_tab_plugins_update = null;
 	public final ImageIcon window_tab_network = null;

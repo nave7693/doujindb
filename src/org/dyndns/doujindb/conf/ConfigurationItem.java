@@ -54,7 +54,7 @@ public final class ConfigurationItem<T>
 		return value.toString();
 	}
 	
-	Class<?> getType() {
+	public Class<?> getType() {
 		return value.getClass();
 	}
 	

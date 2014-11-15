@@ -1,9 +1,11 @@
 package org.dyndns.doujindb.ui.dialog;
 
+import java.io.File;
 import java.lang.reflect.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
@@ -13,6 +15,7 @@ import org.dyndns.doujindb.ui.Icons;
 import org.dyndns.doujindb.ui.UI;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -29,6 +32,7 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private String itemsNamespace;
 	private final HashMap<String, ConfigurationItem<?>> itemsData = new HashMap<String, ConfigurationItem<?>>();
+	private final HashMap<Class<?>, ConfigurationItemEditor<?>> itemsEditor = new HashMap<Class<?>, ConfigurationItemEditor<?>>();
 	
 	private PanelConfiguration() {
 		super();
@@ -40,7 +44,8 @@ public final class PanelConfiguration extends JSplitPane
 		tree.setRootVisible(true);
 		tree.setScrollsOnExpand(true);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
-	    	public void valueChanged(TreeSelectionEvent tse) {
+	    	@SuppressWarnings({ "rawtypes", "unchecked" })
+			public void valueChanged(TreeSelectionEvent tse) {
 	    		DefaultMutableTreeNode dmtnode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 	    		// Return if no TreeNode is selected
 	            if(dmtnode == null)
@@ -57,8 +62,14 @@ public final class PanelConfiguration extends JSplitPane
 				// Remove trailing '.' character
 				key = key.substring(0, key.length() - 1);
 				// Refresh editor component
-	            TreeNodeEditor<?> editor = new TreeNodeEditor(key, itemsData.get(key));
-	            setRightComponent(editor);
+				ConfigurationItem item = itemsData.get(key);
+				ConfigurationItemEditor editor = itemsEditor.get(item.getType());
+				setRightComponent(editor);
+				if(editor == null) {
+					LOG.warn("Error loading ConfigurationItemEditor for [{}]: unsupported type [{}]", key, item.getType());
+					return;
+				}
+				editor.setItem(key, item);
 	    	}
 	    });
 		render = new TreeNodeRenderer();
@@ -68,18 +79,20 @@ public final class PanelConfiguration extends JSplitPane
 		super.setLeftComponent(new JScrollPane(tree));
 		super.setRightComponent(null);
 		super.setContinuousLayout(true);
+		// Finally load TreeNodeEditors
+		loadEditors();
 	}
 	
 	public PanelConfiguration(Class<?> config) {
 		this();
 		parseConfiguration(config);
-		initTreeNode();
+		loadTreeNode();
 	}
 	
 	public PanelConfiguration(Object config) {
 		this();
 		parseConfiguration(config);
-		initTreeNode();
+		loadTreeNode();
 	}
 	
 	private void parseConfiguration(Class<?> config)
@@ -118,7 +131,7 @@ public final class PanelConfiguration extends JSplitPane
 		}
 	}
 	
-	private void initTreeNode() {
+	private void loadTreeNode() {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(itemsNamespace);
 		for(String key : itemsData.keySet())
 			addNode(root, key);
@@ -179,30 +192,29 @@ public final class PanelConfiguration extends JSplitPane
 		}
 	}
 	
-	private class TreeNodeEditor<T> extends JPanel implements LayoutManager
+	private abstract class ConfigurationItemEditor<T> extends JPanel implements LayoutManager
 	{
-		private JButton fButtonClose;
-		private JLabel fLabelKey;
-		private JLabel fLabelInfo;
-//		private JComponent ${compontent};
-		private JButton fButtonApply;
-		private JButton fButtonDiscard;
-		private JButton fButtonReset;
+		protected JButton fButtonClose;
+		protected JLabel fLabelKey;
+		protected JLabel fLabelInfo;
+		protected JComponent fCompontent;
+		protected JButton fButtonApply;
+		protected JButton fButtonDiscard;
+		protected JButton fButtonReset;
 		
-		private ConfigurationItem<T> configItem;
-		private T configValue;
+		protected ConfigurationItem<T> configItem;
+		protected T configValue;
 		
-		public TreeNodeEditor(final String key, final ConfigurationItem<T> item) {
+		public ConfigurationItemEditor() {
 			super();
 			super.setLayout(this);
-			configItem = item;
-			fLabelKey = new JLabel(key, Icon.window_tab_settings_tree_value, JLabel.LEFT);
+			fLabelKey = new JLabel("", Icon.window_tab_settings_tree_value, JLabel.LEFT);
 			fLabelKey.setFont(Font);
 			add(fLabelKey);
 			fLabelInfo = new JLabel("<html>" + 
 				"<body>" + 
-				"<b>Type</b> : " + configItem.get().getClass().getName() + "<br/>" + 
-				"<b>Info</b> : " + configItem.getInfo() + 
+				"<b>Type</b> : <br/>" + 
+				"<b>Info</b> : " + 
 				"</body>" + 
 				"</html>");
 			fLabelInfo.setVerticalAlignment(JLabel.TOP);
@@ -251,6 +263,8 @@ public final class PanelConfiguration extends JSplitPane
 			fButtonReset.setFont(Font);
 			fButtonReset.setFocusable(false);
 			add(fButtonReset);
+			fCompontent = new JPanel();
+			add(fCompontent);
 			super.setPreferredSize(new Dimension(250, 250));
 			super.setMinimumSize(new Dimension(200, 200));
 		}
@@ -262,10 +276,10 @@ public final class PanelConfiguration extends JSplitPane
 		{
 			int width = comp.getWidth(),
 				height = comp.getHeight();
-			fLabelKey.setBounds(1, 1, width - 21, 20);
+			fLabelKey.setBounds(5, 1, width - 21, 20);
 			fButtonClose.setBounds(width - 21, 1, 20, 20);
-			fLabelInfo.setBounds(1, 21, width - 2, 75);
-//			${compontent}.setBounds(1, 100, width - 2, height - 120 - 65);
+			fLabelInfo.setBounds(5, 21, width - 10, 75);
+			fCompontent.setBounds(5, 100, width - 10, height - 120 - 65);
 			fButtonApply.setBounds((width - 125) / 2, height - 80, 125, 20);
 			fButtonDiscard.setBounds((width - 125) / 2, height - 60, 125, 20);
 			fButtonReset.setBounds((width - 125) / 2, height - 40, 125, 20);
@@ -280,5 +294,147 @@ public final class PanelConfiguration extends JSplitPane
 		}
 		@Override
 		public void removeLayoutComponent(Component comp) { }
+		
+		protected void setItem(String key, ConfigurationItem<T> item) {
+			configItem = item;
+			fLabelKey.setText(key);
+			fLabelInfo.setText("<html>" + 
+				"<body>" + 
+				"<b>Type</b> : " + configItem.get().getClass().getName() + "<br/>" + 
+				"<b>Info</b> : " + configItem.getInfo() + 
+				"</body>" + 
+				"</html>");
+		}
+	}
+	
+	private final class IntegerEditor extends ConfigurationItemEditor<Integer>
+	{
+		public IntegerEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Integer> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class StringEditor extends ConfigurationItemEditor<String>
+	{
+		public StringEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<String> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class FloatEditor extends ConfigurationItemEditor<Float>
+	{
+		public FloatEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Float> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class BooleanEditor extends ConfigurationItemEditor<Boolean>
+	{
+		public BooleanEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Boolean> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class LevelEditor extends ConfigurationItemEditor<Level>
+	{
+		public LevelEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Level> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class ColorEditor extends ConfigurationItemEditor<Color>
+	{
+		public ColorEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Color> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class FileEditor extends ConfigurationItemEditor<File>
+	{
+		public FileEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<File> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private final class FontEditor extends ConfigurationItemEditor<Font>
+	{
+		public FontEditor() {
+			super();
+			fCompontent = new JPanel();
+			//TODO
+			add(fCompontent);
+		}
+		
+		public void setItem(String key, ConfigurationItem<Font> item) {
+			super.setItem(key, item);
+			//TODO
+		}
+	}
+	
+	private void loadEditors() {
+		itemsEditor.put(String.class, new StringEditor());
+		itemsEditor.put(Integer.class, new IntegerEditor());
+		itemsEditor.put(Float.class, new FloatEditor());
+		itemsEditor.put(Boolean.class, new BooleanEditor());
+		itemsEditor.put(Level.class, new LevelEditor());
+		itemsEditor.put(Color.class, new ColorEditor());
+		itemsEditor.put(File.class, new FileEditor());
+		itemsEditor.put(Font.class, new FontEditor());
 	}
 }

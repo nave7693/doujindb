@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.ui.dialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.awt.*;
@@ -202,7 +203,7 @@ public final class PanelConfiguration extends JSplitPane
 		protected JButton fButtonDiscard;
 		protected JButton fButtonReset;
 		
-		protected ConfigurationItem<T> configItem;
+		private ConfigurationItem<T> configItem;
 		protected T configValue;
 		
 		public ConfigurationItemEditor() {
@@ -399,16 +400,59 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class FileEditor extends ConfigurationItemEditor<File>
 	{
+		private JButton fButtonFile;
+		
 		public FileEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fButtonFile = new JButton("");
+			fButtonFile.setFocusable(false);
+			fButtonFile.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					JFileChooser fileChooser = UI.FileChooser;
+					fileChooser.setMultiSelectionEnabled(true);
+					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					fileChooser.setSelectedFile(configValue);
+					if(fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+						return;
+					File file = fileChooser.getSelectedFile();
+					try {
+						fButtonFile.setText(file.getCanonicalPath());
+					} catch (IOException ioe) {
+						LOG.error("Error getting CanonicalPath from file {}", file, ioe);
+					}
+					configValue = file;
+				}
+			});
+			fCompontent.add(fButtonFile);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fButtonFile.setBounds(5, height / 2, width - 10, 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
 		}
 		
 		public void setItem(String key, ConfigurationItem<File> item) {
 			super.setItem(key, item);
-			//TODO
+			try {
+				fButtonFile.setText(item.get().getCanonicalPath());
+			} catch (IOException ioe) {
+				LOG.error("Error getting CanonicalPath from file {}", item.get(), ioe);
+			}
 		}
 	}
 	

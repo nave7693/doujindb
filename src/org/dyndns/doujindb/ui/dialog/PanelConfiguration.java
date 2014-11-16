@@ -13,6 +13,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import org.dyndns.doujindb.conf.ConfigurationItem;
+import org.dyndns.doujindb.conf.ConfigurationParser;
 import org.dyndns.doujindb.ui.Icons;
 import org.dyndns.doujindb.ui.UI;
 import org.slf4j.LoggerFactory;
@@ -21,23 +22,30 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public final class PanelConfiguration extends JSplitPane
+public final class PanelConfiguration extends JPanel implements LayoutManager
 {
+	private JSplitPane split;
 	private JTree tree;
 	private TreeCellRenderer render;
 	private DefaultTreeModel model = new DefaultTreeModel(null);
+	private JButton buttonSave;
+	private JButton buttonLoad;
 	
 	private static final Font Font = UI.Font;
 	private static final Icons Icon = UI.Icon;
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PanelConfiguration.class);
 	
+	private File fileConfig;
 	private String itemsNamespace;
 	private final HashMap<String, ConfigurationItem<?>> itemsData = new HashMap<String, ConfigurationItem<?>>();
 	private final HashMap<Class<?>, ConfigurationItemEditor<?>> itemsEditor = new HashMap<Class<?>, ConfigurationItemEditor<?>>();
 	
 	private PanelConfiguration() {
-		super();
+		super.setMinimumSize(new Dimension(200, 200));
+		super.setPreferredSize(new Dimension(200, 200));
+		super.setLayout(this);
+		split = new JSplitPane();
 		tree = new JTree();
 		tree.setModel(model);
 		tree.setFocusable(false);
@@ -66,7 +74,7 @@ public final class PanelConfiguration extends JSplitPane
 				// Refresh editor component
 				ConfigurationItem item = itemsData.get(key);
 				ConfigurationItemEditor editor = itemsEditor.get(item.getType());
-				setRightComponent(editor);
+				split.setRightComponent(editor);
 				if(editor == null) {
 					LOG.warn("Error loading ConfigurationItemEditor for [{}]: unsupported type [{}]", key, item.getType());
 					return;
@@ -76,25 +84,80 @@ public final class PanelConfiguration extends JSplitPane
 	    });
 		render = new TreeNodeRenderer();
 		tree.setCellRenderer(render);
-		super.setResizeWeight(1);
-		super.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		super.setLeftComponent(new JScrollPane(tree));
-		super.setRightComponent(null);
-		super.setContinuousLayout(true);
+		buttonSave = new JButton(Icon.window_tab_settings_save);
+		buttonSave.setBorder(null);
+		buttonSave.setFocusable(false);
+		buttonSave.setToolTipText("Save");
+		super.add(buttonSave);
+		buttonLoad = new JButton(Icon.window_tab_settings_load);
+		buttonLoad.setBorder(null);
+		buttonLoad.setFocusable(false);
+		buttonLoad.setToolTipText("Load");
+		super.add(buttonLoad);
+		split.setResizeWeight(1);
+		split.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		split.setLeftComponent(new JScrollPane(tree));
+		split.setRightComponent(null);
+		split.setContinuousLayout(true);
+		super.add(split);
 		// Finally load TreeNodeEditors
 		loadEditors();
 	}
 	
-	public PanelConfiguration(Class<?> config) {
+	public PanelConfiguration(final Class<?> config) {
 		this();
 		parseConfiguration(config);
 		loadTreeNode();
+		buttonLoad.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					ConfigurationParser.fromXML(config, fileConfig);
+				} catch (IOException ioe) {
+					LOG.error("Error loading Configuration from file {}", fileConfig, ioe);
+				}
+			}
+		});
+		buttonSave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					ConfigurationParser.toXML(config, fileConfig);
+				} catch (IOException ioe) {
+					LOG.error("Error saving Configuration to file {}", fileConfig, ioe);
+				}
+			}
+		});
 	}
 	
-	public PanelConfiguration(Object config) {
+	public PanelConfiguration(final Object config) {
 		this();
 		parseConfiguration(config);
 		loadTreeNode();
+		buttonLoad.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					ConfigurationParser.fromXML(config, fileConfig);
+				} catch (IOException ioe) {
+					LOG.error("Error loading Configuration from file {}", fileConfig, ioe);
+				}
+			}
+		});
+		buttonSave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					ConfigurationParser.toXML(config, fileConfig);
+				} catch (IOException ioe) {
+					LOG.error("Error saving Configuration to file {}", fileConfig, ioe);
+				}
+			}
+		});
+	}
+	
+	public void setConfigurationFile(File fileConfig) {
+		this.fileConfig = fileConfig;
 	}
 	
 	private void parseConfiguration(Class<?> config)
@@ -226,7 +289,7 @@ public final class PanelConfiguration extends JSplitPane
 			fButtonClose.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					setRightComponent(null);
+					split.setRightComponent(null);
 					tree.setSelectionRow(0);
 				}
 			});
@@ -247,7 +310,7 @@ public final class PanelConfiguration extends JSplitPane
 			fButtonDiscard.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					setRightComponent(null);
+					split.setRightComponent(null);
 					tree.setSelectionRow(0);
 				}
 			});
@@ -878,5 +941,35 @@ public final class PanelConfiguration extends JSplitPane
 		itemsEditor.put(Color.class, new ColorEditor());
 		itemsEditor.put(File.class, new FileEditor());
 		itemsEditor.put(Font.class, new FontEditor());
+	}
+
+	@Override
+	public void addLayoutComponent(String name, Component comp) { }
+
+	@Override
+	public void removeLayoutComponent(Component comp) { }
+
+	@Override
+	public Dimension minimumLayoutSize(Container comp) {
+		return getMinimumSize();
+	}
+	@Override
+	public Dimension preferredLayoutSize(Container comp) {
+		return getPreferredSize();
+	}
+
+	@Override
+	public void layoutContainer(Container parent) {
+		int width = parent.getWidth(),
+			height = parent.getHeight();
+		if(fileConfig != null) {
+			buttonLoad.setBounds(1, 1, 20, 20);
+			buttonSave.setBounds(21, 1, 20, 20);
+			split.setBounds(1, 21, width - 2, height - 20);
+		} else {
+			buttonLoad.setBounds(1, 1, 0, 0);
+			buttonSave.setBounds(21, 1, 0, 0);
+			split.setBounds(1, 1, width - 2, height);
+		}
 	}
 }

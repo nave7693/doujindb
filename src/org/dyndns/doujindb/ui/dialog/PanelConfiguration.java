@@ -370,16 +370,50 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class LevelEditor extends ConfigurationItemEditor<Level>
 	{
+		private JComboBox<Level> fComboBoxLevel;
+		
 		public LevelEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fComboBoxLevel = new JComboBox<Level>();
+			fComboBoxLevel.addItem(Level.ALL);
+			fComboBoxLevel.addItem(Level.DEBUG);
+			fComboBoxLevel.addItem(Level.ERROR);
+			fComboBoxLevel.addItem(Level.INFO);
+			fComboBoxLevel.addItem(Level.TRACE);
+			fComboBoxLevel.addItem(Level.WARN);
+			fComboBoxLevel.addItem(Level.OFF);
+			fComboBoxLevel.setFocusable(false);
+			fComboBoxLevel.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent ie) {
+					configValue = (Level) fComboBoxLevel.getSelectedItem();
+				}
+			});
+			fCompontent.add(fComboBoxLevel);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fComboBoxLevel.setBounds(60, height / 2, width - 120, 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
 		}
 		
 		public void setItem(String key, ConfigurationItem<Level> item) {
 			super.setItem(key, item);
-			//TODO
+			fComboBoxLevel.setSelectedItem(item.get());
 		}
 	}
 	

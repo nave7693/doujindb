@@ -259,7 +259,7 @@ public final class PanelConfiguration extends JSplitPane
 				@Override
 				public void actionPerformed(ActionEvent ae) {
 					configItem.reset();
-					//TODO update ${compontent}
+					setItem(configItem);
 				}
 			});
 			fButtonReset.setFont(Font);
@@ -300,6 +300,16 @@ public final class PanelConfiguration extends JSplitPane
 		protected void setItem(String key, ConfigurationItem<T> item) {
 			configItem = item;
 			fLabelKey.setText(key);
+			fLabelInfo.setText("<html>" + 
+				"<body>" + 
+				"<b>Type</b> : " + configItem.get().getClass().getName() + "<br/>" + 
+				"<b>Info</b> : " + configItem.getInfo() + 
+				"</body>" + 
+				"</html>");
+		}
+		
+		protected void setItem(ConfigurationItem<T> item) {
+			configItem = item;
 			fLabelInfo.setText("<html>" + 
 				"<body>" + 
 				"<b>Type</b> : " + configItem.get().getClass().getName() + "<br/>" + 
@@ -368,6 +378,11 @@ public final class PanelConfiguration extends JSplitPane
 			super.setItem(key, item);
 			fTextField.setText(item.get().toString());
 		}
+		
+		public void setItem(ConfigurationItem<Integer> item) {
+			super.setItem(item);
+			fTextField.setText(item.get().toString());
+		}
 	}
 	
 	private final class StringEditor extends ConfigurationItemEditor<String>
@@ -417,6 +432,11 @@ public final class PanelConfiguration extends JSplitPane
 		
 		public void setItem(String key, ConfigurationItem<String> item) {
 			super.setItem(key, item);
+			fTextArea.setText(item.get());
+		}
+		
+		public void setItem(ConfigurationItem<String> item) {
+			super.setItem(item);
 			fTextArea.setText(item.get());
 		}
 	}
@@ -480,6 +500,11 @@ public final class PanelConfiguration extends JSplitPane
 			super.setItem(key, item);
 			fTextField.setText(item.get().toString());
 		}
+		
+		public void setItem(ConfigurationItem<Float> item) {
+			super.setItem(item);
+			fTextField.setText(item.get().toString());
+		}
 	}
 	
 	private final class BooleanEditor extends ConfigurationItemEditor<Boolean>
@@ -521,6 +546,12 @@ public final class PanelConfiguration extends JSplitPane
 		
 		public void setItem(String key, ConfigurationItem<Boolean> item) {
 			super.setItem(key, item);
+			fCheckBoxBool.setSelected(item.get());
+			fCheckBoxBool.setText(item.get().toString());
+		}
+		
+		public void setItem(ConfigurationItem<Boolean> item) {
+			super.setItem(item);
 			fCheckBoxBool.setSelected(item.get());
 			fCheckBoxBool.setText(item.get().toString());
 		}
@@ -573,6 +604,11 @@ public final class PanelConfiguration extends JSplitPane
 		
 		public void setItem(String key, ConfigurationItem<Level> item) {
 			super.setItem(key, item);
+			fComboBoxLevel.setSelectedItem(item.get());
+		}
+		
+		public void setItem(ConfigurationItem<Level> item) {
+			super.setItem(item);
 			fComboBoxLevel.setSelectedItem(item.get());
 		}
 	}
@@ -663,6 +699,15 @@ public final class PanelConfiguration extends JSplitPane
 			fSliderBlue.setValue(color.getBlue());
 			fLabelDisplay.setBackground(color);
 		}
+		
+		public void setItem(ConfigurationItem<Color> item) {
+			super.setItem(item);
+			Color color = item.get();
+			fSliderRed.setValue(color.getRed());
+			fSliderGreen.setValue(color.getGreen());
+			fSliderBlue.setValue(color.getBlue());
+			fLabelDisplay.setBackground(color);
+		}
 	}
 	
 	private final class FileEditor extends ConfigurationItemEditor<File>
@@ -717,6 +762,15 @@ public final class PanelConfiguration extends JSplitPane
 		
 		public void setItem(String key, ConfigurationItem<File> item) {
 			super.setItem(key, item);
+			try {
+				fButtonFile.setText(item.get().getCanonicalPath());
+			} catch (IOException ioe) {
+				LOG.error("Error getting CanonicalPath from file {}", item.get(), ioe);
+			}
+		}
+		
+		public void setItem(ConfigurationItem<File> item) {
+			super.setItem(item);
 			try {
 				fButtonFile.setText(item.get().getCanonicalPath());
 			} catch (IOException ioe) {
@@ -804,6 +858,12 @@ public final class PanelConfiguration extends JSplitPane
 		
 		public void setItem(String key, ConfigurationItem<Font> item) {
 			super.setItem(key, item);
+			fListName.setSelectedValue(item.get().getFontName(), true);
+			fComboBoxSite.setSelectedItem(item.get().getSize());
+		}
+		
+		public void setItem(ConfigurationItem<Font> item) {
+			super.setItem(item);
 			fListName.setSelectedValue(item.get().getFontName(), true);
 			fComboBoxSite.setSelectedItem(item.get().getSize());
 		}

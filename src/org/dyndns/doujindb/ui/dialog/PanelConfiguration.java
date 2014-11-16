@@ -385,16 +385,87 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class ColorEditor extends ConfigurationItemEditor<Color>
 	{
+		private JLabel fLabelDisplay;
+		private JSlider fSliderRed;
+		private JSlider fSliderGreen;
+		private JSlider fSliderBlue;
+		
 		public ColorEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fLabelDisplay = new JLabel();
+			fLabelDisplay.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			fLabelDisplay.setOpaque(true);
+			fLabelDisplay.setBackground(new Color(0,0,0,0));
+			fCompontent.add(fLabelDisplay);
+			fSliderRed = new JSlider(JSlider.HORIZONTAL);
+			fSliderRed.setMaximum(255);
+			fSliderRed.setMinimum(0);
+			fSliderRed.setValue(0);
+			fSliderRed.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ce) {
+					updateItem();
+				}
+			});
+			fCompontent.add(fSliderRed);
+			fSliderGreen = new JSlider(JSlider.HORIZONTAL);
+			fSliderGreen.setMaximum(255);
+			fSliderGreen.setMinimum(0);
+			fSliderGreen.setValue(0);
+			fSliderGreen.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ce) {
+					updateItem();
+				}
+			});
+			fCompontent.add(fSliderGreen);
+			fSliderBlue = new JSlider(JSlider.HORIZONTAL);
+			fSliderBlue.setMaximum(255);
+			fSliderBlue.setMinimum(0);
+			fSliderBlue.setValue(0);
+			fSliderBlue.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ce) {
+					updateItem();
+				}
+			});
+			fCompontent.add(fSliderBlue);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth();
+					fSliderRed.setBounds(5, 5, width - 10, 20);
+					fSliderGreen.setBounds(5, 25, width - 10, 20);
+					fSliderBlue.setBounds(5, 45, width - 10, 20);
+					fLabelDisplay.setBounds(60, 125, width - 120, 60);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
+		}
+		
+		private void updateItem() {
+			Color color = new Color(fSliderRed.getValue(), fSliderGreen.getValue(), fSliderBlue.getValue(), 255);
+			fLabelDisplay.setBackground(color);
+			configValue = color;
 		}
 		
 		public void setItem(String key, ConfigurationItem<Color> item) {
 			super.setItem(key, item);
-			//TODO
+			Color color = item.get();
+			fSliderRed.setValue(color.getRed());
+			fSliderGreen.setValue(color.getGreen());
+			fSliderBlue.setValue(color.getBlue());
+			fLabelDisplay.setBackground(color);
 		}
 	}
 	

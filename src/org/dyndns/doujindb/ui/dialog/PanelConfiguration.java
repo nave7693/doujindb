@@ -392,6 +392,8 @@ public final class PanelConfiguration extends JSplitPane
 			});
 			fCompontent.add(fComboBoxLevel);
 			add(fCompontent);
+			fCompontent.setMinimumSize(new Dimension(200, 200));
+			fCompontent.setPreferredSize(new Dimension(200, 200));
 			fCompontent.setLayout(new LayoutManager() {
 				@Override
 				public void addLayoutComponent(String name, Component comp) {}
@@ -403,9 +405,9 @@ public final class PanelConfiguration extends JSplitPane
 					fComboBoxLevel.setBounds(60, height / 2, width - 120, 20);
 				}
 				@Override
-				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
 				@Override
-				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
 				@Override
 				public void removeLayoutComponent(Component comp) {}
 			});
@@ -466,6 +468,8 @@ public final class PanelConfiguration extends JSplitPane
 			});
 			fCompontent.add(fSliderBlue);
 			add(fCompontent);
+			fCompontent.setMinimumSize(new Dimension(200, 200));
+			fCompontent.setPreferredSize(new Dimension(200, 200));
 			fCompontent.setLayout(new LayoutManager() {
 				@Override
 				public void addLayoutComponent(String name, Component comp) {}
@@ -479,9 +483,9 @@ public final class PanelConfiguration extends JSplitPane
 					fLabelDisplay.setBounds(60, 125, width - 120, 60);
 				}
 				@Override
-				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
 				@Override
-				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
 				@Override
 				public void removeLayoutComponent(Component comp) {}
 			});
@@ -532,6 +536,8 @@ public final class PanelConfiguration extends JSplitPane
 			});
 			fCompontent.add(fButtonFile);
 			add(fCompontent);
+			fCompontent.setMinimumSize(new Dimension(200, 200));
+			fCompontent.setPreferredSize(new Dimension(200, 200));
 			fCompontent.setLayout(new LayoutManager() {
 				@Override
 				public void addLayoutComponent(String name, Component comp) {}
@@ -543,9 +549,9 @@ public final class PanelConfiguration extends JSplitPane
 					fButtonFile.setBounds(5, height / 2, width - 10, 20);
 				}
 				@Override
-				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
 				@Override
-				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
 				@Override
 				public void removeLayoutComponent(Component comp) {}
 			});
@@ -609,6 +615,8 @@ public final class PanelConfiguration extends JSplitPane
 			fTextTest = new JTextField("Test string");
 			fCompontent.add(fTextTest);
 			add(fCompontent);
+			fCompontent.setMinimumSize(new Dimension(200, 200));
+			fCompontent.setPreferredSize(new Dimension(200, 200));
 			fCompontent.setLayout(new LayoutManager() {
 				@Override
 				public void addLayoutComponent(String name, Component comp) {}
@@ -622,9 +630,9 @@ public final class PanelConfiguration extends JSplitPane
 					fTextTest.setBounds(5, height - 60, width - 10, 20);
 				}
 				@Override
-				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
 				@Override
-				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
 				@Override
 				public void removeLayoutComponent(Component comp) {}
 			});

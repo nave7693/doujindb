@@ -325,16 +325,52 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class StringEditor extends ConfigurationItemEditor<String>
 	{
+		private JTextArea fTextArea;
+		private JScrollPane fScrollText;
+		
 		public StringEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fTextArea = new JTextArea();
+			fTextArea.getDocument().addDocumentListener(new DocumentListener() {
+				@Override
+				public void changedUpdate(DocumentEvent de) {
+					configValue = fTextArea.getText();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent de) {
+					configValue = fTextArea.getText();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent de) {
+					configValue = fTextArea.getText();
+				}
+			});
+			fScrollText = new JScrollPane(fTextArea);
+			fCompontent.add(fScrollText);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fScrollText.setBounds(10, 10, width - 20, height - 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
+				@Override
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
 		}
 		
 		public void setItem(String key, ConfigurationItem<String> item) {
 			super.setItem(key, item);
-			//TODO
+			fTextArea.setText(item.get());
 		}
 	}
 	
@@ -459,7 +495,7 @@ public final class PanelConfiguration extends JSplitPane
 			super();
 			fCompontent = new JPanel();
 			fLabelDisplay = new JLabel();
-			fLabelDisplay.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			fLabelDisplay.setBorder(BorderFactory.createLineBorder(super.getForeground()));
 			fLabelDisplay.setOpaque(true);
 			fLabelDisplay.setBackground(new Color(0,0,0,0));
 			fCompontent.add(fLabelDisplay);

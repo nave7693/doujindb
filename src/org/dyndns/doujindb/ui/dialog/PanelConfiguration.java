@@ -311,16 +311,62 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class IntegerEditor extends ConfigurationItemEditor<Integer>
 	{
+		private JTextField fTextField;
+		private Border fTextFieldBorder;
+		
 		public IntegerEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fTextField = new JTextField();
+			fTextFieldBorder = fTextField.getBorder();
+			fTextField.setHorizontalAlignment(JTextField.CENTER);
+			fTextField.getDocument().addDocumentListener(new DocumentListener() {
+				@Override
+				public void changedUpdate(DocumentEvent de) {
+					updateItem();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent de) {
+					updateItem();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent de) {
+					updateItem();
+				}
+			});
+			fCompontent.add(fTextField);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fTextField.setBounds(10, height / 2, width - 20, 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
+				@Override
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
+		}
+		
+		private void updateItem() {
+			try {
+				configValue = Integer.valueOf(fTextField.getText());
+				fTextField.setBorder(fTextFieldBorder);
+			} catch (NumberFormatException nfe) {
+				fTextField.setBorder(BorderFactory.createLineBorder(Color.RED));
+			}
 		}
 		
 		public void setItem(String key, ConfigurationItem<Integer> item) {
 			super.setItem(key, item);
-			//TODO
+			fTextField.setText(item.get().toString());
 		}
 	}
 	

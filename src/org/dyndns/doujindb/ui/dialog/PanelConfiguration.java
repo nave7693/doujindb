@@ -355,16 +355,45 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class BooleanEditor extends ConfigurationItemEditor<Boolean>
 	{
+		private JCheckBox fCheckBoxBool;
+		
 		public BooleanEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fCheckBoxBool = new JCheckBox();
+			fCheckBoxBool.setFocusable(false);
+			fCheckBoxBool.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent ie) {
+					configValue = fCheckBoxBool.isSelected();
+					fCheckBoxBool.setText(configValue.toString());
+				}
+			});
+			fCompontent.add(fCheckBoxBool);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fCheckBoxBool.setBounds(60, height / 2, width - 120, 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) { return getMinimumSize(); }
+				@Override
+				public Dimension preferredLayoutSize(Container comp) { return getPreferredSize(); }
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
 		}
 		
 		public void setItem(String key, ConfigurationItem<Boolean> item) {
 			super.setItem(key, item);
-			//TODO
+			fCheckBoxBool.setSelected(item.get());
+			fCheckBoxBool.setText(item.get().toString());
 		}
 	}
 	

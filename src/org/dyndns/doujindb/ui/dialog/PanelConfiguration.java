@@ -414,16 +414,83 @@ public final class PanelConfiguration extends JSplitPane
 	
 	private final class FontEditor extends ConfigurationItemEditor<Font>
 	{
+		private JList<String> fListName;
+		private JScrollPane fListNameScroll;
+		private JComboBox<Integer> fComboBoxSite;
+		private JTextField fTextTest;
+		
 		public FontEditor() {
 			super();
 			fCompontent = new JPanel();
-			//TODO
+			fListName = new JList<String>();
+			DefaultListModel<String> model = new DefaultListModel<String>();
+			Font envfonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+			for(Font envfont : envfonts)
+				model.addElement(envfont.getFontName());
+			fListName.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			fListName.setModel(model);
+			fListName.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent lse) {
+					updateItem();
+				}
+			});
+			fListName.setCellRenderer(new DefaultListCellRenderer() {
+				@Override
+				public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+					super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+					if(value instanceof Font)
+						setText(((Font)value).getFontName());
+					return this;
+				}
+			});
+			fListNameScroll = new JScrollPane(fListName);
+			fCompontent.add(fListNameScroll);
+			fComboBoxSite = new JComboBox<Integer>();
+			for(int size=8; size<25; size++)
+				fComboBoxSite.addItem(size);
+			fComboBoxSite.setFocusable(false);
+			fComboBoxSite.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent ie) {
+					updateItem();
+				}
+			});
+			fCompontent.add(fComboBoxSite);
+			fTextTest = new JTextField("Test string");
+			fCompontent.add(fTextTest);
 			add(fCompontent);
+			fCompontent.setLayout(new LayoutManager() {
+				@Override
+				public void addLayoutComponent(String name, Component comp) {}
+				@Override
+				public void layoutContainer(Container comp)
+				{
+					int width = comp.getWidth(),
+						height = comp.getHeight();
+					fListNameScroll.setBounds(5, 5, width - 10, height - 85);
+					fComboBoxSite.setBounds(5, height - 80, width - 10, 20);
+					fTextTest.setBounds(5, height - 60, width - 10, 20);
+				}
+				@Override
+				public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
+				@Override
+				public void removeLayoutComponent(Component comp) {}
+			});
+		}
+		
+		private void updateItem() {
+			Font font = new Font(fListName.getSelectedValue(), java.awt.Font.PLAIN, (Integer) fComboBoxSite.getSelectedItem());
+			fTextTest.setFont(font);
+			configValue = font;
 		}
 		
 		public void setItem(String key, ConfigurationItem<Font> item) {
 			super.setItem(key, item);
-			//TODO
+			fListName.setSelectedValue(item.get().getFontName(), true);
+			fComboBoxSite.setSelectedItem(item.get().getSize());
 		}
 	}
 	

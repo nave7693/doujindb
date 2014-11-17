@@ -153,50 +153,37 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	{
 		JFileChooser filechooser = new JFileChooser(Core.DOUJINDB_HOME);
 		filechooser.setFont(Font);
-		filechooser.setFileView(new javax.swing.filechooser.FileView()
-    	{
+		filechooser.setFileView(new javax.swing.filechooser.FileView() {
     		private Hashtable<String,ImageIcon> bundleIcon;
-    		
     		{
     			bundleIcon = new Hashtable<String,ImageIcon>();
-    			bundleIcon.put("zip",  Icon.fileview_archive);
-    			bundleIcon.put("rar",  Icon.fileview_archive);
-    			bundleIcon.put("gz",   Icon.fileview_archive);
-    			bundleIcon.put("tar",  Icon.fileview_archive);
-    			bundleIcon.put("bz2",  Icon.fileview_archive);
-    			bundleIcon.put("xz",   Icon.fileview_archive);
-    			bundleIcon.put("cpio", Icon.fileview_archive);
-    			bundleIcon.put("jpg",  Icon.fileview_image);
-    			bundleIcon.put("jpeg", Icon.fileview_image);
-    			bundleIcon.put("gif",  Icon.fileview_image);
-    			bundleIcon.put("png",  Icon.fileview_image);
-    			bundleIcon.put("tiff", Icon.fileview_image);
-    			bundleIcon.put("txt",  Icon.fileview_text);
-    			bundleIcon.put("sql",  Icon.fileview_text);
-    			bundleIcon.put("db",   Icon.fileview_database);
-    			bundleIcon.put("csv",  Icon.fileview_database);
+    			for(String ext : "zip:rar:gz:tar:bz2:xz:cpio:7z".split(":"))
+    				bundleIcon.put(ext,  Icon.fileview_archive);
+    			for(String ext : "jpg:jpeg:png:gif:tiff".split(":"))
+    				bundleIcon.put(ext,  Icon.fileview_image);
+    			for(String ext : "txt:sql:log".split(":"))
+    				bundleIcon.put(ext,  Icon.fileview_text);
+    			for(String ext : "db:csv".split(":"))
+    				bundleIcon.put(ext,  Icon.fileview_database);
+    			for(String ext : "exe:dll:com:bat:sh:bin".split(":"))
+    				bundleIcon.put(ext,  Icon.fileview_executable);
     		}
-    		
     		@Override
-    		public String getName(File file)
-    		{
+    		public String getName(File file) {
     			return super.getName(file);
     		}
-
     		@Override
-    		public Icon getIcon(File file)
-    		{
+    		public Icon getIcon(File file) {
     			String filename = file.getName();
     			if(file.isDirectory())
-    				return (Icon)Icon.fileview_folder;
+    				return (Icon) Icon.fileview_folder;
     			String ext = (filename.lastIndexOf(".") == -1) ? "" : filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toLowerCase();
     			if(bundleIcon.containsKey(ext))
-    	            return (Icon)bundleIcon.get(ext);
+    	            return (Icon) bundleIcon.get(ext);
     	        else
-    	        	return (Icon)Icon.fileview_default;
+    	        	return (Icon) Icon.fileview_default;
     	        	// return javax.swing.filechooser.FileSystemView.getFileSystemView().getSystemIcon(file);
     		}
-
     	});
 		filechooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     	filechooser.setMultiSelectionEnabled(true);

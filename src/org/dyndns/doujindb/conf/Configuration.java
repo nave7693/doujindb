@@ -18,7 +18,6 @@ import org.dyndns.doujindb.conf.event.*;
 */
 public final class Configuration
 {
-	private static IConfiguration instance = new XMLConfiguration();
 	private static CopyOnWriteArraySet<ConfigurationListener> listeners = new CopyOnWriteArraySet<ConfigurationListener>();
 	
 	protected static final File CONFIG_FILE = new File(Core.DOUJINDB_HOME, "config.xml");
@@ -55,82 +54,18 @@ public final class Configuration
 	public static final ConfigurationItem<Integer> plugin_load_timeout = new ConfigurationItem<Integer>(30, "Timeout (in seconds) which PluginManager will wait for a plugin to start");
 	public static final ConfigurationItem<Integer> plugin_unload_timeout = new ConfigurationItem<Integer>(30, "Timeout (in seconds) which PluginManager will wait for a plugin to stop");
 
-	public static Object configRead(String key) throws ConfigurationException
+	static <T> void fireConfigurationChange(ConfigurationItem<T> configItem, T oldValue, T newValue) throws ConfigurationException
 	{
-		LOG.debug("call configRead({})", key);
-		Object o = instance.configRead(key);
-		LOG.debug("retn configRead({}) = {}", key, o);
-		return o;
-	}
-
-	public static void configWrite(String key, Object value) throws ConfigurationException
-	{
-		LOG.debug("call configWrite({}, {})", key, value);
-		instance.configWrite(key, value);
 		for(ConfigurationListener cl : listeners)
-			cl.configurationUpdated(key);
-	}
-
-	public static void configAdd(String key, String info, Object value) throws ConfigurationException
-	{
-		LOG.debug("call configAdd({}, {}, {})", new Object[]{ key, info, value });
-		instance.configAdd(key, info, value);
-		for(ConfigurationListener cl : listeners)
-			cl.configurationAdded(key);
-	}
-
-	public static void configRemove(String key) throws ConfigurationException
-	{
-		LOG.debug("call configRemove({})", key);
-		for(ConfigurationListener cl : listeners)
-			cl.configurationDeleted(key);
-		instance.configRemove(key);
-	}
-
-	public static boolean configExists(String key)
-	{
-		LOG.debug("call configExists({})", key);
-		return instance.configExists(key);
+			cl.configurationChanged(configItem, oldValue, newValue);
 	}
 	
-	public static String configInfo(String key)
-	{
-		LOG.debug("call configInfo({})", key);
-		return instance.configInfo(key);
-	}
-
-	public static Iterable<String> keys()
-	{
-		LOG.debug("call keys()");
-		return instance.keys();
-	}
-
-	public static Iterable<Object> values()
-	{
-		LOG.debug("call values()");
-		return instance.values();
-	}
-
-	public static void configLoad() throws ConfigurationException
-	{
-		LOG.debug("call configLoad()");
-		instance.configLoad();
-	}
-
-	public static void configSave() throws ConfigurationException
-	{
-		LOG.debug("call configSave()");
-		instance.configSave();
-	}
-	
-	public static void addConfigurationListener(ConfigurationListener cl)
-	{
+	public static void addConfigurationListener(ConfigurationListener cl) {
 		LOG.debug("call addConfigurationListener({})", cl);
 		listeners.add(cl);
 	}
 	
-	public static void removeConfigurationListener(ConfigurationListener cl)
-	{
+	public static void removeConfigurationListener(ConfigurationListener cl) {
 		LOG.debug("call removeConfigurationListener({})", cl);
 		listeners.remove(cl);
 	}

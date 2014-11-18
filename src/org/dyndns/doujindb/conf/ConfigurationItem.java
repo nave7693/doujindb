@@ -34,6 +34,7 @@ public final class ConfigurationItem<T>
 	public void set(T value) throws InvalidConfigurationException {
 		if(!validator.isValid(value))
 			throw new InvalidConfigurationException("Invalid value '" + value + "'");
+		Configuration.fireConfigurationChange(this, this.value, value);
 		this.value = value;
 	}
 	

@@ -20,7 +20,7 @@ public final class Configuration
 {
 	private static CopyOnWriteArraySet<ConfigurationListener> listeners = new CopyOnWriteArraySet<ConfigurationListener>();
 	
-	protected static final File CONFIG_FILE = new File(Core.DOUJINDB_HOME, "config.xml");
+	public static final File CONFIG_FILE = new File(Core.DOUJINDB_HOME, "config.xml");
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(Configuration.class);
 
@@ -54,6 +54,14 @@ public final class Configuration
 	public static final ConfigurationItem<Integer> plugin_load_timeout = new ConfigurationItem<Integer>(30, "Timeout (in seconds) which PluginManager will wait for a plugin to start");
 	public static final ConfigurationItem<Integer> plugin_unload_timeout = new ConfigurationItem<Integer>(30, "Timeout (in seconds) which PluginManager will wait for a plugin to stop");
 
+	static {
+		try {
+			ConfigurationParser.fromXML(Configuration.class, Configuration.CONFIG_FILE);
+		} catch (Exception e) {
+			LOG.error("Error loading Configuration from {}", Configuration.CONFIG_FILE, e);
+		}
+	}
+	
 	static <T> void fireConfigurationChange(ConfigurationItem<T> configItem, T oldValue, T newValue) throws ConfigurationException
 	{
 		for(ConfigurationListener cl : listeners)

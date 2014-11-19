@@ -396,8 +396,8 @@ final class LocalDataStore implements IDataStore
 	
 	private static final class LocalCache
 	{
-		private static File cachePath = new File((String) Configuration.configRead("org.dyndns.doujindb.dat.cache_dir"));
-		private static boolean cacheEnabled = (Boolean) Configuration.configRead("org.dyndns.doujindb.dat.keep_cache");
+		private static File cachePath = Configuration.dat_cache_filestore.get();
+		private static boolean cacheEnabled = Configuration.dat_cache_enable.get();
 		
 		private static ConcurrentLinkedQueue<CachePair<File>> queue = new ConcurrentLinkedQueue<CachePair<File>>();
 		

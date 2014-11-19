@@ -111,7 +111,7 @@ public final class PluginManager
 	private static void startup()
 	{
 		LOG.debug("call startup()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.load_timeout");
+		final int timeout = Configuration.plugin_load_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -149,7 +149,7 @@ public final class PluginManager
 	private static void shutdown()
 	{
 		LOG.debug("call shutdown()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.unload_timeout");
+		final int timeout = Configuration.plugin_unload_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()

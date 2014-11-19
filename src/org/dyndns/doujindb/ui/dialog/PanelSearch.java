@@ -589,7 +589,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JPanel recordPreview;
 		private JScrollPane scrollRecordPreview;
 		private boolean previewToggled = false;
-		private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
+		private boolean previewEnabled = Configuration.ui_panel_book_preview.get();
 		private JButton toggleList;
 		private JButton togglePreview;
 		

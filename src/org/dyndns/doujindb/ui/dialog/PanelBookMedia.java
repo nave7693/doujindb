@@ -45,8 +45,8 @@ public class PanelBookMedia extends JPanel
 	private MediaTree treeMedia;
 	private JScrollPane treeMediaScroll;
 	
-	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private final Color foregroundColor = Configuration.ui_theme_foreground.get();
+	private final Color backgroundColor = Configuration.ui_theme_background.get();
 	
 	public static final Icons Icon = UI.Icon;
 	public static final Font Font = UI.Font;
@@ -787,7 +787,7 @@ public class PanelBookMedia extends JPanel
 					progressbar.setMaximum(totalFiles);
 					progressbar.setMinimum(1);
 					progressbar.setValue(1);
-					File zip = new File(destFolder, tokenBook.toString() + "" + Configuration.configRead("org.dyndns.doujindb.dat.file_extension"));
+					File zip = new File(destFolder, tokenBook.toString() + "" + Configuration.dat_export_extension.get());
 					try
 					{
 						ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(zip));

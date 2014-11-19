@@ -45,7 +45,7 @@ import org.dyndns.doujindb.ui.dialog.*;
 * @version 1.0
 */
 @SuppressWarnings("unused")
-public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, ConfigurationListener, PluginListener
+public final class UI extends JFrame implements LayoutManager, ActionListener, WindowListener, ComponentListener, PluginListener
 {
 	private static final long serialVersionUID = 0xFEED0001L;
 	
@@ -56,9 +56,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private JPopupMenu uiTrayPopup;
 	private JMenuItem uiTrayPopupExit;
 
-	private PanelSettings uiPanelSettings;
-	private JButton uiPanelSettingsSave;
-	private JButton uiPanelSettingsLoad;
+	private PanelConfiguration uiPanelConfiguration;
 	
 	private PanelPlugins uiPanelPlugins;
 	private JScrollPane uiPanelPluginsScroll;
@@ -81,22 +79,14 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(UI.class);
 	
 	public static final Icons Icon = new Icons();
-	public static final Font Font = loadFont();
-	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	public static final Font Font = Configuration.ui_font.get();
+	private static final Color foreground = Configuration.ui_theme_foreground.get();
+	private static final Color background = Configuration.ui_theme_background.get();
 	
 	//Load system Theme first, then other UI components
 	public static final Theme Theme = loadTheme();
 	public static final DesktopEx Desktop = loadDesktop();
 	public static final JFileChooser FileChooser = loadFileChooser();
-	
-	private static Font loadFont()
-	{
-		return new java.awt.Font(
-			((Font)Configuration.configRead("org.dyndns.doujindb.ui.font")).getFontName(),
-			java.awt.Font.PLAIN,
-			((Integer)Configuration.configRead("org.dyndns.doujindb.ui.font_size")));
-	}
 	
 	private static Theme loadTheme()
 	{
@@ -138,7 +128,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			UIManager.put("ToolTip.foreground", foreground);
 			UIManager.put("ToolTip.background", background);
 		    return theme;
-		} catch(UnsupportedLookAndFeelException ulafe) {
+		} catch (UnsupportedLookAndFeelException ulafe) {
 			LOG.error("Error setting Look&Fell", ulafe);
 		}
 		return null;
@@ -199,7 +189,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		super.setBounds(0,0,550,550);
 		super.setMinimumSize(new Dimension(400,350));
 		super.setIconImage(Icon.window_icon.getImage());
-		super.setAlwaysOnTop((Boolean) Configuration.configRead("org.dyndns.doujindb.ui.always_on_top"));
+		super.setAlwaysOnTop(Configuration.ui_alwaysontop.get());
 		super.getContentPane().setBackground(background);
 		
 		LOG.debug("Basic user interface loaded");
@@ -332,22 +322,9 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		uiPanelTabbed.addTab("Explorer", Icon.window_tab_explorer, bogus);
 		
 		bogus = new JPanel();
-		bogus.setLayout(null);
-		uiPanelSettings = new PanelSettings();
-		bogus.add(uiPanelSettings);
-		uiPanelSettingsSave = new JButton(Icon.window_tab_settings_save);
-		uiPanelSettingsSave.addActionListener(this);
-		uiPanelSettingsSave.setBorder(null);
-		uiPanelSettingsSave.setFocusable(false);
-		uiPanelSettingsSave.setToolTipText("Save");
-		bogus.add(uiPanelSettingsSave);
-		uiPanelSettingsLoad = new JButton(Icon.window_tab_settings_load);
-		uiPanelSettingsLoad.addActionListener(this);
-		uiPanelSettingsLoad.setBorder(null);
-		uiPanelSettingsLoad.setFocusable(false);
-		uiPanelSettingsLoad.setToolTipText("Load");
-		bogus.add(uiPanelSettingsLoad);
-		uiPanelTabbed.addTab("Settings", Icon.window_tab_settings, bogus);
+		uiPanelConfiguration = new PanelConfiguration(Configuration.class);
+		uiPanelConfiguration.setConfigurationFile(Configuration.CONFIG_FILE);
+		uiPanelTabbed.addTab("Configuration", Icon.window_tab_settings, uiPanelConfiguration);
 		
 		bogus = new JPanel();
 		bogus.setLayout(null);
@@ -403,8 +380,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		 */
 		super.setVisible(true);
 		
-		Configuration.addConfigurationListener(this);
-		
 		PluginManager.addPluginListener(this);
 		
 		DataBase.addDataBaseListener(new DataBaseAdapter()
@@ -423,7 +398,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			}
 		});
 		
-		if((Boolean)Configuration.configRead("org.dyndns.doujindb.sys.check_updates"))
+		if(Configuration.sys_check_updates.get())
 		{
 			new SwingWorker<Void,Void>()
 			{
@@ -476,9 +451,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 		else
 			uiPanelDesktopAdd.setBounds(-1,-1,0,0);
 		Desktop.setBounds(1,22,width-5,Desktop.getParent().getHeight()-42);
-		uiPanelSettingsLoad.setBounds(1,1,20,20);
-		uiPanelSettingsSave.setBounds(21,1,20,20);
-		uiPanelSettings.setBounds(0,22,width-5,height-48);
 		uiPanelPluginsScroll.setBounds(0,22,width-5,height-48);
 		uiPanelPluginsUpdate.setBounds(1,1,20,20);
 		uiPanelTabbed.setBounds(0,0,width,height);
@@ -505,25 +477,8 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		if(event.getSource() == uiPanelSettingsSave) {
-			try {
-				Configuration.configSave();
-			} catch(ConfigurationException ce) {
-				LOG.debug("Error saving Configuration", ce);
-			}
-			return;
-		}
 		if(event.getSource() == uiPanelPluginsUpdate) {
 			//TODO
-		}
-		if(event.getSource() == uiPanelSettingsLoad) {
-			try {
-				Configuration.configLoad();
-				uiPanelSettings.reload();
-			} catch(ConfigurationException ce) {
-				LOG.debug("Error loading Configuration", ce);
-			}
-			return;
 		}
 		if(event.getSource() == menuHelpAbout) {
 			try {
@@ -690,7 +645,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 	
 	public void windowClosing(WindowEvent event)
 	{
-		if(!((Boolean)Configuration.configRead("org.dyndns.doujindb.ui.tray_on_exit")))
+		if(!Configuration.ui_trayonexit.get())
 			System.exit(0);
 		setState(JFrame.ICONIFIED);
 		try {
@@ -834,836 +789,6 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			    return null;
 			}
 		}
-	}
-	
-	@SuppressWarnings("serial")
-	private static final class PanelSettings extends JSplitPane
-	{
-		private JTree tree;
-		private TreeCellRenderer render;
-		private DefaultTreeModel model = new DefaultTreeModel(null);
-		
-		private static enum Type {
-			BOOLEAN,
-			NUMBER,
-			STRING,
-			COLOR,
-			FONT,
-			FILE,
-			UNKNOWN
-		}
-
-	public PanelSettings()
-	{
-		super();
-		tree = new JTree();
-		tree.setModel(model);
-		tree.setFocusable(false);
-		tree.setFont(Font);
-		tree.setEditable(false);
-		tree.setRootVisible(true);
-		tree.setScrollsOnExpand(true);
-		tree.addTreeSelectionListener(new TreeSelectionListener()
-	    {
-	    	public void valueChanged(TreeSelectionEvent e)
-	    	{
-	    		DefaultMutableTreeNode dmtnode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-	    		// Return if no TreeNode is selected
-	            if(dmtnode == null)
-	            	return;
-	            // Return if it's a 'directory' TreeNode
-	            if(!dmtnode.isLeaf())
-	            	return;
-	            // Calculate configuration key based on TreeNodes path
-				Object paths[] = dmtnode.getUserObjectPath();
-				String key = "";
-				for(Object path : paths)
-				    key += path + ".";
-				// Remove leading '.' character
-				key = key.substring(0, key.length() - 1);
-				// Refresh editor component
-	            Editor editor = new Editor(key);
-	            setRightComponent(editor);
-	    	}
-	    });
-		render = new Renderer();
-		tree.setCellRenderer(render);
-		super.setResizeWeight(1);
-		super.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		super.setLeftComponent(new JScrollPane(tree));
-		super.setRightComponent(null);
-		super.setContinuousLayout(true);
-		//super.setDividerSize(0);
-		//super.setEnabled(false);	
-		reload();
-	}
-	
-	public void reload()
-	{
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("org.dyndns.doujindb");
-		for(String key : Configuration.keys())
-		{
-			if(key.startsWith("org.dyndns.doujindb."))
-				addNode(root, key.substring("org.dyndns.doujindb.".length()));
-			else
-				;
-		}
-		model = new DefaultTreeModel(root);
-		tree.setModel(model);
-	}
-	
-	public void reload(String key) //TODO
-	{
-		;
-	}
-	
-	private void addNode(DefaultMutableTreeNode node, String key)
-	{
-		if(key.indexOf(".") != -1)
-		{
-		    loop:
-		    {
-				String subkey = key.substring(0, key.indexOf("."));
-		        key = key.substring(key.indexOf(".") + 1);
-		        Enumeration<?> e = node.children();
-		        while(e.hasMoreElements())
-		        {
-			       DefaultMutableTreeNode subnode = (DefaultMutableTreeNode) e.nextElement();
-			       if(subkey.equals(subnode.getUserObject()))
-			       {
-			          addNode(subnode, key);
-			          break loop;
-			       }
-		        }
-		        DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(subkey);
-		        node.add(dmtn);
-		        addNode(dmtn, key);
-		     }
-		} else {
-			node.add(new DefaultMutableTreeNode(key));
-		}
-	}
-
-	private final class Renderer extends DefaultTreeCellRenderer
-	{
-		public Renderer()
-		{
-		    setBackgroundSelectionColor(background);
-		}
-	
-		public Component getTreeCellRendererComponent(
-			JTree tree,
-		    Object value,
-		    boolean sel,
-		    boolean expanded,
-		    boolean leaf,
-		    int row,
-		    boolean hasFocus)
-		{
-			super.getTreeCellRendererComponent(
-                tree,
-		        value,
-		        sel,
-		        expanded,
-		        leaf,
-		        row,
-		        hasFocus);
-			if(!((DefaultMutableTreeNode)value).isLeaf())
-				setIcon((ImageIcon)Icon.window_tab_settings_tree_directory);
-			else
-				setIcon((ImageIcon)Icon.window_tab_settings_tree_value);
-		    return this;
-		}
-	}
-	
-	private class Editor extends JPanel implements LayoutManager
-	{
-		private JButton fButtonClose;
-		private JLabel fLabelTitle;
-		private JLabel fLabelDescription;
-		private JComponent panel;
-		private JButton fButtonApply;
-		private JButton fButtonDiscard;
-		
-		private String key;
-		private Object value;
-		private Object valueNew;
-		
-		public Editor(final String key)
-		{
-			super();
-			this.key = key;
-			this.value = Configuration.configRead(this.key);
-			setLayout(this);
-			fLabelTitle = new JLabel(this.key.substring(this.key.lastIndexOf('.') + 1), Icon.window_tab_settings_tree_value, JLabel.LEFT);
-			fLabelTitle.setFont(Font);
-			add(fLabelTitle);
-			fLabelDescription = new JLabel("<html>" + 
-				"<body>" + 
-				"<b>Type</b> : " + value.getClass().getCanonicalName() + "<br/>" + 
-				"<b>Description</b> : " + Configuration.configInfo(this.key) + 
-				"</body>" + 
-				"</html>");
-			fLabelDescription.setVerticalAlignment(JLabel.TOP);
-			fLabelDescription.setFont(Font);
-			add(fLabelDescription);
-			fButtonClose = new JButton(Icon.window_tab_settings_editor_close);
-			fButtonClose.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae)
-				{
-					setRightComponent(null);
-					tree.setSelectionRow(0);
-				}
-			});
-			fButtonClose.setBorder(null);
-			fButtonClose.setFocusable(false);
-			add(fButtonClose);
-			fButtonApply = new JButton("Apply", Icon.window_tab_settings_editor_apply);
-			fButtonApply.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae)
-				{
-					Configuration.configWrite(key, valueNew);
-				}
-			});
-			fButtonApply.setFont(Font);
-			fButtonApply.setFocusable(false);
-			add(fButtonApply);
-			fButtonDiscard = new JButton("Discard", Icon.window_tab_settings_editor_discard);
-			fButtonDiscard.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent ae)
-				{
-					setRightComponent(null);
-					tree.setSelectionRow(0);
-				}
-			});
-			fButtonDiscard.setFont(Font);
-			fButtonDiscard.setFocusable(false);
-			add(fButtonDiscard);
-			panel = new JPanel();
-			{
-				valueNew = null;
-				if(value instanceof Boolean)
-				{
-					boolean bool = ((Boolean)value).booleanValue();
-					valueNew = new Boolean(bool);
-					final JCheckBox field = new JCheckBox((bool) ? "True" : "False");
-					field.setSelected(bool);
-					field.setFocusable(false);
-					field.setFont(Font);
-					field.addChangeListener(new ChangeListener()
-					{
-						@Override
-						public void stateChanged(ChangeEvent ce)
-						{
-							boolean bool = field.isSelected();
-							field.setText((bool) ? "True" : "False");
-							valueNew = new Boolean(bool);
-						}
-					});
-					panel.add(field);
-					panel.setLayout(new LayoutManager()
-					{
-
-						@Override
-						public void addLayoutComponent(String name, Component comp) { }
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth();
-							field.setBounds(35, 5, width - 30, 20);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public void removeLayoutComponent(Component comp) { }
-						
-					});
-				}
-				if(value instanceof Integer)
-				{
-					int ivalue = ((Integer)value).intValue();
-					valueNew = new Integer(ivalue);
-					final KBigIntegerField field = new KBigIntegerField();
-					field.setInt(ivalue);
-					field.setFont(Font);
-					field.getDocument().addDocumentListener(new DocumentListener()
-					{
-						@Override
-						public void changedUpdate(DocumentEvent de) {
-							int ivalue = field.getInt();
-							valueNew = new Integer(ivalue);
-						}
-						@Override
-						public void insertUpdate(DocumentEvent de) {
-							int ivalue = field.getInt();
-							valueNew = new Integer(ivalue);
-						}
-						@Override
-						public void removeUpdate(DocumentEvent de) {
-							int ivalue = field.getInt();
-							valueNew = new Integer(ivalue);
-						}
-					});
-					panel.add(field);
-					panel.setLayout(new LayoutManager()
-					{
-						@Override
-						public void addLayoutComponent(String name, Component comp) { }
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth();
-							field.setBounds(45, 5, width - 90, 20);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public void removeLayoutComponent(Component comp) { }
-						
-					});
-				}
-				if(value instanceof String)
-				{
-					valueNew = "" + ((String)value);
-					final JTextField field = new JTextField((String)value);
-					field.setFont(Font);
-					field.getDocument().addDocumentListener(new DocumentListener()
-					{
-						@Override
-						public void changedUpdate(DocumentEvent de) {
-							valueNew = field.getText();
-						}
-						@Override
-						public void insertUpdate(DocumentEvent de) {
-							valueNew = field.getText();
-						}
-						@Override
-						public void removeUpdate(DocumentEvent de) {
-							valueNew = field.getText();
-						}
-					});
-					panel.add(field);
-					panel.setLayout(new LayoutManager()
-					{
-
-						@Override
-						public void addLayoutComponent(String name, Component comp) {}
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth();
-							field.setBounds(15, 5, width - 30, 20);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public Dimension preferredLayoutSize(Container comp) { return new Dimension(200, 200); }
-						@Override
-						public void removeLayoutComponent(Component comp) { }
-						
-					});
-				}
-				if(value instanceof Color)
-				{
-					int r = ((Color)value).getRed();
-					int g = ((Color)value).getGreen();
-					int b = ((Color)value).getBlue();
-					int a = ((Color)value).getAlpha();
-					valueNew = new Color(r,g,b,a);
-					final JLabel label = new JLabel();
-					label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-					label.setOpaque(true);
-					label.setBackground((Color)valueNew);
-					panel.add(label);
-					final KSmallIntegerField field_r = new KSmallIntegerField();
-					final JSlider slide_r = new JSlider(JSlider.HORIZONTAL);
-					field_r.setInt(r);
-					field_r.setFont(Font);
-					field_r.addKeyListener(new KeyListener()
-					{
-						@Override
-						public void keyPressed(KeyEvent ke) {
-							slide_r.setValue(Integer.decode(field_r.getText()));
-						}
-						@Override
-						public void keyReleased(KeyEvent ke) {
-							slide_r.setValue(Integer.decode(field_r.getText()));
-						}
-						@Override
-						public void keyTyped(KeyEvent ke) {
-							slide_r.setValue(Integer.decode(field_r.getText()));
-						}
-					});
-					panel.add(field_r);
-					slide_r.setMaximum(255);
-					slide_r.setMinimum(0);
-					slide_r.setValue(r);
-					slide_r.addChangeListener(new ChangeListener()
-					{
-						@Override
-						public void stateChanged(ChangeEvent ce)
-						{
-							int r = slide_r.getValue();
-							int g = ((Color)valueNew).getGreen();
-							int b = ((Color)valueNew).getBlue();
-							int a = ((Color)valueNew).getAlpha();
-							valueNew = new Color(r,g,b,a);
-							field_r.setInt(slide_r.getValue());
-							label.setBackground((Color)valueNew);
-						}
-					});
-					panel.add(slide_r);
-					final KSmallIntegerField field_g = new KSmallIntegerField();
-					final JSlider slide_g = new JSlider(JSlider.HORIZONTAL);
-					field_g.setInt(g);
-					field_g.setFont(Font);
-					field_g.addKeyListener(new KeyListener()
-					{
-						@Override
-						public void keyPressed(KeyEvent ke) {
-							slide_g.setValue(Integer.decode(field_g.getText()));
-						}
-						@Override
-						public void keyReleased(KeyEvent ke) {
-							slide_g.setValue(Integer.decode(field_g.getText()));
-						}
-						@Override
-						public void keyTyped(KeyEvent ke) {
-							slide_g.setValue(Integer.decode(field_g.getText()));
-						}
-					});
-					panel.add(field_g);
-					slide_g.setMaximum(255);
-					slide_g.setMinimum(0);
-					slide_g.setValue(g);
-					slide_g.addChangeListener(new ChangeListener()
-					{
-						@Override
-						public void stateChanged(ChangeEvent ce)
-						{
-							int r = ((Color)valueNew).getRed();
-							int g = slide_g.getValue();
-							int b = ((Color)valueNew).getBlue();
-							int a = ((Color)valueNew).getAlpha();
-							valueNew = new Color(r,g,b,a);
-							field_g.setInt(slide_g.getValue());
-							label.setBackground((Color)valueNew);
-						}
-					});
-					panel.add(slide_g);
-					final KSmallIntegerField field_b = new KSmallIntegerField();
-					final JSlider slide_b = new JSlider(JSlider.HORIZONTAL);
-					field_b.setInt(b);
-					field_b.setFont(Font);
-					field_b.addKeyListener(new KeyListener()
-					{
-						@Override
-						public void keyPressed(KeyEvent ke) {
-							slide_b.setValue(Integer.decode(field_b.getText()));
-						}
-						@Override
-						public void keyReleased(KeyEvent ke) {
-							slide_b.setValue(Integer.decode(field_b.getText()));
-						}
-						@Override
-						public void keyTyped(KeyEvent ke) {
-							slide_b.setValue(Integer.decode(field_b.getText()));
-						}
-					});
-					panel.add(field_b);
-					slide_b.setMaximum(255);
-					slide_b.setMinimum(0);
-					slide_b.setValue(b);
-					slide_b.addChangeListener(new ChangeListener()
-					{
-						@Override
-						public void stateChanged(ChangeEvent ce)
-						{
-							int r = ((Color)valueNew).getRed();
-							int g = ((Color)valueNew).getGreen();
-							int b = slide_b.getValue();
-							int a = ((Color)valueNew).getAlpha();
-							valueNew = new Color(r,g,b,a);
-							field_b.setInt(slide_b.getValue());
-							label.setBackground((Color)valueNew);
-						}
-					});
-					panel.add(slide_b);
-					final KSmallIntegerField field_a = new KSmallIntegerField();
-					final JSlider slide_a = new JSlider(JSlider.HORIZONTAL);
-					field_a.setInt(a);
-					field_a.setFont(Font);
-					field_a.addKeyListener(new KeyListener()
-					{
-						@Override
-						public void keyPressed(KeyEvent ke) {
-							slide_a.setValue(Integer.decode(field_a.getText()));
-						}
-						@Override
-						public void keyReleased(KeyEvent ke) {
-							slide_a.setValue(Integer.decode(field_a.getText()));
-						}
-						@Override
-						public void keyTyped(KeyEvent ke) {
-							slide_a.setValue(Integer.decode(field_a.getText()));
-						}
-					});
-					panel.add(field_a);
-					slide_a.setMaximum(255);
-					slide_a.setMinimum(0);
-					slide_a.setValue(a);
-					slide_a.addChangeListener(new ChangeListener()
-					{
-						@Override
-						public void stateChanged(ChangeEvent ce)
-						{
-							int r = ((Color)valueNew).getRed();
-							int g = ((Color)valueNew).getGreen();
-							int b = ((Color)valueNew).getBlue();
-							int a = slide_a.getValue();
-							valueNew = new Color(r,g,b,a);
-							field_a.setInt(slide_a.getValue());
-							label.setBackground((Color)valueNew);
-						}
-					});
-					panel.add(slide_a);
-					panel.setLayout(new LayoutManager()
-					{
-
-						@Override
-						public void addLayoutComponent(String name, Component comp) {}
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth();
-							slide_r.setBounds(5, 5, width - 55, 20);
-							field_r.setBounds(width - 50, 5, 45, 20);
-							slide_g.setBounds(5, 25, width - 55, 20);
-							field_g.setBounds(width - 50, 25, 45, 20);
-							slide_b.setBounds(5, 45, width - 55, 20);
-							field_b.setBounds(width - 50, 45, 45, 20);
-							slide_a.setBounds(5, 65, width - 55, 20);
-							field_a.setBounds(width - 50, 65, 45, 20);
-							label.setBounds(60, 125, width - 120, 60);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public void removeLayoutComponent(Component comp) {}
-						
-					});
-				}
-				if(value instanceof Font)
-				{
-					String fontName = ((Font)value).getFontName();
-					int fontSize = ((Font)value).getSize();
-					int fontStyle = ((Font)value).getStyle();
-					valueNew = new Font(fontName, fontSize, fontStyle);
-					final JList<Font> list = new JList<Font>();
-					final JTextField field = new JTextField("Test string / 年");
-					field.setFont((Font)value);
-					list.setFont(Font);
-					DefaultListModel<Font> model = new DefaultListModel<Font>();
-					list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-					list.setModel(model);
-					GraphicsEnvironment gEnv = GraphicsEnvironment.getLocalGraphicsEnvironment();
-					Font envfonts[] = gEnv.getAllFonts();
-					for(Font envfont : envfonts)
-						if(envfont.canDisplay('年'))
-							model.addElement(envfont.deriveFont(12f));
-					list.addListSelectionListener(new ListSelectionListener()
-					{
-						@Override
-						public void valueChanged(ListSelectionEvent lse)
-						{
-							valueNew = (Font)list.getSelectedValue();
-							field.setFont((Font)valueNew);
-						}
-					});
-					list.setCellRenderer(new DefaultListCellRenderer()
-					{
-						@Override
-						public Component getListCellRendererComponent(JList<?> list, Object value,
-							    int index, boolean isSelected, boolean cellHasFocus) {
-							super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-							if(value instanceof Font)
-								setText(((Font)value).getFontName());
-							return this;
-						}
-					});
-					final JScrollPane scroll = new JScrollPane(list);
-					panel.add(scroll);
-					panel.add(field);
-					panel.setLayout(new LayoutManager()
-					{
-
-						@Override
-						public void addLayoutComponent(String name, Component comp) {}
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth(),
-								height = comp.getHeight();
-							scroll.setBounds(5, 5, width - 10, height - 75);
-							field.setBounds(5, height - 60, width - 10, 20);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public void removeLayoutComponent(Component comp) {}
-						
-					});
-				}
-				if(value instanceof File)
-				{
-					File file = new File(((File)value).getAbsolutePath());
-					valueNew = file;
-					final JButton chooser = new JButton(Icon.window_tab_settings_tree_directory);
-					final JLabel directory = new JLabel(file.getAbsolutePath());
-					directory.setUI(new BasicLabelUI()
-					{
-						@Override
-						protected String layoutCL(JLabel label,
-		                          FontMetrics fontMetrics,
-		                          String text,
-		                          Icon icon,
-		                          Rectangle viewR,
-		                          Rectangle iconR,
-		                          Rectangle textR)
-						{
-							boolean hasBeenCut = false;
-							while(true)
-								if(fontMetrics.stringWidth("..." + text) > label.getWidth())
-								{
-									hasBeenCut = true;
-									text = text.substring(1);
-								}else
-									break;
-							if(hasBeenCut)
-								return "..." + text;
-							else
-								return text;
-						}
-					});
-					chooser.addActionListener(new ActionListener()
-					{
-						@Override
-						public void actionPerformed(ActionEvent ae)
-						{
-							JFileChooser fc = FileChooser;
-							fc.setMultiSelectionEnabled(false);
-							fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							if(fc.showOpenDialog(Desktop) != JFileChooser.APPROVE_OPTION)
-								return;
-							File file = fc.getSelectedFile();
-							valueNew = file;
-							directory.setText(file.getAbsolutePath());
-						}
-					});
-					panel.add(chooser);
-					panel.add(directory);
-					panel.setLayout(new LayoutManager()
-					{
-
-						@Override
-						public void addLayoutComponent(String name, Component comp) {}
-						@Override
-						public void layoutContainer(Container comp)
-						{
-							int width = comp.getWidth(),
-								height = comp.getHeight();
-							directory.setBounds(5, 5, width - 10 - 30, 20);
-							chooser.setBounds(width - 10 - 10, 5, 20 ,20);
-						}
-						@Override
-						public Dimension minimumLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public Dimension preferredLayoutSize(Container comp) {return new Dimension(200, 200);}
-						@Override
-						public void removeLayoutComponent(Component comp) {}
-						
-					});
-				}
-			}
-			add(panel);
-		}
-		
-		@Override
-		public void addLayoutComponent(String name, Component comp) { }
-		@Override
-		public void layoutContainer(Container comp)
-		{
-			int width = comp.getWidth(),
-				height = comp.getHeight();
-			fLabelTitle.setBounds(1, 1, width - 21, 20);
-			fButtonClose.setBounds(width - 21, 1, 20, 20);
-			fLabelDescription.setBounds(1, 21, width - 2, 75);
-			panel.setBounds(1, 100, width - 2, height - 100 - 65);
-			fButtonApply.setBounds((width - 125) / 2, height - 60, 125, 20);
-			fButtonDiscard.setBounds((width - 125) / 2, height - 40, 125, 20);
-		}
-		@Override
-		public Dimension minimumLayoutSize(Container comp) {
-			return new Dimension(200, 200);
-		}
-		@Override
-		public Dimension preferredLayoutSize(Container comp) {
-			return new Dimension(250, 250);
-		}
-		@Override
-		public void removeLayoutComponent(Component comp) { }
-		
-		private final class KBigIntegerField extends JTextField
-		{
-			public KBigIntegerField()
-			{
-				super();
-				super.setHorizontalAlignment(JTextField.CENTER);
-			}
-			public KBigIntegerField(int cols)
-			{
-				super(cols);
-			}
-			public int getInt()
-			{
-			    final String text = getText();
-			    if (text == null || text.length() == 0)
-			    {
-			      return 0;
-			    }
-			    return Integer.parseInt(text);
-		    }
-			public void setInt(int value)
-			{
-				setText(String.valueOf(value));
-		    }
-			protected Document createDefaultModel()
-			{
-				return new IntegerDocument();
-		    }
-
-			private final class IntegerDocument extends PlainDocument
-			{
-				private int max = 0xffff;
-				private int min = 0;
-			public void insertString(int offs, String str, AttributeSet a)
-				throws BadLocationException
-			{
-				if (str != null)
-				{
-					try
-					{
-						Integer.decode(str);
-						int value = Integer.decode(super.getText(0, super.getLength()) +  str);
-						if(value < min)
-							return;
-						if(value > max)
-							return;
-						super.insertString(offs, str, a);
-					}catch (NumberFormatException ex)
-					{
-						Toolkit.getDefaultToolkit().beep();
-					}
-				}
-			}
-		}
-	}
-		private final class KSmallIntegerField extends JTextField
-		{
-			public KSmallIntegerField()
-			{
-				super();
-				super.setHorizontalAlignment(JTextField.CENTER);
-			}
-			public KSmallIntegerField(int cols)
-			{
-				super(cols);
-			}
-			public int getInt()
-			{
-			    final String text = getText();
-			    if (text == null || text.length() == 0)
-			    {
-			      return 0;
-			    }
-			    return Integer.parseInt(text);
-		    }
-			public void setInt(int value)
-			{
-				setText(String.valueOf(value));
-		    }
-			protected Document createDefaultModel()
-			{
-				return new IntegerDocument();
-		    }
-
-			private final class IntegerDocument extends PlainDocument
-			{
-				private int max = 0xff;
-				private int min = 0;
-			public void insertString(int offs, String str, AttributeSet a)
-				throws BadLocationException
-			{
-				if (str != null)
-				{
-					try
-					{
-						Integer.decode(str);
-						int value = Integer.decode(super.getText(0, super.getLength()) +  str);
-						if(value < min)
-							return;
-						if(value > max)
-							return;
-						super.insertString(offs, str, a);
-					}catch (NumberFormatException ex)
-					{
-						Toolkit.getDefaultToolkit().beep();
-					}
-				}
-			}
-		}
-	}
-	}
-	
-	}
-
-	@Override
-	public void configurationAdded(String key)
-	{
-		//TODO dynamically add new config keys to UI tree
-	}
-
-	@Override
-	public void configurationDeleted(String key)
-	{
-		//TODO dynamically remove config keys to UI tree
-	}
-
-	@Override
-	public void configurationUpdated(final String key)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				uiPanelSettings.reload(key);
-			}
-		});
 	}
 
 	@Override

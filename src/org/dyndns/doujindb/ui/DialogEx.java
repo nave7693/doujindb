@@ -10,8 +10,8 @@ import org.dyndns.doujindb.conf.Configuration;
 @SuppressWarnings("serial")
 public abstract class DialogEx extends JInternalFrame
 {
-	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private static final Color foreground = Configuration.ui_theme_foreground.get();
+	private static final Color background = Configuration.ui_theme_background.get();
 	
 	protected DialogEx(Icon icon, String title)
 	{

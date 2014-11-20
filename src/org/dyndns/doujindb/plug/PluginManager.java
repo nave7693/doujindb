@@ -26,7 +26,7 @@ public final class PluginManager
 	
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
-	private static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
 	

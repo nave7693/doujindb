@@ -14,10 +14,11 @@ public abstract class Plugin
 {
 	public enum State
 	{
-		RUNNING,
-		STOPPED,
-		LOADING,
-		UPDATING
+		RUN,
+		IDLE,
+		LOAD,
+		UNLOAD,
+		UPDATE
 	}
 	
 	protected final File PLUGIN_HOME;

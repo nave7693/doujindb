@@ -21,6 +21,10 @@ public final class ConfigurationItem<T>
 		});
 	}
 	
+	public ConfigurationItem(T defaultValue, String info, Validator<T> validator) {
+		this(defaultValue, defaultValue, info, validator);
+	}
+	
 	public ConfigurationItem(T defaultValue, T value, String info, Validator<T> validator) {
 		this(defaultValue, defaultValue, info, validator, false);
 	}

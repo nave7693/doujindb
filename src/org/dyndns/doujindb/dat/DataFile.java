@@ -24,6 +24,7 @@ public interface DataFile
 	public void delete() throws DataStoreException;
 	public void delete(boolean recursive) throws DataStoreException;
 	public void browse() throws DataStoreException;
+	public long lastModified() throws DataStoreException;
 	
 	public static interface MetaData { }
 }

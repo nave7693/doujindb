@@ -59,6 +59,7 @@ final class LocalDataStore implements IDataStore
 		DataStore.checkOpen();
 		
 		File store = mapIdStore(bookId, "B");
+		store.getParentFile().mkdirs();
 		
 		return new LocalDataFile(new File(store, DATAFILE_THUMBNAIL), store.getName());
 	}
@@ -69,6 +70,7 @@ final class LocalDataStore implements IDataStore
 		DataStore.checkOpen();
 		
 		File store = mapIdStore(circleId, "C");
+		store.getParentFile().mkdirs();
 		
 		return new LocalDataFile(new File(store, DATAFILE_BANNER), store.getName());	}
 
@@ -78,6 +80,7 @@ final class LocalDataStore implements IDataStore
 		DataStore.checkOpen();
 		
 		File store = mapIdStore(bookId, "B");
+		store.getParentFile().mkdirs();
 		
 		return new LocalDataFile(store);
 	}
@@ -391,6 +394,11 @@ final class LocalDataStore implements IDataStore
 			} catch (IOException ioe) {
 				throw new DataStoreException(ioe);
 			}
+		}
+
+		@Override
+		public long lastModified() throws DataStoreException {
+			return filePath.lastModified();
 		}
 	}
 	

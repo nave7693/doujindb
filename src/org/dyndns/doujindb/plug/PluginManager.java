@@ -92,7 +92,7 @@ public final class PluginManager
 				}
 				jf.close();
 			} catch (IOException ioe) {
-				LOG.error("IOException while scanning jar file {}", file, ioe);
+				LOG.error("IOException while scanning jar file {}", file.getName(), ioe);
 			}
 		}
 		for(String pluginName : new String[]{
@@ -121,7 +121,7 @@ public final class PluginManager
 					try {
 						plugin.doStartup();
 						firePluginStarted(plugin);
-						LOG.info("Plugin [{}] started", plugin.getName());
+						LOG.info("Plugin [{}] started", plugin.getNamespace());
 						return null;
 					} catch (PluginException pe) {
 						pe.printStackTrace();
@@ -135,11 +135,11 @@ public final class PluginManager
 				new Thread(future, "pluginmanager-startup-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
+				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getNamespace(), te);
 			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getName(), ie);
+				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getNamespace(), ie);
 			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getName(), ee);
+				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getNamespace(), ee);
 			} finally {
 			   future.cancel(true);
 			}
@@ -159,7 +159,7 @@ public final class PluginManager
 					try {
 						plugin.doShutdown();
 						firePluginStopped(plugin);
-						LOG.info("Plugin [{}] stopped", plugin.getName());
+						LOG.info("Plugin [{}] stopped", plugin.getNamespace());
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -172,11 +172,11 @@ public final class PluginManager
 				new Thread(future, "pluginmanager-shutdown-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);
+				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getNamespace(), te);
 			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getName(), ie);
+				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getNamespace(), ie);
 			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getName(), ee);
+				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getNamespace(), ee);
 			} finally {
 			   future.cancel(true);
 			}

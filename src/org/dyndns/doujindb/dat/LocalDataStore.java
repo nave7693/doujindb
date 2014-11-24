@@ -395,6 +395,11 @@ final class LocalDataStore implements IDataStore
 				throw new DataStoreException(ioe);
 			}
 		}
+
+		@Override
+		public long lastModified() throws DataStoreException {
+			return filePath.lastModified();
+		}
 	}
 	
 	private static final class LocalCache

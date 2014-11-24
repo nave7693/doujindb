@@ -6,6 +6,7 @@ public final class ConfigurationItem<T>
 	private T defaultValue;
 	private String info;
 	private Validator<T> validator;
+	private final boolean readOnly;
 
 	public ConfigurationItem(T defaultValue, String info) {
 		this(defaultValue, defaultValue, info);
@@ -19,21 +20,32 @@ public final class ConfigurationItem<T>
 			}
 		});
 	}
-
+	
+	public ConfigurationItem(T defaultValue, String info, Validator<T> validator) {
+		this(defaultValue, defaultValue, info, validator);
+	}
+	
 	public ConfigurationItem(T defaultValue, T value, String info, Validator<T> validator) {
+		this(defaultValue, defaultValue, info, validator, false);
+	}
+
+	public ConfigurationItem(T defaultValue, T value, String info, Validator<T> validator, boolean readOnly) {
 		this.defaultValue = defaultValue;
 		this.value = value;
 		this.info = info;
 		this.validator = validator;
+		this.readOnly = readOnly;
 	}
 	
 	public T get() {
 		return this.value;
 	}
 	
-	public void set(T value) throws InvalidConfigurationException {
+	public void set(T value) throws InvalidConfigurationException, ReadOnlyConfigurationException {
 		if(!validator.isValid(value))
 			throw new InvalidConfigurationException("Invalid value '" + value + "'");
+		if(readOnly)
+			throw new ReadOnlyConfigurationException("Configuration is read-only");
 		Configuration.fireConfigurationChange(this, this.value, value);
 		this.value = value;
 	}
@@ -43,6 +55,10 @@ public final class ConfigurationItem<T>
 	}
 	
 	public boolean isDefault() {
+		return readOnly;
+	}
+	
+	public boolean isReadOnly() {
 		return this.defaultValue.equals(this.value);
 	}
 	

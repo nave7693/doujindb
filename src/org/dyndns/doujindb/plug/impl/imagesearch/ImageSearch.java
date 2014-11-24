@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 import org.dyndns.doujindb.conf.ConfigurationParser;
+import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
@@ -264,6 +265,7 @@ public final class ImageSearch extends Plugin
 			    List<Future<Void>> futuresList = new ArrayList<Future<Void>>();
 			    ExecutorService eservice = Executors.newFixedThreadPool(threads);
 			    
+			    final long lastModified = HASHDB_FILE.lastModified();
 			    for(int index=0; index<threads; index++)
 			    	futuresList.add(eservice.submit(new Callable<Void>() {
 			    		@Override
@@ -273,8 +275,9 @@ public final class ImageSearch extends Plugin
 			    				if(isCancelled())
 									return null;
 			    				try {
-			    					if(!HASHDB_MAP.containsValue(book.getId())) {
-			    						String hash = new ImagePHash().getHash(DataStore.getThumbnail(book.getId()).openInputStream());
+			    					DataFile thumbn = DataStore.getThumbnail(book.getId());
+			    					if(!HASHDB_MAP.containsValue(book.getId()) || thumbn.lastModified() > lastModified) {
+			    						String hash = new ImagePHash().getHash(thumbn.openInputStream());
 			    						HASHDB_MAP.put(hash, book.getId());
 			    					}
 			    					publish(HASHDB_MAP.size());

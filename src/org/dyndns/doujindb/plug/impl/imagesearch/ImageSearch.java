@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 public final class ImageSearch extends Plugin
 {
 	private final String fAuthor = "loli10K";
-	private final String fVersion = "1.0";
+	private final String fVersion = "1.1";
 	private final String fWeblink = "https://github.com/loli10K";
 	private final String fName = "Image Search";
 	private final String fDescription = "Search through then whole DataStore for matching cover images.";

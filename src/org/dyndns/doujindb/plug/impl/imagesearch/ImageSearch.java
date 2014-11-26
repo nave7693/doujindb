@@ -170,7 +170,7 @@ public final class ImageSearch extends Plugin
 				@Override
 				public synchronized void dragOver(DropTargetDragEvent dtde) {
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						if(m_ScannerRunning) {
+						if(m_ScannerRunning || m_BuilderRunning) {
 							dtde.rejectDrag();
 							return;
 						}

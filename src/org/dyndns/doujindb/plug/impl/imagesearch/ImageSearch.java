@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
 import org.dyndns.doujindb.conf.ConfigurationParser;
 import org.dyndns.doujindb.dat.DataFile;
@@ -243,6 +244,7 @@ public final class ImageSearch extends Plugin
 		
 		private final class TaskBuilder extends SwingWorker<Void, Integer>
 		{
+			private String labelETA = "";
 			@Override
 			protected Void doInBackground() throws Exception {
 				Thread.currentThread().setName("plugin/image-search/cache-builder");
@@ -254,7 +256,7 @@ public final class ImageSearch extends Plugin
 				m_ProgressBarCache.setValue(1);
 				m_ProgressBarCache.setString("Loading ...");
 				
-				RecordSet<Book> books = DataBase.getBooks(new QueryBook());
+				final RecordSet<Book> books = DataBase.getBooks(new QueryBook());
 				final Iterator<Book> books_q = books.iterator();
 				
 				m_ProgressBarCache.setMaximum(books.size());
@@ -288,6 +290,45 @@ public final class ImageSearch extends Plugin
 			    			return null;
 			    		}
 			    	}));
+			    Timer timer = new Timer(1000, new ActionListener() {
+			    	long lastCount = HASHDB_MAP.size();
+					@Override
+					public void actionPerformed(ActionEvent ae) {
+						long currCount = HASHDB_MAP.size();
+						long hps = currCount - lastCount; // hash per second
+						if(hps != 0)
+							labelETA = prints((books.size() - currCount)/ hps);
+						else
+							labelETA = "...";
+						lastCount = currCount;
+					}
+				    public String prints(long seconds) {
+				        if(seconds < 0)
+				        	return "";
+
+				        long days = TimeUnit.SECONDS.toDays(seconds);
+				        seconds -= TimeUnit.DAYS.toSeconds(days);
+				        long hours = TimeUnit.SECONDS.toHours(seconds);
+				        seconds -= TimeUnit.HOURS.toSeconds(hours);
+				        long minutes = TimeUnit.SECONDS.toMinutes(seconds);
+				        seconds -= TimeUnit.MINUTES.toSeconds(minutes);
+
+				        String result = "";
+				        if(days > 0)
+				        	result += days + " d ";
+				        if(hours > 0)
+				        	result += hours + " h ";
+				        if(minutes > 0)
+				        	result += minutes + " m ";
+				        if(seconds > 0)
+				        	result += seconds + " h ";
+
+				        return result;
+				    }
+			    });
+			    timer.setRepeats(true);
+			    timer.setInitialDelay(0);
+			    timer.start();
 			    for(Future<Void> future : futuresList) {
 			    	try {
 			    		future.get();
@@ -295,6 +336,7 @@ public final class ImageSearch extends Plugin
 			    		LOG.error("Error processing hashing task", e);
 			    	}
 			    }
+			    timer.stop();
 				return null;
 			}
 
@@ -312,7 +354,7 @@ public final class ImageSearch extends Plugin
 				int maximum = m_ProgressBarCache.getMaximum();
 				int progress = value * 100 / maximum;
 				m_ProgressBarCache.setValue(value);
-				m_ProgressBarCache.setString("[" + value + " / " + maximum + "] @ " + progress + "%");
+				m_ProgressBarCache.setString(String.format("[%d / %d] @ %d%% (ETA %s)", value, maximum, progress, labelETA));
 			}
 		}
 		

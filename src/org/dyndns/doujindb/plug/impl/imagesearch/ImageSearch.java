@@ -277,7 +277,7 @@ public final class ImageSearch extends Plugin
 			    				try {
 			    					DataFile thumbn = DataStore.getThumbnail(book.getId());
 			    					if(!HASHDB_MAP.containsValue(book.getId()) || thumbn.lastModified() > lastModified) {
-			    						String hash = new ImagePHash().getHash(thumbn.openInputStream());
+			    						String hash = new ImageAHash().getHash(thumbn.openInputStream());
 			    						HASHDB_MAP.put(hash, book.getId());
 			    					}
 			    					publish(HASHDB_MAP.size());
@@ -365,7 +365,7 @@ public final class ImageSearch extends Plugin
 					
 					m_ButtonScanPreview.setIcon(new ImageIcon(bi));
 					
-					String inputHash = new ImagePHash().getHash(new FileInputStream(file));
+					String inputHash = new ImageAHash().getHash(new FileInputStream(file));
 					int threshold = Configuration.query_threshold.get();
 					int maxresult = Configuration.query_maxresult.get();
 					LOG.info("Input hash is {}", inputHash);
@@ -379,7 +379,7 @@ public final class ImageSearch extends Plugin
 					});
 					for(String hash: HASHDB_MAP.keySet()) {
 						int distance;
-						if((distance = new ImagePHash().distance(hash, inputHash)) <= threshold) {
+						if((distance = new ImageAHash().distance(hash, inputHash)) <= threshold) {
 							found.add(new RatedItem(HASHDB_MAP.get(hash), distance));
 							if (found.size() > maxresult)
 								found.poll();

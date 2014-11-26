@@ -297,12 +297,12 @@ public final class ImageSearch extends Plugin
 						long currCount = HASHDB_MAP.size();
 						long hps = currCount - lastCount; // hash per second
 						if(hps != 0)
-							labelETA = prints((books.size() - currCount)/ hps);
+							labelETA = format((books.size() - currCount) / hps);
 						else
 							labelETA = "...";
 						lastCount = currCount;
 					}
-				    public String prints(long seconds) {
+				    public String format(long seconds) {
 				        if(seconds < 0)
 				        	return "";
 

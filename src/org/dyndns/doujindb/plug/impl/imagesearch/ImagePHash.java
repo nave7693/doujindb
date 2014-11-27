@@ -14,19 +14,21 @@ import javax.imageio.ImageIO;
  */
 public class ImagePHash
 {
-	private int size = 32;
-	private int smallerSize = 8;
+	private static int size = 32;
+	private static int smallerSize = 8;
 	
-	public ImagePHash() {
-		initCoefficients();
+	private static double[] coefficients;
+	
+	static {
+		// init coefficients
+		coefficients = new double[size];
+		for (int i=1;i<size;i++) {
+			coefficients[i]=1;
+		}
+		coefficients[0] = 1 / Math.sqrt(2.0);
 	}
 	
-	public ImagePHash(int size, int smallerSize) {
-		this.size = size;
-		this.smallerSize = smallerSize;
-		
-		initCoefficients();
-	}
+	public ImagePHash() { }
 	
 	public int distance(String s1, String s2) {
 		int counter = 0;
@@ -137,15 +139,6 @@ public class ImagePHash
 	
 	// DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 	
-	private double[] c;
-	private void initCoefficients() {
-		c = new double[size];
-		for (int i=1;i<size;i++) {
-		    c[i]=1;
-		}
-		c[0] = 1/Math.sqrt(2.0);
-	}
-	
 	private double[][] applyDCT(double[][] f) {
 		int N = size;
 		double[][] F = new double[N][N];
@@ -157,7 +150,7 @@ public class ImagePHash
 						sum+=Math.cos(((2*i+1)/(2.0*N))*u*Math.PI)*Math.cos(((2*j+1)/(2.0*N))*v*Math.PI)*(f[i][j]);
 					}
 				}
-				sum*=((c[u]*c[v])/4.0);
+				sum*=((coefficients[u]*coefficients[v])/4.0);
 				F[u][v] = sum;
 			}
 		}

@@ -37,16 +37,16 @@ public class ImageAHash
 		BufferedImage img = ImageIO.read(is);
 		
 		/* 1. Reduce size.
-		 * Like Average Hash, pHash starts with a small image.
-		 * However, the image is larger than 8x8; 32x32 is a good size.
-		 * This is really done to simplify the DCT computation and not
-		 * because it is needed to reduce the high frequencies.
+		 * The fastest way to remove high frequencies and detail is to shrink the image.
+		 * In this case, shrink it to 8x8 so that there are 64 total pixels.
+		 * Don't bother keeping the aspect ratio, just crush it down to fit an 8x8 square.
+		 * This way, the hash will match any variation of the image, regardless of scale or aspect ratio.
 		 */
 		img = resize(img, size, size);
 		
 		/* 2. Reduce color.
-		 * The image is reduced to a grayscale just to further simplify
-		 * the number of computations.
+		 * The tiny 8x8 picture is converted to a grayscale.
+		 * This changes the hash from 64 pixels (64 red, 64 green, and 64 blue) to 64 total colors.
 		 */
 		img = grayscale(img);
 		
@@ -58,11 +58,8 @@ public class ImageAHash
 			}
 		}
 		
-		/* 3. Compute the average value.
-		 * Like the Average Hash, compute the mean DCT value (using only
-		 * the 8x8 DCT low-frequency values and excluding the first term
-		 * since the DC coefficient can be significantly different from
-		 * the other values and will throw off the average).
+		/* 3. Average the colors.
+		 * Compute the mean value of the 64 colors.
 		 */
 		double total = 0;
 		

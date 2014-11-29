@@ -194,7 +194,7 @@ public final class ImageSearch extends Plugin
 	                                @Override
 	                                public void run() {
 	                                	File file = transferData.iterator().next();
-	                                	if(m_ScannerRunning)
+	                                	if(m_ScannerRunning || m_BuilderRunning)
 	                    					return;
 	                                	m_WorkerScanner = new TaskScanner(file);
 	                                	m_WorkerScanner.execute();
@@ -238,6 +238,26 @@ public final class ImageSearch extends Plugin
 			}
 			if(ae.getSource() == m_ButtonCacheCancel) {
 				m_WorkerBuilder.cancel(true);
+				return;
+			}
+			if(ae.getSource() == m_ButtonScanPreview) {
+				if(m_ScannerRunning || m_BuilderRunning)
+					return;
+				new Thread()
+            	{
+                    @Override
+                    public void run() {
+                    	JFileChooser fc = UI.FileChooser;
+						fc.setMultiSelectionEnabled(false);
+						fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+						if(fc.showOpenDialog(fUI) != JFileChooser.APPROVE_OPTION)
+							return;
+						File file = fc.getSelectedFile();
+                    	m_WorkerScanner = new TaskScanner(file);
+                    	m_WorkerScanner.execute();
+        				m_TabSearch.doLayout();
+                    }
+            	}.start();
 				return;
 			}
 		}

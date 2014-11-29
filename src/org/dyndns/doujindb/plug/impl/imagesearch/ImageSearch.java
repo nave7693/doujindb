@@ -341,7 +341,7 @@ public final class ImageSearch extends Plugin
 				        if(minutes > 0)
 				        	result += minutes + " m ";
 				        if(seconds > 0)
-				        	result += seconds + " h ";
+				        	result += seconds + " s";
 
 				        return result;
 				    }

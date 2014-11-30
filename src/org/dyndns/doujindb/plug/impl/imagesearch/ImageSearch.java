@@ -267,7 +267,7 @@ public final class ImageSearch extends Plugin
 			private String labelETA = "";
 			@Override
 			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("plugin/image-search/cache-builder");
+				Thread.currentThread().setName("plugin-imagesearch[hashdb-builder]");
 				m_BuilderRunning = true;
 				m_TabSearch.doLayout();
 
@@ -402,7 +402,7 @@ public final class ImageSearch extends Plugin
 			
 			@Override
 			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("plugin/image-search/cache-scanner");
+				Thread.currentThread().setName("plugin-imagesearch[image-query]");
 				m_ScannerRunning = true;
 				PluginUI.this.doLayout();
 				

@@ -103,8 +103,8 @@ public final class PluginManager
 				LOG.info("Found plugin [{}]", pluginName);
 				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
 				install(plugin);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Error | Exception e) {
+				LOG.error("Error loading plugin [{}]", pluginName, e);
 			}
 	}
 	

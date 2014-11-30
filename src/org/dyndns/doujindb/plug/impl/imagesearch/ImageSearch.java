@@ -204,7 +204,7 @@ public final class ImageSearch extends Plugin
 	                            dtde.dropComplete(true);
 	                        }
 	                    } catch (Exception e) {
-	                        e.printStackTrace();
+	                        LOG.error("Error processing drop() method for event {}", dtde, e);
 	                    }
 	                } else {
 	                    dtde.rejectDrop();
@@ -413,6 +413,8 @@ public final class ImageSearch extends Plugin
 				BufferedImage bi;
 				try {
 					bi = javax.imageio.ImageIO.read(file);
+					if(bi == null)
+						throw new RuntimeException("Could not load Image from file " + file.getName());
 					BufferedImage resized_bi;
 					int img_width = bi.getWidth(),
 						img_height = bi.getHeight();
@@ -483,7 +485,7 @@ public final class ImageSearch extends Plugin
 					}
 					
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error("Error processing image search for input file {}", file.getName(), e);
 				}
 				
 				return null;

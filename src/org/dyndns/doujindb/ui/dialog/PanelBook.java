@@ -136,7 +136,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								BufferedImage image = null;
 								File imageFile = fc.getSelectedFile();
 								try {
-									image = ImageTool.read(imageFile);
+									image = javax.imageio.ImageIO.read(imageFile);
 								} catch (IOException ioe) {
 									LOG.error("Error loading cover image for [{}] from file [{}]", new Object[]{tokenBook, imageFile}, ioe);
 								}
@@ -145,7 +145,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								try {
 									DataFile thumbnail = DataStore.getThumbnail(tokenBook.getId());
 									OutputStream out = thumbnail.openOutputStream();
-									ImageTool.write(image = ImageTool.getScaledInstance(image, 256, 256, true), out);
+									javax.imageio.ImageIO.write(image = ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
 									
 									final ImageIcon ii = new ImageIcon(image);
 									SwingUtilities.invokeLater(new Runnable()
@@ -537,7 +537,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 						return null;
 					DataFile cover = DataStore.getThumbnail(tokenBook.getId());
 					InputStream in = cover.openInputStream();
-					labelPreview.setIcon(new ImageIcon(ImageTool.read(in)));
+					labelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
 					labelPreview.setName("preview");
 					in.close();
 				} catch (NullPointerException npe) {

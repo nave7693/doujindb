@@ -412,7 +412,7 @@ public final class ImageSearch extends Plugin
 				
 				BufferedImage bi;
 				try {
-					bi = ImageTool.read(file);
+					bi = javax.imageio.ImageIO.read(file);
 					BufferedImage resized_bi;
 					int img_width = bi.getWidth(),
 						img_height = bi.getHeight();
@@ -455,7 +455,7 @@ public final class ImageSearch extends Plugin
 						final Integer distance = ratedItem.value;
 						JButton button;
 						try {
-							button = new JButton(new ImageIcon(ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
+							button = new JButton(new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream())));
 						} catch (Exception dse) {
 							button = new JButton(fIcons.search_missing);
 						}

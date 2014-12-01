@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.plug.impl.mugimugi;
+package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -21,9 +21,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
-import org.dyndns.doujindb.Core;
-import org.dyndns.doujindb.conf.*;
-import org.dyndns.doujindb.conf.event.ConfigurationListener;
 import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
@@ -31,21 +28,19 @@ import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.util.ImageTool;
 
 /**  
 * DoujinshiDBScanner.java - Plugin to batch process media files thanks to the DoujinshiDB project APIs.
 * @author  nozomu
 * @version 1.3
 */
-public final class DoujinshiDBScanner extends Plugin
+public final class DataImport extends Plugin
 {
-	private static final String UUID = "{cb123239-06d1-4fb6-a4cc-05c4b436df73}";
-	private static final String Author = "Nozomu";
-	private static final String Version = "1.3";
-	private static final String Weblink = "http://code.google.com/p/doujindb/";
-	private static final String Name = "DoujinshiDB Scanner";
-	private static final String Description = "The DoujinshiDB plugin lets you batch process media files thanks to DoujinshiDB API.";
+	static final String Author = "loli10K";
+	static final String Version = "0.1";
+	static final String Weblink = "https://github.com/loli10K";
+	static final String Name = "Data Import";
+	static final String Description = "Batch process media files";
 	
 	// DoujinshiDB URLs
 	static final String DOUJINSHIDB_URL    = "http://www.doujinshi.org/";
@@ -65,25 +60,16 @@ public final class DoujinshiDBScanner extends Plugin
 	private static JComponent m_UI;
 	static XMLParser.XML_User UserInfo = new XMLParser.XML_User();
 	
-	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugins" + File.separator + UUID);
-
-	static final File PLUGIN_IMAGECACHE = new File(PLUGIN_HOME, "imagecache");
-	static final File PLUGIN_QUERY = new File(PLUGIN_HOME, "query");
+	final File PLUGIN_IMAGECACHE = new File(PLUGIN_HOME, "imagecache");
+	final File PLUGIN_QUERY = new File(PLUGIN_HOME, "query");
 	
 	private static SimpleDateFormat sdf;
-	private static String configBase = "org.dyndns.doujindb.plugin.mugimugi.";
 	private static Font font;
 	private static Icons Icon = new Icons();
 	
-	static
-	{
-		Configuration.configAdd(configBase + "apikey", "<html><body>Apikey used to query the doujinshidb database.</body></html>", "");
-		Configuration.configAdd(configBase + "threshold", "<html><body>Threshold limit for matching cover queries.</body></html>", 75);
-		Configuration.configAdd(configBase + "resize_cover", "<html><body>Whether to resize covers before uploading them.</body></html>", true);
-	}
-	
-	public String getUUID() {
-		return UUID;
+	static {
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 	
 	@Override
@@ -122,7 +108,7 @@ public final class DoujinshiDBScanner extends Plugin
 	}
 	
 	@SuppressWarnings("serial")
-	private static final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener, ConfigurationListener
+	private final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 	{
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
@@ -130,20 +116,20 @@ public final class DoujinshiDBScanner extends Plugin
 		@SuppressWarnings("unused")
 		private JPanel m_TabTasks;
 		
-		private JButton m_ButtonApiRefresh;
-		private JLabel m_LabelApikey;
-		private JTextField m_TextApikey;
-		private JLabel m_LabelApiThreshold;
-		private JSlider m_SliderApiThreshold;
-		private JLabel m_LabelApiUserid;
-		private JTextField m_TextApiUserid;
-		private JLabel m_LabelApiUsername;
-		private JTextField m_TextApiUsername;
-		private JLabel m_LabelApiQueryCount;
-		private JTextField m_TextApiQueryCount;
-		private JLabel m_LabelApiImageQueryCount;
-		private JTextField m_TextApiImageQueryCount;
-		private JCheckBox m_CheckboxApiResizeImage;
+//		private JButton m_ButtonApiRefresh;
+//		private JLabel m_LabelApikey;
+//		private JTextField m_TextApikey;
+//		private JLabel m_LabelApiThreshold;
+//		private JSlider m_SliderApiThreshold;
+//		private JLabel m_LabelApiUserid;
+//		private JTextField m_TextApiUserid;
+//		private JLabel m_LabelApiUsername;
+//		private JTextField m_TextApiUsername;
+//		private JLabel m_LabelApiQueryCount;
+//		private JTextField m_TextApiQueryCount;
+//		private JLabel m_LabelApiImageQueryCount;
+//		private JTextField m_TextApiImageQueryCount;
+//		private JCheckBox m_CheckboxApiResizeImage;
 		
 		private JButton m_ButtonTaskAdd;
 		private JButton m_ButtonTaskManagerCtl;
@@ -166,101 +152,101 @@ public final class DoujinshiDBScanner extends Plugin
 			m_TabbedPane.setFocusable(false);
 			
 			JPanel bogus;
-			bogus = new JPanel();
-			bogus.setLayout(null);
-			m_ButtonApiRefresh = new JButton(Icon.refresh);
-			m_ButtonApiRefresh.addActionListener(this);
-			m_ButtonApiRefresh.setBorder(null);
-			m_ButtonApiRefresh.setFocusable(false);
-			bogus.add(m_ButtonApiRefresh);
-			m_LabelApikey = new JLabel("Api Key :");
-			m_LabelApikey.setFont(font);
-			bogus.add(m_LabelApikey);
-			m_TextApikey = new JTextField(APIKEY);
-			m_TextApikey.setFont(font);
-			m_TextApikey.getDocument().addDocumentListener(new DocumentListener()
-			{
-				@Override
-				public void changedUpdate(DocumentEvent de)
-				{
-					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite(configBase + "apikey", APIKEY);
-				}
-				@Override
-				public void insertUpdate(DocumentEvent de)
-				{
-					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite(configBase + "apikey", APIKEY);
-				}
-				@Override
-				public void removeUpdate(DocumentEvent de)
-				{
-					APIKEY = m_TextApikey.getText();
-					Configuration.configWrite(configBase + "apikey", APIKEY);
-				}				
-			});
-			bogus.add(m_TextApikey);
-			m_LabelApiThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
-			m_LabelApiThreshold.setFont(font);
-			bogus.add(m_LabelApiThreshold);
-			m_SliderApiThreshold = new JSlider(0, 100, THRESHOLD);
-			m_SliderApiThreshold.setFont(font);
-			m_SliderApiThreshold.addChangeListener(new ChangeListener()
-			{
-				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
-					THRESHOLD = m_SliderApiThreshold.getValue();
-					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
-					if(m_SliderApiThreshold.getValueIsAdjusting())
-						return;
-					Configuration.configWrite(configBase + "threshold", THRESHOLD);
-				}				
-			});
-			bogus.add(m_SliderApiThreshold);
-			m_LabelApiUserid = new JLabel("User ID :");
-			m_LabelApiUserid.setFont(font);
-			bogus.add(m_LabelApiUserid);
-			m_TextApiUserid = new JTextField(USERID);
-			m_TextApiUserid.setFont(font);
-			m_TextApiUserid.setEditable(false);
-			bogus.add(m_TextApiUserid);
-			m_LabelApiUsername = new JLabel("User Name :");
-			m_LabelApiUsername.setFont(font);
-			bogus.add(m_LabelApiUsername);
-			m_TextApiUsername = new JTextField(USERNAME);
-			m_TextApiUsername.setFont(font);
-			m_TextApiUsername.setEditable(false);
-			bogus.add(m_TextApiUsername);
-			m_LabelApiQueryCount = new JLabel("Queries :");
-			m_LabelApiQueryCount.setFont(font);
-			bogus.add(m_LabelApiQueryCount);
-			m_TextApiQueryCount = new JTextField("" + QUERIES);
-			m_TextApiQueryCount.setFont(font);
-			m_TextApiQueryCount.setEditable(false);
-			bogus.add(m_TextApiQueryCount);
-			m_LabelApiImageQueryCount = new JLabel("Image Queries :");
-			m_LabelApiImageQueryCount.setFont(font);
-			bogus.add(m_LabelApiImageQueryCount);
-			m_TextApiImageQueryCount = new JTextField("" + IMAGE_QUERIES);
-			m_TextApiImageQueryCount.setFont(font);
-			m_TextApiImageQueryCount.setEditable(false);
-			bogus.add(m_TextApiImageQueryCount);
-			m_CheckboxApiResizeImage = new JCheckBox("<html><body>Resize covers before uploading*<br><i>(*will speed up searches and preserve bandwidth)</i></body></html>");
-			m_CheckboxApiResizeImage.setFont(font);
-			m_CheckboxApiResizeImage.setFocusable(false);
-			m_CheckboxApiResizeImage.setSelected(RESIZE_COVER);
-			m_CheckboxApiResizeImage.addChangeListener(new ChangeListener()
-			{
-				@Override
-				public void stateChanged(ChangeEvent ce)
-				{
-					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
-					Configuration.configWrite(configBase + "resize_cover", RESIZE_COVER);
-				}				
-			});
-			bogus.add(m_CheckboxApiResizeImage);
-			m_TabbedPane.addTab("Settings", Icon.settings, m_TabSettings = bogus);
+//			bogus = new JPanel();
+//			bogus.setLayout(null);
+//			m_ButtonApiRefresh = new JButton(Icon.refresh);
+//			m_ButtonApiRefresh.addActionListener(this);
+//			m_ButtonApiRefresh.setBorder(null);
+//			m_ButtonApiRefresh.setFocusable(false);
+//			bogus.add(m_ButtonApiRefresh);
+//			m_LabelApikey = new JLabel("Api Key :");
+//			m_LabelApikey.setFont(font);
+//			bogus.add(m_LabelApikey);
+//			m_TextApikey = new JTextField(APIKEY);
+//			m_TextApikey.setFont(font);
+//			m_TextApikey.getDocument().addDocumentListener(new DocumentListener()
+//			{
+//				@Override
+//				public void changedUpdate(DocumentEvent de)
+//				{
+//					APIKEY = m_TextApikey.getText();
+//					Configuration.configWrite(configBase + "apikey", APIKEY);
+//				}
+//				@Override
+//				public void insertUpdate(DocumentEvent de)
+//				{
+//					APIKEY = m_TextApikey.getText();
+//					Configuration.configWrite(configBase + "apikey", APIKEY);
+//				}
+//				@Override
+//				public void removeUpdate(DocumentEvent de)
+//				{
+//					APIKEY = m_TextApikey.getText();
+//					Configuration.configWrite(configBase + "apikey", APIKEY);
+//				}				
+//			});
+//			bogus.add(m_TextApikey);
+//			m_LabelApiThreshold = new JLabel("Threshold : " + THRESHOLD + "%");
+//			m_LabelApiThreshold.setFont(font);
+//			bogus.add(m_LabelApiThreshold);
+//			m_SliderApiThreshold = new JSlider(0, 100, THRESHOLD);
+//			m_SliderApiThreshold.setFont(font);
+//			m_SliderApiThreshold.addChangeListener(new ChangeListener()
+//			{
+//				@Override
+//				public void stateChanged(ChangeEvent ce)
+//				{
+//					THRESHOLD = m_SliderApiThreshold.getValue();
+//					m_LabelApiThreshold.setText("Threshold : " + THRESHOLD + "%");
+//					if(m_SliderApiThreshold.getValueIsAdjusting())
+//						return;
+//					Configuration.configWrite(configBase + "threshold", THRESHOLD);
+//				}				
+//			});
+//			bogus.add(m_SliderApiThreshold);
+//			m_LabelApiUserid = new JLabel("User ID :");
+//			m_LabelApiUserid.setFont(font);
+//			bogus.add(m_LabelApiUserid);
+//			m_TextApiUserid = new JTextField(USERID);
+//			m_TextApiUserid.setFont(font);
+//			m_TextApiUserid.setEditable(false);
+//			bogus.add(m_TextApiUserid);
+//			m_LabelApiUsername = new JLabel("User Name :");
+//			m_LabelApiUsername.setFont(font);
+//			bogus.add(m_LabelApiUsername);
+//			m_TextApiUsername = new JTextField(USERNAME);
+//			m_TextApiUsername.setFont(font);
+//			m_TextApiUsername.setEditable(false);
+//			bogus.add(m_TextApiUsername);
+//			m_LabelApiQueryCount = new JLabel("Queries :");
+//			m_LabelApiQueryCount.setFont(font);
+//			bogus.add(m_LabelApiQueryCount);
+//			m_TextApiQueryCount = new JTextField("" + QUERIES);
+//			m_TextApiQueryCount.setFont(font);
+//			m_TextApiQueryCount.setEditable(false);
+//			bogus.add(m_TextApiQueryCount);
+//			m_LabelApiImageQueryCount = new JLabel("Image Queries :");
+//			m_LabelApiImageQueryCount.setFont(font);
+//			bogus.add(m_LabelApiImageQueryCount);
+//			m_TextApiImageQueryCount = new JTextField("" + IMAGE_QUERIES);
+//			m_TextApiImageQueryCount.setFont(font);
+//			m_TextApiImageQueryCount.setEditable(false);
+//			bogus.add(m_TextApiImageQueryCount);
+//			m_CheckboxApiResizeImage = new JCheckBox("<html><body>Resize covers before uploading*<br><i>(*will speed up searches and preserve bandwidth)</i></body></html>");
+//			m_CheckboxApiResizeImage.setFont(font);
+//			m_CheckboxApiResizeImage.setFocusable(false);
+//			m_CheckboxApiResizeImage.setSelected(RESIZE_COVER);
+//			m_CheckboxApiResizeImage.addChangeListener(new ChangeListener()
+//			{
+//				@Override
+//				public void stateChanged(ChangeEvent ce)
+//				{
+//					RESIZE_COVER = m_CheckboxApiResizeImage.isSelected();
+//					Configuration.configWrite(configBase + "resize_cover", RESIZE_COVER);
+//				}				
+//			});
+//			bogus.add(m_CheckboxApiResizeImage);
+//			m_TabbedPane.addTab("Settings", Icon.settings, m_TabSettings = bogus);
 			
 			bogus = new JPanel();
 			bogus.setLayout(null);
@@ -311,10 +297,8 @@ public final class DoujinshiDBScanner extends Plugin
 			
 			TaskManager.registerListener(this);
 			
-			Configuration.addConfigurationListener(this);
-
 			// Load UserInfo by simulating a click
-			m_ButtonApiRefresh.doClick();
+//			m_ButtonApiRefresh.doClick();
 		}
 		
 		@Override
@@ -323,20 +307,20 @@ public final class DoujinshiDBScanner extends Plugin
 			int width = parent.getWidth(),
 				height = parent.getHeight();
 			m_TabbedPane.setBounds(0,0,width,height);
-			m_ButtonApiRefresh.setBounds(1,1,20,20);
-			m_LabelApikey.setBounds(5,25,120,15);
-			m_TextApikey.setBounds(125,25,width-130,15);
-			m_LabelApiThreshold.setBounds(5,25+20,120,15);
-			m_SliderApiThreshold.setBounds(125,25+20,width-130,15);
-			m_LabelApiUserid.setBounds(5,25+40,120,15);
-			m_TextApiUserid.setBounds(125,25+40,width-130,15);
-			m_LabelApiUsername.setBounds(5,25+60,120,15);
-			m_TextApiUsername.setBounds(125,25+60,width-130,15);
-			m_LabelApiQueryCount.setBounds(5,25+80,120,15);
-			m_TextApiQueryCount.setBounds(125,25+80,width-130,15);
-			m_LabelApiImageQueryCount.setBounds(5,25+100,120,15);
-			m_TextApiImageQueryCount.setBounds(125,25+100,width-130,15);
-			m_CheckboxApiResizeImage.setBounds(5,25+120,width,45);
+//			m_ButtonApiRefresh.setBounds(1,1,20,20);
+//			m_LabelApikey.setBounds(5,25,120,15);
+//			m_TextApikey.setBounds(125,25,width-130,15);
+//			m_LabelApiThreshold.setBounds(5,25+20,120,15);
+//			m_SliderApiThreshold.setBounds(125,25+20,width-130,15);
+//			m_LabelApiUserid.setBounds(5,25+40,120,15);
+//			m_TextApiUserid.setBounds(125,25+40,width-130,15);
+//			m_LabelApiUsername.setBounds(5,25+60,120,15);
+//			m_TextApiUsername.setBounds(125,25+60,width-130,15);
+//			m_LabelApiQueryCount.setBounds(5,25+80,120,15);
+//			m_TextApiQueryCount.setBounds(125,25+80,width-130,15);
+//			m_LabelApiImageQueryCount.setBounds(5,25+100,120,15);
+//			m_TextApiImageQueryCount.setBounds(125,25+100,width-130,15);
+//			m_CheckboxApiResizeImage.setBounds(5,25+120,width,45);
 			m_ButtonTaskAdd.setBounds(1,1,20,20);
 			m_ButtonTaskManagerCtl.setBounds(21,1,20,20);
 			m_LabelTasks.setBounds(41,1,width-125,20);
@@ -346,16 +330,16 @@ public final class DoujinshiDBScanner extends Plugin
 			m_SplitPane.setBounds(1,21,width-5,height-45);
 			if(UserInfo != null)
 			{
-				m_TextApiUserid.setText(UserInfo.id);
-				m_TextApiUsername.setText(UserInfo.User);
-				m_TextApiQueryCount.setText("" + UserInfo.Queries);
-				m_TextApiImageQueryCount.setText("" + UserInfo.Image_Queries);
+//				m_TextApiUserid.setText(UserInfo.id);
+//				m_TextApiUsername.setText(UserInfo.User);
+//				m_TextApiQueryCount.setText("" + UserInfo.Queries);
+//				m_TextApiImageQueryCount.setText("" + UserInfo.Image_Queries);
 			}else
 			{
-				m_TextApiUserid.setText("");
-				m_TextApiUsername.setText("");
-				m_TextApiQueryCount.setText("");
-				m_TextApiImageQueryCount.setText("");
+//				m_TextApiUserid.setText("");
+//				m_TextApiUsername.setText("");
+//				m_TextApiQueryCount.setText("");
+//				m_TextApiImageQueryCount.setText("");
 			}
 		}
 		@Override
@@ -376,45 +360,45 @@ public final class DoujinshiDBScanner extends Plugin
 		@Override
 		public void actionPerformed(ActionEvent ae)
 		{
-			if(ae.getSource() == m_ButtonApiRefresh)
-			{
-				m_TextApikey.setText(APIKEY);
-				m_SliderApiThreshold.setValue(THRESHOLD);
-				m_ButtonApiRefresh.setEnabled(false);
-				m_TextApikey.setEnabled(false);
-				m_SliderApiThreshold.setEnabled(false);
-				m_ButtonApiRefresh.setIcon(Icon.loading);
-				new SwingWorker<Void,Void>()
-				{
-					@Override
-					protected Void doInBackground() throws Exception {
-						try
-						{
-							if(APIKEY == null || APIKEY.equals(""))
-								throw new Exception("Invalid API key provided.");
-							URLConnection urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + APIKEY + "/").openConnection();
-							urlc.setRequestProperty("User-Agent", USER_AGENT);
-							InputStream in = new ClientHttpRequest(urlc).post();
-							XMLParser.XML_User parsedUser = XMLParser.readUser(in);
-							UserInfo = (parsedUser == null ? UserInfo : parsedUser);
-						} catch (Exception e)
-						{
-							e.printStackTrace();
-						}
-						return null;
-					}
-					@Override
-					protected void done() {
-						m_ButtonApiRefresh.setIcon(Icon.refresh);
-						m_ButtonApiRefresh.setEnabled(true);
-						m_TextApikey.setEnabled(true);
-						m_SliderApiThreshold.setEnabled(true);
-						doLayout();
-						validate();
-					}
-				}.execute();
-				return;
-			}
+//			if(ae.getSource() == m_ButtonApiRefresh)
+//			{
+//				m_TextApikey.setText(APIKEY);
+//				m_SliderApiThreshold.setValue(THRESHOLD);
+//				m_ButtonApiRefresh.setEnabled(false);
+//				m_TextApikey.setEnabled(false);
+//				m_SliderApiThreshold.setEnabled(false);
+//				m_ButtonApiRefresh.setIcon(Icon.loading);
+//				new SwingWorker<Void,Void>()
+//				{
+//					@Override
+//					protected Void doInBackground() throws Exception {
+//						try
+//						{
+//							if(APIKEY == null || APIKEY.equals(""))
+//								throw new Exception("Invalid API key provided.");
+//							URLConnection urlc = new java.net.URL(DoujinshiDBScanner.DOUJINSHIDB_APIURL + APIKEY + "/").openConnection();
+//							urlc.setRequestProperty("User-Agent", USER_AGENT);
+//							InputStream in = new ClientHttpRequest(urlc).post();
+//							XMLParser.XML_User parsedUser = XMLParser.readUser(in);
+//							UserInfo = (parsedUser == null ? UserInfo : parsedUser);
+//						} catch (Exception e)
+//						{
+//							e.printStackTrace();
+//						}
+//						return null;
+//					}
+//					@Override
+//					protected void done() {
+//						m_ButtonApiRefresh.setIcon(Icon.refresh);
+//						m_ButtonApiRefresh.setEnabled(true);
+//						m_TextApikey.setEnabled(true);
+//						m_SliderApiThreshold.setEnabled(true);
+//						doLayout();
+//						validate();
+//					}
+//				}.execute();
+//				return;
+//			}
 			if(ae.getSource() == m_ButtonTaskAdd)
 			{
 				try 
@@ -1007,9 +991,7 @@ public final class DoujinshiDBScanner extends Plugin
 					@Override
 					protected ImageIcon doInBackground() throws Exception
 					{
-						return new ImageIcon(
-							ImageTool.read(
-								new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".png")));
+						return new ImageIcon(javax.imageio.ImageIO.read(new File(PLUGIN_QUERY, m_Task.getId() + ".png")));
 					}
 					@Override
 				    protected void process(List<Void> chunks) { ; }
@@ -1045,9 +1027,7 @@ public final class DoujinshiDBScanner extends Plugin
 								try
 								{
 									// Load images from local DataStore
-									ImageIcon ii = new ImageIcon(
-										ImageTool.read(
-											DataStore.getThumbnail(id).openInputStream()));
+									ImageIcon ii = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(id).openInputStream()));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
 									data.put("imageicon", ii);
@@ -1061,7 +1041,7 @@ public final class DoujinshiDBScanner extends Plugin
 							{
 								try
 								{
-									File file = new File(DoujinshiDBScanner.PLUGIN_IMAGECACHE, "B" + id + ".jpg");
+									File file = new File(PLUGIN_IMAGECACHE, "B" + id + ".jpg");
 									ImageIcon ii = new ImageIcon(ImageIO.read(file));
 									Map<String,Object> data = new HashMap<String,Object>();
 									data.put("id", id);
@@ -1115,7 +1095,7 @@ public final class DoujinshiDBScanner extends Plugin
 									@Override
 									public void actionPerformed(ActionEvent ae) {
 										try {
-											URI uri = new URI(DoujinshiDBScanner.DOUJINSHIDB_URL + "book/" + id + "/");
+											URI uri = new URI(DataImport.DOUJINSHIDB_URL + "book/" + id + "/");
 											Desktop.getDesktop().browse(uri);
 										} catch (URISyntaxException urise) {
 											urise.printStackTrace();
@@ -1294,7 +1274,7 @@ public final class DoujinshiDBScanner extends Plugin
 						@Override
 						protected Void doInBackground() throws Exception {
 							try {
-								URI uri = new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".xml").toURI();
+								URI uri = new File(PLUGIN_QUERY, m_Task.getId() + ".xml").toURI();
 								Desktop.getDesktop().browse(uri);
 							} catch (IOException ioe) {
 								ioe.printStackTrace();
@@ -1371,9 +1351,7 @@ public final class DoujinshiDBScanner extends Plugin
 						@Override
 						protected ImageIcon doInBackground() throws Exception
 						{
-							return new ImageIcon(
-								ImageTool.read(
-									new File(DoujinshiDBScanner.PLUGIN_QUERY, m_Task.getId() + ".png")));
+							return new ImageIcon(javax.imageio.ImageIO.read(new File(PLUGIN_QUERY, m_Task.getId() + ".png")));
 						}
 						@Override
 					    protected void process(List<Void> chunks) { ; }
@@ -1411,42 +1389,6 @@ public final class DoujinshiDBScanner extends Plugin
 				return;
 			}
 		}
-		
-		@Override
-		public void configurationAdded(String key) { }
-
-		@Override
-		public void configurationDeleted(String key) { }
-
-		@Override
-		public void configurationUpdated(final String key)
-		{
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if(key.equals(configBase + "apikey"))
-					{
-						if(!m_TextApikey.getText().equals((String) Configuration.configRead(key)))
-							m_TextApikey.setText((String) Configuration.configRead(key));
-						return;
-					}
-					if(key.equals(configBase + "threshold"))
-					{
-						if(m_SliderApiThreshold.getValue() != (Integer) Configuration.configRead(key))
-							m_SliderApiThreshold.setValue((Integer) Configuration.configRead(key));
-						return;
-					}
-					if(key.equals(configBase + "resize_cover"))
-					{
-						if(m_CheckboxApiResizeImage.isSelected() != (Boolean) Configuration.configRead(key))
-							m_CheckboxApiResizeImage.setSelected((Boolean) Configuration.configRead(key));
-						return;
-					}
-				}
-			});
-		}
 	}
 
 	@Override
@@ -1461,13 +1403,6 @@ public final class DoujinshiDBScanner extends Plugin
 	@Override
 	protected void doStartup() throws TaskErrorException
 	{
-		APIKEY = (String) Configuration.configRead(configBase + "apikey");
-		THRESHOLD = (Integer) Configuration.configRead(configBase + "threshold");
-		RESIZE_COVER = (Boolean) Configuration.configRead(configBase + "resize_cover");
-		
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		
 		PLUGIN_HOME.mkdirs();
 		PLUGIN_IMAGECACHE.mkdirs();
 		PLUGIN_QUERY.mkdirs();

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.plug.impl.mugimugi;
+package org.dyndns.doujindb.plug.impl.dataimport;
 
 @SuppressWarnings("serial")
 public final class TaskErrorException extends RuntimeException

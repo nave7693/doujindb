@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.plug.impl.mugimugi;
+package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.lang.reflect.*;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package org.dyndns.doujindb.plug.impl.mugimugi;
+package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.util.Set;
 
@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="Task")
-@XmlSeeAlso({org.dyndns.doujindb.plug.impl.mugimugi.TaskManager.TaskImpl.class})
+@XmlSeeAlso({org.dyndns.doujindb.plug.impl.dataimport.TaskManager.TaskImpl.class})
 abstract class Task
 {
 	// Needed by JAXB
@@ -47,7 +47,7 @@ abstract class Task
 	@XmlElement(name="taskPath")
 	private String path;
 	@XmlElement(name="searchThreshold")
-	private int threshold = DoujinshiDBScanner.THRESHOLD;
+	private int threshold = DataImport.THRESHOLD;
 	@XmlElement(name="taskInfo")
 	private Task.Info info = Task.Info.IDLE;
 	@XmlElement(name="taskExec")

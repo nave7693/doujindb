@@ -28,6 +28,7 @@ import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.PanelConfiguration;
 
 /**  
 * DoujinshiDBScanner.java - Plugin to batch process media files thanks to the DoujinshiDB project APIs.
@@ -112,7 +113,7 @@ public final class DataImport extends Plugin
 	{
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
-		private JPanel m_TabSettings;
+		private JPanel m_TabConfiguration;
 		@SuppressWarnings("unused")
 		private JPanel m_TabTasks;
 		
@@ -292,6 +293,10 @@ public final class DataImport extends Plugin
 			m_SplitPane.setBottomComponent(null);
 			bogus.add(m_SplitPane);
 			m_TabbedPane.addTab("Tasks", Icon.tasks, m_TabTasks = bogus);
+			
+			PanelConfiguration panelConfig = new PanelConfiguration(Configuration.class);
+			panelConfig.setConfigurationFile(CONFIG_FILE);
+			m_TabbedPane.addTab("Configuration", Icon.settings, m_TabConfiguration = panelConfig);
 			
 			super.add(m_TabbedPane);
 			

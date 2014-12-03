@@ -70,6 +70,7 @@ final class TaskManager
 			}
 			
 			private void fetch(long bookId) throws IOException {
+				/*
 				File file = new File(DataImport.PLUGIN_IMAGECACHE, "B" + bookId + ".jpg");
 				if(file.exists())
 					return;
@@ -80,6 +81,7 @@ final class TaskManager
 				g2.drawImage(i, 0, 0, null);
 				g2.dispose();
 				ImageIO.write(bi, "JPG", file);
+				*/
 			}
 		};
 		thread.setName("plugin/doujinshidb-scanner/taskmanager-downloader");
@@ -94,6 +96,7 @@ final class TaskManager
 	}
 	
 	public static void saveTasks() {
+		/*
 		File file = new File(DataImport.PLUGIN_HOME, "tasks.xml");
 		FileOutputStream out = null;
 		try
@@ -114,10 +117,12 @@ final class TaskManager
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
+		*/
 	}
 	
 	public static void loadTasks()
 	{
+		/*
 		synchronized(tasks)
 		{
 			tasks = new Vector<Task>();
@@ -142,6 +147,7 @@ final class TaskManager
 			}
 		}
 		pcs.firePropertyChange("taskmanager-info", 0, 1);
+		*/
 	}
 	
 	public static int size() {
@@ -215,7 +221,7 @@ final class TaskManager
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="Task")
+	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Task")
 	static final class TaskImpl extends Task
 	{
 		/**
@@ -328,7 +334,7 @@ final class TaskManager
 		}
 	}
 	
-	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="TaskSet")
+	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="TaskSet")
 	private static final class TaskSet
 	{
 		@XmlElements({
@@ -578,6 +584,7 @@ final class TaskManager
 	
 	private static boolean execImageScan(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.SCAN_IMAGE);
 		
 		File coverFile;
@@ -626,12 +633,13 @@ final class TaskManager
 				throw new TaskErrorException("Could not write image file '" + coverFile.getPath()+ "' : " + e.getMessage());
 			}
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execDuplicateCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.CHECK_DUPLICATE);
 		
 		File reqFile;
@@ -681,12 +689,13 @@ final class TaskManager
 			
 			throw new TaskWarningException("Duplicate book detected" + japanLang + " " + higherRes);
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execImageUpload(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.UPLOAD_IMAGE);
 		
 		URLConnection urlConnection;
@@ -709,12 +718,13 @@ final class TaskManager
 		} catch (IOException ioe) {
 			throw new TaskErrorException("Error uploading image : " + ioe.getMessage());
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execXMLParse(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.PARSE_XML);
 		
 		File rspFile;
@@ -748,12 +758,13 @@ final class TaskManager
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException("Error parsing XML : " + e.getMessage());
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execSimilarityCheck(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.CHECK_SIMILARITY);
 		
 		Set<Book> books = new HashSet<Book>();
@@ -812,12 +823,13 @@ final class TaskManager
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execDatabaseInsert(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.SAVE_DATABASE);
 		
 		Book book;
@@ -890,10 +902,7 @@ final class TaskManager
 							a.setTranslatedName(xmlitem.NAME_EN);
 							a.setRomajiName(xmlitem.NAME_R);
 							book.addArtist(a);
-							/**
-							 * save Artist reference
-							 * so we can link it with the appropriate Circle
-							 */
+							// save Artist reference so we can link it with the appropriate Circle
 							artists_added.put(xmlitem.ID, a);
 						}
 						break;
@@ -915,10 +924,7 @@ final class TaskManager
 							c.setTranslatedName(xmlitem.NAME_EN);
 							c.setRomajiName(xmlitem.NAME_R);
 							book.addCircle(c);
-							/**
-							 * save Artist reference
-							 * so we can link it with the appropriate Circle
-							 */
+							// save Artist reference so we can link it with the appropriate Circle
 							circles_added.put(xmlitem.ID, c);
 						}
 						break;
@@ -1032,12 +1038,13 @@ final class TaskManager
 				SAXException e) {
 			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
 		}
-		
+		*/
 		return true;
 	}
 	
 	private static boolean execDatastoreSave(Task task) throws TaskWarningException, TaskErrorException
 	{
+		/*
 		task.setExec(Task.Exec.SAVE_DATASTORE);
 		
 		File basepath;
@@ -1060,7 +1067,7 @@ final class TaskManager
 		} catch (IOException | DataStoreException e) {
 			throw new TaskErrorException("Error creating preview in the DataStore : " + e.getMessage());
 		}
-		
+		*/
 		return true;
 	}
 	

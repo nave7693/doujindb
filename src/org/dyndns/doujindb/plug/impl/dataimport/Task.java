@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.xml.bind.annotation.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.mugimugi", name="Task")
+@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Task")
 @XmlSeeAlso({org.dyndns.doujindb.plug.impl.dataimport.TaskManager.TaskImpl.class})
 abstract class Task
 {

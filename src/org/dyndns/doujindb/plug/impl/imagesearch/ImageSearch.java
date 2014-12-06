@@ -197,7 +197,7 @@ public final class ImageSearch extends Plugin
 	                                	if(m_ScannerRunning || m_BuilderRunning)
 	                    					return;
 	                                	m_WorkerScanner = new TaskScanner(file);
-	                                	m_WorkerScanner.execute();
+	                                	new Thread(m_WorkerScanner).start();
 	                    				m_TabSearch.doLayout();
 	                                }
 	                        	}.start();
@@ -233,11 +233,11 @@ public final class ImageSearch extends Plugin
 				if(m_BuilderRunning)
 					return;
 				m_WorkerBuilder = new TaskBuilder();
-				m_WorkerBuilder.execute();
+				new Thread(m_WorkerBuilder).start();
 				return;
 			}
 			if(ae.getSource() == m_ButtonCacheCancel) {
-				m_WorkerBuilder.cancel(true);
+				m_WorkerBuilder.cancel(false);
 				return;
 			}
 			if(ae.getSource() == m_ButtonScanPreview) {
@@ -254,7 +254,7 @@ public final class ImageSearch extends Plugin
 							return;
 						File file = fc.getSelectedFile();
                     	m_WorkerScanner = new TaskScanner(file);
-                    	m_WorkerScanner.execute();
+                    	new Thread(m_WorkerScanner).start();
         				m_TabSearch.doLayout();
                     }
             	}.start();
@@ -267,7 +267,7 @@ public final class ImageSearch extends Plugin
 			private String labelETA = "";
 			@Override
 			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("plugin-imagesearch[hashdb-builder]");
+				Thread.currentThread().setName("plugin-imagesearch-hashdb");
 				m_BuilderRunning = true;
 				m_TabSearch.doLayout();
 
@@ -356,6 +356,7 @@ public final class ImageSearch extends Plugin
 			    		LOG.error("Error processing hashing task", e);
 			    	}
 			    }
+			    eservice.shutdown();
 			    timer.stop();
 				return null;
 			}
@@ -402,7 +403,7 @@ public final class ImageSearch extends Plugin
 			
 			@Override
 			protected Void doInBackground() throws Exception {
-				Thread.currentThread().setName("plugin-imagesearch[image-query]");
+				Thread.currentThread().setName("plugin-imagesearch-imagequery");
 				m_ScannerRunning = true;
 				PluginUI.this.doLayout();
 				

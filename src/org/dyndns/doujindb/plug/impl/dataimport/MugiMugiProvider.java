@@ -1,31 +1,76 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.awt.Image;
-import java.net.URI;
+import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 final class MugiMugiProvider implements MetadataProvider {
 
+	private static APIClient.XML_User userData = new APIClient.XML_User();
+	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)?([0-9]+)(/)?");
+	
 	@Override
-	public Metadata query(Image image) {
+	public Metadata query(Image image) throws TaskException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Metadata query(String string) {
+	public Metadata query(String string) throws TaskException {
 		// TODO Auto-generated method stub
-		return null;
+		throw new TaskException("Method not implemented");
 	}
 
 	@Override
-	public Metadata query(URI uri) {
-		// TODO Auto-generated method stub
+	public Metadata query(URI uri) throws TaskException {
+		// Check API key
+		checkAPI();
+		// Parse input URI
+		URLConnection urlc;
+		try {
+			// Extract MugiMugi Book Id from URI
+			Matcher matcher = pattern.matcher(uri.toString());
+			if(!matcher.find())
+				throw new TaskException("Invalid MugiMugi URI " + uri);
+			String bookId = matcher.group(3);
+			// Query API
+			urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=getID&ID=B" + bookId + "").openConnection();
+			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
+			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
+			// Parse XML response
+			APIClient.XML_List list = APIClient.parseList(urlc.getInputStream());
+			// Update user data
+			userData = (list.USER == null ? userData : list.USER);
+			// Find best match
+			double bestMatch = 0;
+			for(APIClient.XML_Book book : list.Books) {
+				Integer bid = Integer.parseInt(book.ID.substring(1)); // Remove leading 'B' char
+				double match = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
+				if(match > bestMatch)
+					bestMatch = match;
+				//TODO keep MugiMugi books reference so we can inspect them manually
+			}
+			if(bestMatch < Configuration.provider_mugimugi_threshold.get())
+				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
+			//TODO Produce relevant Metadata object
+		} catch (IOException ioe) {
+			throw new TaskException("Error querying MugiMugi with input URI " + uri, ioe);
+		} catch (JAXBException jaxbe) {
+			throw new TaskException("Error parsing MugiMugi XML response with input URI " + uri, jaxbe);
+		}
 		return null;
+	}
+	
+	private static void checkAPI() throws TaskException {
+		if(!Configuration.provider_mugimugi_apikey.get().matches("[0-9a-f]{20}")) {
+			throw new TaskException("Invalid API Key provided : " + Configuration.provider_mugimugi_apikey);
+		}
 	}
 
 	/**

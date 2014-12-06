@@ -1397,16 +1397,16 @@ public final class DataImport extends Plugin
 	}
 
 	@Override
-	protected void doInstall() throws TaskErrorException { }
+	protected void doInstall() throws TaskException { }
 
 	@Override
-	protected void doUpdate() throws TaskErrorException { }
+	protected void doUpdate() throws TaskException { }
 
 	@Override
-	protected void doUninstall() throws TaskErrorException { }
+	protected void doUninstall() throws TaskException { }
 	
 	@Override
-	protected void doStartup() throws TaskErrorException
+	protected void doStartup() throws TaskException
 	{
 		PLUGIN_HOME.mkdirs();
 		PLUGIN_IMAGECACHE.mkdirs();
@@ -1418,7 +1418,7 @@ public final class DataImport extends Plugin
 	}
 	
 	@Override
-	protected void doShutdown() throws TaskErrorException
+	protected void doShutdown() throws TaskException
 	{
 		TaskManager.saveTasks();
 	}

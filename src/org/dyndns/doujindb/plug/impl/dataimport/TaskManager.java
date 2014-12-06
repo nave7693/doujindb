@@ -538,15 +538,10 @@ final class TaskManager
 					
 					if(m_Task.getExec() == Task.Exec.SAVE_DATASTORE)
 						execCleanup(m_Task);
-				} catch (TaskWarningException twe) {
+				} catch (TaskException twe) {
 					m_Task.setWarning(twe.getMessage());
-					m_Task.setInfo(Task.Info.WARNING);
-					twe.printStackTrace();
-					continue;
-				} catch (TaskErrorException tee) {
-					m_Task.setError(tee.getMessage());
 					m_Task.setInfo(Task.Info.ERROR);
-					tee.printStackTrace();
+					twe.printStackTrace();
 					continue;
 				} catch (Exception e) {
 					m_Task.setError("[FATAL] " + e.getMessage()); // Overkill, not supposed to happen, but still ...
@@ -569,20 +564,20 @@ final class TaskManager
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 	
-	private static boolean execApiCheck(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execApiCheck(Task task) throws TaskException, TaskException
 	{
 		task.setExec(Task.Exec.CHECK_API);
 		
 		if(!(DataImport.APIKEY + "").matches("[0-9a-f]{20}"))
 		{
 			TaskManager.stop();
-			throw new TaskErrorException("Invalid API Key (" + DataImport.APIKEY + ") provided");
+			throw new TaskException("Invalid API Key (" + DataImport.APIKEY + ") provided");
 		}
 		
 		return true;
 	}
 	
-	private static boolean execImageScan(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execImageScan(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.SCAN_IMAGE);
@@ -637,7 +632,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execDuplicateCheck(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execDuplicateCheck(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.CHECK_DUPLICATE);
@@ -687,13 +682,13 @@ final class TaskManager
 				}
 			} catch (DataStoreException | IOException e) { }
 			
-			throw new TaskWarningException("Duplicate book detected" + japanLang + " " + higherRes);
+			throw new TaskException("Duplicate book detected" + japanLang + " " + higherRes);
 		}
 		*/
 		return true;
 	}
 	
-	private static boolean execImageUpload(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execImageUpload(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.UPLOAD_IMAGE);
@@ -722,7 +717,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execXMLParse(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execXMLParse(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.PARSE_XML);
@@ -754,7 +749,7 @@ final class TaskManager
 			task.setMugimugiList(mugimugi_list);
 			
 			if(task.getThreshold() > bestResult)
-				throw new TaskWarningException("No query matched the threshold (" + DataImport.THRESHOLD + ")");
+				throw new TaskException("No query matched the threshold (" + DataImport.THRESHOLD + ")");
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException("Error parsing XML : " + e.getMessage());
 		}
@@ -762,7 +757,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execSimilarityCheck(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execSimilarityCheck(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.CHECK_SIMILARITY);
@@ -818,7 +813,7 @@ final class TaskManager
 				for(Book _book : books)
 					duplicateList.add(_book.getId());
 				task.setDuplicateList(duplicateList);
-				throw new TaskWarningException("Possible duplicate book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
+				throw new TaskException("Possible duplicate book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
 			}
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
 			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
@@ -827,7 +822,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execDatabaseInsert(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execDatabaseInsert(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.SAVE_DATABASE);
@@ -1042,7 +1037,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execDatastoreSave(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execDatastoreSave(Task task) throws TaskException, TaskException
 	{
 		/*
 		task.setExec(Task.Exec.SAVE_DATASTORE);
@@ -1071,7 +1066,7 @@ final class TaskManager
 		return true;
 	}
 	
-	private static boolean execCleanup(Task task) throws TaskWarningException, TaskErrorException
+	private static boolean execCleanup(Task task) throws TaskException, TaskException
 	{
 		task.setExec(Task.Exec.CLEANUP_DATA);
 		

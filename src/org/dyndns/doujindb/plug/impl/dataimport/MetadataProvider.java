@@ -5,9 +5,9 @@ import java.net.URI;
 
 public interface MetadataProvider
 {
-	public Metadata query(Image image);
+	public Metadata query(Image image) throws TaskException;
 	
-	public Metadata query(String string);
+	public Metadata query(String string) throws TaskException;
 	
-	public Metadata query(URI uri);
+	public Metadata query(URI uri) throws TaskException;
 }

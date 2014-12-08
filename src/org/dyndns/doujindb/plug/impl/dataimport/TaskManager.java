@@ -31,73 +31,17 @@ import org.dyndns.doujindb.util.*;
 
 final class TaskManager
 {
-	private static Vector<Task> tasks = new Vector<Task>();
+	private static HashSet<Task> tasks = new HashSet<Task>();
 	private static Worker worker = new Worker();
-	
-	private static ConcurrentLinkedQueue<Long> queue = new ConcurrentLinkedQueue<Long>();
-	
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(tasks);
-	
+	private static Set<MetadataProvider> providers = new HashSet<MetadataProvider>();
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
 	static {
-		loadTasks();
-		
-		Thread thread;
-		
-		thread = new Thread(worker);
-		thread.setName("plugin/doujinshidb-scanner/taskmanager-worker");
-		thread.setDaemon(true);
-		thread.setPriority(Thread.MIN_PRIORITY);
-		thread.start();
-		
-		thread = new Thread() {
-			@Override
-			public void run() {
-				long bookid = 0;
-				while(true) {
-					try {
-						Thread.sleep(1);
-						if(queue.isEmpty())
-							continue;
-						bookid = queue.peek();
-						fetch(bookid);
-						queue.poll();
-					} catch (IOException ioe) {
-						LOG.error("Error downloading image for [{}]", bookid, ioe);
-					} catch (InterruptedException ie) { }
-				}
-			}
-			
-			private void fetch(long bookId) throws IOException {
-				/*
-				File file = new File(DataImport.PLUGIN_IMAGECACHE, "B" + bookId + ".jpg");
-				if(file.exists())
-					return;
-				URL thumbURL = new URL(DataImport.DOUJINSHIDB_IMGURL + "tn/" + (int)Math.floor((double)bookId/(double)2000) + "/" + bookId + ".jpg");
-				Image i = new ImageIcon(thumbURL).getImage();
-				BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
-				Graphics2D g2 = bi.createGraphics();
-				g2.drawImage(i, 0, 0, null);
-				g2.dispose();
-				ImageIO.write(bi, "JPG", file);
-				*/
-			}
-		};
-		thread.setName("plugin/doujinshidb-scanner/taskmanager-downloader");
-		thread.setDaemon(true);
-		thread.setPriority(Thread.MIN_PRIORITY);
-		thread.start();
+		providers.add(new MugiMugiProvider());
 	}
 	
-	public static synchronized void fetchImage(long bookId)
-	{
-		queue.offer(bookId);
-	}
-	
-	public static void saveTasks() {
-		/*
-		File file = new File(DataImport.PLUGIN_HOME, "tasks.xml");
+	public static void save(File file) {
 		FileOutputStream out = null;
 		try
 		{
@@ -113,21 +57,16 @@ final class TaskManager
 		} catch (JAXBException jaxbe) {
 			jaxbe.printStackTrace();
 		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
+			fnfe.printStackTrace(); //FIXME
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
-		*/
 	}
 	
-	public static void loadTasks()
-	{
-		/*
+	public static void load(File file) {
 		synchronized(tasks)
 		{
-			tasks = new Vector<Task>();
-			
-			File file = new File(DataImport.PLUGIN_HOME, "tasks.xml");
+			tasks = new HashSet<Task>();
 			FileInputStream in = null;
 			try
 			{
@@ -141,29 +80,30 @@ final class TaskManager
 			} catch (JAXBException jaxbe) {
 				jaxbe.printStackTrace();
 			} catch (FileNotFoundException fnfe) {
-				;
+				; //FIXME
 			} finally {
 				try { in.close(); } catch (Exception e) { }
 			}
 		}
 		pcs.firePropertyChange("taskmanager-info", 0, 1);
-		*/
 	}
 	
 	public static int size() {
 		return tasks.size();
 	}
 	
-	public static void add(File workpath) {
+	public static void add(File file) {
+		add(file.getAbsolutePath());
+	}
+	
+	public static void add(String file) {
 		synchronized(tasks)
 		{
 			// Get unique ID
 			String uuid = java.util.UUID.randomUUID().toString();
 			while(tasks.contains(uuid))
 				uuid = java.util.UUID.randomUUID().toString();
-			//
-			Task task = new TaskImpl(uuid, workpath);
-			tasks.add(task);
+			tasks.add(new Task(uuid, file));
 		}
 		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}
@@ -181,15 +121,7 @@ final class TaskManager
 		{
 			if(!contains(task))
 				return;
-			task.setBook(null);
-			task.setDuplicateList(null);
-			task.setMugimugiList(null);
-			task.setExec(Task.Exec.NO_OPERATION);
-			task.setInfo(Task.Info.IDLE);
-			task.setError(null);
-			task.setWarning(null);
-			task.setSelected(false);
-			task.setMugimugiBid(null);
+			//TODO reset Task
 		}
 	}
 	
@@ -201,170 +133,58 @@ final class TaskManager
 		return tasks.contains(taskid);
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
+//	public static Iterable<Task> tasks() {
+//		return (Iterable<Task>) tasks.clone();
+//	}
+	
 	public static Iterable<Task> tasks() {
-		return (Iterable<Task>) tasks.clone();
+		return tasks;
 	}
 	
-	public static Task get(int index) {
-		return tasks.get(index);
-	}
+//	public static Task get(int index) {
+//		return tasks.get(index);
+//	}
 	
-	public static Task getRunning() {
-		if(!isRunning())
-			return null;
-		return worker.m_Task;
-	}
+//	public static Task getRunning() {
+//		if(!isRunning())
+//			return null;
+//		return worker.m_Task;
+//	}
 	
 	public static void registerListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 	
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Task")
-	static final class TaskImpl extends Task
-	{
-		/**
-		 * Used by JAXB, do not remove or suffer
-		 * IllegalAnnotationsException : TaskImpl does not have a no-arg default constructor.
-		 */
-		private TaskImpl()
-		{
-			super(null, null);
-		}
-		
-		private TaskImpl(String id, File path)
-		{
-			super(id, path.getPath());
-		}
-		
-		@Override
-		public void setExec(Task.Exec exec) {
-			super.setExec(exec);
-			pcs.firePropertyChange("task-exec", 0, 1);
-		}
-		
-		@Override
-		public void setInfo(Task.Info info) {
-			super.setInfo(info);
-			pcs.firePropertyChange("task-info", 0, 1);
-		}
-		
-		@Override
-		public int getProgress() {
-			switch(this.getExec())
-			{
-				case NO_OPERATION:
-					if(this.getInfo() == Task.Info.IDLE)
-						return 0;
-					else if (this.getInfo() == Task.Info.COMPLETED)
-						return 100;
-					break;
-				case CHECK_API:
-					return 10;
-				case SCAN_IMAGE:
-					return 20;
-				case CHECK_DUPLICATE:
-					return 30;
-				case UPLOAD_IMAGE:
-					return 40;
-				case PARSE_BID:
-					return 50;
-				case PARSE_XML:
-					return 50;
-				case CHECK_SIMILARITY:
-					return 60;
-				case SAVE_DATABASE:
-					return 70;
-				case SAVE_DATASTORE:
-					return 80;
-				case CLEANUP_DATA:
-					return 90;
-				default:
-					break;
-			}
-			return -1;
-		}
-
-		@Override
-		public String getMessage() {
-			if(super.getInfo().equals(Task.Info.ERROR))
-				return super.getError();
-			if(super.getInfo().equals(Task.Info.WARNING))
-				return super.getWarning();
-			switch(this.getExec())
-			{
-				case NO_OPERATION:
-					if(this.getInfo() == Task.Info.IDLE)
-						return "queue.wait()";
-					else if (this.getInfo() == Task.Info.COMPLETED)
-						return "status:done";
-					break;
-				case CHECK_API:
-					return "api.check(key)";
-				case SCAN_IMAGE:
-					return "folder.scan_image()";
-				case CHECK_DUPLICATE:
-					return "cache.find_duplicate(image)";
-				case UPLOAD_IMAGE:
-					return "http.upload(image)";
-				case PARSE_BID:
-					return "xml.parse(book_id)";
-				case PARSE_XML:
-					return "xml.parse(response)";
-				case CHECK_SIMILARITY:
-					return "database.find_similar(book)";
-				case SAVE_DATABASE:
-					return "database.insert(book)";
-				case SAVE_DATASTORE:
-					return "datastore.upload(files)";
-				case CLEANUP_DATA:
-					return "plugin.cleanup()";
-				default:
-					break;
-			}
-			return "status:unknown";
-		}
-
-		@Override
-		public boolean isRunning() {
-			if(!worker.isPaused())
-				return this.equals(worker.m_Task);
-			return false;
-		}
+	public static void start() {
+		Thread thread = new Thread(worker);
+		thread.setName("plugin-dataimport-taskmanager");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MIN_PRIORITY);
+		thread.start();
 	}
 	
-	@XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="TaskSet")
-	private static final class TaskSet
-	{
-		@XmlElements({
-		    @XmlElement(name="Task", type=Task.class)
-		  })
-		private Vector<Task> tasks = new Vector<Task>();
+	public static void stop() {
+		//TODO
 	}
 	
-	public static void start()
-	{
-		if(worker.isPaused())
-		{
-			worker.resume();
-			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			LOG.info("Worker started");
-		}
-	}
-	
-	public static void stop()
-	{
-		if(!worker.isPaused())
-		{
+	public static void pause() {
+		if(!worker.isPaused()) {
 			worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
-			LOG.info("Worker stopped");
+			LOG.info("Worker paused");
 		}
 	}
 	
-	public static boolean isRunning()
-	{
+	public static void resume() {
+		if(worker.isPaused()) {
+			worker.resume();
+			pcs.firePropertyChange("taskmanager-info", 0, 1);
+			LOG.info("Worker resumed");
+		}
+	}
+	
+	public static boolean isRunning() {
 		return !worker.isPaused();
 	}
 	
@@ -376,16 +196,12 @@ final class TaskManager
 		
 		private Thread m_PauseThread;
 		
-		private Worker()
-		{
-			m_PauseThread = new Thread("plugin/doujinshidb-scanner/taskmanager-cmdpoller")
+		private Worker() {
+			m_PauseThread = new Thread("plugin-dataimport-taskmanager-cmdpoller")
 			{
 				@Override
-				public void run()
-				{
-					
-					while(true)
-					{
+				public void run() {
+					while(true) {
 						m_Paused = m_PauseReq;
 						try { Thread.sleep(100); } catch (InterruptedException ie) { }
 					}
@@ -395,10 +211,8 @@ final class TaskManager
 			m_PauseThread.start();
 		}
 		
-		public synchronized void pause()
-		{
-			synchronized(this)
-			{
+		public synchronized void pause() {
+			synchronized(this) {
 				if(isPaused())
 					return;
 				m_PauseReq = true;
@@ -407,10 +221,8 @@ final class TaskManager
 			}
 		}
 		
-		public synchronized void resume()
-		{
-			synchronized(this)
-			{
+		public synchronized void resume() {
+			synchronized(this) {
 				if(!isPaused())
 					return;
 				m_PauseReq = false;
@@ -419,162 +231,68 @@ final class TaskManager
 			}
 		}
 		
-		public boolean isPaused()
-		{
+		public boolean isPaused() {
 			return m_Paused;
 		}
 		
 		@Override
-		public void run()
-		{
+		public void run() {
 			while(true)
 			{
 				// Don't hog the CPU
-				try { Thread.sleep(100); } catch (InterruptedException ie) { }
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException ie) {
+					LOG.warn("Worker interrupted", ie);
+				}
 				
 				// Do nothing if paused
 				if(isPaused())
 					continue;
 				
-				/*
-				 *  Check if we have enough queries
-				 *  If not pause the Worker and notify the UI
-				 */
-				int queryCount = DataImport.UserInfo.Queries;
-				if( queryCount < 2)
-				{
-					LOG.warn("Not enough API queries to process more Tasks [{}]", queryCount);
-					TaskManager.stop();
-					pcs.firePropertyChange("api-info", 0, 1);
-					continue;
-				}
-				
 				// Get next queued Task
 				for(Task task : tasks())
-					if(task.getInfo() == Task.Info.IDLE)
-					{
+					if(!task.completed) {
 						m_Task = task;
 						break;
 					}
-				if(m_Task == null || m_Task.getInfo() != Task.Info.IDLE)
-				{
-					TaskManager.stop();
+				if(m_Task == null || m_Task.completed) {
+					TaskManager.pause();
 					continue;
 				}
 				
-				m_Task.setInfo(Task.Info.RUNNING);
 				try {
-					if(m_Task.getExec() == Task.Exec.NO_OPERATION)
-						execApiCheck(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.CHECK_API)
-						execImageScan(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.SCAN_IMAGE)
-						execDuplicateCheck(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.CHECK_DUPLICATE)
-						execImageUpload(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.UPLOAD_IMAGE)
-						execXMLParse(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-//					if(m_Task.getExec() == Task.Exec.PARSE_XML)
-//						execBIDParse(m_Task);
-//					if(isPaused())
-//					{
-//						m_Task.setInfo(Task.Info.IDLE);
-//						continue;
-//					}
-					
-					if(m_Task.getExec() == Task.Exec.PARSE_XML)
-						execSimilarityCheck(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.CHECK_SIMILARITY)
-						execDatabaseInsert(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.SAVE_DATABASE)
-						execDatastoreSave(m_Task);
-					if(isPaused())
-					{
-						m_Task.setInfo(Task.Info.IDLE);
-						continue;
-					}
-					
-					if(m_Task.getExec() == Task.Exec.SAVE_DATASTORE)
-						execCleanup(m_Task);
-				} catch (TaskException twe) {
-					m_Task.setWarning(twe.getMessage());
-					m_Task.setInfo(Task.Info.ERROR);
-					twe.printStackTrace();
-					continue;
+					for(MetadataProvider provider : providers)
+						if(isPaused()) {
+							try {
+								File image = findFirstFile(m_Task.file);
+								m_Task.metadata.add(provider.query(image));
+							} catch (TaskException te) {
+								m_Task.message = te.getMessage();
+								m_Task.exception(te);
+								LOG.warn("Error processing Task {} with provider {}", m_Task.id, provider, te);
+								break;
+							}
+						}
 				} catch (Exception e) {
-					m_Task.setError("[FATAL] " + e.getMessage()); // Overkill, not supposed to happen, but still ...
-					m_Task.setInfo(Task.Info.ERROR);
-					e.printStackTrace();
-					continue;
+					m_Task.message = e.getMessage();
+					m_Task.exception(e);
+					LOG.error("Error processing Task {}", m_Task.id, e);
+					// This error was not supposed to happen, pause TaskManager
+					TaskManager.pause();
 				}
-				m_Task.setExec(Task.Exec.NO_OPERATION);
-				m_Task.setInfo(Task.Info.COMPLETED);
+				m_Task.completed = true;
 			}
 		}
 	}
 	
-	private static String bytesToSize(long bytes)
+	private static String format(long bytes)
 	{
 		int unit = 1024;
 	    if (bytes < unit) return bytes + " B";
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-	
-	private static boolean execApiCheck(Task task) throws TaskException, TaskException
-	{
-		task.setExec(Task.Exec.CHECK_API);
-		
-		if(!(DataImport.APIKEY + "").matches("[0-9a-f]{20}"))
-		{
-			TaskManager.stop();
-			throw new TaskException("Invalid API Key (" + DataImport.APIKEY + ") provided");
-		}
-		
-		return true;
 	}
 	
 	private static boolean execImageScan(Task task) throws TaskException, TaskException
@@ -1068,9 +786,7 @@ final class TaskManager
 	
 	private static boolean execCleanup(Task task) throws TaskException, TaskException
 	{
-		task.setExec(Task.Exec.CLEANUP_DATA);
-		
-		Integer id = task.getBook();
+//		task.setExec(Task.Exec.CLEANUP_DATA);\
 		//FIXME 
 //		try {
 //			CacheManager.put(id, (BufferedImage) new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(id).openInputStream())).getImage());
@@ -1081,26 +797,22 @@ final class TaskManager
 		return true;
 	}
 	
-	private static File findFile(String base)
-	{
-		return findFile(new File(base));
+	private static File findFirstFile(String base) {
+		return findFirstFile(new File(base));
 	}
 	
-	private static File findFile(File base)
-	{
+	private static File findFirstFile(File base) {
 		File[] files = base.listFiles(new FilenameFilter()
 		{
 			@Override
-			public boolean accept(File dir, String fname)
-			{
+			public boolean accept(File dir, String fname) {
 				return !(new File(dir, fname).isHidden());
 			}
 		});
 		Arrays.sort(files, new Comparator<File>()
 		{
 			@Override
-			public int compare(File f1, File f2)
-			{
+			public int compare(File f1, File f2) {
 				return f1.getName().compareTo(f2.getName());
 			}
 		});				
@@ -1108,18 +820,16 @@ final class TaskManager
 			if(file.isFile())
 				return file;
 			else
-				return findFile(file);
+				return findFirstFile(file);
 		return null;
 	}
 	
-	private static DataFile findFile(DataFile base) throws DataStoreException
-	{
+	private static DataFile findFirstFile(DataFile base) throws DataStoreException {
 		DataFile[] files = base.listFiles();
 		Arrays.sort(files, new Comparator<DataFile>()
 		{
 			@Override
-			public int compare(DataFile f1, DataFile f2)
-			{
+			public int compare(DataFile f1, DataFile f2) {
 				try {
 					return f1.getName().compareTo(f2.getName());
 				} catch (DataStoreException dse) {
@@ -1131,7 +841,7 @@ final class TaskManager
 			if(file.isFile())
 				return file;
 			else
-				return findFile(file);
+				return findFirstFile(file);
 		return null;
 	}
 }

@@ -39,7 +39,7 @@ abstract class Metadata
 	protected Set<String> artist = new HashSet<String>();
 	@XmlElement(name="circle")
 	protected Set<String> circle = new HashSet<String>();
-	@XmlElement(name="circle")
+	@XmlElement(name="convention")
 	protected String convention;
 	@XmlElement(name="content")
 	protected Set<String> content = new HashSet<String>();

@@ -23,6 +23,8 @@ class Task
 	private String id = "";
 	@XmlElement(name="file")
 	private String file = "";
+	@XmlElement(name="completed")
+	private Boolean completed = false;
 	
 	@XmlElement(name="metadata")
 	public Set<Metadata> metadata = new HashSet<Metadata>();

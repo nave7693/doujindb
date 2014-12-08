@@ -1,11 +1,9 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.awt.Image;
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -22,9 +20,42 @@ final class MugiMugiProvider implements MetadataProvider {
 	}
 	
 	@Override
-	public Metadata query(Image image) throws TaskException {
-		// TODO Auto-generated method stub
-		return null;
+	public Metadata query(File image) throws TaskException {
+		// Check API key
+		checkAPI();
+		try {
+			// Query API
+			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=imageSearch").openConnection();
+			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
+			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
+			InputStream is = new ClientHttpRequest(urlc).post(new Object[] {
+				"img", image
+			});
+			// Parse XML response
+			APIClient.XML_List list = APIClient.parseList(is);
+			// Update user data
+			userData = (list.USER == null ? userData : list.USER);
+			// Find best match
+			double bestMatch = 0;
+			APIClient.XML_Book book = null;
+			for(APIClient.XML_Book b : list.Books) {
+				double match = Double.parseDouble(b.search.replaceAll("%", "").replaceAll(",", "."));
+				if(match > bestMatch) {
+					bestMatch = match;
+					book = b;
+				}
+				//TODO keep MugiMugi books reference so we can inspect them manually
+				Integer bid = Integer.parseInt(b.ID.substring(1)); // Remove leading 'B' char
+			}
+			if(bestMatch < Configuration.provider_mugimugi_threshold.get() || book == null)
+				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
+			// Return Metadata object
+			return toMetadata(book);
+		} catch (IOException ioe) {
+			throw new TaskException("Error querying MugiMugi with input Image", ioe);
+		} catch (JAXBException jaxbe) {
+			throw new TaskException("Error parsing MugiMugi XML response with input Image", jaxbe);
+		}
 	}
 
 	@Override
@@ -37,8 +68,6 @@ final class MugiMugiProvider implements MetadataProvider {
 	public Metadata query(URI uri) throws TaskException {
 		// Check API key
 		checkAPI();
-		// Parse input URI
-		URLConnection urlc;
 		try {
 			// Extract MugiMugi Book Id from URI
 			Matcher matcher = pattern.matcher(uri.toString());
@@ -46,37 +75,78 @@ final class MugiMugiProvider implements MetadataProvider {
 				throw new TaskException("Invalid MugiMugi URI " + uri);
 			String bookId = matcher.group(3);
 			// Query API
-			urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=getID&ID=B" + bookId + "").openConnection();
+			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=getID&ID=B" + bookId + "").openConnection();
 			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
 			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
 			// Parse XML response
 			APIClient.XML_List list = APIClient.parseList(urlc.getInputStream());
 			// Update user data
 			userData = (list.USER == null ? userData : list.USER);
-			// Find best match
-			double bestMatch = 0;
-			for(APIClient.XML_Book book : list.Books) {
-				Integer bid = Integer.parseInt(book.ID.substring(1)); // Remove leading 'B' char
-				double match = Double.parseDouble(book.search.replaceAll("%", "").replaceAll(",", "."));
-				if(match > bestMatch)
-					bestMatch = match;
-				//TODO keep MugiMugi books reference so we can inspect them manually
+			APIClient.XML_Book book = null;
+			for(APIClient.XML_Book b : list.Books) {
+				book = b;
+				//TODO keep MugiMugi book reference so we can inspect them manually
+				Integer bid = Integer.parseInt(b.ID.substring(1)); // Remove leading 'B' char
 			}
-			if(bestMatch < Configuration.provider_mugimugi_threshold.get())
-				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
-			//TODO Produce relevant Metadata object
+			// Return Metadata object
+			return toMetadata(book);
 		} catch (IOException ioe) {
 			throw new TaskException("Error querying MugiMugi with input URI " + uri, ioe);
 		} catch (JAXBException jaxbe) {
 			throw new TaskException("Error parsing MugiMugi XML response with input URI " + uri, jaxbe);
 		}
-		return null;
 	}
 	
 	private static void checkAPI() throws TaskException {
 		if(!Configuration.provider_mugimugi_apikey.get().matches("[0-9a-f]{20}")) {
 			throw new TaskException("Invalid API Key provided : " + Configuration.provider_mugimugi_apikey);
 		}
+	}
+	
+	private static Metadata toMetadata(APIClient.XML_Book book) {
+		Metadata md = new Metadata();
+		md.name = book.NAME_JP;
+		md.translation = book.NAME_EN;
+		md.alias.add(book.NAME_R);
+		for(String name_alt : book.NAME_ALT)
+			md.alias.add(name_alt);
+		md.timestamp = book.DATE_RELEASED.getTime() / 1000;
+		md.pages = book.DATA_PAGES;
+		md.adult = book.DATA_AGE == 1;
+		md.info = book.DATA_INFO;
+		for(APIClient.XML_Item item : book.LINKS.Items) {
+			switch(item.TYPE) {
+			case type:
+				md.type = item.NAME_JP;
+				break;
+			case author:
+				md.artist.add(item.NAME_JP);
+				break;
+			case circle:
+				md.circle.add(item.NAME_JP);
+				break;
+			case contents:
+				md.content.add(item.NAME_JP);
+				break;
+			case convention:
+				md.convention = item.NAME_JP;
+				break;
+			case parody:
+				md.parody.add(item.NAME_JP);
+				break;
+			case character:
+				break;
+			case collections:
+				break;
+			case genre:
+				break;
+			case imprint:
+				break;
+			case publisher:
+				break;
+			}
+		}
+		return md;
 	}
 
 	/**

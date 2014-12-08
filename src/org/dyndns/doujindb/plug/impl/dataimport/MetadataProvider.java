@@ -1,11 +1,11 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.awt.Image;
+import java.io.File;
 import java.net.URI;
 
 public interface MetadataProvider
 {
-	public Metadata query(Image image) throws TaskException;
+	public Metadata query(File image) throws TaskException;
 	
 	public Metadata query(String string) throws TaskException;
 	

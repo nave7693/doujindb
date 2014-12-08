@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.*;
 final class MugiMugiProvider implements MetadataProvider {
 
 	private static APIClient.XML_User userData = new APIClient.XML_User();
-	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)?([0-9]+)(/)?");
+	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)(?<id>[0-9]+)(/.*)");
 	
 	@XmlRootElement
 	@XmlType(namespace="org.mugimugi.doujinshi", name="Metadata")
@@ -44,8 +44,6 @@ final class MugiMugiProvider implements MetadataProvider {
 					bestMatch = match;
 					book = b;
 				}
-				//TODO keep MugiMugi books reference so we can inspect them manually
-				Integer bid = Integer.parseInt(b.ID.substring(1)); // Remove leading 'B' char
 			}
 			if(bestMatch < Configuration.provider_mugimugi_threshold.get() || book == null)
 				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
@@ -60,7 +58,7 @@ final class MugiMugiProvider implements MetadataProvider {
 
 	@Override
 	public Metadata query(String string) throws TaskException {
-		// TODO Auto-generated method stub
+		// FIXME Implement MugiMugiProvider.query(String)
 		throw new TaskException("Method not implemented");
 	}
 
@@ -73,7 +71,7 @@ final class MugiMugiProvider implements MetadataProvider {
 			Matcher matcher = pattern.matcher(uri.toString());
 			if(!matcher.find())
 				throw new TaskException("Invalid MugiMugi URI " + uri);
-			String bookId = matcher.group(3);
+			String bookId = matcher.group("id");
 			// Query API
 			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=getID&ID=B" + bookId + "").openConnection();
 			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
@@ -85,8 +83,6 @@ final class MugiMugiProvider implements MetadataProvider {
 			APIClient.XML_Book book = null;
 			for(APIClient.XML_Book b : list.Books) {
 				book = b;
-				//TODO keep MugiMugi book reference so we can inspect them manually
-				Integer bid = Integer.parseInt(b.ID.substring(1)); // Remove leading 'B' char
 			}
 			// Return Metadata object
 			return toMetadata(book);
@@ -105,6 +101,7 @@ final class MugiMugiProvider implements MetadataProvider {
 	
 	private static Metadata toMetadata(APIClient.XML_Book book) {
 		Metadata md = new Metadata();
+		md.uri = "http://www.doujinshi.org/book/" + book.ID.substring(1);
 		md.name = book.NAME_JP;
 		md.translation = book.NAME_EN;
 		md.alias.add(book.NAME_R);
@@ -156,19 +153,9 @@ final class MugiMugiProvider implements MetadataProvider {
 	 */
 	private static final class APIClient
 	{
-		private static XML_User parseUser(InputStream in) throws JAXBException
-		{
-			return parseObject(in, XML_List.class).USER;
-		}
-		
 		private static XML_List parseList(InputStream in) throws JAXBException
 		{
 			return parseObject(in, XML_List.class);
-		}
-		
-		private static XML_Book parseBook(InputStream in) throws JAXBException
-		{
-			return parseObject(in, XML_Book.class);
 		}
 		
 		@XmlRootElement(namespace = "", name="LIST")

@@ -57,7 +57,7 @@ final class MugiMugiProvider implements MetadataProvider {
 	}
 
 	@Override
-	public Metadata query(String string) throws TaskException {
+	public Metadata query(String name) throws TaskException {
 		// FIXME Implement MugiMugiProvider.query(String)
 		throw new TaskException("Method not implemented");
 	}

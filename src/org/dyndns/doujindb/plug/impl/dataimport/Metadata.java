@@ -3,6 +3,7 @@ package org.dyndns.doujindb.plug.impl.dataimport;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Metadata")
@@ -27,6 +28,11 @@ abstract class Metadata
 	protected Long timestamp;
 	@XmlElement(name="type")
 	protected String type;
+	@XmlElement(name="adult")
+	protected Boolean adult;
+	@XmlElement(name="info")
+	@XmlJavaTypeAdapter(CDATAAdapter.class)
+	protected String info;
 	@XmlElement(name="size")
 	protected Long size;
 	@XmlElement(name="artist")
@@ -41,4 +47,16 @@ abstract class Metadata
 	protected Set<String> parody = new HashSet<String>();
 	@XmlElement(name="uri")
 	protected String uri;
+	
+	private static class CDATAAdapter extends XmlAdapter<String, String>
+	{
+	    @Override
+	    public String marshal(String str) throws Exception {
+	        return "<![CDATA[" + str + "]]>";
+	    }
+	    @Override
+	    public String unmarshal(String str) throws Exception {
+	        return str;
+	    }
+	}
 }

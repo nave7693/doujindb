@@ -15,6 +15,12 @@ final class MugiMugiProvider implements MetadataProvider {
 	private static APIClient.XML_User userData = new APIClient.XML_User();
 	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)?([0-9]+)(/)?");
 	
+	@XmlRootElement
+	@XmlType(namespace="org.mugimugi.doujinshi", name="Metadata")
+	public static final class Metadata extends org.dyndns.doujindb.plug.impl.dataimport.Metadata {
+		Metadata() { }
+	}
+	
 	@Override
 	public Metadata query(Image image) throws TaskException {
 		// TODO Auto-generated method stub

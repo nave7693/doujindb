@@ -20,19 +20,19 @@ class Task
 	}
 	
 	@XmlAttribute(name="id")
-	private String id = "";
+	protected String id = "";
 	@XmlElement(name="file")
-	private String file = "";
+	protected String file = "";
 	@XmlElement(name="completed")
-	private Boolean completed = false;
+	protected Boolean completed = false;
 	
 	@XmlElement(name="metadata")
-	public Set<Metadata> metadata = new HashSet<Metadata>();
+	protected Set<Metadata> metadata = new HashSet<Metadata>();
 	
 	@XmlJavaTypeAdapter(CDATAAdapter.class)
-	public String message;
+	protected String message;
 	@XmlJavaTypeAdapter(CDATAAdapter.class)
-	public String exception;
+	protected String exception;
 	
 	public void exception(Throwable t) {
 		try {

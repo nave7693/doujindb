@@ -26,6 +26,8 @@ class Task
 	@XmlElement(name="completed")
 	protected Boolean completed = false;
 	
+	protected transient boolean selected = false;
+	
 	@XmlElement(name="metadata")
 	protected Set<Metadata> metadata = new HashSet<Metadata>();
 	

@@ -31,7 +31,7 @@ import org.dyndns.doujindb.util.*;
 
 final class TaskManager
 {
-	private static HashSet<Task> tasks = new HashSet<Task>();
+	private static java.util.List<Task> tasks = new Vector<Task>();
 	private static Worker worker = new Worker();
 	private static PropertyChangeSupport pcs = new PropertyChangeSupport(tasks);
 	private static Set<MetadataProvider> providers = new HashSet<MetadataProvider>();
@@ -46,7 +46,7 @@ final class TaskManager
 		try
 		{
 			TaskSet set = new TaskSet();
-			set.tasks = tasks;
+			set.tasks.addAll(tasks);
 			out = new FileOutputStream(file);
 			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 			Marshaller m = context.createMarshaller();
@@ -66,7 +66,7 @@ final class TaskManager
 	public static void load(File file) {
 		synchronized(tasks)
 		{
-			tasks = new HashSet<Task>();
+			tasks = new Vector<Task>();
 			FileInputStream in = null;
 			try
 			{
@@ -74,7 +74,7 @@ final class TaskManager
 				JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 				Unmarshaller um = context.createUnmarshaller();
 				TaskSet set = (TaskSet) um.unmarshal(in);
-				tasks = set.tasks;
+				tasks.addAll(set.tasks);
 			} catch (NullPointerException npe) {
 				npe.printStackTrace();
 			} catch (JAXBException jaxbe) {
@@ -142,9 +142,9 @@ final class TaskManager
 		return tasks;
 	}
 	
-//	public static Task get(int index) {
-//		return tasks.get(index);
-//	}
+	public static Task get(int index) {
+		return tasks.get(index);
+	}
 	
 //	public static Task getRunning() {
 //		if(!isRunning())
@@ -263,21 +263,20 @@ final class TaskManager
 				
 				try {
 					for(MetadataProvider provider : providers)
-						if(isPaused()) {
+						if(!isPaused()) {
 							try {
 								File image = findFirstFile(m_Task.file);
 								m_Task.metadata.add(provider.query(image));
 							} catch (TaskException te) {
 								m_Task.message = te.getMessage();
 								m_Task.exception(te);
-								LOG.warn("Error processing Task {} with provider {}", m_Task.id, provider, te);
-								break;
+								LOG.warn("Error processing Task [{}] with provider [{}]", m_Task.id, provider, te);
 							}
 						}
 				} catch (Exception e) {
 					m_Task.message = e.getMessage();
 					m_Task.exception(e);
-					LOG.error("Error processing Task {}", m_Task.id, e);
+					LOG.error("Error processing Task [{}]", m_Task.id, e);
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.pause();
 				}

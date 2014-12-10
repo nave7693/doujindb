@@ -8,7 +8,7 @@ import java.util.regex.*;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
-final class MugiMugiProvider implements MetadataProvider {
+final class MugiMugiProvider extends MetadataProvider {
 
 	private static APIClient.XML_User userData = new APIClient.XML_User();
 	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)(?<id>[0-9]+)(/.*)");

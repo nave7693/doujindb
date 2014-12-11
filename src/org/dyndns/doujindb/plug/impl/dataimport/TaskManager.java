@@ -29,6 +29,8 @@ import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.db.record.Book.*;
 import org.dyndns.doujindb.util.*;
 
+import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
+
 final class TaskManager
 {
 	private static java.util.List<Task> tasks = new Vector<Task>();
@@ -51,6 +53,15 @@ final class TaskManager
 			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
+			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
+			m.setProperty(CharacterEscapeHandler.class.getName(), new CharacterEscapeHandler()
+			{
+				@Override
+				public void escape(char[] ac, int i, int j, boolean flag, Writer writer) throws IOException {
+					writer.write(ac, i, j);
+				}
+			});
 			m.marshal(set, out);
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();

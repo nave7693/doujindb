@@ -273,10 +273,10 @@ final class TaskManager
 				}
 				
 				try {
+					File image = findFirstFile(m_Task.file);
 					for(MetadataProvider provider : providers)
 						if(!isPaused()) {
 							try {
-								File image = findFirstFile(m_Task.file);
 								m_Task.metadata.add(provider.query(image));
 							} catch (TaskException te) {
 								m_Task.message = te.getMessage();

@@ -1,10 +1,18 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.io.File;
-import java.net.URI;
+import java.net.*;
+import java.io.*;
 
-final class GEHentaiProvider extends MetadataProvider {
+import javax.xml.bind.annotation.*;
 
+final class GEHentaiProvider extends MetadataProvider
+{
+	@XmlRootElement
+	@XmlType(namespace="org.e-hentai.g", name="Metadata")
+	public static final class Metadata extends org.dyndns.doujindb.plug.impl.dataimport.Metadata {
+		Metadata() { }
+	}
+	
 	@Override
 	public Metadata query(File image) throws TaskException {
 		// TODO Auto-generated method stub

@@ -80,4 +80,9 @@ class Task
 		this.message = null;
 		this.exception = null;
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "@" + id;
+	}
 }

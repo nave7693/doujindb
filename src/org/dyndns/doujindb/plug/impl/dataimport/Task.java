@@ -16,7 +16,7 @@ class Task
 	Task(String id, String file) {
 		this.id = id;
 		this.file = file;
-		state = State.NEW;
+		this.state = State.NEW;
 	}
 	
 	@XmlAttribute(name="id")
@@ -72,5 +72,12 @@ class Task
 		WARNING,
 		ABORT,
 		UNKNOW
+	}
+
+	public void reset() {
+		this.state = State.NEW;
+		this.metadata = new HashSet<Metadata>();
+		this.message = null;
+		this.exception = null;
 	}
 }

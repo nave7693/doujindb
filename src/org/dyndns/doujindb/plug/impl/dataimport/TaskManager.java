@@ -69,8 +69,7 @@ final class TaskManager
 	}
 	
 	public static void load(File file) {
-		synchronized(tasks)
-		{
+		synchronized(tasks) {
 			tasks = new Vector<Task>();
 			FileInputStream in = null;
 			try
@@ -102,8 +101,7 @@ final class TaskManager
 	}
 	
 	public static void add(String file) {
-		synchronized(tasks)
-		{
+		synchronized(tasks) {
 			// Get unique ID
 			String uuid = java.util.UUID.randomUUID().toString();
 			while(tasks.contains(uuid))
@@ -114,19 +112,17 @@ final class TaskManager
 	}
 	
 	public static void remove(Task task) {
-		synchronized(tasks)
-		{
+		synchronized(tasks) {
 			tasks.remove(task);
 		}
 		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
 	public static void reset(Task task) {
-		synchronized(tasks)
-		{
+		synchronized(tasks) {
 			if(!contains(task))
 				return;
-			task = new Task(task.id, task.file);
+			task.reset();
 		}
 	}
 	

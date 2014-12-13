@@ -126,7 +126,7 @@ final class TaskManager
 		{
 			if(!contains(task))
 				return;
-			//TODO reset Task
+			task = new Task(task.id, task.file);
 		}
 	}
 	
@@ -266,32 +266,39 @@ final class TaskManager
 					continue;
 				}
 				
+				LOG.info("Task[id:{}] Process started", m_Task.id);
 				try {
 					File image = findFirstFile(m_Task.file);
-					for(MetadataProvider provider : providers)
+					LOG.debug("Task[id:{}] Found image file {}", m_Task.id, image.getAbsolutePath());
+					for(MetadataProvider provider : providers) {
+						LOG.debug("Task[id:{}] Load metadata with provider [{}]", m_Task.id, provider);
 						if(!isPaused()) {
 							try {
 								Metadata md = provider.query(image);
 								m_Task.metadata.add(md);
-								if(md.exception != null)
+								if(md.exception != null) {
+									LOG.warn("Task[id:{}] Exception from provider [{}]: {}", m_Task.id, provider, md.message);
 									m_Task.state = State.WARNING;
+								}
 							} catch (Exception e) {
 								m_Task.message = e.getMessage();
 								m_Task.exception(e);
-								LOG.warn("Error processing Task [{}] with provider [{}]", m_Task.id, provider, e);
+								LOG.warn("Task[id:{}] Exception from provider [{}]", m_Task.id, provider, e);
 								m_Task.state = State.WARNING;
 							}
 						}
+					}
 				} catch (Exception e) {
 					m_Task.message = e.getMessage();
 					m_Task.exception(e);
-					LOG.error("Error processing Task [{}]", m_Task.id, e);
+					LOG.error("Task[id:{}] Exception while processing", m_Task.id, e);
 					m_Task.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.pause();
 				}
 				if(m_Task.state == State.NEW)
 					m_Task.state = State.COMPLETE;
+				LOG.info("Task[id:{}] Completed with State [{}]", m_Task.id,  m_Task.state);
 			}
 		}
 	}

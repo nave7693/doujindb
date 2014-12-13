@@ -94,17 +94,12 @@ final class TaskManager
 	
 	public static void add(File file) {
 		LOG.debug("call add({})", file);
-		add(file.getAbsolutePath());
-	}
-	
-	public static void add(String file) {
-		LOG.debug("call add({})", file);
 		synchronized(tasks) {
 			// Get unique ID
 			String uuid = java.util.UUID.randomUUID().toString();
 			while(tasks.contains(uuid))
 				uuid = java.util.UUID.randomUUID().toString();
-			tasks.add(new Task(uuid, file));
+			tasks.add(new Task(uuid, file.getAbsolutePath()));
 		}
 		pcs.firePropertyChange("taskmanager-info", 0, 1);
 	}

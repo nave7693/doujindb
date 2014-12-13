@@ -261,6 +261,52 @@ final class TaskManager
 				try {
 					File image = findFirstFile(m_Task.file);
 					LOG.debug("{} Found image file {}", m_Task, image.getAbsolutePath());
+					// Crop image
+					if(Configuration.options_autocrop.get()) {
+						LOG.debug("{} Cropping image file", m_Task);
+						BufferedImage src = javax.imageio.ImageIO.read(image);
+						if(src == null)
+							throw new TaskException("Error loading image from file" + image.getPath());
+						BufferedImage dest;
+						int img_width = src.getWidth(),
+							img_height = src.getHeight();
+						if(img_width > img_height)
+							dest = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_ARGB);
+						else
+							dest = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_ARGB);
+						Graphics g = dest.getGraphics();
+						g.drawImage(src, 0, 0, img_width, img_height, null);
+						g.dispose();
+						try {
+							image = File.createTempFile(m_Task.id + "-crop-", ".png");
+							image.deleteOnExit();
+							javax.imageio.ImageIO.write(dest, "PNG", image);
+						} catch (Exception e) {
+							throw new TaskException("Could not write image file " + image.getPath(), e);
+						}
+					}
+					// Resize image
+					if(Configuration.options_autoresize.get()) {
+						LOG.debug("{} Resizing image file", m_Task);
+						BufferedImage src = javax.imageio.ImageIO.read(image);
+						if(src == null)
+							throw new TaskException("Error loading image from file" + image.getPath());
+						BufferedImage dest;
+						try
+						{
+							dest = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+							dest = ImageTool.getScaledInstance(src, 256, 256, true);
+						} catch (Exception e) {
+							throw new TaskException("Could not resize image file " + image.getPath(), e);
+						}
+						try {
+							image = File.createTempFile(m_Task.id + "-resize-", ".png");
+							image.deleteOnExit();
+							javax.imageio.ImageIO.write(dest, "PNG", image);
+						} catch (Exception e) {
+							throw new TaskException("Could not write image file " + image.getPath(), e);
+						}
+					}
 					for(MetadataProvider provider : providers) {
 						LOG.debug("{} Load metadata with provider [{}]", m_Task, provider);
 						if(!isPaused()) {
@@ -279,6 +325,11 @@ final class TaskManager
 							}
 						}
 					}
+				} catch (TaskException te) {
+					m_Task.message = te.getMessage();
+					m_Task.exception(te);
+					LOG.error("{} Exception while processing", m_Task, te);
+					m_Task.state = State.ERROR;
 				} catch (Exception e) {
 					m_Task.message = e.getMessage();
 					m_Task.exception(e);
@@ -301,61 +352,6 @@ final class TaskManager
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-	
-	private static boolean execImageScan(Task task) throws TaskException, TaskException
-	{
-		/*
-		task.setExec(Task.Exec.SCAN_IMAGE);
-		
-		File coverFile;
-		File reqFile;
-		BufferedImage coverImage;
-		BufferedImage resizedImage;
-		
-		coverFile = findFile(task.getPath());
-		if(coverFile == null) {
-			throw new TaskErrorException("Cover image not found");
-		}
-		try {
-			coverImage = javax.imageio.ImageIO.read(coverFile);
-		} catch (IllegalArgumentException | IOException e) {
-			throw new TaskErrorException("Could not read image file '" + coverFile.getPath()+ "' : " + e.getMessage());
-		}
-		if(coverImage == null) {
-			throw new TaskErrorException("Cover image not found");
-		}
-		reqFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".png");
-		{
-			BufferedImage dest;
-			int img_width = coverImage.getWidth(),
-				img_height = coverImage.getHeight();
-			if(img_width > img_height)
-				dest = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_RGB);
-			else
-				dest = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_RGB);
-			Graphics g = dest.getGraphics();
-			g.drawImage(coverImage, 0, 0, img_width, img_height, null);
-			g.dispose();
-			if(DataImport.RESIZE_COVER)
-			try
-			{
-				resizedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-				resizedImage = ImageTool.getScaledInstance(dest, 256, 256, true);
-			} catch (Exception e) {
-				throw new TaskErrorException("Could not resize image file '" + coverFile.getPath()+ "' : " + e.getMessage());
-			} else {
-				resizedImage = dest;
-			}
-			try {
-				javax.imageio.ImageIO.write(resizedImage, "PNG", reqFile);
-				pcs.firePropertyChange("task-image", 0, 1);
-			} catch (Exception e) {
-				throw new TaskErrorException("Could not write image file '" + coverFile.getPath()+ "' : " + e.getMessage());
-			}
-		}
-		*/
-		return true;
 	}
 	
 	private static boolean execDuplicateCheck(Task task) throws TaskException, TaskException

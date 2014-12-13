@@ -45,6 +45,7 @@ final class TaskManager
 	}
 	
 	public static void save(File file) {
+		LOG.debug("call save({})", file);
 		FileOutputStream out = null;
 		try
 		{
@@ -57,18 +58,16 @@ final class TaskManager
 			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
 			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			m.marshal(set, out);
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (JAXBException jaxbe) {
-			jaxbe.printStackTrace();
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace(); //FIXME
+			LOG.debug("Saved Tasks to {}", file);
+		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
+			LOG.error("Error saving Tasks to {}", file, e);
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	
 	public static void load(File file) {
+		LOG.debug("call load({})", file);
 		synchronized(tasks) {
 			tasks = new Vector<Task>();
 			FileInputStream in = null;
@@ -79,12 +78,9 @@ final class TaskManager
 				Unmarshaller um = context.createUnmarshaller();
 				TaskSet set = (TaskSet) um.unmarshal(in);
 				tasks.addAll(set.tasks);
-			} catch (NullPointerException npe) {
-				npe.printStackTrace();
-			} catch (JAXBException jaxbe) {
-				jaxbe.printStackTrace();
-			} catch (FileNotFoundException fnfe) {
-				; //FIXME
+				LOG.debug("Loaded Tasks from {}", file);
+			} catch (NullPointerException | JAXBException | FileNotFoundException e) {
+				LOG.error("Error loading Tasks from {}", file, e);
 			} finally {
 				try { in.close(); } catch (Exception e) { }
 			}
@@ -97,10 +93,12 @@ final class TaskManager
 	}
 	
 	public static void add(File file) {
+		LOG.debug("call add({})", file);
 		add(file.getAbsolutePath());
 	}
 	
 	public static void add(String file) {
+		LOG.debug("call add({})", file);
 		synchronized(tasks) {
 			// Get unique ID
 			String uuid = java.util.UUID.randomUUID().toString();
@@ -112,6 +110,7 @@ final class TaskManager
 	}
 	
 	public static void remove(Task task) {
+		LOG.debug("call remove({})", task);
 		synchronized(tasks) {
 			tasks.remove(task);
 		}
@@ -119,6 +118,7 @@ final class TaskManager
 	}
 	
 	public static void reset(Task task) {
+		LOG.debug("call reset({})", task);
 		synchronized(tasks) {
 			if(!contains(task))
 				return;
@@ -134,11 +134,6 @@ final class TaskManager
 		return tasks.contains(taskid);
 	}
 
-//	@SuppressWarnings("unchecked")
-//	public static Iterable<Task> tasks() {
-//		return (Iterable<Task>) tasks.clone();
-//	}
-	
 	public static Iterable<Task> tasks() {
 		return tasks;
 	}
@@ -147,17 +142,19 @@ final class TaskManager
 		return tasks.get(index);
 	}
 	
-//	public static Task getRunning() {
-//		if(!isRunning())
-//			return null;
-//		return worker.m_Task;
-//	}
+	public static Task getRunningTask() {
+		if(!isRunning())
+			return null;
+		return worker.m_Task;
+	}
 	
 	public static void registerListener(PropertyChangeListener listener) {
+		LOG.debug("call registerListener({})", listener);
 		pcs.addPropertyChangeListener(listener);
 	}
 	
 	public static void start() {
+		LOG.debug("call start()");
 		Thread thread = new Thread(worker);
 		thread.setName("plugin-dataimport-taskmanager");
 		thread.setDaemon(true);
@@ -166,10 +163,12 @@ final class TaskManager
 	}
 	
 	public static void stop() {
+		LOG.debug("call stop()");
 		//TODO
 	}
 	
 	public static void pause() {
+		LOG.debug("call pause()");
 		if(!worker.isPaused()) {
 			worker.pause();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);
@@ -178,6 +177,7 @@ final class TaskManager
 	}
 	
 	public static void resume() {
+		LOG.debug("call resume()");
 		if(worker.isPaused()) {
 			worker.resume();
 			pcs.firePropertyChange("taskmanager-info", 0, 1);

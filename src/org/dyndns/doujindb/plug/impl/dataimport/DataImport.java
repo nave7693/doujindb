@@ -484,27 +484,30 @@ public final class DataImport extends Plugin
 						return this;
 					Task task = (Task) getValueAt(row, -1);
 					if(column == 0) {
-						switch (task.state)
-						{
-						case NEW:
-							m_Label.setIcon(Icon.task_state_new);
-							break;
-						case COMPLETE:
-							m_Label.setIcon(Icon.task_state_complete);
-							break;
-						case ERROR:
-							m_Label.setIcon(Icon.task_state_error);
-							break;
-						case WARNING:
-							m_Label.setIcon(Icon.task_state_warning);
-							break;
-						case ABORT:
-							m_Label.setIcon(Icon.task_state_abort);
-							break;
-						case UNKNOW:
-							m_Label.setIcon(Icon.task_state_unknow);
-							break;
-						}
+						if(task.equals(TaskManager.getRunningTask()))
+							m_Label.setIcon(Icon.task_state_running);
+						else
+							switch (task.state)
+							{
+							case NEW:
+								m_Label.setIcon(Icon.task_state_new);
+								break;
+							case COMPLETE:
+								m_Label.setIcon(Icon.task_state_complete);
+								break;
+							case ERROR:
+								m_Label.setIcon(Icon.task_state_error);
+								break;
+							case WARNING:
+								m_Label.setIcon(Icon.task_state_warning);
+								break;
+							case ABORT:
+								m_Label.setIcon(Icon.task_state_abort);
+								break;
+							case UNKNOW:
+								m_Label.setIcon(Icon.task_state_unknow);
+								break;
+							}
 						m_Label.setText("");
 						return m_Label;
 					}

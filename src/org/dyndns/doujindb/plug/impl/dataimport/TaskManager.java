@@ -27,6 +27,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.db.record.Book.*;
+import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
 import org.dyndns.doujindb.util.*;
 
 import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
@@ -256,11 +257,11 @@ final class TaskManager
 				
 				// Get next queued Task
 				for(Task task : tasks())
-					if(!task.completed) {
+					if(task.state == State.NEW) {
 						m_Task = task;
 						break;
 					}
-				if(m_Task == null || m_Task.completed) {
+				if(m_Task == null || m_Task.state != State.NEW) {
 					TaskManager.pause();
 					continue;
 				}
@@ -275,16 +276,19 @@ final class TaskManager
 								m_Task.message = te.getMessage();
 								m_Task.exception(te);
 								LOG.warn("Error processing Task [{}] with provider [{}]", m_Task.id, provider, te);
+								m_Task.state = State.WARNING;
 							}
 						}
 				} catch (Exception e) {
 					m_Task.message = e.getMessage();
 					m_Task.exception(e);
 					LOG.error("Error processing Task [{}]", m_Task.id, e);
+					m_Task.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.pause();
 				}
-				m_Task.completed = true;
+				if(m_Task.state == State.NEW)
+					m_Task.state = State.COMPLETE;
 			}
 		}
 	}

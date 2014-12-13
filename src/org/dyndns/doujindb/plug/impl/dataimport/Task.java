@@ -16,14 +16,15 @@ class Task
 	Task(String id, String file) {
 		this.id = id;
 		this.file = file;
+		state = State.NEW;
 	}
 	
 	@XmlAttribute(name="id")
 	protected String id = "";
 	@XmlElement(name="file")
 	protected String file = "";
-	@XmlElement(name="completed")
-	protected Boolean completed = false;
+	@XmlElement(name="state")
+	protected State state = State.UNKNOW;
 	
 	protected transient boolean selected = false;
 	
@@ -62,5 +63,14 @@ class Task
 	@Override
 	public int hashCode() {
 		return id.hashCode();
+	}
+	
+	static enum State {
+		NEW,
+		COMPLETE,
+		ERROR,
+		WARNING,
+		ABORT,
+		UNKNOW
 	}
 }

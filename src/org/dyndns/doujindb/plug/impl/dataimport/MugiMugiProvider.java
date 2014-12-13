@@ -33,6 +33,10 @@ final class MugiMugiProvider extends MetadataProvider {
 			});
 			// Parse XML response
 			APIClient.XML_List list = APIClient.parseList(is);
+			// Check XML from errors
+			if(list.ERROR != null) {
+				throw new TaskException("Server Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+			}
 			// Update user data
 			userData = (list.USER == null ? userData : list.USER);
 			// Find best match
@@ -96,6 +100,10 @@ final class MugiMugiProvider extends MetadataProvider {
 			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
 			// Parse XML response
 			APIClient.XML_List list = APIClient.parseList(urlc.getInputStream());
+			// Check XML from errors
+			if(list.ERROR != null) {
+				throw new TaskException("Server Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+			}
 			// Update user data
 			userData = (list.USER == null ? userData : list.USER);
 			APIClient.XML_Book book = null;

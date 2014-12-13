@@ -506,13 +506,11 @@ public final class DataImport extends Plugin
 							break;
 						}
 						m_Label.setText("");
-						m_Label.setToolTipText(task.state.toString());
 						return m_Label;
 					}
 					if(column == 1) {
 						m_Label.setIcon(null);
 						m_Label.setText(task.file);
-						m_Label.setToolTipText(task.message + task.exception);
 						return m_Label;
 					}
 					if(column == 2) {

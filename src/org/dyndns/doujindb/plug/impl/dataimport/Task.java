@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Task")
@@ -31,9 +30,9 @@ class Task
 	@XmlElement(name="metadata")
 	protected Set<Metadata> metadata = new HashSet<Metadata>();
 	
-	@XmlJavaTypeAdapter(CDATAAdapter.class)
+	@XmlElement(name="message")
 	protected String message;
-	@XmlJavaTypeAdapter(CDATAAdapter.class)
+	@XmlElement(name="exception")
 	protected String exception;
 	
 	public void exception(Throwable t) {
@@ -63,17 +62,5 @@ class Task
 	@Override
 	public int hashCode() {
 		return id.hashCode();
-	}
-	
-	private static class CDATAAdapter extends XmlAdapter<String, String>
-	{
-	    @Override
-	    public String marshal(String str) throws Exception {
-	        return "<![CDATA[" + str + "]]>";
-	    }
-	    @Override
-	    public String unmarshal(String str) throws Exception {
-	        return str;
-	    }
 	}
 }

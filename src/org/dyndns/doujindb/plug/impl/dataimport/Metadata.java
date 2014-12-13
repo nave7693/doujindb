@@ -1,9 +1,10 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Metadata")
@@ -31,7 +32,6 @@ abstract class Metadata
 	@XmlElement(name="adult")
 	protected Boolean adult;
 	@XmlElement(name="info")
-	@XmlJavaTypeAdapter(CDATAAdapter.class)
 	protected String info;
 	@XmlElement(name="size")
 	protected Long size;
@@ -48,15 +48,19 @@ abstract class Metadata
 	@XmlElement(name="uri")
 	protected String uri;
 	
-	private static class CDATAAdapter extends XmlAdapter<String, String>
-	{
-	    @Override
-	    public String marshal(String str) throws Exception {
-	        return "<![CDATA[" + str + "]]>";
-	    }
-	    @Override
-	    public String unmarshal(String str) throws Exception {
-	        return str;
-	    }
+	@XmlElement(name="message")
+	protected String message;
+	@XmlElement(name="exception")
+	protected String exception;
+	
+	public void exception(Throwable t) {
+		try {
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(os);
+			t.printStackTrace(ps);
+			exception = os.toString("UTF8");
+		} catch (Exception e) {
+			exception = t.getMessage();
+		}
 	}
 }

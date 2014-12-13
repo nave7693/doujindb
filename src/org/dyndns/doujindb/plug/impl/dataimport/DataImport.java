@@ -300,8 +300,9 @@ public final class DataImport extends Plugin
 		private final class PanelTaskUI extends JTable implements PropertyChangeListener
 		{
 			private Class<?>[] m_Types = new Class[] {
-				String.class,		// Task info
-				Boolean.class		// Task selection
+				Task.State.class,
+				String.class,
+				Boolean.class
 			};
 			private TaskSetTableModel m_TableModel;
 			private TaskRenderer m_TableRender;
@@ -310,7 +311,8 @@ public final class DataImport extends Plugin
 			
 			private PanelTaskUI() {
 				m_TableModel = new TaskSetTableModel();
-				m_TableModel.addColumn("Task");
+				m_TableModel.addColumn(""); // State
+				m_TableModel.addColumn("Task"); // Name | Id | File
 				m_TableModel.addColumn(""); // Selection
 				m_TableRender = new TaskRenderer();
 				m_TableEditor = new TaskEditor();
@@ -322,16 +324,23 @@ public final class DataImport extends Plugin
 				super.getColumnModel().getColumn(0).setCellRenderer(m_TableRender);
 				super.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
 				super.getColumnModel().getColumn(1).setCellRenderer(m_TableRender);
-//				super.getColumnModel().getColumn(0).setResizable(false);
-//				super.getColumnModel().getColumn(0).setMaxWidth(20);
-//				super.getColumnModel().getColumn(0).setMinWidth(20);
-//				super.getColumnModel().getColumn(0).setWidth(20);
-				super.getColumnModel().getColumn(0).setMinWidth(150);
-				super.getColumnModel().getColumn(0).setWidth(150);
-				super.getColumnModel().getColumn(0).setPreferredWidth(150);
-				super.getColumnModel().getColumn(1).setMaxWidth(20);
-				super.getColumnModel().getColumn(1).setMinWidth(20);
-				super.getColumnModel().getColumn(1).setWidth(20);
+				super.getColumnModel().getColumn(1).setCellEditor(m_TableEditor);
+				super.getColumnModel().getColumn(2).setCellRenderer(m_TableRender);
+				super.getColumnModel().getColumn(0).setResizable(false);
+				super.getColumnModel().getColumn(0).setMaxWidth(20);
+				super.getColumnModel().getColumn(0).setMinWidth(20);
+				super.getColumnModel().getColumn(0).setWidth(20);
+				super.getColumnModel().getColumn(1).setResizable(true);
+//				super.getColumnModel().getColumn(1).setMaxWidth(20);
+//				super.getColumnModel().getColumn(1).setMinWidth(20);
+//				super.getColumnModel().getColumn(1).setWidth(20);
+//				super.getColumnModel().getColumn(1).setMinWidth(150);
+//				super.getColumnModel().getColumn(1).setWidth(150);
+//				super.getColumnModel().getColumn(1).setPreferredWidth(150);
+				super.getColumnModel().getColumn(2).setResizable(false);
+				super.getColumnModel().getColumn(2).setMaxWidth(20);
+				super.getColumnModel().getColumn(2).setMinWidth(20);
+				super.getColumnModel().getColumn(2).setWidth(20);
 				super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 				super.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				super.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -410,8 +419,10 @@ public final class DataImport extends Plugin
 						case -1:
 							return task;
 						case 0:
-							return task.file;
+							return task.state;
 						case 1:
+							return task.file;
+						case 2:
 							return task.selected;
 					}
 					throw new IllegalArgumentException("Argument columnIndex (= " + columnIndex + ") must be 0 < X < " + m_Types.length);
@@ -420,7 +431,7 @@ public final class DataImport extends Plugin
 				@Override
 				public void setValueAt(Object value, int rowIndex, int columnIndex) {
 					Task task = TaskManager.get(rowIndex);
-				    if (columnIndex == 1) {
+				    if (columnIndex == 2) {
 				    	task.selected = (Boolean)value;
 				        fireTableCellUpdated(rowIndex, columnIndex);
 				    }
@@ -450,34 +461,13 @@ public final class DataImport extends Plugin
 			
 			private final class TaskRenderer extends DefaultTableCellRenderer
 			{
-				private JProgressBar m_ProgressBar;
-				private JLabel m_LabelIcon;
+				private JLabel m_Label;
 				private JCheckBox m_CheckBox;
-				
-				private Color foreground;
-				private Color background;
-				private Color foregroundString;
-				private Color backgroundString;
 				
 				public TaskRenderer() {
 				    super();
 				    super.setFont(font);
-				    m_ProgressBar = new JProgressBar();
-				    m_ProgressBar.setMaximum(100);
-					m_ProgressBar.setMinimum(0);
-					m_ProgressBar.setValue(0);
-					m_ProgressBar.setStringPainted(true);
-					m_ProgressBar.setString("");
-					foreground = m_ProgressBar.getForeground();
-					background = m_ProgressBar.getBackground();
-					foregroundString = foreground;
-					backgroundString = background;
-					m_ProgressBar.setUI(new BasicProgressBarUI() {
-						protected Color getSelectionBackground() { return backgroundString; }
-						protected Color getSelectionForeground() { return foregroundString; }
-					});
-					
-					m_LabelIcon = new JLabel();
+				    m_Label = new JLabel();
 					m_CheckBox = new JCheckBox();
 				}
 			
@@ -492,53 +482,40 @@ public final class DataImport extends Plugin
 				        column);
 					if(table.getModel().getRowCount() < 1)
 						return this;
-					//FIXME
-//					if(column == 1)
-//					{
-//						Task task = (Task) getValueAt(row, -1);
-//						m_ProgressBar.setValue(task.getProgress());
-//						m_ProgressBar.setString(task.getMessage());
-//						if(!isSelected) {
-//							m_ProgressBar.setBackground(background);
-//							m_ProgressBar.setForeground(foreground);
-//							foregroundString = background;
-//							backgroundString = foreground;
-//						} else {
-//							m_ProgressBar.setBackground(foreground);
-//							m_ProgressBar.setForeground(background);
-//							foregroundString = foreground;
-//							backgroundString = background;
-//						}
-//						return m_ProgressBar;
-//					}
 					Task task = (Task) getValueAt(row, -1);
 					if(column == 0) {
-//						switch (info)
-//						{
-//						case COMPLETED:
-//							m_LabelIcon.setIcon(Icon.task_info_completed);
-//							break;
-//						case ERROR:
-//							m_LabelIcon.setIcon(Icon.task_info_error);
-//							break;
-//						case IDLE:
-//							m_LabelIcon.setIcon(Icon.task_info_idle);
-//							break;
-//						case PAUSED:
-//							m_LabelIcon.setIcon(Icon.task_info_paused);
-//							break;
-//						case RUNNING:
-//							m_LabelIcon.setIcon(Icon.task_info_running);
-//							break;
-//						case WARNING:
-//							m_LabelIcon.setIcon(Icon.task_info_warning);
-//							break;
-//						}
-						m_LabelIcon.setText(task.file);
-						m_LabelIcon.setToolTipText(task.file);
-						return m_LabelIcon;
+						switch (task.state)
+						{
+						case NEW:
+							m_Label.setIcon(Icon.task_state_new);
+							break;
+						case COMPLETE:
+							m_Label.setIcon(Icon.task_state_complete);
+							break;
+						case ERROR:
+							m_Label.setIcon(Icon.task_state_error);
+							break;
+						case WARNING:
+							m_Label.setIcon(Icon.task_state_warning);
+							break;
+						case ABORT:
+							m_Label.setIcon(Icon.task_state_abort);
+							break;
+						case UNKNOW:
+							m_Label.setIcon(Icon.task_state_unknow);
+							break;
+						}
+						m_Label.setText("");
+						m_Label.setToolTipText(task.state.toString());
+						return m_Label;
 					}
 					if(column == 1) {
+						m_Label.setIcon(null);
+						m_Label.setText(task.file);
+						m_Label.setToolTipText(task.message + task.exception);
+						return m_Label;
+					}
+					if(column == 2) {
 						m_CheckBox.setSelected(task.selected);
 						return m_CheckBox;
 					}

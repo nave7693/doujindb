@@ -271,11 +271,14 @@ final class TaskManager
 					for(MetadataProvider provider : providers)
 						if(!isPaused()) {
 							try {
-								m_Task.metadata.add(provider.query(image));
-							} catch (TaskException te) {
-								m_Task.message = te.getMessage();
-								m_Task.exception(te);
-								LOG.warn("Error processing Task [{}] with provider [{}]", m_Task.id, provider, te);
+								Metadata md = provider.query(image);
+								m_Task.metadata.add(md);
+								if(md.exception != null)
+									m_Task.state = State.WARNING;
+							} catch (Exception e) {
+								m_Task.message = e.getMessage();
+								m_Task.exception(e);
+								LOG.warn("Error processing Task [{}] with provider [{}]", m_Task.id, provider, e);
 								m_Task.state = State.WARNING;
 							}
 						}

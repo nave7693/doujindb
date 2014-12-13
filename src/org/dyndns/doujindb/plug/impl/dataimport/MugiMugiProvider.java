@@ -20,10 +20,10 @@ final class MugiMugiProvider extends MetadataProvider {
 	}
 	
 	@Override
-	public Metadata query(File image) throws TaskException {
-		// Check API key
-		checkAPI();
+	public Metadata query(File image) {
 		try {
+			// Check API key
+			checkAPI();
 			// Query API
 			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=imageSearch").openConnection();
 			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
@@ -49,24 +49,42 @@ final class MugiMugiProvider extends MetadataProvider {
 				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
 			// Return Metadata object
 			return toMetadata(book);
+		} catch (TaskException te) {
+			Metadata md = new Metadata();
+			md.message = te.getMessage();
+			md.exception(te);
+			return md;
 		} catch (IOException ioe) {
-			throw new TaskException("Error querying MugiMugi with input Image", ioe);
+			Metadata md = new Metadata();
+			md.message = "Error querying MugiMugi with input Image";
+			md.exception(ioe);
+			return md;
 		} catch (JAXBException jaxbe) {
-			throw new TaskException("Error parsing MugiMugi XML response with input Image", jaxbe);
+			Metadata md = new Metadata();
+			md.message = "Error parsing MugiMugi XML response with input Image";
+			md.exception(jaxbe);
+			return md;
 		}
 	}
 
 	@Override
-	public Metadata query(String name) throws TaskException {
-		// FIXME Implement MugiMugiProvider.query(String)
-		throw new TaskException("Method not implemented");
+	public Metadata query(String name) {
+		try {
+			// FIXME Implement MugiMugiProvider.query(String)
+			throw new TaskException("Method not implemented");
+		} catch (TaskException te) {
+			Metadata md = new Metadata();
+			md.message = te.getMessage();
+			md.exception(te);
+			return md;
+		}
 	}
 
 	@Override
-	public Metadata query(URI uri) throws TaskException {
-		// Check API key
-		checkAPI();
+	public Metadata query(URI uri) {
 		try {
+			// Check API key
+			checkAPI();
 			// Extract MugiMugi Book Id from URI
 			Matcher matcher = pattern.matcher(uri.toString());
 			if(!matcher.find())
@@ -86,10 +104,21 @@ final class MugiMugiProvider extends MetadataProvider {
 			}
 			// Return Metadata object
 			return toMetadata(book);
+		} catch (TaskException te) {
+			Metadata md = new Metadata();
+			md.message = te.getMessage();
+			md.exception(te);
+			return md;
 		} catch (IOException ioe) {
-			throw new TaskException("Error querying MugiMugi with input URI " + uri, ioe);
+			Metadata md = new Metadata();
+			md.message = "Error querying MugiMugi with input URI " + uri;
+			md.exception(ioe);
+			return md;
 		} catch (JAXBException jaxbe) {
-			throw new TaskException("Error parsing MugiMugi XML response with input URI " + uri, jaxbe);
+			Metadata md = new Metadata();
+			md.message = "Error parsing MugiMugi XML response with input URI " + uri;
+			md.exception(jaxbe);
+			return md;
 		}
 	}
 	

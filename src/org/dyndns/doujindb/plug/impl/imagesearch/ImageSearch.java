@@ -436,6 +436,7 @@ public final class ImageSearch extends Plugin
 					LOG.info("Input hash is {}", inputHash);
 					LOG.info("Searching HashDB for matching hashes (size: {}, threshold: {}) ...", HASHDB_MAP.size(), threshold);
 					
+					long count = 0;
 					PriorityQueue<RatedItem> found = new PriorityQueue<RatedItem>(1, new Comparator<RatedItem>() {
 						@Override
 						public int compare(RatedItem o1, RatedItem o2) {
@@ -445,12 +446,16 @@ public final class ImageSearch extends Plugin
 					for(String hash: HASHDB_MAP.keySet()) {
 						int distance;
 						if((distance = new ImageAHash().distance(hash, inputHash)) <= threshold) {
+							count++;
 							found.add(new RatedItem(HASHDB_MAP.get(hash), distance));
 							if (found.size() > maxresult)
 								found.poll();
 						}
 					}
-					LOG.info("Found {} matching hash(es)", found.size());
+					if(count > found.size())
+						LOG.info("Found {} matching hash(es), only best {} shown", count, found.size());
+					else
+						LOG.info("Found {} matching hash(es)", found.size());
 					
 					while(!found.isEmpty()) {
 						RatedItem ratedItem = found.poll();

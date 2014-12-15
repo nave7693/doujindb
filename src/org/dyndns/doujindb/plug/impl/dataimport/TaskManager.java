@@ -285,6 +285,62 @@ final class TaskManager
 							throw new TaskException("Could not write image file " + image.getPath(), e);
 						}
 					}
+					// Find duplicates
+					if(Configuration.options_checkdupes.get()) {
+						LOG.debug("{} Checking for duplicate entries", m_Task);
+						//TODO use ImageSearch plugin
+						/*
+						task.setExec(Task.Exec.CHECK_DUPLICATE);
+						
+						File reqFile;
+						BufferedImage reqImage;
+						Integer searchResult;
+						
+						reqFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".png");
+						try {
+							reqImage = javax.imageio.ImageIO.read(reqFile);
+						} catch (IllegalArgumentException | IOException e) {
+							throw new TaskErrorException("Could not read image file '" + reqFile.getPath()+ "' : " + e.getMessage());
+						}
+						if(reqImage == null) {
+							throw new TaskErrorException("Cover image not found");
+						}
+						//FIXME searchResult = CacheManager.search(reqImage);
+						searchResult = null;
+						if(searchResult != null) {
+							Set<Integer> duplicateList = new HashSet<Integer>();
+							duplicateList.add(searchResult);
+							task.setDuplicateList(duplicateList);
+							
+							String japanLang = "";
+							try {
+								for(Integer dupe : duplicateList) {
+									if(DataStore.getStore(dupe).getFile("@japanese").exists())
+										continue;
+									japanLang = " (missing japanese language)";
+								}
+							} catch (DataStoreException dse) { }
+							
+							String higherRes = "";
+							try {
+								long bytesNew = DataStore.diskUsage(new File(task.getPath()));
+								long pagesNew = DataStore.listFiles(new File(task.getPath())).length;
+								BufferedImage biNew = javax.imageio.ImageIO.read(new FileInputStream(findFile(new File(task.getPath()))));
+								String resNew = biNew.getWidth() + "x" + biNew.getHeight();
+								for(Integer dupe : duplicateList) {
+									long bytesBook = DataStore.diskUsage(DataStore.getStore(dupe));
+									long pagesBook = DataStore.listFiles(DataStore.getStore(dupe)).length;
+									BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream()); //FIXME throws NPE is store folder is empty but Book is still image-cached
+									String resBook = biBook.getWidth() + "x" + biBook.getHeight();
+									if(bytesNew > bytesBook)
+										higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
+								}
+							} catch (DataStoreException | IOException e) { }
+							
+							throw new TaskException("Duplicate book detected" + japanLang + " " + higherRes);
+						}
+						*/
+					}
 					// Resize image
 					if(Configuration.options_autoresize.get()) {
 						LOG.debug("{} Resizing image file", m_Task);
@@ -352,62 +408,6 @@ final class TaskManager
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-	
-	private static boolean execDuplicateCheck(Task task) throws TaskException, TaskException
-	{
-		/*
-		task.setExec(Task.Exec.CHECK_DUPLICATE);
-		
-		File reqFile;
-		BufferedImage reqImage;
-		Integer searchResult;
-		
-		reqFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".png");
-		try {
-			reqImage = javax.imageio.ImageIO.read(reqFile);
-		} catch (IllegalArgumentException | IOException e) {
-			throw new TaskErrorException("Could not read image file '" + reqFile.getPath()+ "' : " + e.getMessage());
-		}
-		if(reqImage == null) {
-			throw new TaskErrorException("Cover image not found");
-		}
-		//FIXME searchResult = CacheManager.search(reqImage);
-		searchResult = null;
-		if(searchResult != null) {
-			Set<Integer> duplicateList = new HashSet<Integer>();
-			duplicateList.add(searchResult);
-			task.setDuplicateList(duplicateList);
-			
-			String japanLang = "";
-			try {
-				for(Integer dupe : duplicateList) {
-					if(DataStore.getStore(dupe).getFile("@japanese").exists())
-						continue;
-					japanLang = " (missing japanese language)";
-				}
-			} catch (DataStoreException dse) { }
-			
-			String higherRes = "";
-			try {
-				long bytesNew = DataStore.diskUsage(new File(task.getPath()));
-				long pagesNew = DataStore.listFiles(new File(task.getPath())).length;
-				BufferedImage biNew = javax.imageio.ImageIO.read(new FileInputStream(findFile(new File(task.getPath()))));
-				String resNew = biNew.getWidth() + "x" + biNew.getHeight();
-				for(Integer dupe : duplicateList) {
-					long bytesBook = DataStore.diskUsage(DataStore.getStore(dupe));
-					long pagesBook = DataStore.listFiles(DataStore.getStore(dupe)).length;
-					BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream()); //FIXME throws NPE is store folder is empty but Book is still image-cached
-					String resBook = biBook.getWidth() + "x" + biBook.getHeight();
-					if(bytesNew > bytesBook)
-						higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
-				}
-			} catch (DataStoreException | IOException e) { }
-			
-			throw new TaskException("Duplicate book detected" + japanLang + " " + higherRes);
-		}
-		*/
-		return true;
 	}
 	
 	private static boolean execSimilarityCheck(Task task) throws TaskException, TaskException
@@ -716,19 +716,6 @@ final class TaskManager
 			throw new TaskErrorException("Error creating preview in the DataStore : " + e.getMessage());
 		}
 		*/
-		return true;
-	}
-	
-	private static boolean execCleanup(Task task) throws TaskException, TaskException
-	{
-//		task.setExec(Task.Exec.CLEANUP_DATA);\
-		//FIXME 
-//		try {
-//			CacheManager.put(id, (BufferedImage) new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(id).openInputStream())).getImage());
-//		} catch (IOException | ClassCastException | DataStoreException e) {
-//			throw new TaskErrorException("Error adding book to cache : " + e.getMessage());
-//		}
-		
 		return true;
 	}
 	

@@ -984,12 +984,12 @@ public final class DataImport extends Plugin
 			
 			@Override
 			public Dimension minimumLayoutSize(Container parent) {
-			    return new Dimension(0, 20); //FIXME
+			    return getMinimumSize();
 			}
 			
 			@Override
 			public Dimension preferredLayoutSize(Container parent) {
-			    return new Dimension(280, 280); //FIXME
+			    return getPreferredSize();
 			}
 			
 			@Override

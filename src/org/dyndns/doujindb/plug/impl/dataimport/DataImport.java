@@ -871,7 +871,7 @@ public final class DataImport extends Plugin
 				// Set displaying Task
 				this.m_Task = task;
 				// Display UUID
-				m_LabelTitle.setText(m_Task.id);
+				m_LabelTitle.setText(m_Task.file);
 //				// Display 'status' Icon
 //				fireInfoUpdated();
 //				// Display scanned Image

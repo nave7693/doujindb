@@ -464,10 +464,16 @@ public final class DataImport extends Plugin
 				private JLabel m_Label;
 				private JCheckBox m_CheckBox;
 				
+				private Color mLabelForeground;
+				private Color mLabelBackground;
+				
 				public TaskRenderer() {
 				    super();
 				    super.setFont(font);
 				    m_Label = new JLabel();
+				    m_Label.setOpaque(true);
+				    mLabelForeground = m_Label.getForeground();
+				    mLabelBackground = m_Label.getBackground();
 					m_CheckBox = new JCheckBox();
 				}
 			
@@ -509,11 +515,20 @@ public final class DataImport extends Plugin
 								break;
 							}
 						m_Label.setText("");
+						m_Label.setForeground(mLabelForeground);
+						m_Label.setBackground(mLabelBackground);
 						return m_Label;
 					}
 					if(column == 1) {
 						m_Label.setIcon(null);
 						m_Label.setText(task.file);
+						if(task.selected) {
+							m_Label.setBackground(mLabelForeground);
+							m_Label.setForeground(mLabelBackground);
+						} else {
+							m_Label.setForeground(mLabelForeground);
+							m_Label.setBackground(mLabelBackground);
+						}
 						return m_Label;
 					}
 					if(column == 2) {

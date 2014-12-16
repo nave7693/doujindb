@@ -144,7 +144,7 @@ public final class DataImport extends Plugin
 			m_ButtonTaskDelete = new JButton(Icon.task_delete);
 			m_ButtonTaskDelete.addActionListener(this);
 			m_ButtonTaskDelete.setBorder(null);
-			m_ButtonTaskDelete.setToolTipText("Detele");
+			m_ButtonTaskDelete.setToolTipText("Delete");
 			m_ButtonTaskDelete.setFocusable(false);
 			m_TabTasks.add(m_ButtonTaskDelete);
 			m_ButtonTaskReset = new JButton(Icon.task_reset);

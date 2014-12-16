@@ -33,100 +33,100 @@ import ch.qos.logback.classic.Logger;
 
 public final class ImageSearch extends Plugin
 {
-	private final String fAuthor = "loli10K";
-	private final String fVersion = "1.1";
-	private final String fWeblink = "https://github.com/loli10K";
-	private final String fName = "Image Search";
-	private final String fDescription = "Search through then whole DataStore for matching cover images.";
-	private JComponent fUI = new PluginUI();
+	private final String mAuthor = "loli10K";
+	private final String mVersion = "1.1";
+	private final String mWeblink = "https://github.com/loli10K";
+	private final String mName = "Image Search";
+	private final String mDescription = "Search through then whole DataStore for matching cover images.";
+	private JComponent mUI = new PluginUI();
 	
-	private File HASHDB_FILE = new File(this.PLUGIN_HOME, "hashdb.ser");
-	private Map<String, Integer> HASHDB_MAP = new HashMap<String, Integer>();
+	private File mHashFile = new File(this.PLUGIN_HOME, "hashdb.ser");
+	private Map<String, Integer> mHashMap = new HashMap<String, Integer>();
 	
-	private static Icons fIcons = new Icons();
+	private static Icons mIcons = new Icons();
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(ImageSearch.class);
 	
 	@Override
 	public Icon getIcon() {
-		return fIcons.icon;
+		return mIcons.icon;
 	}
 	
 	@Override
 	public String getName() {
-		return fName;
+		return mName;
 	}
 	
 	@Override
 	public String getDescription() {
-		return fDescription;
+		return mDescription;
 	}
 	
 	@Override
 	public String getVersion() {
-		return fVersion;
+		return mVersion;
 	}
 	
 	@Override
 	public String getAuthor() {
-		return fAuthor;
+		return mAuthor;
 	}
 	
 	@Override
 	public String getWeblink() {
-		return fWeblink;
+		return mWeblink;
 	}
 	
 	@Override
 	public JComponent getUI() {
-		return fUI;
+		return mUI;
 	}
 	
 	@SuppressWarnings("serial")
 	private final class PluginUI extends JPanel implements ActionListener
 	{
-		private JTabbedPane m_TabbedPane;
-		private JPanel m_TabSearch;
+		private JTabbedPane mTabbedPane;
+		private JPanel mTabSearch;
 		@SuppressWarnings("unused")
-		private JPanel m_TabConfiguration;
+		private JPanel mTabConfiguration;
 		
-		private JProgressBar m_ProgressBarCache;
-		private JButton m_ButtonCacheBuild;
-		private JButton m_ButtonCacheCancel;
+		private JProgressBar mProgressBarSearch;
+		private JButton mButtonBuild;
+		private JButton mButtonCancel;
 		
-		private JButton m_ButtonScanPreview;
-		private JTabbedPane m_TabbedPaneScanResult;
+		private JButton mButtonSearchInput;
+		private JTabbedPane mTabbedPaneSearchResult;
 		
-		private SwingWorker<Void, Integer> m_WorkerScanner = new TaskScanner(null);
-		private boolean m_ScannerRunning = false;
-		private SwingWorker<Void, Integer> m_WorkerBuilder = new TaskBuilder();
-		private boolean m_BuilderRunning = false;
+		private SwingWorker<Void, Integer> mWorkerSearch = new Search(null);
+		private boolean mIsSearchRunning = false;
+		private SwingWorker<Void, Integer> mWorkerHasher = new Hasher();
+		private boolean mIsHasherRunning = false;
 		
 		public PluginUI() {
 			super();
 			super.setLayout(new GridLayout(1,1));
-			m_TabbedPane = new JTabbedPane();
-			m_TabbedPane.setFont(UI.Font);
-			m_TabbedPane.setFocusable(false);
+			mTabbedPane = new JTabbedPane();
+			mTabbedPane.setFont(UI.Font);
+			mTabbedPane.setFocusable(false);
 			
-			m_TabSearch = new JPanel();
-			m_TabSearch.setMinimumSize(new Dimension(350, 350));
-			m_TabSearch.setPreferredSize(new Dimension(350, 350));
-			m_TabSearch.setLayout(new LayoutManager() {
+			mTabSearch = new JPanel();
+			mTabSearch.setMinimumSize(new Dimension(350, 350));
+			mTabSearch.setPreferredSize(new Dimension(350, 350));
+			mTabSearch.setLayout(new LayoutManager() {
 				@Override
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					if(!m_BuilderRunning) {
-						m_ButtonCacheBuild.setBounds(0,0,20,20);
-						m_ButtonCacheCancel.setBounds(0,0,0,0);
+					if(!mIsHasherRunning) {
+						mButtonBuild.setBounds(0,0,20,20);
+						mButtonCancel.setBounds(0,0,0,0);
 					} else {
-						m_ButtonCacheBuild.setBounds(0,0,0,0);
-						m_ButtonCacheCancel.setBounds(0,0,20,20);
+						mButtonBuild.setBounds(0,0,0,0);
+						mButtonCancel.setBounds(0,0,20,20);
 					}
-					m_ProgressBarCache.setBounds(21,1,width-22,20);
-					m_ButtonScanPreview.setBounds(1,25,180,256);
-					m_TabbedPaneScanResult.setBounds(190,25,width-190,height-30);
+					mProgressBarSearch.setBounds(21,1,width-22,20);
+					mButtonSearchInput.setBounds(1,25,180,256);
+					mTabbedPaneSearchResult.setBounds(190,25,width-190,height-30);
 				}
 				
 				@Override
@@ -137,41 +137,41 @@ public final class ImageSearch extends Plugin
 				
 				@Override
 				public Dimension minimumLayoutSize(Container parent) {
-					return m_TabbedPane.getMinimumSize();
+					return mTabbedPane.getMinimumSize();
 				}
 				
 				@Override
 				public Dimension preferredLayoutSize(Container parent) {
-					return m_TabbedPane.getPreferredSize();
+					return mTabbedPane.getPreferredSize();
 				}
 			});
-			m_ButtonCacheBuild = new JButton(fIcons.worker_start);
-			m_ButtonCacheBuild.addActionListener(this);
-			m_ButtonCacheBuild.setBorder(null);
-			m_ButtonCacheBuild.setFocusable(false);
-			m_TabSearch.add(m_ButtonCacheBuild);
-			m_ButtonCacheCancel = new JButton(fIcons.worker_stop);
-			m_ButtonCacheCancel.addActionListener(this);
-			m_ButtonCacheCancel.setBorder(null);
-			m_ButtonCacheCancel.setFocusable(false);
-			m_TabSearch.add(m_ButtonCacheCancel);
-			m_ProgressBarCache = new JProgressBar();
-			m_ProgressBarCache.setFont(UI.Font);
-			m_ProgressBarCache.setMaximum(100);
-			m_ProgressBarCache.setMinimum(1);
-			m_ProgressBarCache.setValue(m_ProgressBarCache.getMinimum());
-			m_ProgressBarCache.setStringPainted(true);
-			m_ProgressBarCache.setString("");
-			m_TabSearch.add(m_ProgressBarCache);
-			m_ButtonScanPreview = new JButton();
-			m_ButtonScanPreview.setIcon(fIcons.search_preview);
-			m_ButtonScanPreview.addActionListener(this);
-			m_ButtonScanPreview.setBorder(null);
-			m_ButtonScanPreview.setDropTarget(new DropTarget() {
+			mButtonBuild = new JButton(mIcons.worker_start);
+			mButtonBuild.addActionListener(this);
+			mButtonBuild.setBorder(null);
+			mButtonBuild.setFocusable(false);
+			mTabSearch.add(mButtonBuild);
+			mButtonCancel = new JButton(mIcons.worker_stop);
+			mButtonCancel.addActionListener(this);
+			mButtonCancel.setBorder(null);
+			mButtonCancel.setFocusable(false);
+			mTabSearch.add(mButtonCancel);
+			mProgressBarSearch = new JProgressBar();
+			mProgressBarSearch.setFont(UI.Font);
+			mProgressBarSearch.setMaximum(100);
+			mProgressBarSearch.setMinimum(1);
+			mProgressBarSearch.setValue(mProgressBarSearch.getMinimum());
+			mProgressBarSearch.setStringPainted(true);
+			mProgressBarSearch.setString("");
+			mTabSearch.add(mProgressBarSearch);
+			mButtonSearchInput = new JButton();
+			mButtonSearchInput.setIcon(mIcons.search_preview);
+			mButtonSearchInput.addActionListener(this);
+			mButtonSearchInput.setBorder(null);
+			mButtonSearchInput.setDropTarget(new DropTarget() {
 				@Override
 				public synchronized void dragOver(DropTargetDragEvent dtde) {
 					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						if(m_ScannerRunning || m_BuilderRunning) {
+						if(mIsSearchRunning | mIsHasherRunning) {
 							dtde.rejectDrag();
 							return;
 						}
@@ -194,11 +194,11 @@ public final class ImageSearch extends Plugin
 	                                @Override
 	                                public void run() {
 	                                	File file = transferData.iterator().next();
-	                                	if(m_ScannerRunning || m_BuilderRunning)
+	                                	if(mIsSearchRunning | mIsHasherRunning)
 	                    					return;
-	                                	m_WorkerScanner = new TaskScanner(file);
-	                                	new Thread(m_WorkerScanner).start();
-	                    				m_TabSearch.doLayout();
+	                                	mWorkerSearch = new Search(file);
+	                                	new Thread(mWorkerSearch).start();
+	                    				mTabSearch.doLayout();
 	                                }
 	                        	}.start();
 	                            dtde.dropComplete(true);
@@ -211,37 +211,37 @@ public final class ImageSearch extends Plugin
 	                }
 				}
 			});
-			m_TabSearch.add(m_ButtonScanPreview);
-			m_TabbedPaneScanResult = new JTabbedPane();
-			m_TabbedPaneScanResult.setFont(UI.Font);
-			m_TabbedPaneScanResult.setFocusable(false);
-			m_TabbedPaneScanResult.setOpaque(false);
-			m_TabbedPaneScanResult.setTabPlacement(JTabbedPane.RIGHT);
-			m_TabSearch.add(m_TabbedPaneScanResult);
-			m_TabbedPane.addTab("Search", fIcons.search, m_TabSearch);
+			mTabSearch.add(mButtonSearchInput);
+			mTabbedPaneSearchResult = new JTabbedPane();
+			mTabbedPaneSearchResult.setFont(UI.Font);
+			mTabbedPaneSearchResult.setFocusable(false);
+			mTabbedPaneSearchResult.setOpaque(false);
+			mTabbedPaneSearchResult.setTabPlacement(JTabbedPane.RIGHT);
+			mTabSearch.add(mTabbedPaneSearchResult);
+			mTabbedPane.addTab("Search", mIcons.search, mTabSearch);
 			
 			PanelConfiguration panelConfig = new PanelConfiguration(Configuration.class);
 			panelConfig.setConfigurationFile(CONFIG_FILE);
-			m_TabbedPane.addTab("Configuration", fIcons.settings, m_TabConfiguration = panelConfig);
+			mTabbedPane.addTab("Configuration", mIcons.settings, mTabConfiguration = panelConfig);
 			
-			super.add(m_TabbedPane);
+			super.add(mTabbedPane);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-			if(ae.getSource() == m_ButtonCacheBuild) {
-				if(m_BuilderRunning)
+			if(ae.getSource() == mButtonBuild) {
+				if(mIsHasherRunning)
 					return;
-				m_WorkerBuilder = new TaskBuilder();
-				new Thread(m_WorkerBuilder).start();
+				mWorkerHasher = new Hasher();
+				new Thread(mWorkerHasher).start();
 				return;
 			}
-			if(ae.getSource() == m_ButtonCacheCancel) {
-				m_WorkerBuilder.cancel(false);
+			if(ae.getSource() == mButtonCancel) {
+				mWorkerHasher.cancel(false);
 				return;
 			}
-			if(ae.getSource() == m_ButtonScanPreview) {
-				if(m_ScannerRunning || m_BuilderRunning)
+			if(ae.getSource() == mButtonSearchInput) {
+				if(mIsSearchRunning | mIsHasherRunning)
 					return;
 				new Thread()
             	{
@@ -250,44 +250,44 @@ public final class ImageSearch extends Plugin
                     	JFileChooser fc = UI.FileChooser;
 						fc.setMultiSelectionEnabled(false);
 						fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-						if(fc.showOpenDialog(fUI) != JFileChooser.APPROVE_OPTION)
+						if(fc.showOpenDialog(mUI) != JFileChooser.APPROVE_OPTION)
 							return;
 						File file = fc.getSelectedFile();
-                    	m_WorkerScanner = new TaskScanner(file);
-                    	new Thread(m_WorkerScanner).start();
-        				m_TabSearch.doLayout();
+                    	mWorkerSearch = new Search(file);
+                    	new Thread(mWorkerSearch).start();
+        				mTabSearch.doLayout();
                     }
             	}.start();
 				return;
 			}
 		}
 		
-		private final class TaskBuilder extends SwingWorker<Void, Integer>
+		private final class Hasher extends SwingWorker<Void, Integer>
 		{
-			private String labelETA = "";
+			private String mLabelETA = "";
 			@Override
 			protected Void doInBackground() throws Exception {
 				Thread.currentThread().setName("plugin-imagesearch-hashdb");
-				m_BuilderRunning = true;
-				m_TabSearch.doLayout();
+				mIsHasherRunning = true;
+				mTabSearch.doLayout();
 
-				m_ProgressBarCache.setMaximum(1);
-				m_ProgressBarCache.setMinimum(1);
-				m_ProgressBarCache.setValue(1);
-				m_ProgressBarCache.setString("Loading ...");
+				mProgressBarSearch.setMaximum(1);
+				mProgressBarSearch.setMinimum(1);
+				mProgressBarSearch.setValue(1);
+				mProgressBarSearch.setString("Loading ...");
 				
 				final RecordSet<Book> books = DataBase.getBooks(new QueryBook());
 				final Iterator<Book> books_q = books.iterator();
 				
-				m_ProgressBarCache.setMaximum(books.size());
-				m_ProgressBarCache.setMinimum(1);
-				m_ProgressBarCache.setValue(1);
+				mProgressBarSearch.setMaximum(books.size());
+				mProgressBarSearch.setMinimum(1);
+				mProgressBarSearch.setValue(1);
 				
 				int threads = Configuration.hashdb_threads.get();
 			    List<Future<Void>> futuresList = new ArrayList<Future<Void>>();
 			    ExecutorService eservice = Executors.newFixedThreadPool(threads);
 			    
-			    final long lastModified = HASHDB_FILE.lastModified();
+			    final long lastModified = mHashFile.lastModified();
 			    for(int index=0; index<threads; index++)
 			    	futuresList.add(eservice.submit(new Callable<Void>() {
 			    		@Override
@@ -298,11 +298,11 @@ public final class ImageSearch extends Plugin
 									return null;
 			    				try {
 			    					DataFile thumbn = DataStore.getThumbnail(book.getId());
-			    					if(!HASHDB_MAP.containsValue(book.getId()) || thumbn.lastModified() > lastModified) {
+			    					if(!mHashMap.containsValue(book.getId()) || thumbn.lastModified() > lastModified) {
 			    						String hash = new ImageAHash().getHash(thumbn.openInputStream());
-			    						HASHDB_MAP.put(hash, book.getId());
+			    						mHashMap.put(hash, book.getId());
 			    					}
-			    					publish(HASHDB_MAP.size());
+			    					publish(mHashMap.size());
 			    				} catch (Exception e) {
 			    					LOG.error("Error computing hash for Book {}", book.getId(), e);
 			    				}
@@ -311,15 +311,15 @@ public final class ImageSearch extends Plugin
 			    		}
 			    	}));
 			    Timer timer = new Timer(1000, new ActionListener() {
-			    	long lastCount = HASHDB_MAP.size();
+			    	long lastCount = mHashMap.size();
 					@Override
 					public void actionPerformed(ActionEvent ae) {
-						long currCount = HASHDB_MAP.size();
+						long currCount = mHashMap.size();
 						long hps = currCount - lastCount; // hash per second
 						if(hps != 0)
-							labelETA = format((books.size() - currCount) / hps);
+							mLabelETA = format((books.size() - currCount) / hps);
 						else
-							labelETA = "...";
+							mLabelETA = "...";
 						lastCount = currCount;
 					}
 				    public String format(long seconds) {
@@ -363,59 +363,61 @@ public final class ImageSearch extends Plugin
 
 			@Override
 			protected void done() {
-				m_BuilderRunning = false;
-				m_ProgressBarCache.setValue(0);
-				m_ProgressBarCache.setString("");
-				m_TabSearch.doLayout();
+				mIsHasherRunning = false;
+				mProgressBarSearch.setValue(0);
+				mProgressBarSearch.setString("");
+				mTabSearch.doLayout();
 			}
 
 			@Override
 			protected void process(List<Integer> chunks) {
 				int value = chunks.get(chunks.size() - 1);
-				int maximum = m_ProgressBarCache.getMaximum();
+				int maximum = mProgressBarSearch.getMaximum();
 				int progress = value * 100 / maximum;
-				m_ProgressBarCache.setValue(value);
-				m_ProgressBarCache.setString(String.format("[%d / %d] @ %d%% (ETA %s)", value, maximum, progress, labelETA));
+				mProgressBarSearch.setValue(value);
+				mProgressBarSearch.setString(String.format("[%d / %d] @ %d%% (ETA %s)", value, maximum, progress, mLabelETA));
 			}
 		}
 		
-		private final class TaskScanner extends SwingWorker<Void, Integer>
+		private final class Search extends SwingWorker<Void, Integer>
 		{
-			final private File file;
+			final private File mFile;
 			
-			private TaskScanner(final File file) {
-				this.file = file;
+			private Search(final File file) {
+				this.mFile = file;
 			}
 			
 			private final class RatedItem implements Comparable<RatedItem>
 			{
-				public final Integer item;
-				public final Integer value;
+				final Integer mItem;
+				final Integer mValue;
+				
 				private RatedItem(Integer item, Integer value) {
-					this.item = item;
-					this.value = value;
+					this.mItem = item;
+					this.mValue = value;
 				}
+				
 				@Override
 				public int compareTo(RatedItem o) {
-					return value.compareTo(o.value);
+					return mValue.compareTo(o.mValue);
 				}
 			}
 			
 			@Override
 			protected Void doInBackground() throws Exception {
 				Thread.currentThread().setName("plugin-imagesearch-imagequery");
-				m_ScannerRunning = true;
+				mIsSearchRunning = true;
 				PluginUI.this.doLayout();
 				
-				while (m_TabbedPaneScanResult.getTabCount() > 0)
-					m_TabbedPaneScanResult.remove(0);
-				m_ButtonScanPreview.setIcon(fIcons.search_missing);
+				while (mTabbedPaneSearchResult.getTabCount() > 0)
+					mTabbedPaneSearchResult.remove(0);
+				mButtonSearchInput.setIcon(mIcons.search_missing);
 				
 				BufferedImage bi;
 				try {
-					bi = javax.imageio.ImageIO.read(file);
+					bi = javax.imageio.ImageIO.read(mFile);
 					if(bi == null)
-						throw new RuntimeException("Could not load Image from file " + file.getName());
+						throw new RuntimeException("Could not load Image from file " + mFile.getName());
 					BufferedImage resized_bi;
 					int img_width = bi.getWidth(),
 						img_height = bi.getHeight();
@@ -428,13 +430,13 @@ public final class ImageSearch extends Plugin
 					g.dispose();
 					bi = ImageTool.getScaledInstance(resized_bi, 256, 256, true);
 					
-					m_ButtonScanPreview.setIcon(new ImageIcon(bi));
+					mButtonSearchInput.setIcon(new ImageIcon(bi));
 					
-					String inputHash = new ImageAHash().getHash(new FileInputStream(file));
+					String inputHash = new ImageAHash().getHash(new FileInputStream(mFile));
 					int threshold = Configuration.query_threshold.get();
 					int maxresult = Configuration.query_maxresult.get();
 					LOG.info("Input hash is {}", inputHash);
-					LOG.info("Searching HashDB for matching hashes (size: {}, threshold: {}) ...", HASHDB_MAP.size(), threshold);
+					LOG.info("Searching HashDB for matching hashes (size: {}, threshold: {}) ...", mHashMap.size(), threshold);
 					
 					long count = 0;
 					PriorityQueue<RatedItem> found = new PriorityQueue<RatedItem>(1, new Comparator<RatedItem>() {
@@ -443,11 +445,11 @@ public final class ImageSearch extends Plugin
 							return o2.compareTo(o1);
 						}
 					});
-					for(String hash: HASHDB_MAP.keySet()) {
+					for(String hash: mHashMap.keySet()) {
 						int distance;
 						if((distance = new ImageAHash().distance(hash, inputHash)) <= threshold) {
 							count++;
-							found.add(new RatedItem(HASHDB_MAP.get(hash), distance));
+							found.add(new RatedItem(mHashMap.get(hash), distance));
 							if (found.size() > maxresult)
 								found.poll();
 						}
@@ -459,13 +461,13 @@ public final class ImageSearch extends Plugin
 					
 					while(!found.isEmpty()) {
 						RatedItem ratedItem = found.poll();
-						final Integer bookId = ratedItem.item;
-						final Integer distance = ratedItem.value;
+						final Integer bookId = ratedItem.mItem;
+						final Integer distance = ratedItem.mValue;
 						JButton button;
 						try {
 							button = new JButton(new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream())));
 						} catch (Exception dse) {
-							button = new JButton(fIcons.search_missing);
+							button = new JButton(mIcons.search_missing);
 						}
 						button.addActionListener(new ActionListener() {
 							@Override
@@ -484,14 +486,14 @@ public final class ImageSearch extends Plugin
 							}
 						});
 						if(distance.equals(0)) // exact hash match
-							m_TabbedPaneScanResult.insertTab("", fIcons.search_star, button, "", 0);
+							mTabbedPaneSearchResult.insertTab("", mIcons.search_star, button, "", 0);
 						else // match within threshold
-							m_TabbedPaneScanResult.insertTab(String.format("+%d", distance), null, button, "", 0);
-						m_TabbedPaneScanResult.setSelectedIndex(0);
+							mTabbedPaneSearchResult.insertTab(String.format("+%d", distance), null, button, "", 0);
+						mTabbedPaneSearchResult.setSelectedIndex(0);
 					}
 					
 				} catch (Exception e) {
-					LOG.error("Error processing image search for input file {}", file.getName(), e);
+					LOG.error("Error processing image search for input file {}", mFile.getName(), e);
 				}
 				
 				return null;
@@ -499,7 +501,7 @@ public final class ImageSearch extends Plugin
 			
 			@Override
 			protected void done() {
-				m_ScannerRunning = false;
+				mIsSearchRunning = false;
 				PluginUI.this.doLayout();
 				super.done();
 			}
@@ -529,14 +531,14 @@ public final class ImageSearch extends Plugin
 		} catch (IOException ioe) {
 			LOG.error("Error loading Configuration from {}", CONFIG_FILE.getName(), ioe);
 		}
-		synchronized(HASHDB_MAP) {
+		synchronized(mHashMap) {
 			try {
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(HASHDB_FILE));
-				HASHDB_MAP = (HashMap<String, Integer>) ois.readObject();
-				LOG.debug("Loaded HashDB from {} (size: {})", HASHDB_FILE.getName(), HASHDB_MAP.size());
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(mHashFile));
+				mHashMap = (HashMap<String, Integer>) ois.readObject();
+				LOG.debug("Loaded HashDB from {} (size: {})", mHashFile.getName(), mHashMap.size());
 				ois.close();
 			} catch (IOException | ClassNotFoundException e) {
-				LOG.error("Error loading HashDB from {}", HASHDB_FILE.getName(), e);
+				LOG.error("Error loading HashDB from {}", mHashFile.getName(), e);
 			}
 		}
 	}
@@ -550,14 +552,14 @@ public final class ImageSearch extends Plugin
 			LOG.error("Error saving Configuration to {}", CONFIG_FILE.getName(), ioe);
 		}
 		try {
-			HASHDB_FILE.getParentFile().mkdirs();
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(HASHDB_FILE));
-			oos.writeObject(HASHDB_MAP);
+			mHashFile.getParentFile().mkdirs();
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(mHashFile));
+			oos.writeObject(mHashMap);
 			oos.flush();
 			oos.close();
-			LOG.debug("Saved HashDB to {}", HASHDB_FILE.getName());
+			LOG.debug("Saved HashDB to {}", mHashFile.getName());
 		} catch (IOException ioe) {
-			LOG.error("Error saving HashDB to {}", HASHDB_FILE.getName(), ioe);
+			LOG.error("Error saving HashDB to {}", mHashFile.getName(), ioe);
 		}
 	}
 

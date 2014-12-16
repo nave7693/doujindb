@@ -46,7 +46,7 @@ public final class DataImport extends Plugin
 	static final String Weblink = "https://github.com/loli10K";
 	static final String Name = "Data Import";
 	static final String Description = "Batch process media files";
-	private JComponent m_UI = new PluginUI();
+	private PluginUI m_UI = new PluginUI();
 	
 	final File PLUGIN_IMAGECACHE = new File(PLUGIN_HOME, "imagecache");
 	final File PLUGIN_QUERY = new File(PLUGIN_HOME, "query");
@@ -1147,6 +1147,14 @@ public final class DataImport extends Plugin
 		}
 		TaskManager.load(new File(PLUGIN_HOME, "tasks.xml"));
 		TaskManager.start();
+		/** 
+		 * UI should be loaded after TaskManager data (TaskSet) 
+		 * so every graphical compontent (JTable.tableModel) touching 
+		 * the actual data (TaskManager.taskSet) doesn't need to be 
+		 * updated specifically.
+		 */
+		// FIXME Find a method to notify JTable.tableModel that TaskManager.taskSet was updated
+		m_UI = new PluginUI();
 	}
 	
 	@Override

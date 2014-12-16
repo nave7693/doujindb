@@ -311,16 +311,16 @@ public final class ImageSearch extends Plugin
 			    		}
 			    	}));
 			    Timer timer = new Timer(1000, new ActionListener() {
-			    	long lastCount = mHashMap.size();
+			    	long mLastCount = mHashMap.size();
 					@Override
 					public void actionPerformed(ActionEvent ae) {
 						long currCount = mHashMap.size();
-						long hps = currCount - lastCount; // hash per second
+						long hps = currCount - mLastCount; // hash per second
 						if(hps != 0)
 							mLabelETA = format((books.size() - currCount) / hps);
 						else
 							mLabelETA = "...";
-						lastCount = currCount;
+						mLastCount = currCount;
 					}
 				    public String format(long seconds) {
 				        if(seconds < 0)

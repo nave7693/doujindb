@@ -378,7 +378,7 @@ public final class DataImport extends Plugin
 						if ((me.getModifiersEx() & (BUTTON1 | BUTTON2 | BUTTON3)) == BUTTON3) {
 							task.selected = false;
 						}
-						dataChanged(rowNumber);
+						dataChanged();
 					}
 				});
 				
@@ -389,11 +389,6 @@ public final class DataImport extends Plugin
 				m_TableModel.fireTableDataChanged();
 			}
 			
-			public void dataChanged(int row) {
-				for(int idx = 0; idx < m_TableModel.getColumnCount(); idx++)
-					m_TableModel.fireTableCellUpdated(row, idx);
-			}
-
 			private final class TaskSetTableModel extends DefaultTableModel
 			{
 				private TaskSetTableModel() { }

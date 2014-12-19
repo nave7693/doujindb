@@ -56,6 +56,10 @@
 			httpusecaches="true"
 			dest="lib/logback-classic.jar">
 			</get>
+		<get
+			src="http://central.maven.org/maven2/org/xerial/sqlite-jdbc/3.7.2/sqlite-jdbc-3.7.2.jar"
+			skipexisting="true" httpusecaches="true" dest="lib/sqlite.jar">
+			</get>
     </target>
 
     <target name="build">

@@ -883,6 +883,30 @@ public final class DataImport extends Plugin
 			public void setTask(Task task) {
 				m_Task = task;
 				m_LabelTitle.setText(m_Task.file);
+				if(task.equals(TaskManager.getRunningTask()))
+					m_LabelTitle.setIcon(Icon.task_state_running);
+				else
+					switch (task.state)
+					{
+					case NEW:
+						m_LabelTitle.setIcon(Icon.task_state_new);
+						break;
+					case COMPLETE:
+						m_LabelTitle.setIcon(Icon.task_state_complete);
+						break;
+					case ERROR:
+						m_LabelTitle.setIcon(Icon.task_state_error);
+						break;
+					case WARNING:
+						m_LabelTitle.setIcon(Icon.task_state_warning);
+						break;
+					case ABORT:
+						m_LabelTitle.setIcon(Icon.task_state_abort);
+						break;
+					case UNKNOW:
+						m_LabelTitle.setIcon(Icon.task_state_unknow);
+						break;
+					}
 				try {
 					m_LabelPreview.setIcon(TaskManager.getImage(task));
 				} catch (IOException ioe) {

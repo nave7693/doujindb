@@ -149,7 +149,7 @@ final class TaskManager
 	public Task getRunningTask() {
 		if(!isRunning())
 			return null;
-		return mWorker.m_Task;
+		return mWorker.mCurrentTask;
 	}
 	
 	public void registerListener(PropertyChangeListener listener) {
@@ -195,32 +195,32 @@ final class TaskManager
 	
 	private final class Worker implements Runnable
 	{
-		private Task m_Task;
-		private boolean m_Paused = true;
-		private boolean m_PauseReq = true;
+		private Task mCurrentTask;
+		private boolean mIsPaused = true;
+		private boolean mPauseRequested = true;
 		
-		private Thread m_PauseThread;
+		private Thread mCmdpollerThread;
 		
 		private Worker() {
-			m_PauseThread = new Thread("plugin-dataimport-taskmanager-cmdpoller")
+			mCmdpollerThread = new Thread("plugin-dataimport-taskmanager-cmdpoller")
 			{
 				@Override
 				public void run() {
 					while(true) {
-						m_Paused = m_PauseReq;
+						mIsPaused = mPauseRequested;
 						try { Thread.sleep(100); } catch (InterruptedException ie) { }
 					}
 				}
 			};
-			m_PauseThread.setDaemon(true);
-			m_PauseThread.start();
+			mCmdpollerThread.setDaemon(true);
+			mCmdpollerThread.start();
 		}
 		
 		public synchronized void pause() {
 			synchronized(this) {
 				if(isPaused())
 					return;
-				m_PauseReq = true;
+				mPauseRequested = true;
 				while(!isPaused())
 					Thread.yield();
 			}
@@ -230,14 +230,14 @@ final class TaskManager
 			synchronized(this) {
 				if(!isPaused())
 					return;
-				m_PauseReq = false;
+				mPauseRequested = false;
 				while(isPaused())
 					Thread.yield();
 			}
 		}
 		
 		public boolean isPaused() {
-			return m_Paused;
+			return mIsPaused;
 		}
 		
 		@Override
@@ -258,21 +258,21 @@ final class TaskManager
 				// Get next queued Task
 				for(Task task : tasks())
 					if(task.state == State.NEW) {
-						m_Task = task;
+						mCurrentTask = task;
 						break;
 					}
-				if(m_Task == null || m_Task.state != State.NEW) {
+				if(mCurrentTask == null || mCurrentTask.state != State.NEW) {
 					TaskManager.this.pause();
 					continue;
 				}
 				
-				LOG.info("{} Process started", m_Task);
+				LOG.info("{} Process started", mCurrentTask);
 				try {
-					File image = findImage(m_Task.file);
-					LOG.debug("{} Found image file {}", m_Task, image.getAbsolutePath());
+					File image = findImage(mCurrentTask.file);
+					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
 					// Crop image
 					if(Configuration.options_autocrop.get()) {
-						LOG.debug("{} Cropping image file", m_Task);
+						LOG.debug("{} Cropping image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
 						if(src == null)
 							throw new TaskException("Error loading image from file" + image.getPath());
@@ -287,7 +287,7 @@ final class TaskManager
 						g.drawImage(src, 0, 0, img_width, img_height, null);
 						g.dispose();
 						try {
-							image = File.createTempFile(m_Task.id + "-crop-", ".png", mTmpDir);
+							image = File.createTempFile(mCurrentTask.id + "-crop-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
@@ -296,7 +296,7 @@ final class TaskManager
 					}
 					// Find duplicates
 					if(Configuration.options_checkdupes.get()) {
-						LOG.debug("{} Checking for duplicate entries", m_Task);
+						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						//TODO use ImageSearch plugin
 						/*
 						task.setExec(Task.Exec.CHECK_DUPLICATE);
@@ -352,7 +352,7 @@ final class TaskManager
 					}
 					// Resize image
 					if(Configuration.options_autoresize.get()) {
-						LOG.debug("{} Resizing image file", m_Task);
+						LOG.debug("{} Resizing image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
 						if(src == null)
 							throw new TaskException("Error loading image from file" + image.getPath());
@@ -365,7 +365,7 @@ final class TaskManager
 							throw new TaskException("Could not resize image file " + image.getPath(), e);
 						}
 						try {
-							image = File.createTempFile(m_Task.id + "-resize-", ".png", mTmpDir);
+							image = File.createTempFile(mCurrentTask.id + "-resize-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
@@ -375,44 +375,44 @@ final class TaskManager
 					// Save "final" image before uploading
 					// Used for retrieval in TaskManager.getImage(Task)
 					{
-						File saved = new File(mTmpDir, m_Task.id + ".png");
+						File saved = new File(mTmpDir, mCurrentTask.id + ".png");
 						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
 					}
 					// Run Metadata providers
 					for(MetadataProvider provider : mProviders) {
-						LOG.debug("{} Load metadata with provider [{}]", m_Task, provider);
+						LOG.debug("{} Load metadata with provider [{}]", mCurrentTask, provider);
 						if(!isPaused()) {
 							try {
 								Metadata md = provider.query(image);
-								m_Task.metadata.add(md);
+								mCurrentTask.metadata.add(md);
 								if(md.exception != null) {
-									LOG.warn("{} Exception from provider [{}]: {}", m_Task, provider, md.message);
-									m_Task.state = State.WARNING;
+									LOG.warn("{} Exception from provider [{}]: {}", mCurrentTask, provider, md.message);
+									mCurrentTask.state = State.WARNING;
 								}
 							} catch (Exception e) {
-								m_Task.message = e.getMessage();
-								m_Task.exception(e);
-								LOG.warn("{} Exception from provider [{}]", m_Task, provider, e);
-								m_Task.state = State.WARNING;
+								mCurrentTask.message = e.getMessage();
+								mCurrentTask.exception(e);
+								LOG.warn("{} Exception from provider [{}]", mCurrentTask, provider, e);
+								mCurrentTask.state = State.WARNING;
 							}
 						}
 					}
 				} catch (TaskException te) {
-					m_Task.message = te.getMessage();
-					m_Task.exception(te);
-					LOG.error("{} Exception while processing", m_Task, te);
-					m_Task.state = State.ERROR;
+					mCurrentTask.message = te.getMessage();
+					mCurrentTask.exception(te);
+					LOG.error("{} Exception while processing", mCurrentTask, te);
+					mCurrentTask.state = State.ERROR;
 				} catch (Exception e) {
-					m_Task.message = e.getMessage();
-					m_Task.exception(e);
-					LOG.error("{} Exception while processing", m_Task, e);
-					m_Task.state = State.ERROR;
+					mCurrentTask.message = e.getMessage();
+					mCurrentTask.exception(e);
+					LOG.error("{} Exception while processing", mCurrentTask, e);
+					mCurrentTask.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.this.pause();
 				}
-				if(m_Task.state == State.NEW)
-					m_Task.state = State.COMPLETE;
-				LOG.info("{} Process completed with State [{}]", m_Task,  m_Task.state);
+				if(mCurrentTask.state == State.NEW)
+					mCurrentTask.state = State.COMPLETE;
+				LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
 			}
 		}
 	}

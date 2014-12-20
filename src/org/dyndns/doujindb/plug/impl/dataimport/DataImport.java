@@ -890,7 +890,7 @@ public final class DataImport extends Plugin
 				}
 				m_TabbedPaneMetadata.removeAll();
 				for(Metadata md : task.metadata) {
-					m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new JPanel());
+					m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new MetadataUI(md));
 				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();
@@ -1117,6 +1117,61 @@ public final class DataImport extends Plugin
 //					}.execute();
 //					return;
 //				}
+			}
+			
+			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
+			{
+				private JList<String> mAttrList;
+				private DefaultListModel<String> mAttrListModel;
+				
+				public MetadataUI(Metadata md) {
+					super.setLayout(this);
+					super.setMinimumSize(new Dimension(100,100));
+					super.setPreferredSize(new Dimension(100,100));
+					
+					mAttrList = new JList<String>();
+					mAttrList.setModel(mAttrListModel = new DefaultListModel<String>());
+					for(String a : md.artist)
+						mAttrListModel.addElement(a);
+					for(String a : md.circle)
+						mAttrListModel.addElement(a);
+					for(String a : md.content)
+						mAttrListModel.addElement(a);
+					for(String a : md.parody)
+						mAttrListModel.addElement(a);
+					add(mAttrList);
+				}
+
+				@Override
+				public void propertyChange(PropertyChangeEvent pce) {
+					// TODO Auto-generated method stub
+				}
+
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					// TODO Auto-generated method stub
+				}
+
+				@Override
+				public void addLayoutComponent(String name, Component comp) { }
+
+				@Override
+				public void removeLayoutComponent(Component comp) { }
+
+				@Override
+				public Dimension preferredLayoutSize(Container parent) {
+					return getPreferredSize();
+				}
+
+				@Override
+				public Dimension minimumLayoutSize(Container parent) {
+					return getMinimumSize();
+				}
+
+				@Override
+				public void layoutContainer(Container parent) {
+					// TODO Auto-generated method stub
+				}
 			}
 		}
 

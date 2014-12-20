@@ -574,35 +574,31 @@ public final class DataImport extends Plugin
 				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
 				m_LabelPreview.setOpaque(false);
 				add(m_LabelPreview);
-				m_ButtonClose = new JButton(Icon.cancel);
+				m_ButtonClose = new JButton();
+				m_ButtonClose.setText("");
+				m_ButtonClose.setToolTipText("Close");
+				m_ButtonClose.setIcon(Icon.cancel);
 				m_ButtonClose.setSelected(true);
+				m_ButtonClose.setFocusable(false);
 				m_ButtonClose.addActionListener(this);
 				add(m_ButtonClose);
-				
 				m_ButtonOpenFolder = new JButton();
-				m_ButtonOpenFolder.setText("Open Folder");
+				m_ButtonOpenFolder.setText("");
+				m_ButtonOpenFolder.setToolTipText("View Folder");
 				m_ButtonOpenFolder.setIcon(Icon.task_folder);
 				m_ButtonOpenFolder.setSelected(false);
 				m_ButtonOpenFolder.setFocusable(false);
 				m_ButtonOpenFolder.addActionListener(this);
-				m_ButtonOpenFolder.setOpaque(false);
-				m_ButtonOpenFolder.setIconTextGap(5);
-				m_ButtonOpenFolder.setMargin(new Insets(0,0,0,0));
-				m_ButtonOpenFolder.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonOpenFolder.setHorizontalTextPosition(SwingConstants.RIGHT);
 				add(m_ButtonOpenFolder);
 				m_ButtonOpenXML = new JButton();
-				m_ButtonOpenXML.setText("View Response");
+				m_ButtonOpenXML.setText("");
+				m_ButtonOpenXML.setToolTipText("View XML");
 				m_ButtonOpenXML.setIcon(Icon.task_xml);
 				m_ButtonOpenXML.setSelected(false);
 				m_ButtonOpenXML.setFocusable(false);
 				m_ButtonOpenXML.addActionListener(this);
-				m_ButtonOpenXML.setOpaque(false);
-				m_ButtonOpenXML.setIconTextGap(5);
-				m_ButtonOpenXML.setMargin(new Insets(0,0,0,0));
-				m_ButtonOpenXML.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonOpenXML.setHorizontalTextPosition(SwingConstants.RIGHT);
 				add(m_ButtonOpenXML);
+				
 				m_ButtonOpenBook = new JButton();
 				m_ButtonOpenBook.setText("Open Book");
 				m_ButtonOpenBook.setIcon(Icon.task_book);
@@ -900,9 +896,9 @@ public final class DataImport extends Plugin
 				m_LabelTitle.setBounds(0, 0, width - 80, 20);
 				m_LabelPreview.setBounds(0, 20, 200, 256);
 				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
-				m_ButtonOpenFolder.setBounds(200, 20, (width - 200) / 2, 20);
+				m_ButtonOpenFolder.setBounds(width - 40, 0, 20, 20);
+				m_ButtonOpenXML.setBounds(width - 60, 0, 20, 20);
 				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
-				m_ButtonOpenXML.setBounds(200, 60, (width - 200) / 2, 20);
 				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
 				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
 				m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
@@ -997,37 +993,40 @@ public final class DataImport extends Plugin
 					m_PanelTasks.clearSelection();
 					return;
 				}
-//				if(ae.getSource() == m_ButtonOpenFolder) {
-//					new SwingWorker<Void,Void>()
-//					{
-//						@Override
-//						protected Void doInBackground() throws Exception {
-//							try {
-//								URI uri = new File(m_Task.getPath()).toURI();
-//								Desktop.getDesktop().browse(uri);
-//							} catch (IOException ioe) {
-//								ioe.printStackTrace();
-//							}
-//							return null;
-//						}
-//					}.execute();
-//					return;
-//				}
-//				if(ae.getSource() == m_ButtonOpenXML) {
-//					new SwingWorker<Void,Void>() {
-//						@Override
-//						protected Void doInBackground() throws Exception {
-//							try {
-//								URI uri = new File(PLUGIN_QUERY, m_Task.getId() + ".xml").toURI();
-//								Desktop.getDesktop().browse(uri);
-//							} catch (IOException ioe) {
-//								ioe.printStackTrace();
-//							}
-//							return null;
-//						}
-//					}.execute();
-//					return;
-//				}
+				if(ae.getSource() == m_ButtonOpenFolder) {
+					new SwingWorker<Void,Void>()
+					{
+						@Override
+						protected Void doInBackground() throws Exception {
+							try {
+								URI uri = new File(m_Task.file).toURI();
+								Desktop.getDesktop().browse(uri);
+							} catch (IOException ioe) {
+								LOG.error("Error opening Task folder {}", m_Task.file, ioe);
+							}
+							return null;
+						}
+					}.execute();
+					return;
+				}
+				if(ae.getSource() == m_ButtonOpenXML) {
+					new SwingWorker<Void,Void>() {
+						@Override
+						protected Void doInBackground() throws Exception {
+							try {
+								File file = File.createTempFile("task-" + m_Task.id, ".xml");
+								file.deleteOnExit();
+								TaskManager.save(m_Task, file);
+								URI uri = file.toURI();
+								Desktop.getDesktop().browse(uri);
+							} catch (IOException ioe) {
+								LOG.error("Error opening Task raw XML for {}", m_Task, ioe);
+							}
+							return null;
+						}
+					}.execute();
+					return;
+				}
 //				if(ae.getSource() == m_ButtonOpenBook) {
 //					if(m_Task.getBook() == null)
 //						return;

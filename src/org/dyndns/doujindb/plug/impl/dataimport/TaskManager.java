@@ -75,6 +75,26 @@ final class TaskManager
 		}
 	}
 	
+	public void save(Task task, File file) {
+		LOG.debug("call save({}, {})", task, file);
+		FileOutputStream out = null;
+		try
+		{
+			out = new FileOutputStream(file);
+			JAXBContext context = JAXBContext.newInstance(Task.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
+			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
+			m.marshal(task, out);
+			LOG.debug("Saved {} to {}", task, file);
+		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
+			LOG.error("Error saving {} to {}", task, file, e);
+		} finally {
+			try { out.close(); } catch (Exception e) { }
+		}
+	}
+	
 	public void load() {
 		LOG.debug("call load({})", mTaskFile);
 		synchronized(mTaskSet) {

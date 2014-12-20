@@ -913,8 +913,24 @@ public final class DataImport extends Plugin
 					m_LabelPreview.setIcon(Icon.task_preview_missing);
 				}
 				m_TabbedPaneMetadata.removeAll();
-				for(Metadata md : task.metadata) {
-					m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new MetadataUI(md));
+				if(task.exception == null) {
+					for(Metadata md : task.metadata) {
+						if(md.exception == null) {
+							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new MetadataUI(md));
+						} else {
+							JTextArea text = new JTextArea(md.exception);
+							text.setEditable(false);
+							text.setFocusable(false);
+							text.setMargin(new Insets(5,5,5,5)); 
+							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_state_error, new JScrollPane(text));
+						}
+					}
+				} else {
+					JTextArea text = new JTextArea(task.exception);
+					text.setEditable(false);
+					text.setFocusable(false);
+					text.setMargin(new Insets(5,5,5,5)); 
+					m_TabbedPaneMetadata.addTab("exception", Icon.task_state_error, new JScrollPane(text));
 				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();

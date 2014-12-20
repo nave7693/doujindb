@@ -44,7 +44,8 @@ final class TaskManager
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
 	{
-		mProviders.add(new MugiMugiProvider());
+		if(Configuration.provider_mugimugi_enable.get())
+			mProviders.add(new MugiMugiProvider());
 	}
 	
 	TaskManager(final File homeDir) {

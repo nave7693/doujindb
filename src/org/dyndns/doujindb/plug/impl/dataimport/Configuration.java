@@ -13,4 +13,5 @@ public final class Configuration
 	
 	public static final ConfigurationItem<String> provider_mugimugi_apikey = new ConfigurationItem<String>("", "User KEY needed to query doujinshi.mugimugi.org API system");
 	public static final ConfigurationItem<Integer> provider_mugimugi_threshold = new ConfigurationItem<Integer>(75, "Threshold limit for matching cover queries");
+	public static final ConfigurationItem<Boolean> provider_mugimugi_enable = new ConfigurationItem<Boolean>(true, "Enable MugiMugi metadata provider");
 }

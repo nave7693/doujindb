@@ -268,7 +268,7 @@ final class TaskManager
 				
 				LOG.info("{} Process started", m_Task);
 				try {
-					File image = findFirstFile(m_Task.file);
+					File image = findImage(m_Task.file);
 					LOG.debug("{} Found image file {}", m_Task, image.getAbsolutePath());
 					// Crop image
 					if(Configuration.options_autocrop.get()) {
@@ -743,16 +743,21 @@ final class TaskManager
 		return true;
 	}
 	
-	private static File findFirstFile(String base) {
-		return findFirstFile(new File(base));
+	private static File findImage(String base) {
+		return findImage(new File(base));
 	}
 	
-	private static File findFirstFile(File base) {
+	private static File findImage(File base) {
 		File[] files = base.listFiles(new FilenameFilter()
 		{
+			private String getExtension(String file) {
+				if(file.lastIndexOf(".") == -1)
+					return "";
+				return file.toLowerCase().substring(file.lastIndexOf("."));
+			}
 			@Override
 			public boolean accept(File dir, String fname) {
-				return !(new File(dir, fname).isHidden());
+				return !(new File(dir, fname).isHidden()) && getExtension(fname).matches("^(png|jp(e)?g|gif|bmp|tiff)$");
 			}
 		});
 		Arrays.sort(files, new Comparator<File>()
@@ -766,12 +771,12 @@ final class TaskManager
 			if(file.isFile())
 				return file;
 			else
-				return findFirstFile(file);
+				return findImage(file);
 		return null;
 	}
 	
-	private static DataFile findFirstFile(DataFile base) throws DataStoreException {
-		DataFile[] files = base.listFiles();
+	private static DataFile findImage(DataFile base) throws DataStoreException {
+		DataFile[] files = base.listFiles("^(png|jp(e)?g|gif|bmp|tiff)$");
 		Arrays.sort(files, new Comparator<DataFile>()
 		{
 			@Override
@@ -787,7 +792,7 @@ final class TaskManager
 			if(file.isFile())
 				return file;
 			else
-				return findFirstFile(file);
+				return findImage(file);
 		return null;
 	}
 }

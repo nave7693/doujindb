@@ -46,14 +46,13 @@ public final class DataImport extends Plugin
 	static final String Weblink = "https://github.com/loli10K";
 	static final String Name = "Data Import";
 	static final String Description = "Batch process media files";
-	private PluginUI m_UI = new PluginUI();
-	
-	final File PLUGIN_IMAGECACHE = new File(PLUGIN_HOME, "imagecache");
-	final File PLUGIN_QUERY = new File(PLUGIN_HOME, "query");
+	private PluginUI m_UI;
 	
 	private static SimpleDateFormat sdf;
 	private static Font font;
 	private static Icons Icon = new Icons();
+	
+	private TaskManager TaskManager = new TaskManager(PLUGIN_HOME);
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DataImport.class);
 	
@@ -61,7 +60,7 @@ public final class DataImport extends Plugin
 		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
-	
+
 	@Override
 	public Icon getIcon() {
 		return Icon.icon;
@@ -573,6 +572,7 @@ public final class DataImport extends Plugin
 				m_LabelPreview.setIcon(Icon.task_preview_missing);
 				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
 				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
+				m_LabelPreview.setOpaque(false);
 				add(m_LabelPreview);
 				m_ButtonClose = new JButton(Icon.cancel);
 				m_ButtonClose.setSelected(true);
@@ -878,10 +878,13 @@ public final class DataImport extends Plugin
 //			}
 
 			public void setTask(Task task) {
-				// Set displaying Task
-				this.m_Task = task;
-				// Display UUID
+				m_Task = task;
 				m_LabelTitle.setText(m_Task.file);
+				try {
+					m_LabelPreview.setIcon(TaskManager.getImage(task));
+				} catch (IOException ioe) {
+					m_LabelPreview.setIcon(Icon.task_preview_missing);
+				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();
 //				// Display scanned Image
@@ -1140,7 +1143,7 @@ public final class DataImport extends Plugin
 		} catch (IOException ioe) {
 			LOG.error("Error loading Configuration from {}", CONFIG_FILE.getName(), ioe);
 		}
-		TaskManager.load(new File(PLUGIN_HOME, "tasks.xml"));
+		TaskManager.load();
 		TaskManager.start();
 		/** 
 		 * UI should be loaded after TaskManager data (TaskSet) 
@@ -1161,7 +1164,7 @@ public final class DataImport extends Plugin
 			LOG.error("Error saving Configuration to {}", CONFIG_FILE.getName(), ioe);
 		}
 		TaskManager.stop();
-		TaskManager.save(new File(PLUGIN_HOME, "tasks.xml"));
+		TaskManager.save();
 	}
 
 	@Override

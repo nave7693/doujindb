@@ -34,157 +34,166 @@ import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
 
 final class TaskManager
 {
-	private static java.util.List<Task> tasks = new Vector<Task>();
-	private static Worker worker = new Worker();
-	private static PropertyChangeSupport pcs = new PropertyChangeSupport(tasks);
-	private static Set<MetadataProvider> providers = new HashSet<MetadataProvider>();
+	private Set<MetadataProvider> mProviders = new HashSet<MetadataProvider>();
+	private java.util.List<Task> mTaskSet = new Vector<Task>();
+	private final File mTaskFile;
+	private final File mTmpDir;
+	private Worker mWorker = new Worker();
+	private PropertyChangeSupport mPCS = new PropertyChangeSupport(mTaskSet);
+	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
-	static {
-		providers.add(new MugiMugiProvider());
+	{
+		mProviders.add(new MugiMugiProvider());
 	}
 	
-	public static void save(File file) {
-		LOG.debug("call save({})", file);
+	TaskManager(final File homeDir) {
+		mTaskFile = new File(homeDir, "tasks.xml");
+		mTmpDir = new File(homeDir, "tmp");
+		mTmpDir.mkdirs();
+	}
+	
+	public void save() {
+		LOG.debug("call save({})", mTaskFile);
 		FileOutputStream out = null;
 		try
 		{
 			TaskSet set = new TaskSet();
-			set.tasks.addAll(tasks);
-			out = new FileOutputStream(file);
+			set.tasks.addAll(mTaskSet);
+			out = new FileOutputStream(mTaskFile);
 			JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
 			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			m.marshal(set, out);
-			LOG.debug("Saved Tasks to {}", file);
+			LOG.debug("Saved Tasks to {}", mTaskFile);
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			LOG.error("Error saving Tasks to {}", file, e);
+			LOG.error("Error saving Tasks to {}", mTaskFile, e);
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	
-	public static void load(File file) {
-		LOG.debug("call load({})", file);
-		synchronized(tasks) {
-			tasks = new Vector<Task>();
+	public void load() {
+		LOG.debug("call load({})", mTaskFile);
+		synchronized(mTaskSet) {
+			mTaskSet = new Vector<Task>();
 			FileInputStream in = null;
 			try
 			{
-				in = new FileInputStream(file);
+				in = new FileInputStream(mTaskFile);
 				JAXBContext context = JAXBContext.newInstance(TaskSet.class);
 				Unmarshaller um = context.createUnmarshaller();
 				TaskSet set = (TaskSet) um.unmarshal(in);
-				tasks.addAll(set.tasks);
-				LOG.debug("Loaded Tasks from {}", file);
+				mTaskSet.addAll(set.tasks);
+				LOG.debug("Loaded Tasks from {}", mTaskFile);
 			} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-				LOG.error("Error loading Tasks from {}", file, e);
+				LOG.error("Error loading Tasks from {}", mTaskFile, e);
 			} finally {
 				try { in.close(); } catch (Exception e) { }
 			}
 		}
-		pcs.firePropertyChange("taskmanager-info", 0, 1);
+		mPCS.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
-	public static int size() {
-		return tasks.size();
+	public int size() {
+		return mTaskSet.size();
 	}
 	
-	public static void add(File file) {
+	public void add(File file) {
 		LOG.debug("call add({})", file);
-		synchronized(tasks) {
+		synchronized(mTaskSet) {
 			// Get unique ID
 			String uuid = java.util.UUID.randomUUID().toString();
-			while(tasks.contains(uuid))
+			while(mTaskSet.contains(uuid))
 				uuid = java.util.UUID.randomUUID().toString();
-			tasks.add(new Task(uuid, file.getAbsolutePath()));
+			mTaskSet.add(new Task(uuid, file.getAbsolutePath()));
 		}
-		pcs.firePropertyChange("taskmanager-info", 0, 1);
+		mPCS.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
-	public static void remove(Task task) {
+	public void remove(Task task) {
 		LOG.debug("call remove({})", task);
-		synchronized(tasks) {
-			tasks.remove(task);
+		synchronized(mTaskSet) {
+			mTaskSet.remove(task);
 		}
-		pcs.firePropertyChange("taskmanager-info", 0, 1);
+		mPCS.firePropertyChange("taskmanager-info", 0, 1);
 	}
 	
-	public static void reset(Task task) {
+	public void reset(Task task) {
 		LOG.debug("call reset({})", task);
-		synchronized(tasks) {
+		synchronized(mTaskSet) {
 			if(!contains(task))
 				return;
 			task.reset();
 		}
 	}
 	
-	public static boolean contains(Task task) {
-		return tasks.contains(task);
+	public boolean contains(Task task) {
+		return mTaskSet.contains(task);
 	}
 	
-	public static boolean contains(String taskid) {
-		return tasks.contains(taskid);
+	public boolean contains(String taskid) {
+		return mTaskSet.contains(taskid);
 	}
 
-	public static Iterable<Task> tasks() {
-		return tasks;
+	public Iterable<Task> tasks() {
+		return mTaskSet;
 	}
 	
-	public static Task get(int index) {
-		return tasks.get(index);
+	public Task get(int index) {
+		return mTaskSet.get(index);
 	}
 	
-	public static Task getRunningTask() {
+	public Task getRunningTask() {
 		if(!isRunning())
 			return null;
-		return worker.m_Task;
+		return mWorker.m_Task;
 	}
 	
-	public static void registerListener(PropertyChangeListener listener) {
+	public void registerListener(PropertyChangeListener listener) {
 		LOG.debug("call registerListener({})", listener);
-		pcs.addPropertyChangeListener(listener);
+		mPCS.addPropertyChangeListener(listener);
 	}
 	
-	public static void start() {
+	public void start() {
 		LOG.debug("call start()");
-		Thread thread = new Thread(worker);
+		Thread thread = new Thread(mWorker);
 		thread.setName("plugin-dataimport-taskmanager");
 		thread.setDaemon(true);
 		thread.setPriority(Thread.MIN_PRIORITY);
 		thread.start();
 	}
 	
-	public static void stop() {
+	public void stop() {
 		LOG.debug("call stop()");
 		//TODO
 	}
 	
-	public static void pause() {
+	public void pause() {
 		LOG.debug("call pause()");
-		if(!worker.isPaused()) {
-			worker.pause();
-			pcs.firePropertyChange("taskmanager-info", 0, 1);
+		if(!mWorker.isPaused()) {
+			mWorker.pause();
+			mPCS.firePropertyChange("taskmanager-info", 0, 1);
 			LOG.info("Worker paused");
 		}
 	}
 	
-	public static void resume() {
+	public void resume() {
 		LOG.debug("call resume()");
-		if(worker.isPaused()) {
-			worker.resume();
-			pcs.firePropertyChange("taskmanager-info", 0, 1);
+		if(mWorker.isPaused()) {
+			mWorker.resume();
+			mPCS.firePropertyChange("taskmanager-info", 0, 1);
 			LOG.info("Worker resumed");
 		}
 	}
 	
-	public static boolean isRunning() {
-		return !worker.isPaused();
+	public boolean isRunning() {
+		return !mWorker.isPaused();
 	}
 	
-	private static final class Worker implements Runnable
+	private final class Worker implements Runnable
 	{
 		private Task m_Task;
 		private boolean m_Paused = true;
@@ -253,7 +262,7 @@ final class TaskManager
 						break;
 					}
 				if(m_Task == null || m_Task.state != State.NEW) {
-					TaskManager.pause();
+					TaskManager.this.pause();
 					continue;
 				}
 				
@@ -278,7 +287,7 @@ final class TaskManager
 						g.drawImage(src, 0, 0, img_width, img_height, null);
 						g.dispose();
 						try {
-							image = File.createTempFile(m_Task.id + "-crop-", ".png");
+							image = File.createTempFile(m_Task.id + "-crop-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
@@ -356,14 +365,21 @@ final class TaskManager
 							throw new TaskException("Could not resize image file " + image.getPath(), e);
 						}
 						try {
-							image = File.createTempFile(m_Task.id + "-resize-", ".png");
+							image = File.createTempFile(m_Task.id + "-resize-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
 							throw new TaskException("Could not write image file " + image.getPath(), e);
 						}
 					}
-					for(MetadataProvider provider : providers) {
+					// Save "final" image before uploading
+					// Used for retrieval in TaskManager.getImage(Task)
+					{
+						File saved = new File(mTmpDir, m_Task.id + ".png");
+						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
+					}
+					// Run Metadata providers
+					for(MetadataProvider provider : mProviders) {
 						LOG.debug("{} Load metadata with provider [{}]", m_Task, provider);
 						if(!isPaused()) {
 							try {
@@ -392,7 +408,7 @@ final class TaskManager
 					LOG.error("{} Exception while processing", m_Task, e);
 					m_Task.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager
-					TaskManager.pause();
+					TaskManager.this.pause();
 				}
 				if(m_Task.state == State.NEW)
 					m_Task.state = State.COMPLETE;
@@ -408,6 +424,14 @@ final class TaskManager
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
+	
+	public ImageIcon getImage(Task task) throws IOException {
+		try {
+			return new ImageIcon(javax.imageio.ImageIO.read(new File(mTmpDir, task.id + ".png")));
+		} catch (NullPointerException npe) {
+			throw new IOException("Cannot load image file", npe);
+		}
 	}
 	
 	private static boolean execSimilarityCheck(Task task) throws TaskException, TaskException

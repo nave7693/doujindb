@@ -550,11 +550,13 @@ public final class DataImport extends Plugin
 			private JButton m_ButtonClose;
 			private JButton m_ButtonOpenFolder;
 			private JButton m_ButtonOpenXML;
-			private JButton m_ButtonOpenBook;
-			private JButton m_ButtonRunAgain;
-			private JButton m_ButtonSkipDuplicate;
-			private JButton m_ButtonImportBID;
-			private JTabbedPane m_TabbedPaneImage;
+			private JTabbedPane m_TabbedPaneMetadata;
+			private JPanel m_TabbedPaneMetadata2;
+//			private JButton m_ButtonOpenBook;
+//			private JButton m_ButtonRunAgain;
+//			private JButton m_ButtonSkipDuplicate;
+//			private JButton m_ButtonImportBID;
+//			private JTabbedPane m_TabbedPaneImage;
 			
 			public TaskUI() {
 				super();
@@ -599,74 +601,79 @@ public final class DataImport extends Plugin
 				m_ButtonOpenXML.addActionListener(this);
 				add(m_ButtonOpenXML);
 				
-				m_ButtonOpenBook = new JButton();
-				m_ButtonOpenBook.setText("Open Book");
-				m_ButtonOpenBook.setIcon(Icon.task_book);
-				m_ButtonOpenBook.setSelected(false);
-				m_ButtonOpenBook.setFocusable(false);
-				m_ButtonOpenBook.addActionListener(this);
-				m_ButtonOpenBook.setOpaque(false);
-				m_ButtonOpenBook.setIconTextGap(5);
-				m_ButtonOpenBook.setMargin(new Insets(0,0,0,0));
-				m_ButtonOpenBook.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonOpenBook.setHorizontalTextPosition(SwingConstants.RIGHT);
-				add(m_ButtonOpenBook);
+				m_TabbedPaneMetadata = new JTabbedPane();
+				m_TabbedPaneMetadata.setFocusable(false);
+				m_TabbedPaneMetadata.setTabPlacement(JTabbedPane.TOP);
+				add(m_TabbedPaneMetadata);
 				
-				m_ButtonRunAgain = new JButton();
-				m_ButtonRunAgain.setText("Re-run Step");
-				m_ButtonRunAgain.setIcon(Icon.task_reset);
-				m_ButtonRunAgain.setSelected(false);
-				m_ButtonRunAgain.setFocusable(false);
-				m_ButtonRunAgain.addActionListener(this);
-				m_ButtonRunAgain.setOpaque(false);
-				m_ButtonRunAgain.setIconTextGap(5);
-				m_ButtonRunAgain.setMargin(new Insets(0,0,0,0));
-				m_ButtonRunAgain.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonRunAgain.setHorizontalTextPosition(SwingConstants.RIGHT);
-				add(m_ButtonRunAgain);
-				m_ButtonSkipDuplicate = new JButton();
-				m_ButtonSkipDuplicate.setText("Skip Duplicate");
-				m_ButtonSkipDuplicate.setIcon(Icon.task_skip);
-				m_ButtonSkipDuplicate.setSelected(false);
-				m_ButtonSkipDuplicate.setFocusable(false);
-				m_ButtonSkipDuplicate.addActionListener(this);
-				m_ButtonSkipDuplicate.setOpaque(false);
-				m_ButtonSkipDuplicate.setIconTextGap(5);
-				m_ButtonSkipDuplicate.setMargin(new Insets(0,0,0,0));
-				m_ButtonSkipDuplicate.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonSkipDuplicate.setHorizontalTextPosition(SwingConstants.RIGHT);
-				add(m_ButtonSkipDuplicate);
-				m_ButtonImportBID = new JButton();
-				m_ButtonImportBID.setText("Import from mugimugi ID");
-				m_ButtonImportBID.setIcon(Icon.task_import);
-				m_ButtonImportBID.setSelected(false);
-				m_ButtonImportBID.setFocusable(false);
-				m_ButtonImportBID.addActionListener(this);
-				m_ButtonImportBID.setOpaque(false);
-				m_ButtonImportBID.setIconTextGap(5);
-				m_ButtonImportBID.setMargin(new Insets(0,0,0,0));
-				m_ButtonImportBID.setHorizontalAlignment(SwingConstants.LEFT);
-				m_ButtonImportBID.setHorizontalTextPosition(SwingConstants.RIGHT);
-				add(m_ButtonImportBID);
+//				m_ButtonOpenBook = new JButton();
+//				m_ButtonOpenBook.setText("Open Book");
+//				m_ButtonOpenBook.setIcon(Icon.task_book);
+//				m_ButtonOpenBook.setSelected(false);
+//				m_ButtonOpenBook.setFocusable(false);
+//				m_ButtonOpenBook.addActionListener(this);
+//				m_ButtonOpenBook.setOpaque(false);
+//				m_ButtonOpenBook.setIconTextGap(5);
+//				m_ButtonOpenBook.setMargin(new Insets(0,0,0,0));
+//				m_ButtonOpenBook.setHorizontalAlignment(SwingConstants.LEFT);
+//				m_ButtonOpenBook.setHorizontalTextPosition(SwingConstants.RIGHT);
+//				add(m_ButtonOpenBook);
+//				
+//				m_ButtonRunAgain = new JButton();
+//				m_ButtonRunAgain.setText("Re-run Step");
+//				m_ButtonRunAgain.setIcon(Icon.task_reset);
+//				m_ButtonRunAgain.setSelected(false);
+//				m_ButtonRunAgain.setFocusable(false);
+//				m_ButtonRunAgain.addActionListener(this);
+//				m_ButtonRunAgain.setOpaque(false);
+//				m_ButtonRunAgain.setIconTextGap(5);
+//				m_ButtonRunAgain.setMargin(new Insets(0,0,0,0));
+//				m_ButtonRunAgain.setHorizontalAlignment(SwingConstants.LEFT);
+//				m_ButtonRunAgain.setHorizontalTextPosition(SwingConstants.RIGHT);
+//				add(m_ButtonRunAgain);
+//				m_ButtonSkipDuplicate = new JButton();
+//				m_ButtonSkipDuplicate.setText("Skip Duplicate");
+//				m_ButtonSkipDuplicate.setIcon(Icon.task_skip);
+//				m_ButtonSkipDuplicate.setSelected(false);
+//				m_ButtonSkipDuplicate.setFocusable(false);
+//				m_ButtonSkipDuplicate.addActionListener(this);
+//				m_ButtonSkipDuplicate.setOpaque(false);
+//				m_ButtonSkipDuplicate.setIconTextGap(5);
+//				m_ButtonSkipDuplicate.setMargin(new Insets(0,0,0,0));
+//				m_ButtonSkipDuplicate.setHorizontalAlignment(SwingConstants.LEFT);
+//				m_ButtonSkipDuplicate.setHorizontalTextPosition(SwingConstants.RIGHT);
+//				add(m_ButtonSkipDuplicate);
+//				m_ButtonImportBID = new JButton();
+//				m_ButtonImportBID.setText("Import from mugimugi ID");
+//				m_ButtonImportBID.setIcon(Icon.task_import);
+//				m_ButtonImportBID.setSelected(false);
+//				m_ButtonImportBID.setFocusable(false);
+//				m_ButtonImportBID.addActionListener(this);
+//				m_ButtonImportBID.setOpaque(false);
+//				m_ButtonImportBID.setIconTextGap(5);
+//				m_ButtonImportBID.setMargin(new Insets(0,0,0,0));
+//				m_ButtonImportBID.setHorizontalAlignment(SwingConstants.LEFT);
+//				m_ButtonImportBID.setHorizontalTextPosition(SwingConstants.RIGHT);
+//				add(m_ButtonImportBID);
 				
-				m_TabbedPaneImage = new JTabbedPane();
-				m_TabbedPaneImage.setFocusable(false);
-				m_TabbedPaneImage.setTabPlacement(JTabbedPane.RIGHT);
-				m_TabbedPaneImage.addChangeListener(new ChangeListener()
-				{
-                    @Override
-                    public void stateChanged(ChangeEvent ce) {
-                        if (ce.getSource() instanceof JTabbedPane) {
-                            JTabbedPane pane = (JTabbedPane) ce.getSource();
-                            if(pane.getSelectedIndex() == -1)
-                            	return;
-                            JButton selectedTab = (JButton) pane.getComponentAt(pane.getSelectedIndex());
-                            m_ButtonImportBID.setActionCommand(selectedTab.getActionCommand());
-                            m_ButtonImportBID.setText("Import from mugimugi ID [" + m_ButtonImportBID.getActionCommand() + "]");
-                        }
-                    }
-                });
-				add(m_TabbedPaneImage);
+//				m_TabbedPaneImage = new JTabbedPane();
+//				m_TabbedPaneImage.setFocusable(false);
+//				m_TabbedPaneImage.setTabPlacement(JTabbedPane.RIGHT);
+//				m_TabbedPaneImage.addChangeListener(new ChangeListener()
+//				{
+//                    @Override
+//                    public void stateChanged(ChangeEvent ce) {
+//                        if (ce.getSource() instanceof JTabbedPane) {
+//                            JTabbedPane pane = (JTabbedPane) ce.getSource();
+//                            if(pane.getSelectedIndex() == -1)
+//                            	return;
+//                            JButton selectedTab = (JButton) pane.getComponentAt(pane.getSelectedIndex());
+//                            m_ButtonImportBID.setActionCommand(selectedTab.getActionCommand());
+//                            m_ButtonImportBID.setText("Import from mugimugi ID [" + m_ButtonImportBID.getActionCommand() + "]");
+//                        }
+//                    }
+//                });
+//				add(m_TabbedPaneImage);
 				
 				new SwingWorker<Void,String>()
 				{
@@ -881,6 +888,10 @@ public final class DataImport extends Plugin
 				} catch (IOException ioe) {
 					m_LabelPreview.setIcon(Icon.task_preview_missing);
 				}
+				m_TabbedPaneMetadata.removeAll();
+				for(Metadata md : task.metadata) {
+					m_TabbedPaneMetadata.addTab(md.toString(), Icon.task_metadata, new JPanel());
+				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();
 //				// Display scanned Image
@@ -898,11 +909,12 @@ public final class DataImport extends Plugin
 				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
 				m_ButtonOpenFolder.setBounds(width - 40, 0, 20, 20);
 				m_ButtonOpenXML.setBounds(width - 60, 0, 20, 20);
-				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
-				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
-				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
-				m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
-				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
+				m_TabbedPaneMetadata.setBounds(200, 20, width - 200, height - 24);
+//				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
+//				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
+//				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
+//				m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
+//				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
 //				if(m_Task.isRunning()) {
 //					m_ButtonOpenFolder.setEnabled(true);
 //					m_ButtonRunAgain.setEnabled(false);

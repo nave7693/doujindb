@@ -29,6 +29,7 @@ public final class Icons
     public final ImageIcon task_skip = null;
     public final ImageIcon task_book = null;
     public final ImageIcon task_xml = null;
+    public final ImageIcon task_metadata = null;
     public final ImageIcon task_import = null;
     public final ImageIcon task_folder = null;
     public final ImageIcon task_download = null;

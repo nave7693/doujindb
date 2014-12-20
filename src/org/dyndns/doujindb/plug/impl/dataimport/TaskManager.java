@@ -290,6 +290,9 @@ final class TaskManager
 				LOG.info("{} Process started", mCurrentTask);
 				try {
 					File image = findImage(mCurrentTask.file);
+					if(image == null) {
+						throw new TaskException("Could not locate any image file in " + mCurrentTask.file);
+					}
 					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
 					// Crop image
 					if(Configuration.options_autocrop.get()) {

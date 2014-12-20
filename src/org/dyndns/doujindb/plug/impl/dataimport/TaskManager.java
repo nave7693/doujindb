@@ -778,7 +778,8 @@ final class TaskManager
 			}
 			@Override
 			public boolean accept(File dir, String fname) {
-				return !(new File(dir, fname).isHidden()) && getExtension(fname).matches("^(png|jp(e)?g|gif|bmp|tiff)$");
+				File file = new File(dir, fname);
+				return !(file.isHidden()) && (file.isDirectory() || getExtension(fname).matches("^.(png|jp(e)?g|gif|bmp|tiff)$"));
 			}
 		});
 		Arrays.sort(files, new Comparator<File>()

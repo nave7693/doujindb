@@ -64,4 +64,6 @@ abstract class Metadata
 			exception = t.getMessage();
 		}
 	}
+	
+	public abstract String provider();
 }

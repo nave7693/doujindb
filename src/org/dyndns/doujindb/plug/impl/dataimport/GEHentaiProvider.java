@@ -13,6 +13,11 @@ final class GEHentaiProvider extends MetadataProvider
 	@XmlType(namespace="org.e-hentai.g", name="Metadata")
 	public static final class Metadata extends org.dyndns.doujindb.plug.impl.dataimport.Metadata {
 		Metadata() { }
+
+		@Override
+		public String provider() {
+			return "e-hentai";
+		}
 	}
 	
 	@Override

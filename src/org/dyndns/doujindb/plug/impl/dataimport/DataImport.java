@@ -890,7 +890,7 @@ public final class DataImport extends Plugin
 				}
 				m_TabbedPaneMetadata.removeAll();
 				for(Metadata md : task.metadata) {
-					m_TabbedPaneMetadata.addTab(md.toString(), Icon.task_metadata, new JPanel());
+					m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new JPanel());
 				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();

@@ -17,6 +17,11 @@ final class MugiMugiProvider extends MetadataProvider {
 	@XmlType(namespace="org.mugimugi.doujinshi", name="Metadata")
 	public static final class Metadata extends org.dyndns.doujindb.plug.impl.dataimport.Metadata {
 		Metadata() { }
+		
+		@Override
+		public String provider() {
+			return "mugimugi";
+		}
 	}
 	
 	@Override

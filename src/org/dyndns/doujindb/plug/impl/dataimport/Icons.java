@@ -29,7 +29,6 @@ public final class Icons
     public final ImageIcon task_skip = null;
     public final ImageIcon task_book = null;
     public final ImageIcon task_xml = null;
-    public final ImageIcon task_metadata = null;
     public final ImageIcon task_import = null;
     public final ImageIcon task_folder = null;
     public final ImageIcon task_download = null;
@@ -45,6 +44,12 @@ public final class Icons
     public final ImageIcon search_open = null;
     public final ImageIcon search_preview = null;
     public final ImageIcon search_star = null;
+    public final ImageIcon task_metadata_artist = null;
+    public final ImageIcon task_metadata_book = null;
+    public final ImageIcon task_metadata_circle = null;
+    public final ImageIcon task_metadata_content = null;
+    public final ImageIcon task_metadata_convention = null;
+    public final ImageIcon task_metadata_parody = null;
 	
     private static final Logger LOG = (Logger) LoggerFactory.getLogger(Icons.class);
 	

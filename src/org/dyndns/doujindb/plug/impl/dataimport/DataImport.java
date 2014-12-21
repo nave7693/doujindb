@@ -916,7 +916,7 @@ public final class DataImport extends Plugin
 				if(task.exception == null) {
 					for(Metadata md : task.metadata) {
 						if(md.exception == null) {
-							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_metadata, new MetadataUI(md));
+							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_state_complete, new MetadataUI(md));
 						} else {
 							JTextArea text = new JTextArea(md.exception);
 							text.setEditable(false);
@@ -1161,25 +1161,180 @@ public final class DataImport extends Plugin
 			
 			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 			{
-				private JList<String> mAttrList;
-				private DefaultListModel<String> mAttrListModel;
+				private JLabel mMetaName;
+				private JLabel mMetaAlias;
+				private JLabel mMetaTranslation;
+				private JLabel mMetaPages;
+				private JLabel mMetaTimestamp;
+				private JLabel mMetaType;
+				private JLabel mMetaAdult;
+				private JLabel mMetaInfo;
+				private JLabel mMetaSize;
+				private JLabel mMetaConvention;
+				private JButton mMetaURI;
+				private JList<MetaMedia> mMetaList;
+				private DefaultListModel<MetaMedia> mMetaListModel;
+				private JScrollPane mMetaListScroll;
+				
+				private final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
 				
 				public MetadataUI(Metadata md) {
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
 					
-					mAttrList = new JList<String>();
-					mAttrList.setModel(mAttrListModel = new DefaultListModel<String>());
+					// Metadata.name
+					mMetaName = new JLabel(String.format("name : %s", ifNull(md.name, "")));
+					add(mMetaName);
+					// Metadata.alias
+					// must first convert Set<String>.class to String.class to be shown in a JLabel
+					String alias = "[";
+					int count = 0;
+					for(String a : md.alias)
+						if(count++ == 0)
+							alias += a;
+						else
+							alias += ", " + a;
+					alias += "]";
+					mMetaAlias = new JLabel(String.format("alias : %s", alias));
+					add(mMetaAlias);
+					// Metadata.translation
+					mMetaTranslation = new JLabel(String.format("translation : %s", ifNull(md.translation, "")));
+					add(mMetaTranslation);
+					// Metadata.pages
+					mMetaPages = new JLabel(String.format("pages : %d", ifNull(md.pages, 0)));
+					add(mMetaPages);
+					// Metadata.timestamp
+					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp)))));
+					add(mMetaTimestamp);
+					// Metadata.type
+					mMetaType = new JLabel(String.format("type : %s", ifNull(md.type, "")));
+					add(mMetaType);
+					// Metadata.adult
+					mMetaAdult = new JLabel(String.format("adult : %s", ifNull(md.adult, "")));
+					add(mMetaAdult);
+					// Metadata.info
+					mMetaInfo = new JLabel(String.format("info : %s", ifNull(md.info, "")));
+					add(mMetaInfo);
+					// Metadata.size
+					mMetaSize = new JLabel(String.format("size : %s", format(md.size == null ? 0 : md.size)));
+					add(mMetaSize);
+					// Metadata.convention
+					mMetaConvention = new JLabel(String.format("convention : %s", ifNull(md.convention, "")));
+					add(mMetaConvention);
+					// Metadata.uri
+					// don't add to content pane if it's null
+					mMetaURI = new JButton(md.uri);
+					mMetaURI.addActionListener(this);
+					mMetaURI.setFocusable(false);
+					mMetaURI.setBorder(null);
+					mMetaURI.setHorizontalAlignment(JButton.LEFT);
+					if(md.uri != null)
+						add(mMetaURI);
+					// Metadata.[artist, circle, content, parody]
+					mMetaList = new JList<MetaMedia>();
+					mMetaList.setModel(mMetaListModel = new DefaultListModel<MetaMedia>());
 					for(String a : md.artist)
-						mAttrListModel.addElement(a);
+						mMetaListModel.addElement(new MetaMediaArtist(a));
 					for(String a : md.circle)
-						mAttrListModel.addElement(a);
+						mMetaListModel.addElement(new MetaMediaCircle(a));
 					for(String a : md.content)
-						mAttrListModel.addElement(a);
+						mMetaListModel.addElement(new MetaMediaContent(a));
 					for(String a : md.parody)
-						mAttrListModel.addElement(a);
-					add(mAttrList);
+						mMetaListModel.addElement(new MetaMediaParody(a));
+					mMetaList.setCellRenderer(new MetadataListCellRenderer());
+					add(mMetaListScroll = new JScrollPane(mMetaList));
+				}
+				
+				private abstract class MetaMedia
+				{
+					private final String mValue;
+					private MetaMedia() {
+						this.mValue = "";
+					}
+					private MetaMedia(String value) {
+						this.mValue = value;
+					}
+					private final String getValue() {
+						return mValue;
+					}
+					protected abstract Icon getIcon();
+				}
+				
+				private final class MetaMediaArtist extends MetaMedia
+				{
+					private MetaMediaArtist(String value) {
+						super(value);
+					}
+					protected final Icon getIcon() {
+						return Icon.task_metadata_artist;
+					}
+				}
+				private final class MetaMediaCircle extends MetaMedia
+				{
+					private MetaMediaCircle(String value) {
+						super(value);
+					}
+					protected final Icon getIcon() {
+						return Icon.task_metadata_circle;
+					}
+				}
+				private final class MetaMediaContent extends MetaMedia
+				{
+					private MetaMediaContent(String value) {
+						super(value);
+					}
+					protected final Icon getIcon() {
+						return Icon.task_metadata_content;
+					}
+				}
+				private final class MetaMediaParody extends MetaMedia
+				{
+					private MetaMediaParody(String value) {
+						super(value);
+					}
+					protected final Icon getIcon() {
+						return Icon.task_metadata_parody;
+					}
+				}
+				
+				private final class MetadataListCellRenderer extends DefaultListCellRenderer
+				{
+					private final JLabel mLabel = new JLabel();
+					@SuppressWarnings("rawtypes")
+					@Override
+				    public Component getListCellRendererComponent(
+				            JList list,
+				            Object value,
+				            int index,
+				            boolean selected,
+				            boolean expanded) {
+						MetaMedia media = (MetaMedia) value;
+						mLabel.setIcon(media.getIcon());
+						mLabel.setText(media.getValue());
+						mLabel.setToolTipText("");
+//				        if (selected) {
+//				            label.setBackground(backgroundSelectionColor);
+//				            label.setForeground(textSelectionColor);
+//				        } else {
+//				            label.setBackground(backgroundNonSelectionColor);
+//				            label.setForeground(textNonSelectionColor);
+//				        }
+				        return mLabel;
+				    }
+				}
+				
+				private String format(long bytes)
+				{
+					int unit = 1024;
+				    if (bytes < unit) return bytes + " B";
+				    int exp = (int) (Math.log(bytes) / Math.log(unit));
+				    String pre = ("KMGTPE").charAt(exp-1) + ("i");
+				    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+				}
+				
+				private Object ifNull(Object couldBeNull, Object returnNotNull) {
+					return (couldBeNull == null ? returnNotNull : couldBeNull);
 				}
 
 				@Override
@@ -1189,7 +1344,18 @@ public final class DataImport extends Plugin
 
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					// TODO Auto-generated method stub
+					/**
+					 * Browse Metadata URI in user Desktop
+					 */
+					if(ae.getSource().equals(mMetaURI)) {
+						String uri = mMetaURI.getText();
+						try {
+							Desktop.getDesktop().browse(new URI(uri));
+						} catch (URISyntaxException | IOException e) {
+							LOG.error("Error opening URI {}", uri,  e);
+						}
+						return;
+					}
 				}
 
 				@Override
@@ -1210,7 +1376,21 @@ public final class DataImport extends Plugin
 
 				@Override
 				public void layoutContainer(Container parent) {
-					// TODO Auto-generated method stub
+					int width = parent.getWidth(),
+						height = parent.getHeight();
+					int offset = 0;
+					mMetaName.setBounds(0,0,width/2,20);
+					mMetaAlias.setBounds(0,offset+=20,width/2,20);
+					mMetaTranslation.setBounds(0,offset+=20,width/2,20);
+					mMetaPages.setBounds(0,offset+=20,width/2,20);
+					mMetaTimestamp.setBounds(0,offset+=20,width/2,20);
+					mMetaType.setBounds(0,offset+=20,width/2,20);
+					mMetaAdult.setBounds(0,offset+=20,width/2,20);
+					mMetaInfo.setBounds(0,offset+=20,width/2,20);
+					mMetaSize.setBounds(0,offset+=20,width/2,20);
+					mMetaConvention.setBounds(0,offset+=20,width/2,20);
+					mMetaURI.setBounds(0,offset+=20,width/2,20);
+					mMetaListScroll.setBounds(width/2,0,width/2,height);
 				}
 			}
 		}

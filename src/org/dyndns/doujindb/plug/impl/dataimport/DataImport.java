@@ -1312,7 +1312,6 @@ public final class DataImport extends Plugin
 						MetaMedia media = (MetaMedia) value;
 						mLabel.setIcon(media.getIcon());
 						mLabel.setText(media.getValue());
-						mLabel.setToolTipText("");
 //				        if (selected) {
 //				            label.setBackground(backgroundSelectionColor);
 //				            label.setForeground(textSelectionColor);

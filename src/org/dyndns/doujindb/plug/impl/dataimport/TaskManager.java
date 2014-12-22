@@ -30,8 +30,6 @@ import org.dyndns.doujindb.db.record.Book.*;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
 import org.dyndns.doujindb.util.*;
 
-import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
-
 final class TaskManager
 {
 	private Set<MetadataProvider> mProviders = new HashSet<MetadataProvider>();
@@ -90,7 +88,7 @@ final class TaskManager
 			m.marshal(task, out);
 			LOG.debug("Saved {} to {}", task, file);
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			LOG.error("Error saving {} to {}", task, file, e);
+			LOG.error("Error saving {} to {}", new Object[]{task, file}, e);
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
@@ -404,19 +402,19 @@ final class TaskManager
 					}
 					// Run Metadata providers
 					for(MetadataProvider provider : mProviders) {
-						LOG.debug("{} Load metadata with provider [{}]", mCurrentTask, provider);
+						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
 						if(!isPaused()) {
 							try {
 								Metadata md = provider.query(image);
 								mCurrentTask.metadata.add(md);
 								if(md.exception != null) {
-									LOG.warn("{} Exception from provider [{}]: {}", mCurrentTask, provider, md.message);
+									LOG.warn("{} Exception from provider [{}]: {}", new Object[]{mCurrentTask, provider, md.message});
 									mCurrentTask.state = State.WARNING;
 								}
 							} catch (Exception e) {
 								mCurrentTask.message = e.getMessage();
 								mCurrentTask.exception(e);
-								LOG.warn("{} Exception from provider [{}]", mCurrentTask, provider, e);
+								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider}, e);
 								mCurrentTask.state = State.WARNING;
 							}
 						}

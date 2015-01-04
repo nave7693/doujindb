@@ -144,6 +144,8 @@ final class MugiMugiProvider extends MetadataProvider {
 	private static Metadata toMetadata(APIClient.XML_Book book) {
 		Metadata md = new Metadata();
 		md.uri = "http://www.doujinshi.org/book/" + book.ID.substring(1);
+		int bookid = Integer.parseInt(book.ID.substring(1));
+		md.thumbnail = "http://img.doujinshi.org/tn/" + (int) Math.floor((double)bookid / (double)2000) + "/" + bookid + ".jpg";
 		md.name = book.NAME_JP;
 		md.translation = book.NAME_EN;
 		md.alias.add(book.NAME_R);

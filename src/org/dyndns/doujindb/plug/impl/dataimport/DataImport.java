@@ -1162,6 +1162,7 @@ public final class DataImport extends Plugin
 			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 			{
 				private JLabel mMetaName;
+				private JLabel mMetaThumbnail;
 				private JLabel mMetaAlias;
 				private JLabel mMetaTranslation;
 				private JLabel mMetaPages;
@@ -1183,6 +1184,13 @@ public final class DataImport extends Plugin
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
 					
+					// Metadata.thumbnail
+					try {
+						mMetaThumbnail  = new JLabel(new ImageIcon(new URL("" + md.thumbnail)));
+					} catch (MalformedURLException murle) {
+						mMetaThumbnail  = new JLabel(Icon.task_preview_missing);
+					}
+					add(mMetaThumbnail);
 					// Metadata.name
 					mMetaName = new JLabel(String.format("name : %s", ifNull(md.name, "")));
 					add(mMetaName);
@@ -1335,7 +1343,7 @@ public final class DataImport extends Plugin
 				private Object ifNull(Object couldBeNull, Object returnNotNull) {
 					return (couldBeNull == null ? returnNotNull : couldBeNull);
 				}
-
+				
 				@Override
 				public void propertyChange(PropertyChangeEvent pce) {
 					// TODO Auto-generated method stub
@@ -1378,18 +1386,20 @@ public final class DataImport extends Plugin
 					int width = parent.getWidth(),
 						height = parent.getHeight();
 					int offset = 0;
-					mMetaName.setBounds(0,0,width/2,20);
-					mMetaAlias.setBounds(0,offset+=20,width/2,20);
-					mMetaTranslation.setBounds(0,offset+=20,width/2,20);
-					mMetaPages.setBounds(0,offset+=20,width/2,20);
-					mMetaTimestamp.setBounds(0,offset+=20,width/2,20);
-					mMetaType.setBounds(0,offset+=20,width/2,20);
-					mMetaAdult.setBounds(0,offset+=20,width/2,20);
-					mMetaInfo.setBounds(0,offset+=20,width/2,20);
-					mMetaSize.setBounds(0,offset+=20,width/2,20);
-					mMetaConvention.setBounds(0,offset+=20,width/2,20);
-					mMetaURI.setBounds(0,offset+=20,width/2,20);
-					mMetaListScroll.setBounds(width/2,0,width/2,height);
+					int xoffset = width / 3;
+					mMetaThumbnail.setBounds(0,0,xoffset,height);
+					mMetaName.setBounds(xoffset,0,xoffset,20);
+					mMetaAlias.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaTranslation.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaPages.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaTimestamp.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaType.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaAdult.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaInfo.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaSize.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaConvention.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaURI.setBounds(xoffset,offset+=20,xoffset,20);
+					mMetaListScroll.setBounds(xoffset*2,0,xoffset,height);
 				}
 			}
 		}

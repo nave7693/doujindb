@@ -1213,7 +1213,7 @@ public final class DataImport extends Plugin
 					mMetaPages = new JLabel(String.format("pages : %d", ifNull(md.pages, 0)));
 					add(mMetaPages);
 					// Metadata.timestamp
-					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp)))));
+					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp * 1000)))));
 					add(mMetaTimestamp);
 					// Metadata.type
 					mMetaType = new JLabel(String.format("type : %s", ifNull(md.type, "")));

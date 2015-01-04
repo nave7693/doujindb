@@ -1340,7 +1340,7 @@ public final class DataImport extends Plugin
 				    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 				}
 				
-				private Object ifNull(Object couldBeNull, Object returnNotNull) {
+				private <T> T ifNull(T couldBeNull, T returnNotNull) {
 					return (couldBeNull == null ? returnNotNull : couldBeNull);
 				}
 				

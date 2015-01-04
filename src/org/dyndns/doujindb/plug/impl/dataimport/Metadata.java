@@ -48,6 +48,8 @@ abstract class Metadata
 	protected Set<String> parody = new HashSet<String>();
 	@XmlElement(name="uri")
 	protected String uri;
+	@XmlElement(name="thumbnail")
+	protected String thumbnail;
 	
 	@XmlElement(name="message")
 	protected String message;

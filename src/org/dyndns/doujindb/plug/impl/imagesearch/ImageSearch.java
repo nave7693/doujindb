@@ -290,10 +290,18 @@ public final class ImageSearch extends Plugin
 			    final long lastModified = mHashFile.lastModified();
 			    for(int index=0; index<threads; index++)
 			    	futuresList.add(eservice.submit(new Callable<Void>() {
+			    		private <T> T next(Iterator<T> i) {
+			    			synchronized(i) {
+			    				if(i.hasNext())
+			    					return i.next();
+			    				else
+			    					return null;
+			    			}
+			    		}
 			    		@Override
 			    		public Void call() throws Exception {
 			    			Book book;
-			    			while ((book = books_q.next()) != null) {
+			    			while ((book = next(books_q)) != null) {
 			    				if(isCancelled())
 									return null;
 			    				try {

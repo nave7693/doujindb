@@ -1308,7 +1308,15 @@ public final class DataImport extends Plugin
 				
 				private final class MetadataListCellRenderer extends DefaultListCellRenderer
 				{
-					private final JLabel mLabel = new JLabel();
+					private final JLabel mLabel;
+					private final Color backgroundSelectionColor;
+					private final Color textSelectionColor;
+					private MetadataListCellRenderer() {
+						mLabel = new JLabel();
+						mLabel.setOpaque(true);
+						backgroundSelectionColor = mLabel.getBackground();
+						textSelectionColor = mLabel.getForeground();
+					}
 					@SuppressWarnings("rawtypes")
 					@Override
 				    public Component getListCellRendererComponent(
@@ -1320,13 +1328,13 @@ public final class DataImport extends Plugin
 						MetaMedia media = (MetaMedia) value;
 						mLabel.setIcon(media.getIcon());
 						mLabel.setText(media.getValue());
-//				        if (selected) {
-//				            label.setBackground(backgroundSelectionColor);
-//				            label.setForeground(textSelectionColor);
-//				        } else {
-//				            label.setBackground(backgroundNonSelectionColor);
-//				            label.setForeground(textNonSelectionColor);
-//				        }
+				        if (selected) {
+				        	mLabel.setBackground(textSelectionColor);
+				        	mLabel.setForeground(backgroundSelectionColor);
+				        } else {
+				        	mLabel.setBackground(backgroundSelectionColor);
+				        	mLabel.setForeground(textSelectionColor);
+				        }
 				        return mLabel;
 				    }
 				}

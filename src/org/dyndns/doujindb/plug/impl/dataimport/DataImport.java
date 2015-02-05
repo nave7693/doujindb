@@ -41,59 +41,52 @@ import ch.qos.logback.classic.Logger;
 */
 public final class DataImport extends Plugin
 {
-	static final String Author = "loli10K";
-	static final String Version = "0.1";
-	static final String Weblink = "https://github.com/loli10K";
-	static final String Name = "Data Import";
-	static final String Description = "Batch process media files";
-	private PluginUI m_UI;
+	static final String mAuthor = "loli10K";
+	static final String mVersion = "0.1";
+	static final String mWeblink = "https://github.com/loli10K";
+	static final String mName = "Data Import";
+	static final String mDescription = "Batch process media files";
+	private PluginUI mUI;
 	
-	private static SimpleDateFormat sdf;
-	private static Font font;
-	private static Icons Icon = new Icons();
+	private static Icons mIcons = new Icons();
 	
-	private TaskManager TaskManager = new TaskManager(PLUGIN_HOME);
+	private TaskManager mTaskManager = new TaskManager(PLUGIN_HOME);
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DataImport.class);
 	
-	static {
-		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-	}
-
 	@Override
 	public Icon getIcon() {
-		return Icon.icon;
+		return mIcons.icon;
 	}
 	
 	@Override
 	public String getName() {
-		return Name;
+		return mName;
 	}
 	
 	@Override
 	public String getDescription() {
-		return Description;
+		return mDescription;
 	}
 	
 	@Override
 	public String getVersion() {
-		return Version;
+		return mVersion;
 	}
 	
 	@Override
 	public String getAuthor() {
-		return Author;
+		return mAuthor;
 	}
 	
 	@Override
 	public String getWeblink() {
-		return Weblink;
+		return mWeblink;
 	}
 	
 	@Override
 	public JComponent getUI() {
-		return m_UI;
+		return mUI;
 	}
 	
 	@SuppressWarnings("serial")
@@ -122,31 +115,31 @@ public final class DataImport extends Plugin
 			super.setPreferredSize(new Dimension(350, 350));
 			super.setMinimumSize(new Dimension(350, 350));
 			m_TabbedPane = new JTabbedPane();
-			m_TabbedPane.setFont(font = UI.Font);
+			m_TabbedPane.setFont(UI.Font);
 			m_TabbedPane.setFocusable(false);
 			m_TabTasks = new JPanel();
 			m_TabTasks.setLayout(null);
-			m_ButtonTaskAdd = new JButton(Icon.add);
+			m_ButtonTaskAdd = new JButton(mIcons.add);
 			m_ButtonTaskAdd.addActionListener(this);
 			m_ButtonTaskAdd.setBorder(null);
 			m_ButtonTaskAdd.setFocusable(false);
 			m_TabTasks.add(m_ButtonTaskAdd);
-			m_ButtonTaskManagerCtl = new JButton(Icon.task_resume);
+			m_ButtonTaskManagerCtl = new JButton(mIcons.task_resume);
 			m_ButtonTaskManagerCtl.addActionListener(this);
 			m_ButtonTaskManagerCtl.setBorder(null);
 			m_ButtonTaskManagerCtl.setToolTipText("Resume Worker");
 			m_ButtonTaskManagerCtl.setFocusable(false);
 			m_TabTasks.add(m_ButtonTaskManagerCtl);
 			m_LabelTasks = new JLabel("");
-			m_LabelTasks.setText("Tasks : " + TaskManager.size());
+			m_LabelTasks.setText("Tasks : " + mTaskManager.size());
 			m_TabTasks.add(m_LabelTasks);
-			m_ButtonTaskDelete = new JButton(Icon.task_delete);
+			m_ButtonTaskDelete = new JButton(mIcons.task_delete);
 			m_ButtonTaskDelete.addActionListener(this);
 			m_ButtonTaskDelete.setBorder(null);
 			m_ButtonTaskDelete.setToolTipText("Delete");
 			m_ButtonTaskDelete.setFocusable(false);
 			m_TabTasks.add(m_ButtonTaskDelete);
-			m_ButtonTaskReset = new JButton(Icon.task_reset);
+			m_ButtonTaskReset = new JButton(mIcons.task_reset);
 			m_ButtonTaskReset.addActionListener(this);
 			m_ButtonTaskReset.setBorder(null);
 			m_ButtonTaskReset.setToolTipText("Reset");
@@ -166,12 +159,12 @@ public final class DataImport extends Plugin
 			m_PanelTask = new TaskUI();
 			m_SplitPane.setBottomComponent(null);
 			m_TabTasks.add(m_SplitPane);
-			m_TabbedPane.addTab("Tasks", Icon.tasks, m_TabTasks);
+			m_TabbedPane.addTab("Tasks", mIcons.tasks, m_TabTasks);
 			PanelConfiguration panelConfig = new PanelConfiguration(Configuration.class);
 			panelConfig.setConfigurationFile(CONFIG_FILE);
-			m_TabbedPane.addTab("Configuration", Icon.settings, m_TabConfiguration = panelConfig);
+			m_TabbedPane.addTab("Configuration", mIcons.settings, m_TabConfiguration = panelConfig);
 			super.add(m_TabbedPane);
-			TaskManager.registerListener(this);
+			mTaskManager.registerListener(this);
 		}
 		
 		@Override
@@ -213,7 +206,7 @@ public final class DataImport extends Plugin
 					final File files[] = fc.getSelectedFiles();
 					for(File file : files)
 					{
-						TaskManager.add(file);
+						mTaskManager.add(file);
 					}
 					m_PanelTasks.dataChanged();
 				} catch (Exception e) {
@@ -222,33 +215,33 @@ public final class DataImport extends Plugin
 				return;
 			}
 			if(ae.getSource() == m_ButtonTaskManagerCtl) {
-				if(TaskManager.isRunning())
+				if(mTaskManager.isRunning())
 				{
-					m_ButtonTaskManagerCtl.setIcon(Icon.loading);
+					m_ButtonTaskManagerCtl.setIcon(mIcons.loading);
 					new SwingWorker<Void,Void>()
 					{
 						@Override
 						protected Void doInBackground() throws Exception {
-							TaskManager.pause();
+							mTaskManager.pause();
 							return null;
 						}
 						@Override
 						protected void done() {
-							m_ButtonTaskManagerCtl.setIcon(Icon.task_resume);
+							m_ButtonTaskManagerCtl.setIcon(mIcons.task_resume);
 						}
 					}.execute();
 				} else {
-					m_ButtonTaskManagerCtl.setIcon(Icon.loading);
+					m_ButtonTaskManagerCtl.setIcon(mIcons.loading);
 					new SwingWorker<Void,Void>()
 					{
 						@Override
 						protected Void doInBackground() throws Exception {
-							TaskManager.resume();
+							mTaskManager.resume();
 							return null;
 						}
 						@Override
 						protected void done() {
-							m_ButtonTaskManagerCtl.setIcon(Icon.task_pause);
+							m_ButtonTaskManagerCtl.setIcon(mIcons.task_pause);
 						}
 					}.execute();
 				}
@@ -256,7 +249,7 @@ public final class DataImport extends Plugin
 			}
 			if(ae.getSource() == m_ButtonTaskDelete) {
 				List<Task> selected = new Vector<Task>();
-				for(Task task : TaskManager.tasks()) {
+				for(Task task : mTaskManager.tasks()) {
 					if(task.selected) {
 						selected.add(task);
 					}
@@ -267,13 +260,13 @@ public final class DataImport extends Plugin
 					// If details panel is open, close it
 					if(task.equals(m_PanelTask.m_Task))
 						m_SplitPane.setBottomComponent(null);
-					TaskManager.remove(task);
+					mTaskManager.remove(task);
 				}
 				m_PanelTasks.dataChanged();
 			}
 			if(ae.getSource() == m_ButtonTaskReset) {
 				List<Task> selected = new Vector<Task>();
-				for(Task task : TaskManager.tasks()) {
+				for(Task task : mTaskManager.tasks()) {
 					if(task.selected) {
 						selected.add(task);
 					}
@@ -284,12 +277,12 @@ public final class DataImport extends Plugin
 					// If details panel is open, close it
 					if(task.equals(m_PanelTask.m_Task))
 						m_SplitPane.setBottomComponent(null);
-					TaskManager.reset(task);
+					mTaskManager.reset(task);
 				}
 				m_PanelTasks.dataChanged();
 			}
 			if(ae.getSource() == m_CheckboxSelection) {
-				for(Task task : TaskManager.tasks())
+				for(Task task : mTaskManager.tasks())
 					task.selected = m_CheckboxSelection.isSelected();
 				m_PanelTasks.dataChanged();
 				return;
@@ -318,7 +311,7 @@ public final class DataImport extends Plugin
 				m_TableSorter = new TableRowSorter<DefaultTableModel>(m_TableModel);
 				super.setRowSorter(m_TableSorter);
 				super.setModel(m_TableModel);
-				super.setFont(font);
+				super.setFont(UI.Font);
 				super.getTableHeader().setReorderingAllowed(false);
 				super.getColumnModel().getColumn(0).setCellRenderer(m_TableRender);
 				super.getColumnModel().getColumn(0).setCellEditor(m_TableEditor);
@@ -381,7 +374,7 @@ public final class DataImport extends Plugin
 					}
 				});
 				
-				TaskManager.registerListener(this);
+				mTaskManager.registerListener(this);
 			}
 			
 			public void dataChanged() {
@@ -394,7 +387,7 @@ public final class DataImport extends Plugin
 				
 				@Override
 				public int getRowCount() {
-					return TaskManager.size();
+					return mTaskManager.size();
 				}
 
 				@Override
@@ -408,7 +401,7 @@ public final class DataImport extends Plugin
 
 				@Override
 				public Object getValueAt(int rowIndex, int columnIndex) {
-					Task task = TaskManager.get(rowIndex);
+					Task task = mTaskManager.get(rowIndex);
 					switch(columnIndex) {
 						case -1:
 							return task;
@@ -424,7 +417,7 @@ public final class DataImport extends Plugin
 				
 				@Override
 				public void setValueAt(Object value, int rowIndex, int columnIndex) {
-					Task task = TaskManager.get(rowIndex);
+					Task task = mTaskManager.get(rowIndex);
 				    if (columnIndex == 2) {
 				    	task.selected = (Boolean)value;
 				        fireTableCellUpdated(rowIndex, columnIndex);
@@ -463,7 +456,7 @@ public final class DataImport extends Plugin
 				
 				public TaskRenderer() {
 				    super();
-				    super.setFont(font);
+				    super.setFont(UI.Font);
 				    m_Label = new JLabel();
 				    m_Label.setOpaque(true);
 				    mLabelForeground = m_Label.getForeground();
@@ -484,28 +477,28 @@ public final class DataImport extends Plugin
 						return this;
 					Task task = (Task) getValueAt(row, -1);
 					if(column == 0) {
-						if(task.equals(TaskManager.getRunningTask()))
-							m_Label.setIcon(Icon.task_state_running);
+						if(task.equals(mTaskManager.getRunningTask()))
+							m_Label.setIcon(mIcons.task_state_running);
 						else
 							switch (task.state)
 							{
 							case NEW:
-								m_Label.setIcon(Icon.task_state_new);
+								m_Label.setIcon(mIcons.task_state_new);
 								break;
 							case COMPLETE:
-								m_Label.setIcon(Icon.task_state_complete);
+								m_Label.setIcon(mIcons.task_state_complete);
 								break;
 							case ERROR:
-								m_Label.setIcon(Icon.task_state_error);
+								m_Label.setIcon(mIcons.task_state_error);
 								break;
 							case WARNING:
-								m_Label.setIcon(Icon.task_state_warning);
+								m_Label.setIcon(mIcons.task_state_warning);
 								break;
 							case ABORT:
-								m_Label.setIcon(Icon.task_state_abort);
+								m_Label.setIcon(mIcons.task_state_abort);
 								break;
 							case UNKNOW:
-								m_Label.setIcon(Icon.task_state_unknow);
+								m_Label.setIcon(mIcons.task_state_unknow);
 								break;
 							}
 						m_Label.setText("");
@@ -571,7 +564,7 @@ public final class DataImport extends Plugin
 				m_LabelTitle.setIcon(null);
 				add(m_LabelTitle);
 				m_LabelPreview = new JLabel();
-				m_LabelPreview.setIcon(Icon.task_preview_missing);
+				m_LabelPreview.setIcon(mIcons.task_preview_missing);
 				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
 				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
 				m_LabelPreview.setOpaque(false);
@@ -579,7 +572,7 @@ public final class DataImport extends Plugin
 				m_ButtonClose = new JButton();
 				m_ButtonClose.setText("");
 				m_ButtonClose.setToolTipText("Close");
-				m_ButtonClose.setIcon(Icon.cancel);
+				m_ButtonClose.setIcon(mIcons.cancel);
 				m_ButtonClose.setSelected(true);
 				m_ButtonClose.setFocusable(false);
 				m_ButtonClose.addActionListener(this);
@@ -587,7 +580,7 @@ public final class DataImport extends Plugin
 				m_ButtonOpenFolder = new JButton();
 				m_ButtonOpenFolder.setText("");
 				m_ButtonOpenFolder.setToolTipText("View Folder");
-				m_ButtonOpenFolder.setIcon(Icon.task_folder);
+				m_ButtonOpenFolder.setIcon(mIcons.task_folder);
 				m_ButtonOpenFolder.setSelected(false);
 				m_ButtonOpenFolder.setFocusable(false);
 				m_ButtonOpenFolder.addActionListener(this);
@@ -595,7 +588,7 @@ public final class DataImport extends Plugin
 				m_ButtonOpenXML = new JButton();
 				m_ButtonOpenXML.setText("");
 				m_ButtonOpenXML.setToolTipText("View XML");
-				m_ButtonOpenXML.setIcon(Icon.task_xml);
+				m_ButtonOpenXML.setIcon(mIcons.task_xml);
 				m_ButtonOpenXML.setSelected(false);
 				m_ButtonOpenXML.setFocusable(false);
 				m_ButtonOpenXML.addActionListener(this);
@@ -712,7 +705,7 @@ public final class DataImport extends Plugin
 					@Override
 					protected void done() { }
 				}.execute();
-				TaskManager.registerListener(this);
+				mTaskManager.registerListener(this);
 			}
 			
 //			private void fireInfoUpdated()
@@ -883,46 +876,46 @@ public final class DataImport extends Plugin
 			public void setTask(Task task) {
 				m_Task = task;
 				m_LabelTitle.setText(m_Task.file);
-				if(task.equals(TaskManager.getRunningTask()))
-					m_LabelTitle.setIcon(Icon.task_state_running);
+				if(task.equals(mTaskManager.getRunningTask()))
+					m_LabelTitle.setIcon(mIcons.task_state_running);
 				else
 					switch (task.state)
 					{
 					case NEW:
-						m_LabelTitle.setIcon(Icon.task_state_new);
+						m_LabelTitle.setIcon(mIcons.task_state_new);
 						break;
 					case COMPLETE:
-						m_LabelTitle.setIcon(Icon.task_state_complete);
+						m_LabelTitle.setIcon(mIcons.task_state_complete);
 						break;
 					case ERROR:
-						m_LabelTitle.setIcon(Icon.task_state_error);
+						m_LabelTitle.setIcon(mIcons.task_state_error);
 						break;
 					case WARNING:
-						m_LabelTitle.setIcon(Icon.task_state_warning);
+						m_LabelTitle.setIcon(mIcons.task_state_warning);
 						break;
 					case ABORT:
-						m_LabelTitle.setIcon(Icon.task_state_abort);
+						m_LabelTitle.setIcon(mIcons.task_state_abort);
 						break;
 					case UNKNOW:
-						m_LabelTitle.setIcon(Icon.task_state_unknow);
+						m_LabelTitle.setIcon(mIcons.task_state_unknow);
 						break;
 					}
 				try {
-					m_LabelPreview.setIcon(TaskManager.getImage(task));
+					m_LabelPreview.setIcon(mTaskManager.getImage(task));
 				} catch (IOException ioe) {
-					m_LabelPreview.setIcon(Icon.task_preview_missing);
+					m_LabelPreview.setIcon(mIcons.task_preview_missing);
 				}
 				m_TabbedPaneMetadata.removeAll();
 				if(task.exception == null) {
 					for(Metadata md : task.metadata) {
 						if(md.exception == null) {
-							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_state_complete, new MetadataUI(md));
+							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_complete, new MetadataUI(md));
 						} else {
 							JTextArea text = new JTextArea(md.exception);
 							text.setEditable(false);
 							text.setFocusable(false);
 							text.setMargin(new Insets(5,5,5,5)); 
-							m_TabbedPaneMetadata.addTab(md.provider(), Icon.task_state_error, new JScrollPane(text));
+							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new JScrollPane(text));
 						}
 					}
 				} else {
@@ -930,7 +923,7 @@ public final class DataImport extends Plugin
 					text.setEditable(false);
 					text.setFocusable(false);
 					text.setMargin(new Insets(5,5,5,5)); 
-					m_TabbedPaneMetadata.addTab("exception", Icon.task_state_error, new JScrollPane(text));
+					m_TabbedPaneMetadata.addTab("exception", mIcons.task_state_error, new JScrollPane(text));
 				}
 //				// Display 'status' Icon
 //				fireInfoUpdated();
@@ -1068,7 +1061,7 @@ public final class DataImport extends Plugin
 							try {
 								File file = File.createTempFile("task-" + m_Task.id, ".xml");
 								file.deleteOnExit();
-								TaskManager.save(m_Task, file);
+								mTaskManager.save(m_Task, file);
 								URI uri = file.toURI();
 								Desktop.getDesktop().browse(uri);
 							} catch (IOException ioe) {
@@ -1188,7 +1181,7 @@ public final class DataImport extends Plugin
 					try {
 						mMetaThumbnail  = new JLabel(new ImageIcon(new URL("" + md.thumbnail)));
 					} catch (MalformedURLException murle) {
-						mMetaThumbnail  = new JLabel(Icon.task_preview_missing);
+						mMetaThumbnail  = new JLabel(mIcons.task_preview_missing);
 					}
 					add(mMetaThumbnail);
 					// Metadata.name
@@ -1275,7 +1268,7 @@ public final class DataImport extends Plugin
 						super(value);
 					}
 					protected final Icon getIcon() {
-						return Icon.task_metadata_artist;
+						return mIcons.task_metadata_artist;
 					}
 				}
 				private final class MetaMediaCircle extends MetaMedia
@@ -1284,7 +1277,7 @@ public final class DataImport extends Plugin
 						super(value);
 					}
 					protected final Icon getIcon() {
-						return Icon.task_metadata_circle;
+						return mIcons.task_metadata_circle;
 					}
 				}
 				private final class MetaMediaContent extends MetaMedia
@@ -1293,7 +1286,7 @@ public final class DataImport extends Plugin
 						super(value);
 					}
 					protected final Icon getIcon() {
-						return Icon.task_metadata_content;
+						return mIcons.task_metadata_content;
 					}
 				}
 				private final class MetaMediaParody extends MetaMedia
@@ -1302,7 +1295,7 @@ public final class DataImport extends Plugin
 						super(value);
 					}
 					protected final Icon getIcon() {
-						return Icon.task_metadata_parody;
+						return mIcons.task_metadata_parody;
 					}
 				}
 				
@@ -1415,11 +1408,11 @@ public final class DataImport extends Plugin
 		@Override
 		public void propertyChange(PropertyChangeEvent pce) {
 			if(pce.getPropertyName().equals("taskmanager-info")) {
-				m_LabelTasks.setText("Tasks : " + TaskManager.size());
-				if(TaskManager.isRunning())
-					m_ButtonTaskManagerCtl.setIcon(Icon.task_pause);
+				m_LabelTasks.setText("Tasks : " + mTaskManager.size());
+				if(mTaskManager.isRunning())
+					m_ButtonTaskManagerCtl.setIcon(mIcons.task_pause);
 				else
-					m_ButtonTaskManagerCtl.setIcon(Icon.task_resume);
+					m_ButtonTaskManagerCtl.setIcon(mIcons.task_resume);
 				return;
 			}
 			if(pce.getPropertyName().equals("api-info")) {
@@ -1446,8 +1439,8 @@ public final class DataImport extends Plugin
 		} catch (IOException ioe) {
 			LOG.error("Error loading Configuration from {}", CONFIG_FILE.getName(), ioe);
 		}
-		TaskManager.load();
-		TaskManager.start();
+		mTaskManager.load();
+		mTaskManager.start();
 		/** 
 		 * UI should be loaded after TaskManager data (TaskSet) 
 		 * so every graphical compontent (JTable.tableModel) touching 
@@ -1455,7 +1448,7 @@ public final class DataImport extends Plugin
 		 * updated specifically.
 		 */
 		// FIXME Find a method to notify JTable.tableModel that TaskManager.taskSet was updated
-		m_UI = new PluginUI();
+		mUI = new PluginUI();
 	}
 	
 	@Override
@@ -1466,8 +1459,8 @@ public final class DataImport extends Plugin
 		} catch (IOException ioe) {
 			LOG.error("Error saving Configuration to {}", CONFIG_FILE.getName(), ioe);
 		}
-		TaskManager.stop();
-		TaskManager.save();
+		mTaskManager.stop();
+		mTaskManager.save();
 	}
 
 	@Override

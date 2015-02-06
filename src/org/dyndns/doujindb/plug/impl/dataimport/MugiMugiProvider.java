@@ -59,12 +59,12 @@ final class MugiMugiProvider extends MetadataProvider {
 			}
 			// Throw exception if no matching book was found
 			if(book == null)
-				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold.get() + ")");
+				throw new TaskException("Response books did not match the threshold");
 			// Generate Metadata
 			Metadata md = toMetadata(book);
 			// Generate Warning in case of poor similarity results
 			if(bestMatch < Configuration.provider_mugimugi_threshold.get()) {
-				String message = "Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold.get() + ")";
+				String message = "Response book did not match the threshold (" + bestMatch + "%)";
 				md.message = message;
 				md.exception(new TaskException(message));
 			}

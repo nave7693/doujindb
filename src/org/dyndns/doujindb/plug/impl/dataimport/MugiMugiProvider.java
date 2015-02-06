@@ -57,10 +57,19 @@ final class MugiMugiProvider extends MetadataProvider {
 					book = b;
 				}
 			}
-			if(bestMatch < Configuration.provider_mugimugi_threshold.get() || book == null)
+			// Throw exception if no matching book was found
+			if(book == null)
 				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold.get() + ")");
+			// Generate Metadata
+			Metadata md = toMetadata(book);
+			// Generate Warning in case of poor similarity results
+			if(bestMatch < Configuration.provider_mugimugi_threshold.get()) {
+				String message = "Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold.get() + ")";
+				md.message = message;
+				md.exception(new TaskException(message));
+			}
 			// Return Metadata object
-			return toMetadata(book);
+			return md;
 		} catch (TaskException te) {
 			Metadata md = new Metadata();
 			md.message = te.getMessage();

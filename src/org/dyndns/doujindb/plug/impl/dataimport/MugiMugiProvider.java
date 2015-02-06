@@ -8,10 +8,15 @@ import java.util.regex.*;
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 final class MugiMugiProvider extends MetadataProvider {
 
-	private static APIClient.XML_User userData = new APIClient.XML_User();
-	private static Pattern pattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)(?<id>[0-9]+)(/.*)");
+	private static Pattern mURLPattern = Pattern.compile("(http://(www\\.)?doujinshi\\.org/book/)(?<id>[0-9]+)(/.*)");
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(MugiMugiProvider.class);
 	
 	@XmlRootElement
 	@XmlType(namespace="org.mugimugi.doujinshi", name="Metadata")
@@ -28,9 +33,9 @@ final class MugiMugiProvider extends MetadataProvider {
 	public Metadata query(File image) {
 		try {
 			// Check API key
-			checkAPI();
+			APIClient.checkAPI();
 			// Query API
-			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=imageSearch").openConnection();
+			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey.get() + "/?S=imageSearch").openConnection();
 			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
 			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
 			InputStream is = new ClientHttpRequest(urlc).post(new Object[] {
@@ -42,8 +47,6 @@ final class MugiMugiProvider extends MetadataProvider {
 			if(list.ERROR != null) {
 				throw new TaskException("Server Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 			}
-			// Update user data
-			userData = (list.USER == null ? userData : list.USER);
 			// Find best match
 			double bestMatch = 0;
 			APIClient.XML_Book book = null;
@@ -55,7 +58,7 @@ final class MugiMugiProvider extends MetadataProvider {
 				}
 			}
 			if(bestMatch < Configuration.provider_mugimugi_threshold.get() || book == null)
-				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold + ")");
+				throw new TaskException("Response books did not match the threshold (" + Configuration.provider_mugimugi_threshold.get() + ")");
 			// Return Metadata object
 			return toMetadata(book);
 		} catch (TaskException te) {
@@ -93,14 +96,14 @@ final class MugiMugiProvider extends MetadataProvider {
 	public Metadata query(URI uri) {
 		try {
 			// Check API key
-			checkAPI();
+			APIClient.checkAPI();
 			// Extract MugiMugi Book Id from URI
-			Matcher matcher = pattern.matcher(uri.toString());
+			Matcher matcher = mURLPattern.matcher(uri.toString());
 			if(!matcher.find())
 				throw new TaskException("Invalid MugiMugi URI " + uri);
 			String bookId = matcher.group("id");
 			// Query API
-			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey + "/?S=getID&ID=B" + bookId + "").openConnection();
+			URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey.get() + "/?S=getID&ID=B" + bookId + "").openConnection();
 			urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
 			urlc.setConnectTimeout(Configuration.options_http_timeout.get());
 			// Parse XML response
@@ -109,8 +112,6 @@ final class MugiMugiProvider extends MetadataProvider {
 			if(list.ERROR != null) {
 				throw new TaskException("Server Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
 			}
-			// Update user data
-			userData = (list.USER == null ? userData : list.USER);
 			APIClient.XML_Book book = null;
 			for(APIClient.XML_Book b : list.Books) {
 				book = b;
@@ -132,12 +133,6 @@ final class MugiMugiProvider extends MetadataProvider {
 			md.message = "Error parsing MugiMugi XML response with input URI " + uri;
 			md.exception(jaxbe);
 			return md;
-		}
-	}
-	
-	private static void checkAPI() throws TaskException {
-		if(!Configuration.provider_mugimugi_apikey.get().matches("[0-9a-f]{20}")) {
-			throw new TaskException("Invalid API Key provided : " + Configuration.provider_mugimugi_apikey);
 		}
 	}
 	
@@ -197,9 +192,47 @@ final class MugiMugiProvider extends MetadataProvider {
 	 */
 	private static final class APIClient
 	{
+		private static XML_User User = new XML_User();
+
+		static {
+			try {
+				URLConnection urlc = new URL("http://www.doujinshi.org/api/" + Configuration.provider_mugimugi_apikey.get() + "/").openConnection();
+				urlc.setRequestProperty("User-Agent", Configuration.options_http_useragent.get());
+				urlc.setConnectTimeout(Configuration.options_http_timeout.get());
+				InputStream is = urlc.getInputStream();
+				// Parse XML response
+				APIClient.XML_List list = APIClient.parseList(is);
+				// Check XML from errors
+				if(list.ERROR != null) {
+					throw new RuntimeException("Server Error : " + list.ERROR.EXACT + " (" + list.ERROR.CODE + ")");
+				}
+				// Update user data
+				User = (list.USER == null ? User : list.USER);
+			} catch (Exception e) {
+				LOG.error("Error loading API info", e);
+			}
+		}
+		
+		private static void checkAPI() throws TaskException {
+			if(!Configuration.provider_mugimugi_apikey.get().matches("[0-9a-f]{20}")) {
+				if(Configuration.provider_mugimugi_apikey.get().length() == 0)
+					throw new TaskException("No API key provided");
+				else
+					throw new TaskException("Invalid API key provided : " + Configuration.provider_mugimugi_apikey.get());
+			}
+			if(User.Queries < 1) {
+				throw new TaskException("Not enough API queries : " + User.Image_Queries);
+			}
+		}
+		
 		private static XML_List parseList(InputStream in) throws JAXBException
 		{
-			return parseObject(in, XML_List.class);
+			// parse XML_List
+			XML_List list = (XML_List) parseObject(in, XML_List.class);
+			// update user data
+			User = (list.USER == null ? User : list.USER);
+			// return list
+			return list;
 		}
 		
 		@XmlRootElement(namespace = "", name="LIST")

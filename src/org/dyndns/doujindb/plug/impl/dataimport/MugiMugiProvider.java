@@ -62,6 +62,8 @@ final class MugiMugiProvider extends MetadataProvider {
 				throw new TaskException("Response books did not match the threshold");
 			// Generate Metadata
 			Metadata md = toMetadata(book);
+			// Set 'score' field
+			md.score = (long) bestMatch;
 			// Generate Warning in case of poor similarity results
 			if(bestMatch < Configuration.provider_mugimugi_threshold.get()) {
 				String message = "Response book did not match the threshold (" + bestMatch + "%)";

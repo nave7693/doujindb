@@ -19,7 +19,7 @@ abstract class Metadata
 	Metadata() { }
 
 	@XmlElement(name="score")
-	protected Long score;
+	protected Integer score;
 	
 	@XmlElement(name="name")
 	protected String name;

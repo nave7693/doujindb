@@ -18,6 +18,9 @@ abstract class Metadata
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
 	Metadata() { }
 
+	@XmlElement(name="score")
+	protected Long score;
+	
 	@XmlElement(name="name")
 	protected String name;
 	@XmlElement(name="alias")

@@ -962,7 +962,6 @@ public final class DataImport extends Plugin
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						System.out.println(m_LabelPreview.getSize());
 						doLayout();
 					}
 				});
@@ -1253,28 +1252,28 @@ public final class DataImport extends Plugin
 //				private DefaultListModel<MetaMedia> mMetaListModel;
 //				private JScrollPane mMetaListScroll;
 				
-				private JPanel panelProviders;
-				private JPanel panelInfo;
-				private JLabel labelJapaneseName;
-				private JTextField textJapaneseName;
-				private JLabel labelTranslatedName;
-				private JTextField textTranslatedName;
-				private JLabel labelRomajiName;
-				private JTextField textRomajiName;
-				private JLabel labelInfo;
-				private JTextArea textInfo;
-				private JScrollPane scrollInfo;
-				private JLabel labelDate;
-				private JTextField textDate;
-				private JLabel labelPages;
-				private JTextField textPages;
-				private JLabel labelType;
-				private JComboBox<Book.Type> comboType;
-				private JLabel labelConvention;
-				private ComboBoxConvention comboConvention;
-				private JLabel labelAdult;
-				private JCheckBox checkAdult;
-				private JTabbedPane tabLists;
+				private JPanel mPanelProviders;
+				private JPanel mPanelInfo;
+				private JLabel mLabelJapaneseName;
+				private JTextField mTextJapaneseName;
+				private JLabel mLabelTranslatedName;
+				private JTextField mTextTranslatedName;
+				private JLabel mLabelRomajiName;
+				private JTextField mTextRomajiName;
+				private JLabel mLabelInfo;
+				private JTextArea mTextInfo;
+				private JScrollPane mScrollInfo;
+				private JLabel mLabelDate;
+				private JTextField mTextDate;
+				private JLabel mLabelPages;
+				private JTextField mTextPages;
+				private JLabel mLabelType;
+				private JComboBox<Book.Type> mComboboxType;
+				private JLabel mLabelConvention;
+				private ComboBoxConvention mComboboxConvention;
+				private JLabel mLabelAdult;
+				private JCheckBox mCheckboxAdult;
+				private JTabbedPane mTabbedPane;
 				private JList<MetaWrapper> mListArtists;
 				private JList<MetaWrapper> mListCircles;
 				private JList<MetaWrapper> mListContents;
@@ -1367,56 +1366,56 @@ public final class DataImport extends Plugin
 //					mMetaList.setCellRenderer(new MetadataListCellRenderer());
 //					add(mMetaListScroll = new JScrollPane(mMetaList));
 					
-					tabLists = new JTabbedPane();
-					tabLists.setFocusable(false);
-					labelJapaneseName = new JLabel("Japanese Name");
-					textJapaneseName = new JTextField("");
-					labelTranslatedName = new JLabel("Translated Name");
-					textTranslatedName = new JTextField("");
-					labelRomajiName = new JLabel("Romaji Name");
-					textRomajiName = new JTextField("");
-					labelInfo = new JLabel("Info");
-					textInfo = new JTextArea("");
-					scrollInfo = new JScrollPane(textInfo);
-					labelType = new JLabel("Type");
-					comboType = new JComboBox<Book.Type>();
-					comboType.setFocusable(false);
-					labelConvention = new JLabel("Convention");
-					comboConvention = new ComboBoxConvention();
-					comboConvention.setFocusable(true);
-					labelAdult = new JLabel("Adult");
-					checkAdult = new JCheckBox("", false);
-					checkAdult.setFocusable(false);
-					labelDate = new JLabel("Date");
-					textDate = new JTextField("");
-					labelPages = new JLabel("Pages");
-					textPages = new JTextField("");
-					panelInfo = new JPanel();
-					panelInfo.setLayout(new LayoutManager()
+					mTabbedPane = new JTabbedPane();
+					mTabbedPane.setFocusable(false);
+					mLabelJapaneseName = new JLabel("Japanese Name");
+					mTextJapaneseName = new JTextField("");
+					mLabelTranslatedName = new JLabel("Translated Name");
+					mTextTranslatedName = new JTextField("");
+					mLabelRomajiName = new JLabel("Romaji Name");
+					mTextRomajiName = new JTextField("");
+					mLabelInfo = new JLabel("Info");
+					mTextInfo = new JTextArea("");
+					mScrollInfo = new JScrollPane(mTextInfo);
+					mLabelType = new JLabel("Type");
+					mComboboxType = new JComboBox<Book.Type>();
+					mComboboxType.setFocusable(false);
+					mLabelConvention = new JLabel("Convention");
+					mComboboxConvention = new ComboBoxConvention();
+					mComboboxConvention.setFocusable(true);
+					mLabelAdult = new JLabel("Adult");
+					mCheckboxAdult = new JCheckBox("", false);
+					mCheckboxAdult.setFocusable(false);
+					mLabelDate = new JLabel("Date");
+					mTextDate = new JTextField("");
+					mLabelPages = new JLabel("Pages");
+					mTextPages = new JTextField("");
+					mPanelInfo = new JPanel();
+					mPanelInfo.setLayout(new LayoutManager()
 					{
 						@Override
 						public void layoutContainer(Container parent) {
 							int width = parent.getWidth(),
 								height = parent.getHeight(),
 								hsize = 18;
-							labelJapaneseName.setBounds(3, 3, 100, hsize);
-							textJapaneseName.setBounds(103, 3, width - 106, hsize);
-							labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
-							textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
-							labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
-							textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
-							labelConvention.setBounds(3, 3 + hsize*3, 100, hsize);
-							comboConvention.setBounds(103, 3 + hsize*3, width - 106, hsize);
-							labelType.setBounds(3, 3 + hsize*4, 100, hsize);
-							comboType.setBounds(103, 3 + hsize*4, 100, hsize);
-							labelDate.setBounds(3, 3 + hsize*5, 100, hsize);
-							textDate.setBounds(103, 3 + hsize*5, 100, hsize);
-							labelPages.setBounds(3, 3 + hsize*6, 100, hsize);
-							textPages.setBounds(103, 3 + hsize*6, 100, hsize);
-							labelAdult.setBounds(3, 3 + hsize*7, 100, hsize);
-							checkAdult.setBounds(103, 3 + hsize*7, 100, hsize);
-							labelInfo.setBounds(3, 3 + hsize*8, width - 6, hsize);
-							scrollInfo.setBounds(3, 3 + hsize*9, width - 6, height - hsize*9 - 6);
+							mLabelJapaneseName.setBounds(3, 3, 100, hsize);
+							mTextJapaneseName.setBounds(103, 3, width - 106, hsize);
+							mLabelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+							mTextTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+							mLabelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+							mTextRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+							mLabelConvention.setBounds(3, 3 + hsize*3, 100, hsize);
+							mComboboxConvention.setBounds(103, 3 + hsize*3, width - 106, hsize);
+							mLabelType.setBounds(3, 3 + hsize*4, 100, hsize);
+							mComboboxType.setBounds(103, 3 + hsize*4, 100, hsize);
+							mLabelDate.setBounds(3, 3 + hsize*5, 100, hsize);
+							mTextDate.setBounds(103, 3 + hsize*5, 100, hsize);
+							mLabelPages.setBounds(3, 3 + hsize*6, 100, hsize);
+							mTextPages.setBounds(103, 3 + hsize*6, 100, hsize);
+							mLabelAdult.setBounds(3, 3 + hsize*7, 100, hsize);
+							mCheckboxAdult.setBounds(103, 3 + hsize*7, 100, hsize);
+							mLabelInfo.setBounds(3, 3 + hsize*8, width - 6, hsize);
+							mScrollInfo.setBounds(3, 3 + hsize*9, width - 6, height - hsize*9 - 6);
 						}
 						@Override
 						public void addLayoutComponent(String key, Component c) { }
@@ -1431,48 +1430,48 @@ public final class DataImport extends Plugin
 						     return getPreferredSize();
 						}
 					});
-					panelInfo.add(labelJapaneseName);
-					panelInfo.add(textJapaneseName);
-					panelInfo.add(labelTranslatedName);
-					panelInfo.add(textTranslatedName);
-					panelInfo.add(labelRomajiName);
-					panelInfo.add(textRomajiName);
-					panelInfo.add(labelInfo);
-					panelInfo.add(scrollInfo);
-					panelInfo.add(labelAdult);
-					panelInfo.add(checkAdult);
-					panelInfo.add(labelConvention);
-					panelInfo.add(comboConvention);
-					panelInfo.add(labelDate);
-					panelInfo.add(textDate);
-					panelInfo.add(labelPages);
-					panelInfo.add(textPages);
-					panelInfo.add(labelType);
-					panelInfo.add(comboType);
+					mPanelInfo.add(mLabelJapaneseName);
+					mPanelInfo.add(mTextJapaneseName);
+					mPanelInfo.add(mLabelTranslatedName);
+					mPanelInfo.add(mTextTranslatedName);
+					mPanelInfo.add(mLabelRomajiName);
+					mPanelInfo.add(mTextRomajiName);
+					mPanelInfo.add(mLabelInfo);
+					mPanelInfo.add(mScrollInfo);
+					mPanelInfo.add(mLabelAdult);
+					mPanelInfo.add(mCheckboxAdult);
+					mPanelInfo.add(mLabelConvention);
+					mPanelInfo.add(mComboboxConvention);
+					mPanelInfo.add(mLabelDate);
+					mPanelInfo.add(mTextDate);
+					mPanelInfo.add(mLabelPages);
+					mPanelInfo.add(mTextPages);
+					mPanelInfo.add(mLabelType);
+					mPanelInfo.add(mComboboxType);
 					
-					panelProviders = new JPanel();
-					panelProviders.setMinimumSize(new Dimension(256, 256));
-					panelProviders.setPreferredSize(panelProviders.getMinimumSize());
+					mPanelProviders = new JPanel();
+					mPanelProviders.setMinimumSize(new Dimension(256, 256));
+					mPanelProviders.setPreferredSize(mPanelProviders.getMinimumSize());
 					
 					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-					split.setLeftComponent(panelProviders);
-					split.setRightComponent(panelInfo);
+					split.setLeftComponent(mPanelProviders);
+					split.setRightComponent(mPanelInfo);
 					split.setDividerSize(1);
 					split.setEnabled(false);
 					
-					tabLists.addTab("General", mIcons.task_result_info, split);
+					mTabbedPane.addTab("General", mIcons.task_result_info, split);
 					mListArtists = new JList<MetaWrapper>();
 					mListArtists.setModel(new DefaultListModel<MetaWrapper>());
-					tabLists.addTab("Artists", mIcons.task_result_artist, new JScrollPane(mListArtists));
+					mTabbedPane.addTab("Artists", mIcons.task_result_artist, new JScrollPane(mListArtists));
 					mListCircles = new JList<MetaWrapper>();
 					mListCircles.setModel(new DefaultListModel<MetaWrapper>());
-					tabLists.addTab("Circles", mIcons.task_result_circle, new JScrollPane(mListCircles));
+					mTabbedPane.addTab("Circles", mIcons.task_result_circle, new JScrollPane(mListCircles));
 					mListContents = new JList<MetaWrapper>();
 					mListContents.setModel(new DefaultListModel<MetaWrapper>());
-					tabLists.addTab("Contents", mIcons.task_result_content, new JScrollPane(mListContents));
+					mTabbedPane.addTab("Contents", mIcons.task_result_content, new JScrollPane(mListContents));
 					mListParodies = new JList<MetaWrapper>();
 					mListParodies.setModel(new DefaultListModel<MetaWrapper>());
-					tabLists.addTab("Parodies", mIcons.task_result_parody, new JScrollPane(mListParodies));
+					mTabbedPane.addTab("Parodies", mIcons.task_result_parody, new JScrollPane(mListParodies));
 					MetadataListCellRenderer lcr = new MetadataListCellRenderer();
 					MouseAdapter ma = new MouseAdapter() {
 						@SuppressWarnings("unchecked")
@@ -1499,7 +1498,7 @@ public final class DataImport extends Plugin
 					mListParodies.setCellRenderer(lcr);
 					mListParodies.addMouseListener(ma);
 					
-					super.add(tabLists);
+					super.add(mTabbedPane);
 					super.doLayout();
 					
 					for(Metadata md : list)
@@ -1507,21 +1506,30 @@ public final class DataImport extends Plugin
 				}
 				
 				private void addMetadata(Metadata md) {
-					//TODO
+					for(String a : md.artist)
+						((DefaultListModel<MetaWrapper>)mListArtists.getModel()).addElement(new MetaWrapperArtist(a, md.provider()));
+					for(String c : md.circle)
+						((DefaultListModel<MetaWrapper>)mListCircles.getModel()).addElement(new MetaWrapperCircle(c, md.provider()));
+					for(String c : md.content)
+						((DefaultListModel<MetaWrapper>)mListContents.getModel()).addElement(new MetaWrapperContent(c, md.provider()));
+					for(String p : md.parody)
+						((DefaultListModel<MetaWrapper>)mListParodies.getModel()).addElement(new MetaWrapperParody(p, md.provider()));
 				}
 				
 				private abstract class MetaWrapper
 				{
 					private final String mValue;
+					private final String mProvider;
 					private boolean mSelected;
-					private MetaWrapper() {
-						this.mValue = "";
-					}
-					private MetaWrapper(String value) {
+					private MetaWrapper(String value, String provider) {
 						this.mValue = value;
+						this.mProvider = provider;
 					}
 					public final String getValue() {
 						return mValue;
+					}
+					public final String getProvider() {
+						return mProvider;
 					}
 					protected abstract Icon getIcon();
 					public boolean isSelected() {
@@ -1534,8 +1542,8 @@ public final class DataImport extends Plugin
 				
 				private final class MetaWrapperArtist extends MetaWrapper
 				{
-					private MetaWrapperArtist(String value) {
-						super(value);
+					private MetaWrapperArtist(String value, String provider) {
+						super(value, provider);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_artist;
@@ -1543,8 +1551,8 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperCircle extends MetaWrapper
 				{
-					private MetaWrapperCircle(String value) {
-						super(value);
+					private MetaWrapperCircle(String value, String provider) {
+						super(value, provider);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_circle;
@@ -1552,8 +1560,8 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperContent extends MetaWrapper
 				{
-					private MetaWrapperContent(String value) {
-						super(value);
+					private MetaWrapperContent(String value, String provider) {
+						super(value, provider);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_content;
@@ -1561,8 +1569,8 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperParody extends MetaWrapper
 				{
-					private MetaWrapperParody(String value) {
-						super(value);
+					private MetaWrapperParody(String value, String provider) {
+						super(value, provider);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_parody;
@@ -1663,7 +1671,7 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					tabLists.setBounds(0, 0, width, height);
+					mTabbedPane.setBounds(0, 0, width, height);
 //					int yoffset = 0;
 //					int xoffset = width / 3;
 //					if(mMessage != null) {

@@ -50,6 +50,13 @@ public final class Icons
     public final ImageIcon task_metadata_content = null;
     public final ImageIcon task_metadata_convention = null;
     public final ImageIcon task_metadata_parody = null;
+    public final ImageIcon task_result_info = null;
+    public final ImageIcon task_result_artist = null;
+    public final ImageIcon task_result_circle = null;
+    public final ImageIcon task_result_content = null;
+    public final ImageIcon task_result_convention = null;
+    public final ImageIcon task_result_parody = null;
+    public final ImageIcon task_result_missing = null;
 	
     private static final Logger LOG = (Logger) LoggerFactory.getLogger(Icons.class);
 	

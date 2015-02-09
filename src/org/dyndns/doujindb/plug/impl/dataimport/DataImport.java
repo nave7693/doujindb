@@ -1,8 +1,15 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
+import static org.dyndns.doujindb.ui.UI.Icon;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
@@ -15,6 +22,7 @@ import java.util.regex.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -22,14 +30,27 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.conf.ConfigurationParser;
+import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
+import org.dyndns.doujindb.dat.DataStoreException;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.plug.*;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
+import org.dyndns.doujindb.ui.dialog.PanelBook;
+import org.dyndns.doujindb.ui.dialog.PanelBookMedia;
 import org.dyndns.doujindb.ui.dialog.PanelConfiguration;
+import org.dyndns.doujindb.ui.dialog.util.BookRatingEditor;
+import org.dyndns.doujindb.ui.dialog.util.TabbedPaneUIEx;
+import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxConvention;
+import org.dyndns.doujindb.ui.dialog.util.list.ListArtist;
+import org.dyndns.doujindb.ui.dialog.util.list.ListCircle;
+import org.dyndns.doujindb.ui.dialog.util.list.ListContent;
+import org.dyndns.doujindb.ui.dialog.util.list.ListParody;
+import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
+import org.dyndns.doujindb.util.ImageTool;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
@@ -544,12 +565,13 @@ public final class DataImport extends Plugin
 			private JButton m_ButtonOpenFolder;
 			private JButton m_ButtonOpenXML;
 			private JTabbedPane m_TabbedPaneMetadata;
-			private JPanel m_TabbedPaneMetadata2;
+			private JSplitPane mSplitPane;
 //			private JButton m_ButtonOpenBook;
 //			private JButton m_ButtonRunAgain;
 //			private JButton m_ButtonSkipDuplicate;
 //			private JButton m_ButtonImportBID;
 //			private JTabbedPane m_TabbedPaneImage;
+			private MetadataUI mMetadataUI;
 			
 			public TaskUI() {
 				super();
@@ -563,12 +585,6 @@ public final class DataImport extends Plugin
 				m_LabelTitle.setText("");
 				m_LabelTitle.setIcon(null);
 				add(m_LabelTitle);
-				m_LabelPreview = new JLabel();
-				m_LabelPreview.setIcon(mIcons.task_preview_missing);
-				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
-				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
-				m_LabelPreview.setOpaque(false);
-				add(m_LabelPreview);
 				m_ButtonClose = new JButton();
 				m_ButtonClose.setText("");
 				m_ButtonClose.setToolTipText("Close");
@@ -593,13 +609,24 @@ public final class DataImport extends Plugin
 				m_ButtonOpenXML.setFocusable(false);
 				m_ButtonOpenXML.addActionListener(this);
 				add(m_ButtonOpenXML);
+				m_LabelPreview = new JLabel();
+				m_LabelPreview.setIcon(mIcons.task_preview_missing);
+				m_LabelPreview.setHorizontalAlignment(JLabel.CENTER);
+				m_LabelPreview.setVerticalAlignment(JLabel.CENTER);
+				add(m_LabelPreview);
 				
-				m_TabbedPaneMetadata = new JTabbedPane();
-				m_TabbedPaneMetadata.setFocusable(false);
-				m_TabbedPaneMetadata.setTabPlacement(JTabbedPane.TOP);
-				add(m_TabbedPaneMetadata);
+				mSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+				mSplitPane.setLeftComponent(new JPanel());
+				mSplitPane.setRightComponent(new JPanel());
+				mSplitPane.setDividerSize(1);
+				mSplitPane.setEnabled(false);
+				add(mSplitPane);
 				
+//				m_TabbedPaneMetadata = new JTabbedPane();
+//				m_TabbedPaneMetadata.setFocusable(false);
+//				m_TabbedPaneMetadata.setTabPlacement(JTabbedPane.TOP);
 //				m_ButtonOpenBook = new JButton();
+//				
 //				m_ButtonOpenBook.setText("Open Book");
 //				m_ButtonOpenBook.setIcon(Icon.task_book);
 //				m_ButtonOpenBook.setSelected(false);
@@ -905,26 +932,40 @@ public final class DataImport extends Plugin
 				} catch (IOException ioe) {
 					m_LabelPreview.setIcon(mIcons.task_preview_missing);
 				}
-				m_TabbedPaneMetadata.removeAll();
+				mSplitPane.setLeftComponent(m_LabelPreview);
+//				m_TabbedPaneMetadata.removeAll();
 				if(task.exception == null) {
-					for(Metadata md : task.metadata) {
-						if(md.exception == null) {
-							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_complete, new MetadataUI(md));
-						} else {
-							JTextArea text = new JTextArea(md.exception);
-							text.setEditable(false);
-							text.setFocusable(false);
-							text.setMargin(new Insets(5,5,5,5)); 
-							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new JScrollPane(text));
-						}
-					}
+//					for(Metadata md : task.metadata) {
+//						try {
+//							m_TabbedPaneMetadata.addTab(String.format("%s (%d%%)", md.provider(), md.score), mIcons.task_result_info, new BookCoverLabel(new ImageIcon(new URL("" + md.thumbnail)), md.score));
+//						} catch (MalformedURLException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+//					for(Metadata md : task.metadata) {
+//						if(md.exception == null) {
+//							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_complete, new MetadataUI(md));
+//						} else {
+//							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new MetadataUI(md));
+//						}
+//					}
+					mSplitPane.setRightComponent(mMetadataUI = new MetadataUI(task.metadata));
 				} else {
 					JTextArea text = new JTextArea(task.exception);
 					text.setEditable(false);
 					text.setFocusable(false);
 					text.setMargin(new Insets(5,5,5,5)); 
-					m_TabbedPaneMetadata.addTab("exception", mIcons.task_state_error, new JScrollPane(text));
+//					m_TabbedPaneMetadata.addTab("exception", mIcons.task_state_error, new JScrollPane(text));
+					mSplitPane.setRightComponent(new JScrollPane(text));
 				}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						System.out.println(m_LabelPreview.getSize());
+						doLayout();
+					}
+				});
 //				// Display 'status' Icon
 //				fireInfoUpdated();
 //				// Display scanned Image
@@ -938,11 +979,12 @@ public final class DataImport extends Plugin
 				int width = parent.getWidth(),
 					height = parent.getHeight();
 				m_LabelTitle.setBounds(0, 0, width - 80, 20);
-				m_LabelPreview.setBounds(0, 20, 200, 256);
+//				m_LabelPreview.setBounds(0, 20, 200, 256);
 				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
 				m_ButtonOpenFolder.setBounds(width - 40, 0, 20, 20);
 				m_ButtonOpenXML.setBounds(width - 60, 0, 20, 20);
-				m_TabbedPaneMetadata.setBounds(200, 20, width - 200, height - 24);
+				mSplitPane.setBounds(0, 20, width, height - 20);
+//				m_TabbedPaneMetadata.setBounds(200, 20, width - 200, height - 24);
 //				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
 //				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
 //				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
@@ -1152,146 +1194,374 @@ public final class DataImport extends Plugin
 //				}
 			}
 			
+			private final class BookCoverLabel extends JLabel {
+				private Integer mValue;
+				private Color color;
+				private BookCoverLabel(ImageIcon icon, Integer value) {
+					super(icon);
+					this.mValue = value % 255;
+					if(mValue != null) {
+						color = new Color((255 * (100 - mValue)) / 100, (255 * mValue) / 100, 0);
+					} else {
+						color = Color.gray;
+					}
+					super.setBorder(BorderFactory.createLineBorder(color));
+				}
+				@Override
+				public void paint(Graphics g) {
+					super.paint(g);
+					int width = 40;
+					g.setColor(color);
+					g.fillRect(super.getWidth() - width, 0, width, 20);
+					g.setColor(super.getBackground());
+					int ascent = g.getFontMetrics().getAscent();
+					int descent = g.getFontMetrics().getDescent();
+					int top = 0;
+					int bottom = 20;
+					/**
+					 * Taken from StackOverflow
+					 * @see http://stackoverflow.com/questions/1055851/how-do-you-draw-a-string-centered-vertically-in-java
+					 */
+					String label;
+					if(mValue != null) {
+						label = String.format(" %s%% ", mValue);
+					} else {
+						label = " - ";
+					}
+					int baseline = (top+((bottom+1-top)/2) - ((ascent + descent)/2) + ascent);
+					Rectangle2D r = g.getFontMetrics().getStringBounds(label, g);
+					g.drawString(label, (int) (super.getWidth() - width / 2 - r.getWidth() / 2), baseline);
+				}
+			}
+			
 			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 			{
-				private JLabel mMetaName;
-				private JLabel mMetaThumbnail;
-				private JLabel mMetaAlias;
-				private JLabel mMetaTranslation;
-				private JLabel mMetaPages;
-				private JLabel mMetaTimestamp;
-				private JLabel mMetaType;
-				private JLabel mMetaAdult;
-				private JLabel mMetaInfo;
-				private JLabel mMetaSize;
-				private JLabel mMetaConvention;
-				private JButton mMetaURI;
-				private JList<MetaMedia> mMetaList;
-				private DefaultListModel<MetaMedia> mMetaListModel;
-				private JScrollPane mMetaListScroll;
+//				private JLabel mMessage;
+//				private JLabel mMetaName;
+//				private JLabel mMetaThumbnail;
+//				private JLabel mMetaAlias;
+//				private JLabel mMetaTranslation;
+//				private JLabel mMetaPages;
+//				private JLabel mMetaTimestamp;
+//				private JLabel mMetaType;
+//				private JLabel mMetaAdult;
+//				private JLabel mMetaInfo;
+//				private JLabel mMetaSize;
+//				private JLabel mMetaConvention;
+//				private JButton mMetaURI;
+//				private JList<MetaMedia> mMetaList;
+//				private DefaultListModel<MetaMedia> mMetaListModel;
+//				private JScrollPane mMetaListScroll;
+				
+				private JPanel panelProviders;
+				private JPanel panelInfo;
+				private JLabel labelJapaneseName;
+				private JTextField textJapaneseName;
+				private JLabel labelTranslatedName;
+				private JTextField textTranslatedName;
+				private JLabel labelRomajiName;
+				private JTextField textRomajiName;
+				private JLabel labelInfo;
+				private JTextArea textInfo;
+				private JScrollPane scrollInfo;
+				private JLabel labelDate;
+				private JTextField textDate;
+				private JLabel labelPages;
+				private JTextField textPages;
+				private JLabel labelType;
+				private JComboBox<Book.Type> comboType;
+				private JLabel labelConvention;
+				private ComboBoxConvention comboConvention;
+				private JLabel labelAdult;
+				private JCheckBox checkAdult;
+				private JTabbedPane tabLists;
+				private JList<MetaWrapper> mListArtists;
+				private JList<MetaWrapper> mListCircles;
+				private JList<MetaWrapper> mListContents;
+				private JList<MetaWrapper> mListParodies;
 				
 				private final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
 				
-				public MetadataUI(Metadata md) {
+				public MetadataUI(Iterable<Metadata> list) {
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
 					
-					// Metadata.thumbnail
-					try {
-						mMetaThumbnail  = new JLabel(new ImageIcon(new URL("" + md.thumbnail)));
-					} catch (MalformedURLException murle) {
-						mMetaThumbnail  = new JLabel(mIcons.task_preview_missing);
-					}
-					add(mMetaThumbnail);
-					// Metadata.name
-					mMetaName = new JLabel(String.format("name : %s", ifNull(md.name, "")));
-					add(mMetaName);
-					// Metadata.alias
-					// must first convert Set<String>.class to String.class to be shown in a JLabel
-					String alias = "[";
-					int count = 0;
-					for(String a : md.alias)
-						if(count++ == 0)
-							alias += a;
-						else
-							alias += ", " + a;
-					alias += "]";
-					mMetaAlias = new JLabel(String.format("alias : %s", alias));
-					add(mMetaAlias);
-					// Metadata.translation
-					mMetaTranslation = new JLabel(String.format("translation : %s", ifNull(md.translation, "")));
-					add(mMetaTranslation);
-					// Metadata.pages
-					mMetaPages = new JLabel(String.format("pages : %d", ifNull(md.pages, 0)));
-					add(mMetaPages);
-					// Metadata.timestamp
-					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp * 1000)))));
-					add(mMetaTimestamp);
-					// Metadata.type
-					mMetaType = new JLabel(String.format("type : %s", ifNull(md.type, "")));
-					add(mMetaType);
-					// Metadata.adult
-					mMetaAdult = new JLabel(String.format("adult : %s", ifNull(md.adult, "")));
-					add(mMetaAdult);
-					// Metadata.info
-					mMetaInfo = new JLabel(String.format("info : %s", ifNull(md.info, "")));
-					add(mMetaInfo);
-					// Metadata.size
-					mMetaSize = new JLabel(String.format("size : %s", format(md.size == null ? 0 : md.size)));
-					add(mMetaSize);
-					// Metadata.convention
-					mMetaConvention = new JLabel(String.format("convention : %s", ifNull(md.convention, "")));
-					add(mMetaConvention);
-					// Metadata.uri
-					// don't add to content pane if it's null
-					mMetaURI = new JButton(md.uri);
-					mMetaURI.addActionListener(this);
-					mMetaURI.setFocusable(false);
-					mMetaURI.setBorder(null);
-					mMetaURI.setHorizontalAlignment(JButton.LEFT);
-					if(md.uri != null)
-						add(mMetaURI);
-					// Metadata.[artist, circle, content, parody]
-					mMetaList = new JList<MetaMedia>();
-					mMetaList.setModel(mMetaListModel = new DefaultListModel<MetaMedia>());
-					for(String a : md.artist)
-						mMetaListModel.addElement(new MetaMediaArtist(a));
-					for(String a : md.circle)
-						mMetaListModel.addElement(new MetaMediaCircle(a));
-					for(String a : md.content)
-						mMetaListModel.addElement(new MetaMediaContent(a));
-					for(String a : md.parody)
-						mMetaListModel.addElement(new MetaMediaParody(a));
-					mMetaList.setCellRenderer(new MetadataListCellRenderer());
-					add(mMetaListScroll = new JScrollPane(mMetaList));
+//					// Message
+//					if(md.message != null) {
+//						mMessage  = new JLabel(md.message);
+//						mMessage.setHorizontalAlignment(JLabel.CENTER);
+//						if(md.exception != null) {
+//							mMessage.setForeground(Color.orange);
+//							mMessage.setBorder(BorderFactory.createLineBorder(Color.orange));
+//						}
+//						add(mMessage);
+//					}
+//					
+//					// Metadata.thumbnail
+//					try {
+//						mMetaThumbnail  = new BookCoverLabel(new ImageIcon(new URL("" + md.thumbnail)), md.score);
+//					} catch (MalformedURLException murle) {
+//						mMetaThumbnail  = new JLabel(mIcons.task_preview_missing);
+//					}
+//					add(mMetaThumbnail);
+//					// Metadata.name
+//					mMetaName = new JLabel(String.format("name : %s", ifNull(md.name, "")));
+//					add(mMetaName);
+//					// Metadata.alias
+//					// must first convert Set<String>.class to String.class to be shown in a JLabel
+//					String alias = "[";
+//					int count = 0;
+//					for(String a : md.alias)
+//						if(count++ == 0)
+//							alias += a;
+//						else
+//							alias += ", " + a;
+//					alias += "]";
+//					mMetaAlias = new JLabel(String.format("alias : %s", alias));
+//					add(mMetaAlias);
+//					// Metadata.translation
+//					mMetaTranslation = new JLabel(String.format("translation : %s", ifNull(md.translation, "")));
+//					add(mMetaTranslation);
+//					// Metadata.pages
+//					mMetaPages = new JLabel(String.format("pages : %d", ifNull(md.pages, 0)));
+//					add(mMetaPages);
+//					// Metadata.timestamp
+//					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp * 1000)))));
+//					add(mMetaTimestamp);
+//					// Metadata.type
+//					mMetaType = new JLabel(String.format("type : %s", ifNull(md.type, "")));
+//					add(mMetaType);
+//					// Metadata.adult
+//					mMetaAdult = new JLabel(String.format("adult : %s", ifNull(md.adult, "")));
+//					add(mMetaAdult);
+//					// Metadata.info
+//					mMetaInfo = new JLabel(String.format("info : %s", ifNull(md.info, "")));
+//					add(mMetaInfo);
+//					// Metadata.size
+//					mMetaSize = new JLabel(String.format("size : %s", format(md.size == null ? 0 : md.size)));
+//					add(mMetaSize);
+//					// Metadata.convention
+//					mMetaConvention = new JLabel(String.format("convention : %s", ifNull(md.convention, "")));
+//					add(mMetaConvention);
+//					// Metadata.uri
+//					// don't add to content pane if it's null
+//					mMetaURI = new JButton(md.uri);
+//					mMetaURI.addActionListener(this);
+//					mMetaURI.setFocusable(false);
+//					mMetaURI.setBorder(null);
+//					mMetaURI.setHorizontalAlignment(JButton.LEFT);
+//					if(md.uri != null)
+//						add(mMetaURI);
+//					// Metadata.[artist, circle, content, parody]
+//					mMetaList = new JList<MetaMedia>();
+//					mMetaList.setModel(mMetaListModel = new DefaultListModel<MetaMedia>());
+//					for(String a : md.artist)
+//						mMetaListModel.addElement(new MetaMediaArtist(a));
+//					for(String a : md.circle)
+//						mMetaListModel.addElement(new MetaMediaCircle(a));
+//					for(String a : md.content)
+//						mMetaListModel.addElement(new MetaMediaContent(a));
+//					for(String a : md.parody)
+//						mMetaListModel.addElement(new MetaMediaParody(a));
+//					mMetaList.setCellRenderer(new MetadataListCellRenderer());
+//					add(mMetaListScroll = new JScrollPane(mMetaList));
+					
+					tabLists = new JTabbedPane();
+					tabLists.setFocusable(false);
+					labelJapaneseName = new JLabel("Japanese Name");
+					textJapaneseName = new JTextField("");
+					labelTranslatedName = new JLabel("Translated Name");
+					textTranslatedName = new JTextField("");
+					labelRomajiName = new JLabel("Romaji Name");
+					textRomajiName = new JTextField("");
+					labelInfo = new JLabel("Info");
+					textInfo = new JTextArea("");
+					scrollInfo = new JScrollPane(textInfo);
+					labelType = new JLabel("Type");
+					comboType = new JComboBox<Book.Type>();
+					comboType.setFocusable(false);
+					labelConvention = new JLabel("Convention");
+					comboConvention = new ComboBoxConvention();
+					comboConvention.setFocusable(true);
+					labelAdult = new JLabel("Adult");
+					checkAdult = new JCheckBox("", false);
+					checkAdult.setFocusable(false);
+					labelDate = new JLabel("Date");
+					textDate = new JTextField("");
+					labelPages = new JLabel("Pages");
+					textPages = new JTextField("");
+					panelInfo = new JPanel();
+					panelInfo.setLayout(new LayoutManager()
+					{
+						@Override
+						public void layoutContainer(Container parent) {
+							int width = parent.getWidth(),
+								height = parent.getHeight(),
+								hsize = 18;
+							labelJapaneseName.setBounds(3, 3, 100, hsize);
+							textJapaneseName.setBounds(103, 3, width - 106, hsize);
+							labelTranslatedName.setBounds(3, 3 + hsize, 100, hsize);
+							textTranslatedName.setBounds(103, 3 + hsize, width - 106, hsize);
+							labelRomajiName.setBounds(3, 3 + hsize*2, 100, hsize);
+							textRomajiName.setBounds(103, 3 + hsize*2, width - 106, hsize);
+							labelConvention.setBounds(3, 3 + hsize*3, 100, hsize);
+							comboConvention.setBounds(103, 3 + hsize*3, width - 106, hsize);
+							labelType.setBounds(3, 3 + hsize*4, 100, hsize);
+							comboType.setBounds(103, 3 + hsize*4, 100, hsize);
+							labelDate.setBounds(3, 3 + hsize*5, 100, hsize);
+							textDate.setBounds(103, 3 + hsize*5, 100, hsize);
+							labelPages.setBounds(3, 3 + hsize*6, 100, hsize);
+							textPages.setBounds(103, 3 + hsize*6, 100, hsize);
+							labelAdult.setBounds(3, 3 + hsize*7, 100, hsize);
+							checkAdult.setBounds(103, 3 + hsize*7, 100, hsize);
+							labelInfo.setBounds(3, 3 + hsize*8, width - 6, hsize);
+							scrollInfo.setBounds(3, 3 + hsize*9, width - 6, height - hsize*9 - 6);
+						}
+						@Override
+						public void addLayoutComponent(String key, Component c) { }
+						@Override
+						public void removeLayoutComponent(Component c) { }
+						@Override
+						public Dimension minimumLayoutSize(Container parent) {
+						     return getMinimumSize();
+						}
+						@Override
+						public Dimension preferredLayoutSize(Container parent) {
+						     return getPreferredSize();
+						}
+					});
+					panelInfo.add(labelJapaneseName);
+					panelInfo.add(textJapaneseName);
+					panelInfo.add(labelTranslatedName);
+					panelInfo.add(textTranslatedName);
+					panelInfo.add(labelRomajiName);
+					panelInfo.add(textRomajiName);
+					panelInfo.add(labelInfo);
+					panelInfo.add(scrollInfo);
+					panelInfo.add(labelAdult);
+					panelInfo.add(checkAdult);
+					panelInfo.add(labelConvention);
+					panelInfo.add(comboConvention);
+					panelInfo.add(labelDate);
+					panelInfo.add(textDate);
+					panelInfo.add(labelPages);
+					panelInfo.add(textPages);
+					panelInfo.add(labelType);
+					panelInfo.add(comboType);
+					
+					panelProviders = new JPanel();
+					panelProviders.setMinimumSize(new Dimension(256, 256));
+					panelProviders.setPreferredSize(panelProviders.getMinimumSize());
+					
+					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+					split.setLeftComponent(panelProviders);
+					split.setRightComponent(panelInfo);
+					split.setDividerSize(1);
+					split.setEnabled(false);
+					
+					tabLists.addTab("General", mIcons.task_result_info, split);
+					mListArtists = new JList<MetaWrapper>();
+					mListArtists.setModel(new DefaultListModel<MetaWrapper>());
+					tabLists.addTab("Artists", mIcons.task_result_artist, new JScrollPane(mListArtists));
+					mListCircles = new JList<MetaWrapper>();
+					mListCircles.setModel(new DefaultListModel<MetaWrapper>());
+					tabLists.addTab("Circles", mIcons.task_result_circle, new JScrollPane(mListCircles));
+					mListContents = new JList<MetaWrapper>();
+					mListContents.setModel(new DefaultListModel<MetaWrapper>());
+					tabLists.addTab("Contents", mIcons.task_result_content, new JScrollPane(mListContents));
+					mListParodies = new JList<MetaWrapper>();
+					mListParodies.setModel(new DefaultListModel<MetaWrapper>());
+					tabLists.addTab("Parodies", mIcons.task_result_parody, new JScrollPane(mListParodies));
+					MetadataListCellRenderer lcr = new MetadataListCellRenderer();
+					MouseAdapter ma = new MouseAdapter() {
+						@SuppressWarnings("unchecked")
+						public void mousePressed(MouseEvent me) {
+							JList<MetaWrapper> list = (JList<MetaWrapper>) me.getSource();
+							int index = list.locationToIndex(me.getPoint());
+							if (index != -1) {
+								MetaWrapper meta = (MetaWrapper) ((DefaultListModel<MetaWrapper>)list.getModel()).getElementAt(index);
+								meta.setSelected(!meta.isSelected());
+								repaint();
+							}
+						}
+					};
+					mListArtists.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					mListArtists.setCellRenderer(lcr);
+					mListArtists.addMouseListener(ma);
+					mListCircles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					mListCircles.setCellRenderer(lcr);
+					mListCircles.addMouseListener(ma);
+					mListContents.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					mListContents.setCellRenderer(lcr);
+					mListContents.addMouseListener(ma);
+					mListParodies.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+					mListParodies.setCellRenderer(lcr);
+					mListParodies.addMouseListener(ma);
+					
+					super.add(tabLists);
+					super.doLayout();
+					
+					for(Metadata md : list)
+						addMetadata(md);
 				}
 				
-				private abstract class MetaMedia
+				private void addMetadata(Metadata md) {
+					//TODO
+				}
+				
+				private abstract class MetaWrapper
 				{
 					private final String mValue;
-					private MetaMedia() {
+					private boolean mSelected;
+					private MetaWrapper() {
 						this.mValue = "";
 					}
-					private MetaMedia(String value) {
+					private MetaWrapper(String value) {
 						this.mValue = value;
 					}
-					private final String getValue() {
+					public final String getValue() {
 						return mValue;
 					}
 					protected abstract Icon getIcon();
+					public boolean isSelected() {
+						return mSelected;
+					}
+					public void setSelected(boolean selected) {
+						mSelected = selected;
+					}
 				}
 				
-				private final class MetaMediaArtist extends MetaMedia
+				private final class MetaWrapperArtist extends MetaWrapper
 				{
-					private MetaMediaArtist(String value) {
+					private MetaWrapperArtist(String value) {
 						super(value);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_artist;
 					}
 				}
-				private final class MetaMediaCircle extends MetaMedia
+				private final class MetaWrapperCircle extends MetaWrapper
 				{
-					private MetaMediaCircle(String value) {
+					private MetaWrapperCircle(String value) {
 						super(value);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_circle;
 					}
 				}
-				private final class MetaMediaContent extends MetaMedia
+				private final class MetaWrapperContent extends MetaWrapper
 				{
-					private MetaMediaContent(String value) {
+					private MetaWrapperContent(String value) {
 						super(value);
 					}
 					protected final Icon getIcon() {
 						return mIcons.task_metadata_content;
 					}
 				}
-				private final class MetaMediaParody extends MetaMedia
+				private final class MetaWrapperParody extends MetaWrapper
 				{
-					private MetaMediaParody(String value) {
+					private MetaWrapperParody(String value) {
 						super(value);
 					}
 					protected final Icon getIcon() {
@@ -1301,14 +1571,14 @@ public final class DataImport extends Plugin
 				
 				private final class MetadataListCellRenderer extends DefaultListCellRenderer
 				{
-					private final JLabel mLabel;
-					private final Color backgroundSelectionColor;
-					private final Color textSelectionColor;
+					private final JCheckBox mDisplay;
+//					private final Color backgroundSelectionColor;
+//					private final Color textSelectionColor;
 					private MetadataListCellRenderer() {
-						mLabel = new JLabel();
-						mLabel.setOpaque(true);
-						backgroundSelectionColor = mLabel.getBackground();
-						textSelectionColor = mLabel.getForeground();
+						mDisplay = new JCheckBox();
+						mDisplay.setOpaque(true);
+//						backgroundSelectionColor = mDisplay.getBackground();
+//						textSelectionColor = mDisplay.getForeground();
 					}
 					@SuppressWarnings("rawtypes")
 					@Override
@@ -1318,17 +1588,24 @@ public final class DataImport extends Plugin
 				            int index,
 				            boolean selected,
 				            boolean expanded) {
-						MetaMedia media = (MetaMedia) value;
-						mLabel.setIcon(media.getIcon());
-						mLabel.setText(media.getValue());
-				        if (selected) {
-				        	mLabel.setBackground(textSelectionColor);
-				        	mLabel.setForeground(backgroundSelectionColor);
+						MetaWrapper meta = (MetaWrapper) value;
+						mDisplay.setIcon(meta.getIcon());
+						mDisplay.setText(meta.getValue());
+						boolean isSelected = meta.isSelected();
+						mDisplay.setSelected(isSelected);
+				        if (isSelected) {
+				        	mDisplay.setIcon(meta.getIcon());
 				        } else {
-				        	mLabel.setBackground(backgroundSelectionColor);
-				        	mLabel.setForeground(textSelectionColor);
+				        	mDisplay.setIcon(null);
 				        }
-				        return mLabel;
+//				        if (isSelected) {
+//				        	mDisplay.setBackground(textSelectionColor);
+//				        	mDisplay.setForeground(backgroundSelectionColor);
+//				        } else {
+//				        	mDisplay.setBackground(backgroundSelectionColor);
+//				        	mDisplay.setForeground(textSelectionColor);
+//				        }
+				        return mDisplay;
 				    }
 				}
 				
@@ -1355,15 +1632,15 @@ public final class DataImport extends Plugin
 					/**
 					 * Browse Metadata URI in user Desktop
 					 */
-					if(ae.getSource().equals(mMetaURI)) {
-						String uri = mMetaURI.getText();
-						try {
-							Desktop.getDesktop().browse(new URI(uri));
-						} catch (URISyntaxException | IOException e) {
-							LOG.error("Error opening URI {}", uri,  e);
-						}
-						return;
-					}
+//					if(ae.getSource().equals(mMetaURI)) {
+//						String uri = mMetaURI.getText();
+//						try {
+//							Desktop.getDesktop().browse(new URI(uri));
+//						} catch (URISyntaxException | IOException e) {
+//							LOG.error("Error opening URI {}", uri,  e);
+//						}
+//						return;
+//					}
 				}
 
 				@Override
@@ -1386,21 +1663,26 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					int offset = 0;
-					int xoffset = width / 3;
-					mMetaThumbnail.setBounds(0,0,xoffset,height);
-					mMetaName.setBounds(xoffset,0,xoffset,20);
-					mMetaAlias.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaTranslation.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaPages.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaTimestamp.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaType.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaAdult.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaInfo.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaSize.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaConvention.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaURI.setBounds(xoffset,offset+=20,xoffset,20);
-					mMetaListScroll.setBounds(xoffset*2,0,xoffset,height);
+					tabLists.setBounds(0, 0, width, height);
+//					int yoffset = 0;
+//					int xoffset = width / 3;
+//					if(mMessage != null) {
+//						mMessage.setBounds(0,0,width,20);
+//						yoffset = 20;
+//					}
+//					mMetaThumbnail.setBounds(0,yoffset,xoffset,height-yoffset);
+//					mMetaListScroll.setBounds(xoffset*2,yoffset,xoffset,height);
+//					mMetaName.setBounds(xoffset,yoffset,xoffset,20);
+//					mMetaAlias.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaTranslation.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaPages.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaTimestamp.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaType.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaAdult.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaInfo.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaSize.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaConvention.setBounds(xoffset,yoffset+=20,xoffset,20);
+//					mMetaURI.setBounds(xoffset,yoffset+=20,xoffset,20);
 				}
 			}
 		}

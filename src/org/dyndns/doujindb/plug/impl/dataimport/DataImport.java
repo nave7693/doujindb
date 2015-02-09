@@ -1255,22 +1255,22 @@ public final class DataImport extends Plugin
 				private JPanel mPanelProviders;
 				private JPanel mPanelInfo;
 				private JLabel mLabelJapaneseName;
-				private JTextField mTextJapaneseName;
+				private JComboBox<String> mTextJapaneseName;
 				private JLabel mLabelTranslatedName;
-				private JTextField mTextTranslatedName;
+				private JComboBox<String> mTextTranslatedName;
 				private JLabel mLabelRomajiName;
-				private JTextField mTextRomajiName;
+				private JComboBox<String> mTextRomajiName;
 				private JLabel mLabelInfo;
 				private JTextArea mTextInfo;
 				private JScrollPane mScrollInfo;
 				private JLabel mLabelDate;
-				private JTextField mTextDate;
+				private JComboBox<String> mTextDate;
 				private JLabel mLabelPages;
-				private JTextField mTextPages;
+				private JComboBox<Integer> mTextPages;
 				private JLabel mLabelType;
 				private JComboBox<Book.Type> mComboboxType;
 				private JLabel mLabelConvention;
-				private ComboBoxConvention mComboboxConvention;
+				private JComboBox<String> mComboboxConvention;
 				private JLabel mLabelAdult;
 				private JCheckBox mCheckboxAdult;
 				private JTabbedPane mTabbedPane;
@@ -1369,11 +1369,14 @@ public final class DataImport extends Plugin
 					mTabbedPane = new JTabbedPane();
 					mTabbedPane.setFocusable(false);
 					mLabelJapaneseName = new JLabel("Japanese Name");
-					mTextJapaneseName = new JTextField("");
+					mTextJapaneseName = new JComboBox<String>();
+					mTextJapaneseName.setFocusable(false);
 					mLabelTranslatedName = new JLabel("Translated Name");
-					mTextTranslatedName = new JTextField("");
+					mTextTranslatedName = new JComboBox<String>();
+					mTextTranslatedName.setFocusable(false);
 					mLabelRomajiName = new JLabel("Romaji Name");
-					mTextRomajiName = new JTextField("");
+					mTextRomajiName = new JComboBox<String>();
+					mTextRomajiName.setFocusable(false);
 					mLabelInfo = new JLabel("Info");
 					mTextInfo = new JTextArea("");
 					mScrollInfo = new JScrollPane(mTextInfo);
@@ -1381,15 +1384,17 @@ public final class DataImport extends Plugin
 					mComboboxType = new JComboBox<Book.Type>();
 					mComboboxType.setFocusable(false);
 					mLabelConvention = new JLabel("Convention");
-					mComboboxConvention = new ComboBoxConvention();
-					mComboboxConvention.setFocusable(true);
+					mComboboxConvention = new JComboBox<String>();
+					mComboboxConvention.setFocusable(false);
 					mLabelAdult = new JLabel("Adult");
 					mCheckboxAdult = new JCheckBox("", false);
 					mCheckboxAdult.setFocusable(false);
 					mLabelDate = new JLabel("Date");
-					mTextDate = new JTextField("");
+					mTextDate = new JComboBox<String>();
+					mTextDate.setFocusable(false);
 					mLabelPages = new JLabel("Pages");
-					mTextPages = new JTextField("");
+					mTextPages = new JComboBox<Integer>();
+					mTextPages.setFocusable(false);
 					mPanelInfo = new JPanel();
 					mPanelInfo.setLayout(new LayoutManager()
 					{
@@ -1506,6 +1511,23 @@ public final class DataImport extends Plugin
 				}
 				
 				private void addMetadata(Metadata md) {
+					if(!isNull(md.name))
+						mTextJapaneseName.addItem(md.name);
+					for(String a : md.alias)
+						if(!isNull(a))
+							mTextJapaneseName.addItem(a);
+					if(!isNull(md.translation))
+						mTextTranslatedName.addItem(md.translation);
+					if(!isNull(md.pages))
+						mTextPages.addItem(md.pages);
+					if(!isNull(md.timestamp))
+						mTextDate.addItem(mSDF.format(new Date(md.timestamp * 1000)));
+					if(!isNull(md.type))
+						mComboboxType.addItem(Book.Type.valueOf(md.type));
+					if(!isNull(md.adult))
+						mCheckboxAdult.setSelected(md.adult);
+					if(!isNull(md.convention))
+						mComboboxConvention.addItem(md.convention);
 					for(String a : md.artist)
 						((DefaultListModel<MetaWrapper>)mListArtists.getModel()).addElement(new MetaWrapperArtist(a, md.provider()));
 					for(String c : md.circle)
@@ -1514,6 +1536,22 @@ public final class DataImport extends Plugin
 						((DefaultListModel<MetaWrapper>)mListContents.getModel()).addElement(new MetaWrapperContent(c, md.provider()));
 					for(String p : md.parody)
 						((DefaultListModel<MetaWrapper>)mListParodies.getModel()).addElement(new MetaWrapperParody(p, md.provider()));
+				}
+				
+				private final boolean isNull(String text) {
+					return (text == null || text.length() > 0);
+				}
+				
+				private final boolean isNull(Integer number) {
+					return (number == null || number < 0);
+				}
+				
+				private final boolean isNull(Long number) {
+					return (number == null || number < 0);
+				}
+				
+				private final boolean isNull(Boolean bool) {
+					return bool == null;
 				}
 				
 				private abstract class MetaWrapper

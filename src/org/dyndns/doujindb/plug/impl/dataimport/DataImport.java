@@ -1539,7 +1539,7 @@ public final class DataImport extends Plugin
 				}
 				
 				private final boolean isNull(String text) {
-					return (text == null || text.length() > 0);
+					return (text == null || text.length() == 0);
 				}
 				
 				private final boolean isNull(Integer number) {

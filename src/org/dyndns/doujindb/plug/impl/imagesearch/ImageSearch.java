@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
+import javax.imageio.IIOException;
 import javax.swing.*;
 import javax.swing.Timer;
 
@@ -307,8 +308,12 @@ public final class ImageSearch extends Plugin
 			    				try {
 			    					DataFile thumbn = DataStore.getThumbnail(book.getId());
 			    					if(!mHashMap.containsValue(book.getId()) || thumbn.lastModified() > lastModified) {
-			    						String hash = new ImageAHash().getHash(thumbn.openInputStream());
-			    						mHashMap.put(hash, book.getId());
+			    						try {
+			    							String hash = new ImageAHash().getHash(thumbn.openInputStream());
+			    							mHashMap.put(hash, book.getId());
+			    						} catch (IIOException iioe) {
+					    					LOG.error("Error computing hash for Book {} with image {}", new Object[]{book.getId(), thumbn.getPath(), iioe});
+					    				}
 			    					}
 			    					publish(mHashMap.size());
 			    				} catch (Exception e) {

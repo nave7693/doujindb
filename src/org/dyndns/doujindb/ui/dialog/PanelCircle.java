@@ -112,7 +112,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								try {
 									image = javax.imageio.ImageIO.read(imageFile);
 								} catch (IOException ioe) {
-									LOG.error("Error loading banner image for [{}] from file [{}]", new Object[]{tokenCircle, imageFile}, ioe);
+									LOG.error("Error loading banner image for [{}] from file [{}]", new Object[]{tokenCircle, imageFile, ioe});
 								}
 								if(image == null)
 									return null;

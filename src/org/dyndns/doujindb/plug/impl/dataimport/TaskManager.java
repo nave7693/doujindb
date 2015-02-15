@@ -88,7 +88,7 @@ final class TaskManager
 			m.marshal(task, out);
 			LOG.debug("Saved {} to {}", task, file);
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			LOG.error("Error saving {} to {}", new Object[]{task, file}, e);
+			LOG.error("Error saving {} to {}", new Object[]{task, file, e});
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
@@ -414,7 +414,7 @@ final class TaskManager
 							} catch (Exception e) {
 								mCurrentTask.message = e.getMessage();
 								mCurrentTask.exception(e);
-								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider}, e);
+								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider, e});
 								mCurrentTask.state = State.WARNING;
 							}
 						}

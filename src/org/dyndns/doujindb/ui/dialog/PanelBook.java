@@ -138,7 +138,7 @@ public final class PanelBook extends JPanel implements DataBaseListener, LayoutM
 								try {
 									image = javax.imageio.ImageIO.read(imageFile);
 								} catch (IOException ioe) {
-									LOG.error("Error loading cover image for [{}] from file [{}]", new Object[]{tokenBook, imageFile}, ioe);
+									LOG.error("Error loading cover image for [{}] from file [{}]", new Object[]{tokenBook, imageFile, ioe});
 								}
 								if(image == null)
 									return null;

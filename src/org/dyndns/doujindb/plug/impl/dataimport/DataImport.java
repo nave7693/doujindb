@@ -1252,7 +1252,7 @@ public final class DataImport extends Plugin
 //				private DefaultListModel<MetaMedia> mMetaListModel;
 //				private JScrollPane mMetaListScroll;
 				
-				private JPanel mPanelProviders;
+				private JTabbedPane mPanelProviders;
 				private JPanel mPanelInfo;
 				private JLabel mLabelJapaneseName;
 				private JComboBox<String> mTextJapaneseName;
@@ -1268,7 +1268,7 @@ public final class DataImport extends Plugin
 				private JLabel mLabelPages;
 				private JComboBox<Integer> mTextPages;
 				private JLabel mLabelType;
-				private JComboBox<Book.Type> mComboboxType;
+				private JComboBox<String> mComboboxType;
 				private JLabel mLabelConvention;
 				private JComboBox<String> mComboboxConvention;
 				private JLabel mLabelAdult;
@@ -1381,7 +1381,7 @@ public final class DataImport extends Plugin
 					mTextInfo = new JTextArea("");
 					mScrollInfo = new JScrollPane(mTextInfo);
 					mLabelType = new JLabel("Type");
-					mComboboxType = new JComboBox<Book.Type>();
+					mComboboxType = new JComboBox<String>();
 					mComboboxType.setFocusable(false);
 					mLabelConvention = new JLabel("Convention");
 					mComboboxConvention = new JComboBox<String>();
@@ -1454,7 +1454,8 @@ public final class DataImport extends Plugin
 					mPanelInfo.add(mLabelType);
 					mPanelInfo.add(mComboboxType);
 					
-					mPanelProviders = new JPanel();
+					mPanelProviders = new JTabbedPane();
+					mPanelProviders.setFocusable(false);
 					mPanelProviders.setMinimumSize(new Dimension(256, 256));
 					mPanelProviders.setPreferredSize(mPanelProviders.getMinimumSize());
 					
@@ -1511,6 +1512,10 @@ public final class DataImport extends Plugin
 				}
 				
 				private void addMetadata(Metadata md) {
+					if(!isNull(md.thumbnail))
+						try {
+							mPanelProviders.addTab(md.provider(), new BookCoverLabel(new ImageIcon(new URL(md.thumbnail)), md.score));
+						} catch (MalformedURLException murle) { }
 					if(!isNull(md.name))
 						mTextJapaneseName.addItem(md.name);
 					for(String a : md.alias)
@@ -1523,7 +1528,7 @@ public final class DataImport extends Plugin
 					if(!isNull(md.timestamp))
 						mTextDate.addItem(mSDF.format(new Date(md.timestamp * 1000)));
 					if(!isNull(md.type))
-						mComboboxType.addItem(Book.Type.valueOf(md.type));
+						mComboboxType.addItem(md.type);
 					if(!isNull(md.adult))
 						mCheckboxAdult.setSelected(md.adult);
 					if(!isNull(md.convention))
@@ -1562,6 +1567,7 @@ public final class DataImport extends Plugin
 					private MetaWrapper(String value, String provider) {
 						this.mValue = value;
 						this.mProvider = provider;
+						this.mSelected = true;
 					}
 					public final String getValue() {
 						return mValue;

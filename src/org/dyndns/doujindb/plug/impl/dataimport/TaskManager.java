@@ -28,6 +28,7 @@ import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.db.record.Book.*;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
+import org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch;
 import org.dyndns.doujindb.util.*;
 
 final class TaskManager
@@ -316,62 +317,6 @@ final class TaskManager
 							throw new TaskException("Could not write image file " + image.getPath(), e);
 						}
 					}
-					// Find duplicates
-					if(Configuration.options_checkdupes.get()) {
-						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
-						//TODO use ImageSearch plugin
-						/*
-						task.setExec(Task.Exec.CHECK_DUPLICATE);
-						
-						File reqFile;
-						BufferedImage reqImage;
-						Integer searchResult;
-						
-						reqFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".png");
-						try {
-							reqImage = javax.imageio.ImageIO.read(reqFile);
-						} catch (IllegalArgumentException | IOException e) {
-							throw new TaskErrorException("Could not read image file '" + reqFile.getPath()+ "' : " + e.getMessage());
-						}
-						if(reqImage == null) {
-							throw new TaskErrorException("Cover image not found");
-						}
-						//FIXME searchResult = CacheManager.search(reqImage);
-						searchResult = null;
-						if(searchResult != null) {
-							Set<Integer> duplicateList = new HashSet<Integer>();
-							duplicateList.add(searchResult);
-							task.setDuplicateList(duplicateList);
-							
-							String japanLang = "";
-							try {
-								for(Integer dupe : duplicateList) {
-									if(DataStore.getStore(dupe).getFile("@japanese").exists())
-										continue;
-									japanLang = " (missing japanese language)";
-								}
-							} catch (DataStoreException dse) { }
-							
-							String higherRes = "";
-							try {
-								long bytesNew = DataStore.diskUsage(new File(task.getPath()));
-								long pagesNew = DataStore.listFiles(new File(task.getPath())).length;
-								BufferedImage biNew = javax.imageio.ImageIO.read(new FileInputStream(findFile(new File(task.getPath()))));
-								String resNew = biNew.getWidth() + "x" + biNew.getHeight();
-								for(Integer dupe : duplicateList) {
-									long bytesBook = DataStore.diskUsage(DataStore.getStore(dupe));
-									long pagesBook = DataStore.listFiles(DataStore.getStore(dupe)).length;
-									BufferedImage biBook = javax.imageio.ImageIO.read(findFile(DataStore.getStore(dupe)).openInputStream()); //FIXME throws NPE is store folder is empty but Book is still image-cached
-									String resBook = biBook.getWidth() + "x" + biBook.getHeight();
-									if(bytesNew > bytesBook)
-										higherRes = " (may be higher resolution: [" + bytesToSize(bytesNew) + " - " + pagesNew + "p - " + resNew + "] ~ [" + bytesToSize(bytesBook) + " - " + pagesBook + "p - " + resBook + "])";
-								}
-							} catch (DataStoreException | IOException e) { }
-							
-							throw new TaskException("Duplicate book detected" + japanLang + " " + higherRes);
-						}
-						*/
-					}
 					// Resize image
 					if(Configuration.options_autoresize.get()) {
 						LOG.debug("{} Resizing image file", mCurrentTask);
@@ -399,6 +344,40 @@ final class TaskManager
 					{
 						File saved = new File(mTmpDir, mCurrentTask.id + ".png");
 						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
+					}
+					// Find duplicates
+					if(Configuration.options_checkdupes.get()) {
+						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
+						Integer found = ImageSearch.search(image);
+						if(found != null) {
+							String langCheck = "";
+							if(DataStore.getStore(found).getFile("@japanese").exists())
+								langCheck = " (missing japanese language)";
+							String sizeCheck = "";
+							try {
+								long bytesNew = DataStore.diskUsage(new File(mCurrentTask.file));
+								long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
+								if(bytesNew > bytesFound)
+									sizeCheck = " (bigger filesize " + format(bytesNew) + " > " + format(bytesFound) + ")";
+							} catch (DataStoreException | IOException e) { }
+							String countCheck = "";
+							try {
+								long filesNew = DataStore.listFiles(new File(mCurrentTask.file)).length;
+								long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
+								if(filesNew > filesFound)
+									countCheck = " (more files " + filesNew + " > " + filesFound + ")";
+							} catch (DataStoreException | IOException e) { }
+							String resolutionCheck = "";
+							try {
+								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.file))));
+								String resolutionNew = imageNew.getWidth() + "x" + imageNew.getHeight();
+								BufferedImage imageFound = javax.imageio.ImageIO.read(findImage(DataStore.getStore(found)).openInputStream());
+								String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
+								if(imageNew.getHeight() > imageFound.getHeight())
+									resolutionCheck = " (higher resolution " + resolutionNew + " > " + resolutionFound + ")";
+							} catch (DataStoreException | IOException e) { }
+							throw new TaskException(String.format("Duplicate book detected with Id %d %s %s %s %s", found, langCheck, sizeCheck, countCheck, resolutionCheck));
+						}
 					}
 					// Run Metadata providers
 					for(MetadataProvider provider : mProviders) {

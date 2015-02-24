@@ -42,7 +42,7 @@ public final class ImageSearch extends Plugin
 	private JComponent mUI = new PluginUI();
 	
 	private File mHashFile = new File(this.PLUGIN_HOME, "hashdb.ser");
-	private Map<String, Integer> mHashMap = new HashMap<String, Integer>();
+	private static Map<String, Integer> mHashMap = new HashMap<String, Integer>();
 	
 	private static Icons mIcons = new Icons();
 	
@@ -524,6 +524,31 @@ public final class ImageSearch extends Plugin
 				super.process(chunks);
 			}
 		}
+	}
+	
+	public static Integer search(File file) {
+		Integer result = null;
+		int threshold = Configuration.query_threshold.get();
+		int distance = Integer.MAX_VALUE;
+		try {
+			FileInputStream fis = new FileInputStream(file);
+			String input_hash = new ImageAHash().getHash(fis);
+			for(String hash : mHashMap.keySet()) {
+				int diff = new ImageAHash().distance(hash, input_hash);
+				if(threshold < diff)
+					continue;
+				if(diff < distance) {
+					distance = diff;
+					result = mHashMap.get(hash);
+				}
+			}
+			return result;
+		} catch (FileNotFoundException fnfe) {
+			LOG.error("Error loading hash from {}", file, fnfe);
+		} catch (Exception e) {
+			LOG.error("Error computing hash from {}", file, e);
+		}
+		return result;
 	}
 
 	@Override

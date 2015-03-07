@@ -5,6 +5,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.InputStream;
+
 import javax.imageio.ImageIO;
 
 /**
@@ -15,7 +16,7 @@ import javax.imageio.ImageIO;
 public class ImagePHash
 {
 	private static int size = 32;
-	private static int smallerSize = 8;
+	private static int smallerSize = Configuration.hashdb_size.get();
 	
 	private static double[] coefficients;
 	

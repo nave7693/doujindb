@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
  */
 public class ImageDHash
 {
-	private int size = 8;
+	private int size = Configuration.hashdb_size.get();
 	
 	public ImageDHash() { }
 	

@@ -5,6 +5,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.InputStream;
+
 import javax.imageio.ImageIO;
 
 /**
@@ -14,7 +15,7 @@ import javax.imageio.ImageIO;
  */
 public class ImageAHash
 {
-	private int size = 8;
+	private int size = Configuration.hashdb_size.get();
 	
 	public ImageAHash() { }
 	

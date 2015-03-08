@@ -1196,7 +1196,7 @@ public final class DataImport extends Plugin
 			private final class BookCoverLabel extends JLabel {
 				private Integer mValue;
 				private Color color;
-				private BookCoverLabel(ImageIcon icon, Integer value) {
+				private BookCoverLabel(final ImageIcon icon, final String url, final Integer value) {
 					super(icon);
 					this.mValue = value % 255;
 					if(mValue != null) {
@@ -1205,6 +1205,17 @@ public final class DataImport extends Plugin
 						color = Color.gray;
 					}
 					super.setBorder(BorderFactory.createLineBorder(color));
+					super.addMouseListener(new MouseAdapter() {
+						@Override
+						public void mouseClicked(MouseEvent me) {
+							try {
+								if(url != null)
+									Desktop.getDesktop().browse(new URI(url));
+							} catch (IOException | URISyntaxException e) {
+								LOG.error("Cannot browse URL", e);
+							}
+						}
+					});
 				}
 				@Override
 				public void paint(Graphics g) {
@@ -1515,10 +1526,10 @@ public final class DataImport extends Plugin
 				private void addMetadata(Metadata md) {
 					if(!isNull(md.thumbnail))
 						try {
-							mPanelProviders.addTab(md.provider(), new BookCoverLabel(new ImageIcon(new URL(md.thumbnail)), md.score));
+							mPanelProviders.addTab(md.provider(), new BookCoverLabel(new ImageIcon(new URL(md.thumbnail)), md.uri, md.score));
 						} catch (MalformedURLException murle) { }
 					else
-						mPanelProviders.addTab(md.provider(), new BookCoverLabel(mIcons.task_preview_missing, 0));
+						mPanelProviders.addTab(md.provider(), new BookCoverLabel(mIcons.task_preview_missing, null, 0));
 					if(!isNull(md.name))
 						mTextJapaneseName.addItem(md.name);
 					for(String a : md.alias)

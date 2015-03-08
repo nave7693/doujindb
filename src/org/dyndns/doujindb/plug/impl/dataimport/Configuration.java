@@ -14,4 +14,12 @@ public final class Configuration
 	public static final ConfigurationItem<String> provider_mugimugi_apikey = new ConfigurationItem<String>("", "User KEY needed to query doujinshi.mugimugi.org API system");
 	public static final ConfigurationItem<Integer> provider_mugimugi_threshold = new ConfigurationItem<Integer>(75, "Threshold limit for matching cover queries");
 	public static final ConfigurationItem<Boolean> provider_mugimugi_enable = new ConfigurationItem<Boolean>(true, "Enable MugiMugi metadata provider");
+	
+	public static final ConfigurationItem<String> provider_ehentai_cookie = new ConfigurationItem<String>("", "E-Hentai HTTP cookie");
+	public static final ConfigurationItem<Boolean> provider_ehentai_useex = new ConfigurationItem<Boolean>(false, "Use ExHentai instead of E-Hentai");
+	public static final ConfigurationItem<Boolean> provider_ehentai_similarity = new ConfigurationItem<Boolean>(true, "Use Similarity Scan");
+	public static final ConfigurationItem<Boolean> provider_ehentai_coversonly = new ConfigurationItem<Boolean>(false, "Only Search Covers");
+	public static final ConfigurationItem<Boolean> provider_ehentai_showexpunged = new ConfigurationItem<Boolean>(false, "Show Expunged");
+	public static final ConfigurationItem<Boolean> provider_ehentai_enable = new ConfigurationItem<Boolean>(true, "Enable E-Hentai metadata provider");
+
 }

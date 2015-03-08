@@ -45,6 +45,8 @@ final class TaskManager
 	{
 		if(Configuration.provider_mugimugi_enable.get())
 			mProviders.add(new MugiMugiProvider());
+		if(Configuration.provider_ehentai_enable.get())
+			mProviders.add(new EHentaiProvider());
 	}
 	
 	TaskManager(final File homeDir) {

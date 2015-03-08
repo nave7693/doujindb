@@ -1457,6 +1457,7 @@ public final class DataImport extends Plugin
 					mPanelProviders = new JTabbedPane();
 					mPanelProviders.setFocusable(false);
 					mPanelProviders.setMinimumSize(new Dimension(256, 256));
+					mPanelProviders.setTabPlacement(JTabbedPane.LEFT);
 					mPanelProviders.setPreferredSize(mPanelProviders.getMinimumSize());
 					
 					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -1516,6 +1517,8 @@ public final class DataImport extends Plugin
 						try {
 							mPanelProviders.addTab(md.provider(), new BookCoverLabel(new ImageIcon(new URL(md.thumbnail)), md.score));
 						} catch (MalformedURLException murle) { }
+					else
+						mPanelProviders.addTab(md.provider(), new BookCoverLabel(mIcons.task_preview_missing, 0));
 					if(!isNull(md.name))
 						mTextJapaneseName.addItem(md.name);
 					for(String a : md.alias)

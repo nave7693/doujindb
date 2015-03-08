@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Metadata")
 @XmlSeeAlso({
 	org.dyndns.doujindb.plug.impl.dataimport.MugiMugiProvider.Metadata.class,
-	org.dyndns.doujindb.plug.impl.dataimport.GEHentaiProvider.Metadata.class,
+	org.dyndns.doujindb.plug.impl.dataimport.EHentaiProvider.Metadata.class,
 })
 abstract class Metadata
 {

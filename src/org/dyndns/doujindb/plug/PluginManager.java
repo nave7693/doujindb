@@ -185,16 +185,16 @@ public final class PluginManager
 		plugins.add(plugin);
 	}
 	
-	public static void addPluginListener(PluginListener pl)
+	public static void addPluginListener(PluginListener listener)
 	{
-		LOG.debug("call addPluginListener({})", pl);
-		listeners.add(pl);
+		LOG.debug("call addPluginListener({})", listener);
+		listeners.add(listener);
 	}
 	
-	public static void removePluginListener(PluginListener pl)
+	public static void removePluginListener(PluginListener listener)
 	{
-		LOG.debug("call removePluginListener({})", pl);
-		listeners.remove(pl);
+		LOG.debug("call removePluginListener({})", listener);
+		listeners.remove(listener);
 	}
 	
 	static void firePluginInstalled(Plugin plugin)

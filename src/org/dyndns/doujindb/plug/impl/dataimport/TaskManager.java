@@ -56,7 +56,7 @@ final class TaskManager
 	}
 	
 	public void save() {
-		LOG.debug("call save({})", mTaskFile);
+		LOG.debug("call save()");
 		FileOutputStream out = null;
 		try
 		{
@@ -69,9 +69,9 @@ final class TaskManager
 			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
 			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			m.marshal(set, out);
-			LOG.debug("Saved Tasks to {}", mTaskFile);
+			LOG.debug("Tasks saved to {}", mTaskFile);
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			LOG.error("Error saving Tasks to {}", mTaskFile, e);
+			LOG.error("Error saving tasks to {}", mTaskFile, e);
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
@@ -89,16 +89,16 @@ final class TaskManager
 			m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.FALSE);
 			m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "");
 			m.marshal(task, out);
-			LOG.debug("Saved {} to {}", task, file);
+			LOG.debug("Task {} saved to {}", task, file);
 		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			LOG.error("Error saving {} to {}", new Object[]{task, file, e});
+			LOG.error("Error saving task {} to {}", new Object[]{task, file, e});
 		} finally {
 			try { out.close(); } catch (Exception e) { }
 		}
 	}
 	
 	public void load() {
-		LOG.debug("call load({})", mTaskFile);
+		LOG.debug("call load()");
 		synchronized(mTaskSet) {
 			mTaskSet = new Vector<Task>();
 			FileInputStream in = null;
@@ -109,9 +109,9 @@ final class TaskManager
 				Unmarshaller um = context.createUnmarshaller();
 				TaskSet set = (TaskSet) um.unmarshal(in);
 				mTaskSet.addAll(set.tasks);
-				LOG.debug("Loaded Tasks from {}", mTaskFile);
+				LOG.debug("Tasks loaded from {}", mTaskFile);
 			} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-				LOG.error("Error loading Tasks from {}", mTaskFile, e);
+				LOG.error("Error loading tasks from {}", mTaskFile, e);
 			} finally {
 				try { in.close(); } catch (Exception e) { }
 			}

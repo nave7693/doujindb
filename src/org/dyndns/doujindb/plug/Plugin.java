@@ -71,4 +71,9 @@ public abstract class Plugin
 	public int hashCode() {
 		return getNamespace().hashCode();
 	}
+
+	@Override
+	public String toString() {
+		return getNamespace();
+	}
 }

@@ -66,7 +66,7 @@ public final class PluginManager
 			}
 		}))
 		{
-			LOG.debug("scanning file {} ...", file.getName());
+			LOG.debug("Scanning file {}", file.getName());
 			try {
 				// Open .jar file as JarFile
 				JarFile jf = new JarFile(file);
@@ -82,7 +82,7 @@ public final class PluginManager
 				    		classes.add(clazz.getCanonicalName());
 				    	}
 					} catch (ClassNotFoundException cnfe) {
-						LOG.error("IOException while inspecting class {}", className, cnfe);
+						LOG.error("Error inspecting class {}", className, cnfe);
 					}
 				    // Check if Plugin.class is implemented
 				    if(classes.contains(Plugin.class.getCanonicalName())) {
@@ -92,7 +92,7 @@ public final class PluginManager
 				}
 				jf.close();
 			} catch (IOException ioe) {
-				LOG.error("IOException while scanning jar file {}", file.getName(), ioe);
+				LOG.error("Error scanning jar file {}", file.getName(), ioe);
 			}
 		}
 		for(String pluginName : new String[]{
@@ -120,8 +120,9 @@ public final class PluginManager
 				{
 					try {
 						plugin.doStartup();
+						LOG.debug("Starting plugin [{}]", plugin);
 						firePluginStarted(plugin);
-						LOG.info("Plugin [{}] started", plugin.getNamespace());
+						LOG.info("Started plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						pe.printStackTrace();
@@ -134,12 +135,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-startup-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getNamespace(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getNamespace(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getNamespace(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) {
+				LOG.warn("Error starting plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -157,9 +154,10 @@ public final class PluginManager
 				public Void call()
 				{
 					try {
+						LOG.debug("Stopping plugin [{}]", plugin);
 						plugin.doShutdown();
 						firePluginStopped(plugin);
-						LOG.info("Plugin [{}] stopped", plugin.getNamespace());
+						LOG.info("Stopped plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -171,12 +169,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-shutdown-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getNamespace(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getNamespace(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getNamespace(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) { 
+				LOG.warn("Error stopping plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -185,6 +179,7 @@ public final class PluginManager
 	
 	private static void install(Plugin plugin) throws PluginException
 	{
+		LOG.debug("call install({})", plugin);
 		plugin.doInstall();
 		firePluginInstalled(plugin);
 		plugins.add(plugin);

@@ -29,8 +29,10 @@ final class Task
 	protected Set<Metadata> metadata;
 	@XmlElement(name="message")
 	protected String message;
-	@XmlElement(name="exception")
-	protected String exception;
+	@XmlElement(name="warning")
+	protected Map<String,String> warnings;
+	@XmlElement(name="error")
+	protected Map<String,String> errors;
 	
 	protected transient boolean selected = false;
 	
@@ -43,22 +45,50 @@ final class Task
 		UNKNOW
 	}
 	
-	public void exception(Throwable t) {
+	public void error(Throwable t) {
 		try {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(os);
 			t.printStackTrace(ps);
-			exception = os.toString("UTF8");
+			errors.put(t.getMessage(), os.toString("UTF8"));
 		} catch (Exception e) {
-			exception = t.getMessage();
+			errors.put(t.getMessage(), "");
 		}
+	}
+	
+	public boolean hasErrors() {
+		return !errors.isEmpty();
+	}
+	
+	public Map<String,String> errors() {
+		return errors;
+	}
+	
+	public void warning(Throwable t) {
+		try {
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(os);
+			t.printStackTrace(ps);
+			warnings.put(t.getMessage(), os.toString("UTF8"));
+		} catch (Exception e) {
+			warnings.put(t.getMessage(), "");
+		}
+	}
+	
+	public boolean hasWarnings() {
+		return !warnings.isEmpty();
+	}
+	
+	public Map<String,String> warnings() {
+		return warnings;
 	}
 	
 	public void reset() {
 		this.state = State.NEW;
 		this.metadata = new HashSet<Metadata>();
 		this.message = null;
-		this.exception = null;
+		this.errors = new HashMap<String,String>();
+		this.warnings = new HashMap<String,String>();
 		this.selected = false;
 	}
 	

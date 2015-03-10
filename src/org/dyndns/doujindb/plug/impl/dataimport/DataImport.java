@@ -934,7 +934,7 @@ public final class DataImport extends Plugin
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
 //				m_TabbedPaneMetadata.removeAll();
-				if(task.exception == null) {
+				if(!task.hasErrors()) {
 //					for(Metadata md : task.metadata) {
 //						try {
 //							m_TabbedPaneMetadata.addTab(String.format("%s (%d%%)", md.provider(), md.score), mIcons.task_result_info, new BookCoverLabel(new ImageIcon(new URL("" + md.thumbnail)), md.score));
@@ -952,7 +952,9 @@ public final class DataImport extends Plugin
 //					}
 					mSplitPane.setRightComponent(mMetadataUI = new MetadataUI(task.metadata));
 				} else {
-					JTextArea text = new JTextArea(task.exception);
+					JTextArea text = new JTextArea();
+					for(String message : task.errors.keySet())
+						text.append(message + "\n" + task.errors.get(message) + "\n");
 					text.setEditable(false);
 					text.setFocusable(false);
 					text.setMargin(new Insets(5,5,5,5)); 

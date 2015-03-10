@@ -394,7 +394,7 @@ final class TaskManager
 								}
 							} catch (Exception e) {
 								mCurrentTask.message = e.getMessage();
-								mCurrentTask.exception(e);
+								mCurrentTask.warning(e);
 								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider, e});
 								mCurrentTask.state = State.WARNING;
 							}
@@ -402,12 +402,12 @@ final class TaskManager
 					}
 				} catch (TaskException te) {
 					mCurrentTask.message = te.getMessage();
-					mCurrentTask.exception(te);
+					mCurrentTask.error(te);
 					LOG.error("{} Exception while processing", mCurrentTask, te);
 					mCurrentTask.state = State.ERROR;
 				} catch (Exception e) {
 					mCurrentTask.message = e.getMessage();
-					mCurrentTask.exception(e);
+					mCurrentTask.error(e);
 					LOG.error("{} Exception while processing", mCurrentTask, e);
 					mCurrentTask.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager

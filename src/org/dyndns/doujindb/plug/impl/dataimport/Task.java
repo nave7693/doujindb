@@ -37,12 +37,22 @@ final class Task
 	protected transient boolean selected = false;
 	
 	static enum State {
-		NEW,
-		COMPLETE,
-		ERROR,
-		WARNING,
-		ABORT,
-		UNKNOW
+		NEW(0),
+		FIND_COVER(1),
+		CROP_COVER(2),
+		RESIZE_COVER(3),
+		FIND_DUPLICATE(4),
+		FETCH_METADATA(5),
+		FIND_SIMILAR(6),
+		INSERT_DATABASE(7),
+		INSERT_DATASTORE(8),
+		DONE(9);
+		
+		private Integer value;
+
+		private State(Integer value) { this.value = value; }
+		
+		public Integer getValue() { return this.value; }
 	}
 	
 	public void error(Throwable t) {

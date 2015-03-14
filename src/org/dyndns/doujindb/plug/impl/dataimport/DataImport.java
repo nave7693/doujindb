@@ -310,6 +310,35 @@ public final class DataImport extends Plugin
 			}
 		}
 		
+		/**
+		 * Return a "display" (Image)Icon based on current Task status
+		 */
+		private Icon getDisplayIcon(Task task) {
+			// Task is running => "Running" icon
+			if(task.equals(mTaskManager.getRunningTask()))
+				return mIcons.task_state_running;
+			// Task is brand new => "New" icon
+			if(task.state.equals(Task.State.NEW))
+				return mIcons.task_state_new;
+			else {
+				// Task has experienced at least 1 error => "Error" icon
+				if(task.hasErrors())
+					return mIcons.task_state_error;
+				// Task has experienced at least 1 warning => "Warning" icon
+				if(task.hasWarnings())
+					return mIcons.task_state_warning;
+				// At least 1 Metadata has experienced errors => "Warning" icon
+				for(Metadata md : task.metadata)
+					if(md.exception != null)
+						return mIcons.task_state_warning;
+				// Task is done => "Complete" icon
+				if(task.state.equals(Task.State.DONE))
+					return mIcons.task_state_complete;
+			}
+			// Task is in unknown state => "Unknown" icon
+			return mIcons.task_state_unknow;
+		}
+		
 		private final class PanelTaskUI extends JTable implements PropertyChangeListener
 		{
 			private Class<?>[] m_Types = new Class[] {
@@ -324,7 +353,7 @@ public final class DataImport extends Plugin
 			
 			private PanelTaskUI() {
 				m_TableModel = new TaskSetTableModel();
-				m_TableModel.addColumn(""); // State
+				m_TableModel.addColumn("State"); // State
 				m_TableModel.addColumn("Task"); // Name | Id | File
 				m_TableModel.addColumn(""); // Selection
 				m_TableRender = new TaskRenderer();
@@ -340,21 +369,15 @@ public final class DataImport extends Plugin
 				super.getColumnModel().getColumn(1).setCellEditor(m_TableEditor);
 				super.getColumnModel().getColumn(2).setCellRenderer(m_TableRender);
 				super.getColumnModel().getColumn(0).setResizable(false);
-				super.getColumnModel().getColumn(0).setMaxWidth(20);
-				super.getColumnModel().getColumn(0).setMinWidth(20);
-				super.getColumnModel().getColumn(0).setWidth(20);
+				super.getColumnModel().getColumn(0).setMaxWidth(150);
+				super.getColumnModel().getColumn(0).setMinWidth(140);
+				super.getColumnModel().getColumn(0).setWidth(140);
 				super.getColumnModel().getColumn(1).setResizable(true);
-//				super.getColumnModel().getColumn(1).setMaxWidth(20);
-//				super.getColumnModel().getColumn(1).setMinWidth(20);
-//				super.getColumnModel().getColumn(1).setWidth(20);
-//				super.getColumnModel().getColumn(1).setMinWidth(150);
-//				super.getColumnModel().getColumn(1).setWidth(150);
-//				super.getColumnModel().getColumn(1).setPreferredWidth(150);
 				super.getColumnModel().getColumn(2).setResizable(false);
 				super.getColumnModel().getColumn(2).setMaxWidth(20);
 				super.getColumnModel().getColumn(2).setMinWidth(20);
 				super.getColumnModel().getColumn(2).setWidth(20);
-				super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+				super.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 				super.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				super.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 				{
@@ -498,31 +521,8 @@ public final class DataImport extends Plugin
 						return this;
 					Task task = (Task) getValueAt(row, -1);
 					if(column == 0) {
-						if(task.equals(mTaskManager.getRunningTask()))
-							m_Label.setIcon(mIcons.task_state_running);
-						else
-							switch (task.state)
-							{
-							case NEW:
-								m_Label.setIcon(mIcons.task_state_new);
-								break;
-							case COMPLETE:
-								m_Label.setIcon(mIcons.task_state_complete);
-								break;
-							case ERROR:
-								m_Label.setIcon(mIcons.task_state_error);
-								break;
-							case WARNING:
-								m_Label.setIcon(mIcons.task_state_warning);
-								break;
-							case ABORT:
-								m_Label.setIcon(mIcons.task_state_abort);
-								break;
-							case UNKNOW:
-								m_Label.setIcon(mIcons.task_state_unknow);
-								break;
-							}
-						m_Label.setText("");
+						m_Label.setIcon(getDisplayIcon(task));
+						m_Label.setText(task.state.toString());
 						m_Label.setForeground(mLabelForeground);
 						m_Label.setBackground(mLabelBackground);
 						return m_Label;
@@ -903,30 +903,7 @@ public final class DataImport extends Plugin
 			public void setTask(Task task) {
 				m_Task = task;
 				m_LabelTitle.setText(m_Task.file);
-				if(task.equals(mTaskManager.getRunningTask()))
-					m_LabelTitle.setIcon(mIcons.task_state_running);
-				else
-					switch (task.state)
-					{
-					case NEW:
-						m_LabelTitle.setIcon(mIcons.task_state_new);
-						break;
-					case COMPLETE:
-						m_LabelTitle.setIcon(mIcons.task_state_complete);
-						break;
-					case ERROR:
-						m_LabelTitle.setIcon(mIcons.task_state_error);
-						break;
-					case WARNING:
-						m_LabelTitle.setIcon(mIcons.task_state_warning);
-						break;
-					case ABORT:
-						m_LabelTitle.setIcon(mIcons.task_state_abort);
-						break;
-					case UNKNOW:
-						m_LabelTitle.setIcon(mIcons.task_state_unknow);
-						break;
-					}
+				m_LabelTitle.setIcon(getDisplayIcon(task));
 				try {
 					m_LabelPreview.setIcon(mTaskManager.getImage(task));
 				} catch (IOException ioe) {

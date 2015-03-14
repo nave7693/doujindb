@@ -290,12 +290,15 @@ final class TaskManager
 				
 				LOG.info("{} Process started", mCurrentTask);
 				try {
+					// Find cover image
+					mCurrentTask.state = State.FIND_COVER;
 					File image = findImage(mCurrentTask.file);
 					if(image == null) {
 						throw new TaskException("Could not locate any image file in " + mCurrentTask.file);
 					}
 					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
 					// Crop image
+					mCurrentTask.state = State.CROP_COVER;
 					if(Configuration.options_autocrop.get()) {
 						LOG.debug("{} Cropping image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
@@ -320,6 +323,7 @@ final class TaskManager
 						}
 					}
 					// Resize image
+					mCurrentTask.state = State.RESIZE_COVER;
 					if(Configuration.options_autoresize.get()) {
 						LOG.debug("{} Resizing image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
@@ -348,6 +352,7 @@ final class TaskManager
 						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
 					}
 					// Find duplicates
+					mCurrentTask.state = State.FIND_DUPLICATE;
 					if(Configuration.options_checkdupes.get()) {
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
@@ -382,6 +387,7 @@ final class TaskManager
 						}
 					}
 					// Run Metadata providers
+					mCurrentTask.state = State.FETCH_METADATA;
 					for(MetadataProvider provider : mProviders) {
 						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
 						if(!isPaused()) {
@@ -390,13 +396,11 @@ final class TaskManager
 								mCurrentTask.metadata.add(md);
 								if(md.exception != null) {
 									LOG.warn("{} Exception from provider [{}]: {}", new Object[]{mCurrentTask, provider, md.message});
-									mCurrentTask.state = State.WARNING;
 								}
 							} catch (Exception e) {
 								mCurrentTask.message = e.getMessage();
 								mCurrentTask.warning(e);
 								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider, e});
-								mCurrentTask.state = State.WARNING;
 							}
 						}
 					}
@@ -404,17 +408,15 @@ final class TaskManager
 					mCurrentTask.message = te.getMessage();
 					mCurrentTask.error(te);
 					LOG.error("{} Exception while processing", mCurrentTask, te);
-					mCurrentTask.state = State.ERROR;
 				} catch (Exception e) {
 					mCurrentTask.message = e.getMessage();
 					mCurrentTask.error(e);
 					LOG.error("{} Exception while processing", mCurrentTask, e);
-					mCurrentTask.state = State.ERROR;
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.this.pause();
 				}
-				if(mCurrentTask.state == State.NEW)
-					mCurrentTask.state = State.COMPLETE;
+				// Task is complete
+				mCurrentTask.state = State.DONE;
 				LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
 			}
 		}

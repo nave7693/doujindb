@@ -95,6 +95,10 @@ final class Task
 		return warnings;
 	}
 	
+	public boolean hasDuplicates() {
+		return !duplicates.isEmpty();
+	}
+
 	public void reset() {
 		this.state = State.NEW;
 		this.metadata = new HashSet<Metadata>();

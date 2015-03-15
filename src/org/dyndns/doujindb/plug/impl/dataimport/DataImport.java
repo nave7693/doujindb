@@ -571,7 +571,7 @@ public final class DataImport extends Plugin
 //			private JButton m_ButtonSkipDuplicate;
 //			private JButton m_ButtonImportBID;
 //			private JTabbedPane m_TabbedPaneImage;
-			private MetadataUI mMetadataUI;
+			private JComponent mStateUI;
 			
 			public TaskUI() {
 				super();
@@ -914,6 +914,9 @@ public final class DataImport extends Plugin
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
 //				m_TabbedPaneMetadata.removeAll();
+				if(task.hasDuplicates()) {
+					mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates));
+				} else
 				if(!task.hasErrors()) {
 //					for(Metadata md : task.metadata) {
 //						try {
@@ -930,7 +933,7 @@ public final class DataImport extends Plugin
 //							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new MetadataUI(md));
 //						}
 //					}
-					mSplitPane.setRightComponent(mMetadataUI = new MetadataUI(task.metadata));
+					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.metadata));
 				} else {
 					JTextArea text = new JTextArea();
 					for(String message : task.errors.keySet())
@@ -1184,6 +1187,76 @@ public final class DataImport extends Plugin
 				}
 			}
 			
+			private final class DuplicateUI extends JPanel implements LayoutManager, ActionListener
+			{
+				private JTabbedPane mTabbedPane;
+
+				public DuplicateUI(Iterable<Integer> list) {
+					super.setLayout(this);
+					super.setMinimumSize(new Dimension(100,100));
+					super.setPreferredSize(new Dimension(100,100));
+					mTabbedPane = new JTabbedPane();
+					mTabbedPane.setFocusable(false);
+					super.add(mTabbedPane);
+					super.doLayout();
+					for(Integer bookId : list)
+						addDuplicate(bookId);
+				}
+
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					final Integer bookId = Integer.parseInt(ae.getActionCommand());
+					new SwingWorker<Void, Void>() {
+						@Override
+						protected Void doInBackground() throws Exception {
+							QueryBook qid = new QueryBook();
+							qid.Id = bookId;
+							RecordSet<Book> set = DataBase.getBooks(qid);
+							if(set.size() == 1)
+								UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+							return null;
+						}
+					}.execute();
+				}
+
+				@Override
+				public void addLayoutComponent(String name, Component comp) { }
+
+				@Override
+				public void removeLayoutComponent(Component comp) { }
+
+				@Override
+				public Dimension preferredLayoutSize(Container parent) {
+					return getPreferredSize();
+				}
+
+				@Override
+				public Dimension minimumLayoutSize(Container parent) {
+					return getMinimumSize();
+				}
+
+				@Override
+				public void layoutContainer(Container parent) {
+					int width = parent.getWidth(),
+						height = parent.getHeight();
+					mTabbedPane.setBounds(0, 0, width, height);
+				}
+
+				private void addDuplicate(Integer bookId) {
+					ImageIcon duplicateImage;
+					try {
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream()));
+					} catch (IOException | DataStoreException e) {
+						duplicateImage = mIcons.task_preview_missing;
+						LOG.warn("Error loading cover image for Book {}", bookId, e);
+					}
+					JButton duplicateButton = new JButton(duplicateImage);
+					duplicateButton.setActionCommand("" + bookId);
+					duplicateButton.addActionListener(this);
+					mTabbedPane.addTab("Book [" + bookId + "]", mIcons.task_metadata_book, duplicateButton);
+				}
+			}
+
 			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener
 			{
 //				private JLabel mMessage;

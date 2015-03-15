@@ -360,6 +360,8 @@ final class TaskManager
 					if(Configuration.options_checkdupes.get()) {
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
+						mCurrentTask.duplicates = new HashSet<Integer>();
+						mCurrentTask.duplicates.add(found);
 						if(found != null) {
 							String langCheck = "";
 							if(DataStore.getStore(found).getFile("@japanese").exists())
@@ -370,14 +372,18 @@ final class TaskManager
 								long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
 								if(bytesNew > bytesFound)
 									sizeCheck = " (bigger filesize " + format(bytesNew) + " > " + format(bytesFound) + ")";
-							} catch (DataStoreException | IOException e) { }
+							} catch (Exception e) {
+								LOG.warn("{} Exception in sizeCheck", new Object[]{mCurrentTask, e});
+							}
 							String countCheck = "";
 							try {
 								long filesNew = DataStore.listFiles(new File(mCurrentTask.file)).length;
 								long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
 								if(filesNew > filesFound)
 									countCheck = " (more files " + filesNew + " > " + filesFound + ")";
-							} catch (DataStoreException | IOException e) { }
+							} catch (Exception e) {
+								LOG.warn("{} Exception in countCheck", new Object[]{mCurrentTask, e});
+							}
 							String resolutionCheck = "";
 							try {
 								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.file))));
@@ -386,7 +392,9 @@ final class TaskManager
 								String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
 								if(imageNew.getHeight() > imageFound.getHeight())
 									resolutionCheck = " (higher resolution " + resolutionNew + " > " + resolutionFound + ")";
-							} catch (DataStoreException | IOException e) { }
+							} catch (Exception e) {
+								LOG.warn("{} Exception in resolutionCheck", new Object[]{mCurrentTask, e});
+							}
 							throw new TaskException(String.format("Duplicate book detected with Id %d %s %s %s %s", found, langCheck, sizeCheck, countCheck, resolutionCheck));
 						}
 					}
@@ -422,6 +430,10 @@ final class TaskManager
 							throw new TaskException("Possible duplicate book" + (duplicates.size() > 1 ? "s" : "") + " detected");
 						}
 					}
+					// Task is complete
+					mCurrentTask.state = State.DONE;
+					mPCS.firePropertyChange("task-info", 0, 1);
+					LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
 				} catch (TaskException te) {
 					mCurrentTask.message = te.getMessage();
 					mCurrentTask.error(te);
@@ -433,10 +445,6 @@ final class TaskManager
 					// This error was not supposed to happen, pause TaskManager
 					TaskManager.this.pause();
 				}
-				// Task is complete
-				mCurrentTask.state = State.DONE;
-				mPCS.firePropertyChange("task-info", 0, 1);
-				LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
 			}
 		}
 	}

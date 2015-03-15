@@ -409,6 +409,19 @@ final class TaskManager
 							}
 						}
 					}
+					// Find possible duplicates, this time based on Metadata info, not cover image
+					mCurrentTask.state = State.FIND_SIMILAR;
+					mPCS.firePropertyChange("task-info", 0, 1);
+					if(Configuration.options_checksimilar.get()) {
+						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
+						Set<Integer> duplicates = new HashSet<Integer>();
+						QueryBook query;
+						//TODO Find possible duplicate based on Metadata info
+						if(!duplicates.isEmpty()) {
+							mCurrentTask.duplicates = duplicates;
+							throw new TaskException("Possible duplicate book" + (duplicates.size() > 1 ? "s" : "") + " detected");
+						}
+					}
 				} catch (TaskException te) {
 					mCurrentTask.message = te.getMessage();
 					mCurrentTask.error(te);

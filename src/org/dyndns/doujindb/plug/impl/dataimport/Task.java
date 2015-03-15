@@ -33,6 +33,8 @@ final class Task
 	protected Map<String,String> warnings = new HashMap<String,String>();
 	@XmlElement(name="error")
 	protected Map<String,String> errors = new HashMap<String,String>();
+	@XmlElement(name="duplicate")
+	protected Set<Integer> duplicates = new HashSet<Integer>();
 	
 	protected transient boolean selected = false;
 	

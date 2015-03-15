@@ -292,6 +292,7 @@ final class TaskManager
 				try {
 					// Find cover image
 					mCurrentTask.state = State.FIND_COVER;
+					mPCS.firePropertyChange("task-info", 0, 1);
 					File image = findImage(mCurrentTask.file);
 					if(image == null) {
 						throw new TaskException("Could not locate any image file in " + mCurrentTask.file);
@@ -299,6 +300,7 @@ final class TaskManager
 					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
 					// Crop image
 					mCurrentTask.state = State.CROP_COVER;
+					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_autocrop.get()) {
 						LOG.debug("{} Cropping image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
@@ -324,6 +326,7 @@ final class TaskManager
 					}
 					// Resize image
 					mCurrentTask.state = State.RESIZE_COVER;
+					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_autoresize.get()) {
 						LOG.debug("{} Resizing image file", mCurrentTask);
 						BufferedImage src = javax.imageio.ImageIO.read(image);
@@ -353,6 +356,7 @@ final class TaskManager
 					}
 					// Find duplicates
 					mCurrentTask.state = State.FIND_DUPLICATE;
+					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_checkdupes.get()) {
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
@@ -388,6 +392,7 @@ final class TaskManager
 					}
 					// Run Metadata providers
 					mCurrentTask.state = State.FETCH_METADATA;
+					mPCS.firePropertyChange("task-info", 0, 1);
 					for(MetadataProvider provider : mProviders) {
 						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
 						if(!isPaused()) {
@@ -417,6 +422,7 @@ final class TaskManager
 				}
 				// Task is complete
 				mCurrentTask.state = State.DONE;
+				mPCS.firePropertyChange("task-info", 0, 1);
 				LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
 			}
 		}

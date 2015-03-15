@@ -549,9 +549,9 @@ public final class DataImport extends Plugin
 
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
-				if(pce.getPropertyName().equals("task-exec"))
-					dataChanged();
 				if(pce.getPropertyName().equals("task-info"))
+					dataChanged();
+				if(pce.getPropertyName().equals("taskmanager-info"))
 					dataChanged();
 			}
 		}
@@ -1126,50 +1126,8 @@ public final class DataImport extends Plugin
 
 			@Override
 			public void propertyChange(PropertyChangeEvent pce) {
-				if(m_Task == null)
-					return;
-				if(pce.getPropertyName().equals("taskmanager-info")) {
+				if(pce.getPropertyName().equals("taskmanager-info"))
 					doLayout();
-					return;
-				}
-				if(pce.getPropertyName().equals("task-exec")) {
-					;
-				}
-//				if(pce.getPropertyName().equals("task-info")) {
-//					fireInfoUpdated();
-//					if(m_Task.getInfo().equals(Task.Info.WARNING) && (
-//						m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) ||
-//						m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY) ||
-//						m_Task.getExec().equals(Task.Exec.PARSE_XML)))
-//						fireItemsUpdated();
-//					doLayout();
-//					return;
-//				}
-//				if(pce.getPropertyName().equals("task-image")) {
-//					m_LabelPreview.setIcon(Icon.loading);
-//					new SwingWorker<ImageIcon, Void>()
-//					{
-//						@Override
-//						protected ImageIcon doInBackground() throws Exception
-//						{
-//							return new ImageIcon(javax.imageio.ImageIO.read(new File(PLUGIN_QUERY, m_Task.getId() + ".png")));
-//						}
-//						@Override
-//					    protected void process(List<Void> chunks) { ; }
-//						@Override
-//					    public void done() {
-//					        ImageIcon icon;
-//					        try {
-//					        	icon = get();
-//					        	m_LabelPreview.setIcon(icon);
-//					        } catch (Exception e) {
-//					        	m_LabelPreview.setIcon(Icon.task_preview_missing);
-//					        	doLayout();
-//					        }
-//					    }
-//					}.execute();
-//					return;
-//				}
 			}
 			
 			private final class BookCoverLabel extends JLabel {
@@ -1223,7 +1181,7 @@ public final class DataImport extends Plugin
 				}
 			}
 			
-			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
+			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener
 			{
 //				private JLabel mMessage;
 //				private JLabel mMetaName;
@@ -1668,11 +1626,6 @@ public final class DataImport extends Plugin
 				}
 				
 				@Override
-				public void propertyChange(PropertyChangeEvent pce) {
-					// TODO Auto-generated method stub
-				}
-
-				@Override
 				public void actionPerformed(ActionEvent ae) {
 					/**
 					 * Browse Metadata URI in user Desktop
@@ -1740,10 +1693,6 @@ public final class DataImport extends Plugin
 					m_ButtonTaskManagerCtl.setIcon(mIcons.task_pause);
 				else
 					m_ButtonTaskManagerCtl.setIcon(mIcons.task_resume);
-				return;
-			}
-			if(pce.getPropertyName().equals("api-info")) {
-				doLayout();
 				return;
 			}
 		}

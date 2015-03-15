@@ -710,6 +710,9 @@ public final class DataImport extends Plugin
 								// Prevent CPU hogging
 								Thread.sleep(1000);
 								// Read Clipboard data
+								Transferable transferable = clipboard.getContents(this);
+								if (!transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
+									continue;
 								data = (String) clipboard.getData(DataFlavor.stringFlavor);
 								// Skip parsing data if it's the same as before
 								if(data.equals(prevData))

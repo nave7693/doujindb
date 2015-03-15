@@ -26,13 +26,13 @@ final class Task
 	@XmlElement(name="state")
 	protected State state;
 	@XmlElement(name="metadata")
-	protected Set<Metadata> metadata;
+	protected Set<Metadata> metadata = new HashSet<Metadata>();
 	@XmlElement(name="message")
 	protected String message;
 	@XmlElement(name="warning")
-	protected Map<String,String> warnings;
+	protected Map<String,String> warnings = new HashMap<String,String>();
 	@XmlElement(name="error")
-	protected Map<String,String> errors;
+	protected Map<String,String> errors = new HashMap<String,String>();
 	
 	protected transient boolean selected = false;
 	

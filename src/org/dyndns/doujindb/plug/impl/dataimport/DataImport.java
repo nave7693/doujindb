@@ -1250,10 +1250,36 @@ public final class DataImport extends Plugin
 						duplicateImage = mIcons.task_preview_missing;
 						LOG.warn("Error loading cover image for Book {}", bookId, e);
 					}
-					JButton duplicateButton = new JButton(duplicateImage);
-					duplicateButton.setActionCommand("" + bookId);
-					duplicateButton.addActionListener(this);
-					mTabbedPane.addTab("Book [" + bookId + "]", mIcons.task_metadata_book, duplicateButton);
+					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+					split.setDividerSize(1);
+					split.setEnabled(false);
+					{
+						JButton duplicateButton = new JButton(duplicateImage);
+						duplicateButton.setActionCommand("" + bookId);
+						duplicateButton.addActionListener(this);
+						duplicateButton.setFocusable(false);
+						duplicateButton.setMinimumSize(new Dimension(180, 180));
+						split.setLeftComponent(duplicateButton);
+					}
+					{
+						JPanel options = new JPanel();
+						options.setLayout(new GridLayout(3, 1));
+						ButtonGroup group = new ButtonGroup();
+						JRadioButton radioButtonIgnore = new JRadioButton("Ignore this Item as a duplicate, skip this check");
+						group.add(radioButtonIgnore);
+						radioButtonIgnore.setFocusable(false);
+						options.add(radioButtonIgnore);
+						JRadioButton radioButtonMerge = new JRadioButton("Merge fetched Metadata with this Item");
+						group.add(radioButtonMerge);
+						radioButtonMerge.setFocusable(false);
+						options.add(radioButtonMerge);
+						JRadioButton radioButtonReplace = new JRadioButton("Replace this Item information with fetched Metedata");
+						group.add(radioButtonReplace);
+						radioButtonReplace.setFocusable(false);
+						options.add(radioButtonReplace);
+						split.setRightComponent(options);
+					}
+					mTabbedPane.addTab("Book [" + bookId + "]", mIcons.task_metadata_book, split);
 				}
 			}
 

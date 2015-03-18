@@ -1136,6 +1136,49 @@ public final class DataImport extends Plugin
 					doLayout();
 			}
 			
+			private final class BookCoverButton extends JButton {
+				private Image image;
+				private BookCoverButton(ImageIcon icon) {
+					super(icon);
+					this.image = icon.getImage();
+					this.addComponentListener(new ComponentAdapter() {
+                        @Override
+                        public void componentResized(ComponentEvent ce) {
+                            Dimension size = getScaledDimension(ce.getComponent().getSize());
+                            Image scaled = image.getScaledInstance(size.width, size.height, java.awt.Image.SCALE_SMOOTH);
+                            setIcon(new ImageIcon(scaled));
+                        }
+                        /**
+                         * Java image resize, maintain aspect ratio
+                         * @see http://stackoverflow.com/questions/10245220/java-image-resize-maintain-aspect-ratio
+                         */
+                        public Dimension getScaledDimension(Dimension boundary) {
+    					    int original_width = image.getWidth(null);
+    					    int original_height = image.getHeight(null);
+    					    int bound_width = boundary.width;
+    					    int bound_height = boundary.height;
+    					    int new_width = original_width;
+    					    int new_height = original_height;
+    					    // first check if we need to scale width
+    					    if (original_width > bound_width) {
+    					        //scale width to fit
+    					        new_width = bound_width;
+    					        //scale height to maintain aspect ratio
+    					        new_height = (new_width * original_height) / original_width;
+    					    }
+    					    // then check if we need to scale even with the new height
+    					    if (new_height > bound_height) {
+    					        //scale height to fit instead
+    					        new_height = bound_height;
+    					        //scale width to maintain aspect ratio
+    					        new_width = (new_height * original_width) / original_height;
+    					    }
+    					    return new Dimension(new_width, new_height);
+    					}
+                    });
+				}
+			}
+			
 			private final class BookCoverLabel extends JLabel {
 				private Integer mValue;
 				private Color color;
@@ -1254,7 +1297,7 @@ public final class DataImport extends Plugin
 					split.setDividerSize(1);
 					split.setEnabled(false);
 					{
-						JButton duplicateButton = new JButton(duplicateImage);
+						JButton duplicateButton = new BookCoverButton(duplicateImage);
 						duplicateButton.setActionCommand("" + bookId);
 						duplicateButton.addActionListener(this);
 						duplicateButton.setFocusable(false);

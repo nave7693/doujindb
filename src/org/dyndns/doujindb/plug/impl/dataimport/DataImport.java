@@ -271,7 +271,7 @@ public final class DataImport extends Plugin
 			if(ae.getSource() == m_ButtonTaskDelete) {
 				List<Task> selected = new Vector<Task>();
 				for(Task task : mTaskManager.tasks()) {
-					if(task.selected) {
+					if(task.isSelected()) {
 						selected.add(task);
 					}
 				}
@@ -288,7 +288,7 @@ public final class DataImport extends Plugin
 			if(ae.getSource() == m_ButtonTaskReset) {
 				List<Task> selected = new Vector<Task>();
 				for(Task task : mTaskManager.tasks()) {
-					if(task.selected) {
+					if(task.isSelected()) {
 						selected.add(task);
 					}
 				}
@@ -304,7 +304,7 @@ public final class DataImport extends Plugin
 			}
 			if(ae.getSource() == m_CheckboxSelection) {
 				for(Task task : mTaskManager.tasks())
-					task.selected = m_CheckboxSelection.isSelected();
+					task.setSelected(m_CheckboxSelection.isSelected());
 				m_PanelTasks.dataChanged();
 				return;
 			}
@@ -318,7 +318,7 @@ public final class DataImport extends Plugin
 			if(task.equals(mTaskManager.getRunningTask()))
 				return mIcons.task_state_running;
 			// Task is brand new => "New" icon
-			if(task.state.equals(Task.State.NEW))
+			if(task.getState().equals(Task.State.NEW))
 				return mIcons.task_state_new;
 			else {
 				// Task has experienced at least 1 error => "Error" icon
@@ -328,11 +328,11 @@ public final class DataImport extends Plugin
 				if(task.hasWarnings())
 					return mIcons.task_state_warning;
 				// At least 1 Metadata has experienced errors => "Warning" icon
-				for(Metadata md : task.metadata)
+				for(Metadata md : task.metadata())
 					if(md.exception != null)
 						return mIcons.task_state_warning;
 				// Task is done => "Complete" icon
-				if(task.state.equals(Task.State.DONE))
+				if(task.getState().equals(Task.State.DONE))
 					return mIcons.task_state_complete;
 			}
 			// Task is in unknown state => "Unknown" icon
@@ -409,10 +409,10 @@ public final class DataImport extends Plugin
 							return;
 						Task task = (Task) getValueAt(rowNumber, -1);
 						if ((me.getModifiersEx() & (BUTTON1 | BUTTON2 | BUTTON3)) == BUTTON1) {
-							task.selected = true;
+							task.setSelected(true);
 						}
 						if ((me.getModifiersEx() & (BUTTON1 | BUTTON2 | BUTTON3)) == BUTTON3) {
-							task.selected = false;
+							task.setSelected(false);
 						}
 						dataChanged();
 					}
@@ -450,11 +450,11 @@ public final class DataImport extends Plugin
 						case -1:
 							return task;
 						case 0:
-							return task.state;
+							return task.getState();
 						case 1:
-							return task.file;
+							return task.getFile();
 						case 2:
-							return task.selected;
+							return task.isSelected();
 					}
 					throw new IllegalArgumentException("Argument columnIndex (= " + columnIndex + ") must be 0 < X < " + m_Types.length);
 				}
@@ -463,7 +463,7 @@ public final class DataImport extends Plugin
 				public void setValueAt(Object value, int rowIndex, int columnIndex) {
 					Task task = mTaskManager.get(rowIndex);
 				    if (columnIndex == 2) {
-				    	task.selected = (Boolean)value;
+				    	task.setSelected((Boolean)value);
 				        fireTableCellUpdated(rowIndex, columnIndex);
 				    }
 				}
@@ -522,15 +522,15 @@ public final class DataImport extends Plugin
 					Task task = (Task) getValueAt(row, -1);
 					if(column == 0) {
 						m_Label.setIcon(getDisplayIcon(task));
-						m_Label.setText(task.state.toString());
+						m_Label.setText(task.getState().toString());
 						m_Label.setForeground(mLabelForeground);
 						m_Label.setBackground(mLabelBackground);
 						return m_Label;
 					}
 					if(column == 1) {
 						m_Label.setIcon(null);
-						m_Label.setText(task.file);
-						if(task.selected) {
+						m_Label.setText(task.getFile());
+						if(task.isSelected()) {
 							m_Label.setBackground(mLabelForeground);
 							m_Label.setForeground(mLabelBackground);
 						} else {
@@ -540,7 +540,7 @@ public final class DataImport extends Plugin
 						return m_Label;
 					}
 					if(column == 2) {
-						m_CheckBox.setSelected(task.selected);
+						m_CheckBox.setSelected(task.isSelected());
 						return m_CheckBox;
 					}
 					return this;
@@ -905,17 +905,17 @@ public final class DataImport extends Plugin
 
 			public void setTask(Task task) {
 				m_Task = task;
-				m_LabelTitle.setText(m_Task.file);
+				m_LabelTitle.setText(m_Task.getFile());
 				m_LabelTitle.setIcon(getDisplayIcon(task));
 				try {
-					m_LabelPreview.setIcon(mTaskManager.getImage(task));
-				} catch (IOException ioe) {
+					m_LabelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(new File(task.getThumbnail()))));
+				} catch (Exception e) {
 					m_LabelPreview.setIcon(mIcons.task_preview_missing);
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
 //				m_TabbedPaneMetadata.removeAll();
 				if(task.hasDuplicates()) {
-					mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates));
+					mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
 				} else
 				if(!task.hasErrors()) {
 //					for(Metadata md : task.metadata) {
@@ -933,11 +933,11 @@ public final class DataImport extends Plugin
 //							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new MetadataUI(md));
 //						}
 //					}
-					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.metadata));
+					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.metadata()));
 				} else {
 					JTextArea text = new JTextArea();
-					for(String message : task.errors.keySet())
-						text.append(message + "\n" + task.errors.get(message) + "\n");
+					for(String message : task.errors().keySet())
+						text.append(message + "\n" + task.errors().get(message) + "\n");
 					text.setEditable(false);
 					text.setFocusable(false);
 					text.setMargin(new Insets(5,5,5,5)); 
@@ -1070,10 +1070,10 @@ public final class DataImport extends Plugin
 						@Override
 						protected Void doInBackground() throws Exception {
 							try {
-								URI uri = new File(m_Task.file).toURI();
+								URI uri = new File(m_Task.getFile()).toURI();
 								Desktop.getDesktop().browse(uri);
 							} catch (IOException ioe) {
-								LOG.error("Error opening Task folder {}", m_Task.file, ioe);
+								LOG.error("Error opening Task folder {}", m_Task.getFile(), ioe);
 							}
 							return null;
 						}
@@ -1085,7 +1085,7 @@ public final class DataImport extends Plugin
 						@Override
 						protected Void doInBackground() throws Exception {
 							try {
-								File file = File.createTempFile("task-" + m_Task.id, ".xml");
+								File file = File.createTempFile("task-" + m_Task.getId(), ".xml");
 								file.deleteOnExit();
 								mTaskManager.save(m_Task, file);
 								URI uri = file.toURI();
@@ -1234,7 +1234,7 @@ public final class DataImport extends Plugin
 			{
 				private JTabbedPane mTabbedPane;
 
-				public DuplicateUI(Iterable<Integer> list) {
+				public DuplicateUI(Map<Integer, Task.DuplicateOption> list) {
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
@@ -1242,8 +1242,8 @@ public final class DataImport extends Plugin
 					mTabbedPane.setFocusable(false);
 					super.add(mTabbedPane);
 					super.doLayout();
-					for(Integer bookId : list)
-						addDuplicate(bookId);
+					for(Integer book : list.keySet())
+						addDuplicate(book, list.get(book));
 				}
 
 				@Override
@@ -1285,20 +1285,20 @@ public final class DataImport extends Plugin
 					mTabbedPane.setBounds(0, 0, width, height);
 				}
 
-				private void addDuplicate(Integer bookId) {
+				private void addDuplicate(final Integer book, Task.DuplicateOption op) {
 					ImageIcon duplicateImage;
 					try {
-						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream()));
-					} catch (IOException | DataStoreException e) {
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(book).openInputStream()));
+					} catch (Exception e) {
 						duplicateImage = mIcons.task_preview_missing;
-						LOG.warn("Error loading cover image for Book {}", bookId, e);
+						LOG.warn("Error loading cover image for Book {}", book, e);
 					}
 					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 					split.setDividerSize(1);
 					split.setEnabled(false);
 					{
 						JButton duplicateButton = new BookCoverButton(duplicateImage);
-						duplicateButton.setActionCommand("" + bookId);
+						duplicateButton.setActionCommand("" + book);
 						duplicateButton.addActionListener(this);
 						duplicateButton.setFocusable(false);
 						duplicateButton.setMinimumSize(new Dimension(180, 180));
@@ -1311,18 +1311,54 @@ public final class DataImport extends Plugin
 						JRadioButton radioButtonIgnore = new JRadioButton("Ignore this Item as a duplicate, skip this check");
 						group.add(radioButtonIgnore);
 						radioButtonIgnore.setFocusable(false);
+						radioButtonIgnore.setSelected(false);
+						radioButtonIgnore.addItemListener(new ItemListener(){
+							@Override
+							public void itemStateChanged(ItemEvent ie) {
+								if(((JRadioButton)ie.getSource()).isSelected())
+									m_Task.duplicates().put(book, Task.DuplicateOption.IGNORE);
+							}
+						});
 						options.add(radioButtonIgnore);
 						JRadioButton radioButtonMerge = new JRadioButton("Merge fetched Metadata with this Item");
 						group.add(radioButtonMerge);
 						radioButtonMerge.setFocusable(false);
+						radioButtonMerge.setSelected(false);
+						radioButtonMerge.addItemListener(new ItemListener(){
+							@Override
+							public void itemStateChanged(ItemEvent ie) {
+								if(((JRadioButton)ie.getSource()).isSelected())
+									m_Task.duplicates().put(book, Task.DuplicateOption.MERGE);
+							}
+						});
 						options.add(radioButtonMerge);
 						JRadioButton radioButtonReplace = new JRadioButton("Replace this Item information with fetched Metedata");
 						group.add(radioButtonReplace);
 						radioButtonReplace.setFocusable(false);
+						radioButtonReplace.setSelected(false);
+						radioButtonReplace.addItemListener(new ItemListener(){
+							@Override
+							public void itemStateChanged(ItemEvent ie) {
+								if(((JRadioButton)ie.getSource()).isSelected())
+									m_Task.duplicates().put(book, Task.DuplicateOption.REPLACE);
+							}
+						});
 						options.add(radioButtonReplace);
 						split.setRightComponent(options);
+						if(op != null) //FIXME
+						switch(op) {
+							case IGNORE:
+								radioButtonIgnore.setSelected(true);
+								break;
+							case MERGE:
+								radioButtonMerge.setSelected(true);
+								break;
+							case REPLACE:
+								radioButtonReplace.setSelected(true);
+								break;
+						}
 					}
-					mTabbedPane.addTab("Book [" + bookId + "]", mIcons.task_metadata_book, split);
+					mTabbedPane.addTab("Book [" + book + "]", mIcons.task_metadata_book, split);
 				}
 			}
 

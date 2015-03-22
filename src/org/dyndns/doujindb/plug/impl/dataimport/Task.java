@@ -20,23 +20,27 @@ final class Task
 	}
 	
 	@XmlAttribute(name="id")
-	protected String id = "";
+	private String id = "";
 	@XmlElement(name="file")
-	protected String file = "";
+	private String file = "";
+	@XmlElement(name="thumbnail")
+	private String thumbnail;
 	@XmlElement(name="state")
-	protected State state;
-	@XmlElement(name="metadata")
-	protected Set<Metadata> metadata = new HashSet<Metadata>();
-	@XmlElement(name="message")
-	protected String message;
-	@XmlElement(name="warning")
-	protected Map<String,String> warnings = new HashMap<String,String>();
-	@XmlElement(name="error")
-	protected Map<String,String> errors = new HashMap<String,String>();
-	@XmlElement(name="duplicate")
-	protected Set<Integer> duplicates = new HashSet<Integer>();
+	private State state;
+	@XmlElement(name="fetchedMetadata")
+	private Set<Metadata> fetchedMetadata = new HashSet<Metadata>();
+	@XmlElement(name="selectedMetadata")
+	private Metadata selectedMetadata;
+	@XmlElement(name="infoMessage")
+	private String message;
+	@XmlElement(name="warningMessage")
+	private Map<String,String> warnings = new HashMap<String,String>();
+	@XmlElement(name="errorMessage")
+	private Map<String,String> errors = new HashMap<String,String>();
+//	@XmlElement(name="duplicateBook")
+	private Map<Integer, DuplicateOption> duplicates = new HashMap<Integer, DuplicateOption>();
 	
-	protected transient boolean selected = false;
+	private transient boolean selected = false;
 	
 	static enum State {
 		NEW(0),
@@ -55,6 +59,12 @@ final class Task
 		private State(Integer value) { this.value = value; }
 		
 		public Integer getValue() { return this.value; }
+	}
+	
+	public enum DuplicateOption {
+		IGNORE,
+		MERGE,
+		REPLACE
 	}
 	
 	public void error(Throwable t) {
@@ -95,17 +105,70 @@ final class Task
 		return warnings;
 	}
 	
+	public void addMetadata(Metadata md) {
+		fetchedMetadata.add(md);
+	}
+	
+	public Set<Metadata> metadata() {
+		return fetchedMetadata;
+	}
+	
+	public void addDuplicate(Integer id) {
+		duplicates.put(id, null);
+	}
+	
+	public void addDuplicate(Integer id, DuplicateOption op) {
+		duplicates.put(id, op);
+	}
+	
+	public Map<Integer, DuplicateOption> duplicates() {
+		return duplicates;
+	}
+	
 	public boolean hasDuplicates() {
 		return !duplicates.isEmpty();
+	}
+	
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
+	
+	public boolean isSelected() {
+		return selected;
+	}
+	
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getFile() {
+		return file;
 	}
 
 	public void reset() {
 		this.state = State.NEW;
-		this.metadata = new HashSet<Metadata>();
+		this.fetchedMetadata = new HashSet<Metadata>();
 		this.message = null;
 		this.errors = new HashMap<String,String>();
 		this.warnings = new HashMap<String,String>();
 		this.selected = false;
+		this.duplicates = new HashMap<Integer, DuplicateOption>();
 	}
 	
 	@Override

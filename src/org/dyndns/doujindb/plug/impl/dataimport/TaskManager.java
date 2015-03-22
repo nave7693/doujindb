@@ -279,11 +279,11 @@ final class TaskManager
 				
 				// Get next queued Task
 				for(Task task : tasks())
-					if(task.state == State.NEW) {
+					if(task.getState() == State.NEW) {
 						mCurrentTask = task;
 						break;
 					}
-				if(mCurrentTask == null || mCurrentTask.state != State.NEW) {
+				if(mCurrentTask == null || mCurrentTask.getState() != State.NEW) {
 					TaskManager.this.pause();
 					continue;
 				}
@@ -291,15 +291,15 @@ final class TaskManager
 				LOG.info("{} Process started", mCurrentTask);
 				try {
 					// Find cover image
-					mCurrentTask.state = State.FIND_COVER;
+					mCurrentTask.setState(State.FIND_COVER);
 					mPCS.firePropertyChange("task-info", 0, 1);
-					File image = findImage(mCurrentTask.file);
+					File image = findImage(mCurrentTask.getFile());
 					if(image == null) {
-						throw new TaskException("Could not locate any image file in " + mCurrentTask.file);
+						throw new TaskException("Could not locate any image file in " + mCurrentTask.getFile());
 					}
 					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
 					// Crop image
-					mCurrentTask.state = State.CROP_COVER;
+					mCurrentTask.setState(State.CROP_COVER);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_autocrop.get()) {
 						LOG.debug("{} Cropping image file", mCurrentTask);
@@ -317,7 +317,7 @@ final class TaskManager
 						g.drawImage(src, 0, 0, img_width, img_height, null);
 						g.dispose();
 						try {
-							image = File.createTempFile(mCurrentTask.id + "-crop-", ".png", mTmpDir);
+							image = File.createTempFile(mCurrentTask.getId() + "-crop-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
@@ -325,7 +325,7 @@ final class TaskManager
 						}
 					}
 					// Resize image
-					mCurrentTask.state = State.RESIZE_COVER;
+					mCurrentTask.setState(State.RESIZE_COVER);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_autoresize.get()) {
 						LOG.debug("{} Resizing image file", mCurrentTask);
@@ -341,7 +341,7 @@ final class TaskManager
 							throw new TaskException("Could not resize image file " + image.getPath(), e);
 						}
 						try {
-							image = File.createTempFile(mCurrentTask.id + "-resize-", ".png", mTmpDir);
+							image = File.createTempFile(mCurrentTask.getId() + "-resize-", ".png", mTmpDir);
 							image.deleteOnExit();
 							javax.imageio.ImageIO.write(dest, "PNG", image);
 						} catch (Exception e) {
@@ -351,24 +351,24 @@ final class TaskManager
 					// Save "final" image before uploading
 					// Used for retrieval in TaskManager.getImage(Task)
 					{
-						File saved = new File(mTmpDir, mCurrentTask.id + ".png");
+						File saved = new File(mTmpDir, mCurrentTask.getId() + ".png");
+						mCurrentTask.setThumbnail(saved.getAbsolutePath());
 						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
 					}
 					// Find duplicates
-					mCurrentTask.state = State.FIND_DUPLICATE;
+					mCurrentTask.setState(State.FIND_DUPLICATE);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_checkdupes.get()) {
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
-						mCurrentTask.duplicates = new HashSet<Integer>();
-						mCurrentTask.duplicates.add(found);
 						if(found != null) {
+							mCurrentTask.addDuplicate(found);
 							String langCheck = "";
 							if(DataStore.getStore(found).getFile("@japanese").exists())
 								langCheck = " (missing japanese language)";
 							String sizeCheck = "";
 							try {
-								long bytesNew = DataStore.diskUsage(new File(mCurrentTask.file));
+								long bytesNew = DataStore.diskUsage(new File(mCurrentTask.getFile()));
 								long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
 								if(bytesNew > bytesFound)
 									sizeCheck = " (bigger filesize " + format(bytesNew) + " > " + format(bytesFound) + ")";
@@ -377,7 +377,7 @@ final class TaskManager
 							}
 							String countCheck = "";
 							try {
-								long filesNew = DataStore.listFiles(new File(mCurrentTask.file)).length;
+								long filesNew = DataStore.listFiles(new File(mCurrentTask.getFile())).length;
 								long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
 								if(filesNew > filesFound)
 									countCheck = " (more files " + filesNew + " > " + filesFound + ")";
@@ -386,7 +386,7 @@ final class TaskManager
 							}
 							String resolutionCheck = "";
 							try {
-								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.file))));
+								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.getFile()))));
 								String resolutionNew = imageNew.getWidth() + "x" + imageNew.getHeight();
 								BufferedImage imageFound = javax.imageio.ImageIO.read(findImage(DataStore.getStore(found)).openInputStream());
 								String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
@@ -399,26 +399,25 @@ final class TaskManager
 						}
 					}
 					// Run Metadata providers
-					mCurrentTask.state = State.FETCH_METADATA;
+					mCurrentTask.setState(State.FETCH_METADATA);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					for(MetadataProvider provider : mProviders) {
 						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
 						if(!isPaused()) {
 							try {
 								Metadata md = provider.query(image);
-								mCurrentTask.metadata.add(md);
+								mCurrentTask.addMetadata(md);
 								if(md.exception != null) {
 									LOG.warn("{} Exception from provider [{}]: {}", new Object[]{mCurrentTask, provider, md.message});
 								}
 							} catch (Exception e) {
-								mCurrentTask.message = e.getMessage();
 								mCurrentTask.warning(e);
 								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider, e});
 							}
 						}
 					}
 					// Find possible duplicates, this time based on Metadata info, not cover image
-					mCurrentTask.state = State.FIND_SIMILAR;
+					mCurrentTask.setState(State.FIND_SIMILAR);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					if(Configuration.options_checksimilar.get()) {
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
@@ -426,20 +425,21 @@ final class TaskManager
 						QueryBook query;
 						//TODO Find possible duplicate based on Metadata info
 						if(!duplicates.isEmpty()) {
-							mCurrentTask.duplicates = duplicates;
+							for(Integer book : duplicates)
+								if(mCurrentTask.duplicates().get(book) == null ||
+									!mCurrentTask.duplicates().containsKey(book))
+									mCurrentTask.addDuplicate(book);
 							throw new TaskException("Possible duplicate book" + (duplicates.size() > 1 ? "s" : "") + " detected");
 						}
 					}
 					// Task is complete
-					mCurrentTask.state = State.DONE;
+					mCurrentTask.setState(State.DONE);
 					mPCS.firePropertyChange("task-info", 0, 1);
-					LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.state);
+					LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.getState());
 				} catch (TaskException te) {
-					mCurrentTask.message = te.getMessage();
 					mCurrentTask.error(te);
 					LOG.error("{} Exception while processing", mCurrentTask, te);
 				} catch (Exception e) {
-					mCurrentTask.message = e.getMessage();
 					mCurrentTask.error(e);
 					LOG.error("{} Exception while processing", mCurrentTask, e);
 					// This error was not supposed to happen, pause TaskManager
@@ -456,14 +456,6 @@ final class TaskManager
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-	
-	public ImageIcon getImage(Task task) throws IOException {
-		try {
-			return new ImageIcon(javax.imageio.ImageIO.read(new File(mTmpDir, task.id + ".png")));
-		} catch (NullPointerException npe) {
-			throw new IOException("Cannot load image file", npe);
-		}
 	}
 	
 	private static boolean execSimilarityCheck(Task task) throws TaskException, TaskException

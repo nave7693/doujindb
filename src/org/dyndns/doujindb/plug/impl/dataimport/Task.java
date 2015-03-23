@@ -37,8 +37,8 @@ final class Task
 	private Map<String,String> warnings = new HashMap<String,String>();
 	@XmlElement(name="errorMessage")
 	private Map<String,String> errors = new HashMap<String,String>();
-//	@XmlElement(name="duplicateBook")
-	private Map<Integer, DuplicateOption> duplicates = new HashMap<Integer, DuplicateOption>();
+	@XmlElement(name="duplicateBook")
+	private Set<Duplicate> duplicates = new HashSet<Duplicate>();
 	
 	private transient boolean selected = false;
 	
@@ -59,12 +59,6 @@ final class Task
 		private State(Integer value) { this.value = value; }
 		
 		public Integer getValue() { return this.value; }
-	}
-	
-	public enum DuplicateOption {
-		IGNORE,
-		MERGE,
-		REPLACE
 	}
 	
 	public void error(Throwable t) {
@@ -113,15 +107,11 @@ final class Task
 		return fetchedMetadata;
 	}
 	
-	public void addDuplicate(Integer id) {
-		duplicates.put(id, null);
+	public void addDuplicate(Duplicate dupe) {
+		duplicates.add(dupe);
 	}
 	
-	public void addDuplicate(Integer id, DuplicateOption op) {
-		duplicates.put(id, op);
-	}
-	
-	public Map<Integer, DuplicateOption> duplicates() {
+	public Set<Duplicate> duplicates() {
 		return duplicates;
 	}
 	
@@ -168,7 +158,7 @@ final class Task
 		this.errors = new HashMap<String,String>();
 		this.warnings = new HashMap<String,String>();
 		this.selected = false;
-		this.duplicates = new HashMap<Integer, DuplicateOption>();
+		this.duplicates = new HashSet<Duplicate>();
 	}
 	
 	@Override
@@ -192,5 +182,38 @@ final class Task
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "@" + id;
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class Duplicate
+	{
+		public static enum Option {
+			IGNORE,
+			MERGE,
+			REPLACE,
+			UNSET // This is way better to just leave 'null's around and suffer NullPointerExceptions every now and then
+		}
+		public Integer id;
+		public Option metadataOption = Option.UNSET;
+		public Option dataOption = Option.UNSET;
+		
+		public Duplicate() { }
+		
+		public Duplicate(Integer id) {
+			this.id = id;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(obj == null)
+				return false;
+			if(!(obj instanceof Task))
+				if(!(obj instanceof String))
+					return false;
+				else
+					return ((String)obj).equals(id);
+			else
+				return ((Task)obj).id.equals(id);
+		}
 	}
 }

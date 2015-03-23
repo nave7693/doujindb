@@ -362,7 +362,7 @@ final class TaskManager
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
 						if(found != null) {
-							mCurrentTask.addDuplicate(found);
+							mCurrentTask.addDuplicate(new Task.Duplicate(found));
 							String langCheck = "";
 							if(DataStore.getStore(found).getFile("@japanese").exists())
 								langCheck = " (missing japanese language)";
@@ -426,9 +426,8 @@ final class TaskManager
 						//TODO Find possible duplicate based on Metadata info
 						if(!duplicates.isEmpty()) {
 							for(Integer book : duplicates)
-								if(mCurrentTask.duplicates().get(book) == null ||
-									!mCurrentTask.duplicates().containsKey(book))
-									mCurrentTask.addDuplicate(book);
+								if(!mCurrentTask.duplicates().contains(book))
+									mCurrentTask.addDuplicate(new Task.Duplicate(book));
 							throw new TaskException("Possible duplicate book" + (duplicates.size() > 1 ? "s" : "") + " detected");
 						}
 					}

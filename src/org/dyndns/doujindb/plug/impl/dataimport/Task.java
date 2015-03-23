@@ -193,8 +193,11 @@ final class Task
 			REPLACE,
 			UNSET // This is way better to just leave 'null's around and suffer NullPointerExceptions every now and then
 		}
+		@XmlAttribute(name="id")
 		public Integer id;
+		@XmlElement(name="metadataOption")
 		public Option metadataOption = Option.UNSET;
+		@XmlElement(name="dataOption")
 		public Option dataOption = Option.UNSET;
 		
 		public Duplicate() { }

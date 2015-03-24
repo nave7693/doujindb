@@ -57,6 +57,7 @@ public final class Icons
     public final ImageIcon task_result_convention = null;
     public final ImageIcon task_result_parody = null;
     public final ImageIcon task_result_missing = null;
+    public final ImageIcon task_annotation = null;
 	
     private static final Logger LOG = (Logger) LoggerFactory.getLogger(Icons.class);
 	

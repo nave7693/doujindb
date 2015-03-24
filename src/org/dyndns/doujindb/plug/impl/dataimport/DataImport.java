@@ -1307,7 +1307,7 @@ public final class DataImport extends Plugin
 					}
 					{
 						JPanel options = new JPanel();
-						options.setLayout(new GridLayout(2,2));
+						options.setLayout(new GridBagLayout());
 						JPanel metadataPanel = new JPanel();
 						metadataPanel.setLayout(new GridLayout(3, 1));
 						metadataPanel.setBorder(BorderFactory.createTitledBorder("Metadata"));
@@ -1355,8 +1355,18 @@ public final class DataImport extends Plugin
 							if(duplicate.metadataOption.equals(Option.REPLACE))
 								radioButtonReplace.setSelected(true);
 							metadataPanel.add(radioButtonReplace);
+							GridBagConstraints c = new GridBagConstraints();
+							c.fill = GridBagConstraints.HORIZONTAL;
+							c.ipady = 0;
+							c.ipadx = 0;
+							c.gridx = 0;
+							c.gridy = 0;
+							c.gridwidth = 1;
+							c.weightx = 1.0;
+							c.weighty = 0.0;
+							c.anchor = GridBagConstraints.FIRST_LINE_END;
+							options.add(metadataPanel, c);
 						}
-						options.add(metadataPanel);
 						JPanel dataPanel = new JPanel();
 						dataPanel.setLayout(new GridLayout(3, 1));
 						dataPanel.setBorder(BorderFactory.createTitledBorder("Data"));
@@ -1404,16 +1414,43 @@ public final class DataImport extends Plugin
 							if(duplicate.dataOption.equals(Option.REPLACE))
 								radioButtonReplace.setSelected(true);
 							dataPanel.add(radioButtonReplace);
+							GridBagConstraints c = new GridBagConstraints();
+							c.fill = GridBagConstraints.HORIZONTAL;
+							c.ipady = 0;
+							c.ipadx = 0;
+							c.gridx = 2;
+							c.gridy = 0;
+							c.gridwidth = 1;
+							c.weightx = 1.0;
+							c.weighty = 0.0;
+							c.anchor = GridBagConstraints.FIRST_LINE_START;
+							options.add(dataPanel, c);
 						}
-						options.add(dataPanel);
 						{
 							JPanel annotations = new JPanel();
+							annotations.setBorder(BorderFactory.createTitledBorder("Annotations"));
 							for(String annotation : duplicate.annotations) {
-								JLabel label = new JLabel(annotation);
-								label.setBorder(BorderFactory.createLineBorder(getBackground()));
-								annotations.add(label);
+								JButton btnContent = new JButton(annotation);
+								btnContent.setFocusable(false);
+								btnContent.setBorderPainted(true);
+								btnContent.setContentAreaFilled(false);
+								btnContent.setFocusPainted(false);
+								btnContent.setIcon(mIcons.task_annotation);
+								btnContent.setHorizontalTextPosition(SwingConstants.RIGHT);
+								btnContent.setMargin(new Insets(2, 2, 2, 2));
+								annotations.add(btnContent);
 							}
-							options.add(annotations);
+							GridBagConstraints c = new GridBagConstraints();
+							c.fill = GridBagConstraints.BOTH;
+							c.ipady = 0;
+							c.ipadx = 0;
+							c.gridx = 0;
+							c.gridy = 1;
+							c.gridwidth = 3;
+							c.weightx = 1.0;
+							c.weighty = 1.0;
+							c.anchor = GridBagConstraints.PAGE_END;
+							options.add(annotations, c);
 						}
 						split.setRightComponent(options);
 					}

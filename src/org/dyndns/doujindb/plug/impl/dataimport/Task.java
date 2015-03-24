@@ -199,6 +199,8 @@ final class Task
 		public Option metadataOption = Option.UNSET;
 		@XmlElement(name="dataOption")
 		public Option dataOption = Option.UNSET;
+		@XmlElement(name="annotation")
+		public Set<String> annotations = new HashSet<String>();
 		
 		public Duplicate() { }
 		

@@ -1235,7 +1235,7 @@ public final class DataImport extends Plugin
 			{
 				private JTabbedPane mTabbedPane;
 
-				public DuplicateUI(Set<Task.Duplicate> dupes) {
+				public DuplicateUI(Set<Task.Duplicate> duplicates) {
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
@@ -1243,8 +1243,8 @@ public final class DataImport extends Plugin
 					mTabbedPane.setFocusable(false);
 					super.add(mTabbedPane);
 					super.doLayout();
-					for(Task.Duplicate dupe : dupes)
-						addDuplicate(dupe);
+					for(Task.Duplicate duplicate : duplicates)
+						addDuplicate(duplicate);
 				}
 
 				@Override
@@ -1286,20 +1286,20 @@ public final class DataImport extends Plugin
 					mTabbedPane.setBounds(0, 0, width, height);
 				}
 
-				private void addDuplicate(final Task.Duplicate dupe) {
+				private void addDuplicate(final Task.Duplicate duplicate) {
 					ImageIcon duplicateImage;
 					try {
-						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(dupe.id).openInputStream()));
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(duplicate.id).openInputStream()));
 					} catch (Exception e) {
 						duplicateImage = mIcons.task_preview_missing;
-						LOG.warn("Error loading cover image for Book {}", dupe.id, e);
+						LOG.warn("Error loading cover image for Book {}", duplicate.id, e);
 					}
 					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 					split.setDividerSize(1);
 					split.setEnabled(false);
 					{
 						JButton duplicateButton = new BookCoverButton(duplicateImage);
-						duplicateButton.setActionCommand("" + dupe.id);
+						duplicateButton.setActionCommand("" + duplicate.id);
 						duplicateButton.addActionListener(this);
 						duplicateButton.setFocusable(false);
 						duplicateButton.setMinimumSize(new Dimension(180, 180));
@@ -1307,7 +1307,7 @@ public final class DataImport extends Plugin
 					}
 					{
 						JPanel options = new JPanel();
-						options.setLayout(new GridLayout(1, 2));
+						options.setLayout(new GridLayout(2,2));
 						JPanel metadataPanel = new JPanel();
 						metadataPanel.setLayout(new GridLayout(3, 1));
 						metadataPanel.setBorder(BorderFactory.createTitledBorder("Metadata"));
@@ -1321,10 +1321,10 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.metadataOption = Option.IGNORE;
+										duplicate.metadataOption = Option.IGNORE;
 								}
 							});
-							if(dupe.metadataOption.equals(Option.IGNORE))
+							if(duplicate.metadataOption.equals(Option.IGNORE))
 								radioButtonIgnore.setSelected(true);
 							metadataPanel.add(radioButtonIgnore);
 							JRadioButton radioButtonMerge = new JRadioButton("MERGE fetched Metadata with existing content");
@@ -1335,10 +1335,10 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.metadataOption = Option.MERGE;
+										duplicate.metadataOption = Option.MERGE;
 								}
 							});
-							if(dupe.metadataOption.equals(Option.MERGE))
+							if(duplicate.metadataOption.equals(Option.MERGE))
 								radioButtonMerge.setSelected(true);
 							metadataPanel.add(radioButtonMerge);
 							JRadioButton radioButtonReplace = new JRadioButton("REPLACE existing content with fetched Metedata");
@@ -1349,10 +1349,10 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.metadataOption = Option.REPLACE;
+										duplicate.metadataOption = Option.REPLACE;
 								}
 							});
-							if(dupe.metadataOption.equals(Option.REPLACE))
+							if(duplicate.metadataOption.equals(Option.REPLACE))
 								radioButtonReplace.setSelected(true);
 							metadataPanel.add(radioButtonReplace);
 						}
@@ -1370,10 +1370,10 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.dataOption = Option.IGNORE;
+										duplicate.dataOption = Option.IGNORE;
 								}
 							});
-							if(dupe.dataOption.equals(Option.IGNORE))
+							if(duplicate.dataOption.equals(Option.IGNORE))
 								radioButtonIgnore.setSelected(true);
 							dataPanel.add(radioButtonIgnore);
 							JRadioButton radioButtonMerge = new JRadioButton("MERGE new Data into existing files/folders without overwriting");
@@ -1384,10 +1384,10 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.dataOption = Option.MERGE;
+										duplicate.dataOption = Option.MERGE;
 								}
 							});
-							if(dupe.dataOption.equals(Option.MERGE))
+							if(duplicate.dataOption.equals(Option.MERGE))
 								radioButtonMerge.setSelected(true);
 							dataPanel.add(radioButtonMerge);
 							JRadioButton radioButtonReplace = new JRadioButton("REPLACE existing files/folders with new Data");
@@ -1398,18 +1398,27 @@ public final class DataImport extends Plugin
 								@Override
 								public void itemStateChanged(ItemEvent ie) {
 									if(((JRadioButton)ie.getSource()).isSelected())
-										dupe.dataOption = Option.REPLACE;
+										duplicate.dataOption = Option.REPLACE;
 								}
 							});
-							if(dupe.dataOption.equals(Option.REPLACE))
+							if(duplicate.dataOption.equals(Option.REPLACE))
 								radioButtonReplace.setSelected(true);
 							dataPanel.add(radioButtonReplace);
 						}
 						options.add(dataPanel);
+						{
+							JPanel annotations = new JPanel();
+							for(String annotation : duplicate.annotations) {
+								JLabel label = new JLabel(annotation);
+								label.setBorder(BorderFactory.createLineBorder(getBackground()));
+								annotations.add(label);
+							}
+							options.add(annotations);
+						}
 						split.setRightComponent(options);
 					}
 					
-					mTabbedPane.addTab("Book [" + dupe.id + "]", mIcons.task_metadata_book, split);
+					mTabbedPane.addTab("Book [" + duplicate.id + "]", mIcons.task_metadata_book, split);
 				}
 			}
 

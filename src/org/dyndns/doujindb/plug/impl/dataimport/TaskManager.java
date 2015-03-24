@@ -362,40 +362,37 @@ final class TaskManager
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Integer found = ImageSearch.search(image);
 						if(found != null) {
-							mCurrentTask.addDuplicate(new Task.Duplicate(found));
-							String langCheck = "";
+							Task.Duplicate duplicate = new Task.Duplicate(found);
 							if(DataStore.getStore(found).getFile("@japanese").exists())
-								langCheck = " (missing japanese language)";
-							String sizeCheck = "";
+								duplicate.annotations.add("missing japanese language");
 							try {
 								long bytesNew = DataStore.diskUsage(new File(mCurrentTask.getFile()));
 								long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
 								if(bytesNew > bytesFound)
-									sizeCheck = " (bigger filesize " + format(bytesNew) + " > " + format(bytesFound) + ")";
+									duplicate.annotations.add("bigger filesize : " + format(bytesNew) + " > " + format(bytesFound) + "");
 							} catch (Exception e) {
 								LOG.warn("{} Exception in sizeCheck", new Object[]{mCurrentTask, e});
 							}
-							String countCheck = "";
 							try {
 								long filesNew = DataStore.listFiles(new File(mCurrentTask.getFile())).length;
 								long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
 								if(filesNew > filesFound)
-									countCheck = " (more files " + filesNew + " > " + filesFound + ")";
+									duplicate.annotations.add("more files : " + filesNew + " > " + filesFound + "");
 							} catch (Exception e) {
 								LOG.warn("{} Exception in countCheck", new Object[]{mCurrentTask, e});
 							}
-							String resolutionCheck = "";
 							try {
 								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.getFile()))));
 								String resolutionNew = imageNew.getWidth() + "x" + imageNew.getHeight();
 								BufferedImage imageFound = javax.imageio.ImageIO.read(findImage(DataStore.getStore(found)).openInputStream());
 								String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
 								if(imageNew.getHeight() > imageFound.getHeight())
-									resolutionCheck = " (higher resolution " + resolutionNew + " > " + resolutionFound + ")";
+									duplicate.annotations.add("higher resolution : " + resolutionNew + " > " + resolutionFound + "");
 							} catch (Exception e) {
 								LOG.warn("{} Exception in resolutionCheck", new Object[]{mCurrentTask, e});
 							}
-							throw new TaskException(String.format("Duplicate book detected with Id %d %s %s %s %s", found, langCheck, sizeCheck, countCheck, resolutionCheck));
+							mCurrentTask.addDuplicate(duplicate);
+							throw new TaskException(String.format("Duplicate book detected with Id [%d]", found));
 						}
 					}
 					// Run Metadata providers

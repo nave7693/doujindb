@@ -3,10 +3,19 @@ DoujinDB
 
 Cross-platform comic books manager
 
+Manage all your digitalized comics through a desktop-like user interface.
+
+DoujinDB also provides different plugins:
+
+  * ImageSearch : search the database for matching cover images
+  * DataImport : fetch comic books metadata using the doujinshidb API system (other systems may be added later on)
+
+DoujinDB makes use of [Cayenne] ORM framework for its backend. 
+
 Status
 ---
 
-DoujinDB it's mostly stable: it has been tested on ~300GB of data on disk (image files) and ~8MB for the index (MySQL) without problems.
+DoujinDB it's mostly stable: it has been tested on ~450GB of data on disk (image files) and ~20MB for the index (MySQL) without problems.
 
 Build
 ---

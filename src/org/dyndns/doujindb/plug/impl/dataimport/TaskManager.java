@@ -413,6 +413,128 @@ final class TaskManager
 							}
 						}
 					}
+					// Map fetched Metadata to existing Database objects
+					mCurrentTask.setState(State.MAP_METADATA);
+					mPCS.firePropertyChange("task-info", 0, 1);
+					for(Metadata md : mCurrentTask.metadata()) {
+						// Map Artist items
+						for(Metadata.Artist mobj : md.artist) {
+							QueryArtist query = new QueryArtist();
+							query.JapaneseName = mobj.getName();
+							query.RomajiName = mobj.getName();
+							query.TranslatedName = mobj.getName();
+							query.QueryType = Query.Type.OR;
+							RecordSet<Artist> artists = DataBase.getArtists(query);
+							for(Artist obj : artists) {
+								if(obj.getJapaneseName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Artist obj : artists) {
+								if(obj.getRomajiName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Artist obj : artists) {
+								if(obj.getTranslatedName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+						}
+						// Map Circle items
+						for(Metadata.Circle mobj : md.circle) {
+							QueryCircle query = new QueryCircle();
+							query.JapaneseName = mobj.getName();
+							query.RomajiName = mobj.getName();
+							query.TranslatedName = mobj.getName();
+							query.QueryType = Query.Type.OR;
+							RecordSet<Circle> circles = DataBase.getCircles(query);
+							for(Circle obj : circles) {
+								if(obj.getJapaneseName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Circle obj : circles) {
+								if(obj.getRomajiName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Circle obj : circles) {
+								if(obj.getTranslatedName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+						}
+						// Map Content items
+						for(Metadata.Content mobj : md.content) {
+							QueryContent query = new QueryContent();
+							query.TagName = mobj.getName();
+							RecordSet<Content> contents = DataBase.getContents(query);
+							for(Content obj : contents) {
+								if(obj.getTagName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+						}
+						// Map Parody items
+						for(Metadata.Parody mobj : md.parody) {
+							QueryParody query = new QueryParody();
+							query.JapaneseName = mobj.getName();
+							query.RomajiName = mobj.getName();
+							query.TranslatedName = mobj.getName();
+							query.QueryType = Query.Type.OR;
+							RecordSet<Parody> parodies = DataBase.getParodies(query);
+							for(Parody obj : parodies) {
+								if(obj.getJapaneseName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Parody obj : parodies) {
+								if(obj.getRomajiName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+							if(mobj.getId() != null)
+								break; // Found our match
+							for(Parody obj : parodies) {
+								if(obj.getTranslatedName().equals(mobj.getName())) {
+									mobj.setId(obj.getId());
+									break;
+								}
+							}
+						}
+						// Map Convention item
+						if(md.convention != null) {
+							QueryConvention query = new QueryConvention();
+							query.TagName = md.convention.getName();
+							RecordSet<Convention> conventions = DataBase.getConventions(query);
+							for(Convention obj : conventions) {
+								if(obj.getTagName().equals(md.convention.getName())) {
+									md.convention.setId(obj.getId());
+									break;
+								}
+							}
+						}
+					}
 					// Find possible duplicates, this time based on Metadata info, not cover image
 					mCurrentTask.setState(State.FIND_SIMILAR);
 					mPCS.firePropertyChange("task-info", 0, 1);

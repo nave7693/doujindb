@@ -71,4 +71,104 @@ abstract class Metadata
 	}
 	
 	public abstract String provider();
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static abstract class MetadataItem
+	{
+		@XmlAttribute(name="id")
+		private Integer id;
+		@XmlElement(name="name")
+		private String name;
+		
+		public MetadataItem() { }
+		
+		public MetadataItem(String name) {
+			this.name = name;
+		}
+		
+		public String getName() {
+			return this.name;
+		}
+		
+		public Integer getId() {
+			return this.id;
+		}
+		
+		public void setId(Integer id) {
+			this.id = id;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(obj == null)
+				return false;
+			if(!(obj instanceof MetadataItem))
+				if(!(obj instanceof Integer))
+					return false;
+				else
+					return ((Integer)obj).equals(id);
+			else
+				return ((MetadataItem)obj).id.equals(id);
+		}
+		
+		@Override
+		public int hashCode() {
+			return id.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return getName();
+		}
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class MetadataArtist extends MetadataItem
+	{
+		public MetadataArtist() { }
+		
+		public MetadataArtist(String name) {
+			super(name);
+		}
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class MetadataCircle extends MetadataItem
+	{
+		public MetadataCircle() { }
+		
+		public MetadataCircle(String name) {
+			super(name);
+		}
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class MetadataConvention extends MetadataItem
+	{
+		public MetadataConvention() { }
+		
+		public MetadataConvention(String name) {
+			super(name);
+		}
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class MetadataContent extends MetadataItem
+	{
+		public MetadataContent() { }
+		
+		public MetadataContent(String name) {
+			super(name);
+		}
+	}
+	
+	@XmlAccessorType(XmlAccessType.FIELD)
+	static final class MetadataParody extends MetadataItem
+	{
+		public MetadataParody() { }
+		
+		public MetadataParody(String name) {
+			super(name);
+		}
+	}
 }

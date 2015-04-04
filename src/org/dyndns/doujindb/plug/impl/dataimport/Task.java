@@ -212,13 +212,23 @@ final class Task
 		public boolean equals(Object obj) {
 			if(obj == null)
 				return false;
-			if(!(obj instanceof Task))
-				if(!(obj instanceof String))
+			if(!(obj instanceof Duplicate))
+				if(!(obj instanceof Integer))
 					return false;
 				else
-					return ((String)obj).equals(id);
+					return ((Integer)obj).equals(id);
 			else
-				return ((Task)obj).id.equals(id);
+				return ((Duplicate)obj).id.equals(id);
+		}
+		
+		@Override
+		public int hashCode() {
+			return id.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + "@" + id;
 		}
 	}
 }

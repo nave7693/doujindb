@@ -167,19 +167,19 @@ final class MugiMugiProvider extends MetadataProvider {
 				md.type = item.NAME_JP;
 				break;
 			case author:
-				md.artist.add(item.NAME_JP);
+				md.artist.add(new Metadata.Artist(item.NAME_JP));
 				break;
 			case circle:
-				md.circle.add(item.NAME_JP);
+				md.circle.add(new Metadata.Circle(item.NAME_JP));
 				break;
 			case contents:
-				md.content.add(item.NAME_JP);
+				md.content.add(new Metadata.Content(item.NAME_JP));
 				break;
 			case convention:
-				md.convention = item.NAME_JP;
+				md.convention = new Metadata.Convention(item.NAME_JP);
 				break;
 			case parody:
-				md.parody.add(item.NAME_JP);
+				md.parody.add(new Metadata.Parody(item.NAME_JP));
 				break;
 			case character:
 				break;

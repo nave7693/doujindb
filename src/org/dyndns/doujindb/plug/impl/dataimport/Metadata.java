@@ -40,15 +40,15 @@ abstract class Metadata
 	@XmlElement(name="size")
 	protected Long size;
 	@XmlElement(name="artist")
-	protected Set<String> artist = new HashSet<String>();
+	protected Set<Artist> artist = new HashSet<Artist>();
 	@XmlElement(name="circle")
-	protected Set<String> circle = new HashSet<String>();
+	protected Set<Circle> circle = new HashSet<Circle>();
 	@XmlElement(name="convention")
-	protected String convention;
+	protected Convention convention;
 	@XmlElement(name="content")
-	protected Set<String> content = new HashSet<String>();
+	protected Set<Content> content = new HashSet<Content>();
 	@XmlElement(name="parody")
-	protected Set<String> parody = new HashSet<String>();
+	protected Set<Parody> parody = new HashSet<Parody>();
 	@XmlElement(name="uri")
 	protected String uri;
 	@XmlElement(name="thumbnail")
@@ -73,16 +73,16 @@ abstract class Metadata
 	public abstract String provider();
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static abstract class MetadataItem
+	static abstract class Item
 	{
 		@XmlAttribute(name="id")
 		private Integer id;
 		@XmlElement(name="name")
 		private String name;
 		
-		public MetadataItem() { }
+		public Item() { }
 		
-		public MetadataItem(String name) {
+		public Item(String name) {
 			this.name = name;
 		}
 		
@@ -102,13 +102,13 @@ abstract class Metadata
 		public boolean equals(Object obj) {
 			if(obj == null)
 				return false;
-			if(!(obj instanceof MetadataItem))
+			if(!(obj instanceof Item))
 				if(!(obj instanceof Integer))
 					return false;
 				else
 					return ((Integer)obj).equals(id);
 			else
-				return ((MetadataItem)obj).id.equals(id);
+				return ((Item)obj).id.equals(id);
 		}
 		
 		@Override
@@ -123,51 +123,51 @@ abstract class Metadata
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static final class MetadataArtist extends MetadataItem
+	static final class Artist extends Item
 	{
-		public MetadataArtist() { }
+		public Artist() { }
 		
-		public MetadataArtist(String name) {
+		public Artist(String name) {
 			super(name);
 		}
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static final class MetadataCircle extends MetadataItem
+	static final class Circle extends Item
 	{
-		public MetadataCircle() { }
+		public Circle() { }
 		
-		public MetadataCircle(String name) {
+		public Circle(String name) {
 			super(name);
 		}
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static final class MetadataConvention extends MetadataItem
+	static final class Convention extends Item
 	{
-		public MetadataConvention() { }
+		public Convention() { }
 		
-		public MetadataConvention(String name) {
+		public Convention(String name) {
 			super(name);
 		}
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static final class MetadataContent extends MetadataItem
+	static final class Content extends Item
 	{
-		public MetadataContent() { }
+		public Content() { }
 		
-		public MetadataContent(String name) {
+		public Content(String name) {
 			super(name);
 		}
 	}
 	
 	@XmlAccessorType(XmlAccessType.FIELD)
-	static final class MetadataParody extends MetadataItem
+	static final class Parody extends Item
 	{
-		public MetadataParody() { }
+		public Parody() { }
 		
-		public MetadataParody(String name) {
+		public Parody(String name) {
 			super(name);
 		}
 	}

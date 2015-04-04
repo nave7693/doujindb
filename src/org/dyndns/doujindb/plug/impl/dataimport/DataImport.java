@@ -1496,7 +1496,7 @@ public final class DataImport extends Plugin
 				private JLabel mLabelType;
 				private JComboBox<String> mComboboxType;
 				private JLabel mLabelConvention;
-				private JComboBox<String> mComboboxConvention;
+				private JComboBox<Metadata.Convention> mComboboxConvention;
 				private JLabel mLabelAdult;
 				private JCheckBox mCheckboxAdult;
 				private JTabbedPane mTabbedPane;
@@ -1610,7 +1610,7 @@ public final class DataImport extends Plugin
 					mComboboxType = new JComboBox<String>();
 					mComboboxType.setFocusable(false);
 					mLabelConvention = new JLabel("Convention");
-					mComboboxConvention = new JComboBox<String>();
+					mComboboxConvention = new JComboBox<Metadata.Convention>();
 					mComboboxConvention.setFocusable(false);
 					mLabelAdult = new JLabel("Adult");
 					mCheckboxAdult = new JCheckBox("", false);
@@ -1760,15 +1760,15 @@ public final class DataImport extends Plugin
 						mComboboxType.addItem(md.type);
 					if(!isNull(md.adult))
 						mCheckboxAdult.setSelected(md.adult);
-					if(!isNull(md.convention))
+					if(!isNull(md.convention.getName()))
 						mComboboxConvention.addItem(md.convention);
-					for(String a : md.artist)
+					for(Metadata.Artist a : md.artist)
 						((DefaultListModel<MetaWrapper>)mListArtists.getModel()).addElement(new MetaWrapperArtist(a, md.provider()));
-					for(String c : md.circle)
+					for(Metadata.Circle c : md.circle)
 						((DefaultListModel<MetaWrapper>)mListCircles.getModel()).addElement(new MetaWrapperCircle(c, md.provider()));
-					for(String c : md.content)
+					for(Metadata.Content c : md.content)
 						((DefaultListModel<MetaWrapper>)mListContents.getModel()).addElement(new MetaWrapperContent(c, md.provider()));
-					for(String p : md.parody)
+					for(Metadata.Parody p : md.parody)
 						((DefaultListModel<MetaWrapper>)mListParodies.getModel()).addElement(new MetaWrapperParody(p, md.provider()));
 				}
 				
@@ -1790,15 +1790,15 @@ public final class DataImport extends Plugin
 				
 				private abstract class MetaWrapper
 				{
-					private final String mValue;
+					private final Metadata.Item mValue;
 					private final String mProvider;
 					private boolean mSelected;
-					private MetaWrapper(String value, String provider) {
+					private MetaWrapper(Metadata.Item value, String provider) {
 						this.mValue = value;
 						this.mProvider = provider;
 						this.mSelected = true;
 					}
-					public final String getValue() {
+					public final Metadata.Item getValue() {
 						return mValue;
 					}
 					public final String getProvider() {
@@ -1815,7 +1815,7 @@ public final class DataImport extends Plugin
 				
 				private final class MetaWrapperArtist extends MetaWrapper
 				{
-					private MetaWrapperArtist(String value, String provider) {
+					private MetaWrapperArtist(Metadata.Artist value, String provider) {
 						super(value, provider);
 					}
 					protected final Icon getIcon() {
@@ -1824,7 +1824,7 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperCircle extends MetaWrapper
 				{
-					private MetaWrapperCircle(String value, String provider) {
+					private MetaWrapperCircle(Metadata.Circle value, String provider) {
 						super(value, provider);
 					}
 					protected final Icon getIcon() {
@@ -1833,7 +1833,7 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperContent extends MetaWrapper
 				{
-					private MetaWrapperContent(String value, String provider) {
+					private MetaWrapperContent(Metadata.Content value, String provider) {
 						super(value, provider);
 					}
 					protected final Icon getIcon() {
@@ -1842,7 +1842,7 @@ public final class DataImport extends Plugin
 				}
 				private final class MetaWrapperParody extends MetaWrapper
 				{
-					private MetaWrapperParody(String value, String provider) {
+					private MetaWrapperParody(Metadata.Parody value, String provider) {
 						super(value, provider);
 					}
 					protected final Icon getIcon() {
@@ -1871,7 +1871,7 @@ public final class DataImport extends Plugin
 				            boolean expanded) {
 						MetaWrapper meta = (MetaWrapper) value;
 						mDisplay.setIcon(meta.getIcon());
-						mDisplay.setText(meta.getValue());
+						mDisplay.setText(meta.getValue().getName());
 						boolean isSelected = meta.isSelected();
 						mDisplay.setSelected(isSelected);
 				        if (isSelected) {

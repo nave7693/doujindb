@@ -1760,7 +1760,7 @@ public final class DataImport extends Plugin
 						mComboboxType.addItem(md.type);
 					if(!isNull(md.adult))
 						mCheckboxAdult.setSelected(md.adult);
-					if(!isNull(md.convention.getName()))
+					if(!isNull(md.convention))
 						mComboboxConvention.addItem(md.convention);
 					for(Metadata.Artist a : md.artist)
 						((DefaultListModel<MetaWrapper>)mListArtists.getModel()).addElement(new MetaWrapperArtist(a, md.provider()));
@@ -1770,6 +1770,10 @@ public final class DataImport extends Plugin
 						((DefaultListModel<MetaWrapper>)mListContents.getModel()).addElement(new MetaWrapperContent(c, md.provider()));
 					for(Metadata.Parody p : md.parody)
 						((DefaultListModel<MetaWrapper>)mListParodies.getModel()).addElement(new MetaWrapperParody(p, md.provider()));
+				}
+				
+				private final boolean isNull(Metadata.Item item) {
+					return (item == null || item.getName().length() == 0);
 				}
 				
 				private final boolean isNull(String text) {

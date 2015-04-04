@@ -103,17 +103,17 @@ abstract class Metadata
 			if(obj == null)
 				return false;
 			if(!(obj instanceof Item))
-				if(!(obj instanceof Integer))
+				if(!(obj instanceof String))
 					return false;
 				else
-					return ((Integer)obj).equals(id);
+					return ((String)obj).equals(name);
 			else
-				return ((Item)obj).id.equals(id);
+				return ((Item)obj).name.equals(name);
 		}
 		
 		@Override
 		public int hashCode() {
-			return id.hashCode();
+			return name.hashCode();
 		}
 
 		@Override

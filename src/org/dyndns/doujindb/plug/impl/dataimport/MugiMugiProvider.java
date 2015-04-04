@@ -167,19 +167,19 @@ final class MugiMugiProvider extends MetadataProvider {
 				md.type = item.NAME_JP;
 				break;
 			case author:
-				md.artist.add(new Metadata.Artist(item.NAME_JP));
+				md.artist.add(new Metadata.Artist(pick(item.NAME_JP, item.NAME_EN, item.NAME_EN)));
 				break;
 			case circle:
-				md.circle.add(new Metadata.Circle(item.NAME_JP));
+				md.circle.add(new Metadata.Circle(pick(item.NAME_JP, item.NAME_EN, item.NAME_EN)));
 				break;
 			case contents:
-				md.content.add(new Metadata.Content(item.NAME_JP));
+				md.content.add(new Metadata.Content(pick(item.NAME_JP, item.NAME_EN, item.NAME_EN)));
 				break;
 			case convention:
-				md.convention = new Metadata.Convention(item.NAME_JP);
+				md.convention = new Metadata.Convention(pick(item.NAME_JP, item.NAME_EN, item.NAME_EN));
 				break;
 			case parody:
-				md.parody.add(new Metadata.Parody(item.NAME_JP));
+				md.parody.add(new Metadata.Parody(pick(item.NAME_JP, item.NAME_EN, item.NAME_EN)));
 				break;
 			case character:
 				break;
@@ -194,6 +194,17 @@ final class MugiMugiProvider extends MetadataProvider {
 			}
 		}
 		return md;
+	}
+	
+	/**
+	 * Pick the best String match that is not null or and empty String
+	 */
+	private static String pick(String... args) {
+		for (String arg : args) {
+			if(arg != null && arg.length() > 0)
+				return arg;
+		}
+		return "";
 	}
 
 	/**

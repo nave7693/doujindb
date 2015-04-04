@@ -39,6 +39,8 @@ final class Task
 	private Map<String,String> errors = new HashMap<String,String>();
 	@XmlElement(name="duplicateBook")
 	private Set<Duplicate> duplicates = new HashSet<Duplicate>();
+	@XmlAttribute(name="needAnswer")
+	private boolean needAnswer = false;
 	
 	private transient boolean selected = false;
 	
@@ -151,6 +153,14 @@ final class Task
 	public String getFile() {
 		return file;
 	}
+	
+	public boolean needAnswer() {
+		return needAnswer;
+	}
+
+	public void needAnswer(boolean needAnswer) {
+		this.needAnswer = needAnswer;
+	}
 
 	public void reset() {
 		this.state = State.NEW;
@@ -160,6 +170,7 @@ final class Task
 		this.warnings = new HashMap<String,String>();
 		this.selected = false;
 		this.duplicates = new HashSet<Duplicate>();
+		this.needAnswer = false;
 	}
 	
 	@Override

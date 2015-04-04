@@ -335,6 +335,9 @@ public final class DataImport extends Plugin
 				// Task is done => "Complete" icon
 				if(task.getState().equals(Task.State.DONE))
 					return mIcons.task_state_complete;
+				// Task need user input => "UserInput" icon
+				if(task.needAnswer())
+					return mIcons.task_state_userinput;
 			}
 			// Task is in unknown state => "Unknown" icon
 			return mIcons.task_state_unknow;

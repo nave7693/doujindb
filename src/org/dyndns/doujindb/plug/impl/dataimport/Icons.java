@@ -40,6 +40,7 @@ public final class Icons
     public final ImageIcon task_state_warning = null;
     public final ImageIcon task_state_error = null;
     public final ImageIcon task_state_abort = null;
+    public final ImageIcon task_state_userinput = null;
     public final ImageIcon task_state_unknow = null;
     public final ImageIcon search_open = null;
     public final ImageIcon search_preview = null;

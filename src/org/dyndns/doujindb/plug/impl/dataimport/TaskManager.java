@@ -392,7 +392,9 @@ final class TaskManager
 								LOG.warn("{} Exception in resolutionCheck", new Object[]{mCurrentTask, e});
 							}
 							mCurrentTask.addDuplicate(duplicate);
-							throw new TaskException(String.format("Duplicate book detected with Id [%d]", found));
+							// Mark this Task as "needAnswer" and skip other steps
+							mCurrentTask.needAnswer(true);
+							continue;
 						}
 					}
 					// Run Metadata providers

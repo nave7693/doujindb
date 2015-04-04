@@ -424,25 +424,24 @@ final class TaskManager
 							query.RomajiName = mobj.getName();
 							query.TranslatedName = mobj.getName();
 							query.QueryType = Query.Type.OR;
-							RecordSet<Artist> artists = DataBase.getArtists(query);
-							for(Artist obj : artists) {
-								if(obj.getJapaneseName().equals(mobj.getName())) {
+							for(Artist obj : DataBase.getArtists(query)) {
+								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Artist obj : artists) {
-								if(obj.getRomajiName().equals(mobj.getName())) {
+							for(Artist obj : DataBase.getArtists(query)) {
+								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Artist obj : artists) {
-								if(obj.getTranslatedName().equals(mobj.getName())) {
+							for(Artist obj : DataBase.getArtists(query)) {
+								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
@@ -455,25 +454,24 @@ final class TaskManager
 							query.RomajiName = mobj.getName();
 							query.TranslatedName = mobj.getName();
 							query.QueryType = Query.Type.OR;
-							RecordSet<Circle> circles = DataBase.getCircles(query);
-							for(Circle obj : circles) {
-								if(obj.getJapaneseName().equals(mobj.getName())) {
+							for(Circle obj : DataBase.getCircles(query)) {
+								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Circle obj : circles) {
-								if(obj.getRomajiName().equals(mobj.getName())) {
+							for(Circle obj : DataBase.getCircles(query)) {
+								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Circle obj : circles) {
-								if(obj.getTranslatedName().equals(mobj.getName())) {
+							for(Circle obj : DataBase.getCircles(query)) {
+								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
@@ -483,9 +481,8 @@ final class TaskManager
 						for(Metadata.Content mobj : md.content) {
 							QueryContent query = new QueryContent();
 							query.TagName = mobj.getName();
-							RecordSet<Content> contents = DataBase.getContents(query);
-							for(Content obj : contents) {
-								if(obj.getTagName().equals(mobj.getName())) {
+							for(Content obj : DataBase.getContents(query)) {
+								if(obj.getTagName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
@@ -498,25 +495,24 @@ final class TaskManager
 							query.RomajiName = mobj.getName();
 							query.TranslatedName = mobj.getName();
 							query.QueryType = Query.Type.OR;
-							RecordSet<Parody> parodies = DataBase.getParodies(query);
-							for(Parody obj : parodies) {
-								if(obj.getJapaneseName().equals(mobj.getName())) {
+							for(Parody obj : DataBase.getParodies(query)) {
+								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Parody obj : parodies) {
-								if(obj.getRomajiName().equals(mobj.getName())) {
+							for(Parody obj : DataBase.getParodies(query)) {
+								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
 							}
 							if(mobj.getId() != null)
 								break; // Found our match
-							for(Parody obj : parodies) {
-								if(obj.getTranslatedName().equals(mobj.getName())) {
+							for(Parody obj : DataBase.getParodies(query)) {
+								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
 									mobj.setId(obj.getId());
 									break;
 								}
@@ -526,9 +522,8 @@ final class TaskManager
 						if(md.convention != null) {
 							QueryConvention query = new QueryConvention();
 							query.TagName = md.convention.getName();
-							RecordSet<Convention> conventions = DataBase.getConventions(query);
-							for(Convention obj : conventions) {
-								if(obj.getTagName().equals(md.convention.getName())) {
+							for(Convention obj : DataBase.getConventions(query)) {
+								if(obj.getTagName().equalsIgnoreCase(md.convention.getName())) {
 									md.convention.setId(obj.getId());
 									break;
 								}

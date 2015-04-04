@@ -1800,7 +1800,10 @@ public final class DataImport extends Plugin
 					private MetaWrapper(Metadata.Item value, String provider) {
 						this.mValue = value;
 						this.mProvider = provider;
-						this.mSelected = true;
+						if(Configuration.options_autoadd.get())
+							this.mSelected = true;
+						else
+							this.mSelected = (value.getId() != null);
 					}
 					public final Metadata.Item getValue() {
 						return mValue;
@@ -1875,7 +1878,7 @@ public final class DataImport extends Plugin
 				            boolean expanded) {
 						MetaWrapper meta = (MetaWrapper) value;
 						mDisplay.setIcon(meta.getIcon());
-						mDisplay.setText(meta.getValue().getName());
+						mDisplay.setText(meta.getValue().getName() + (meta.getValue().getId() == null ? " *" : ""));
 						boolean isSelected = meta.isSelected();
 						mDisplay.setSelected(isSelected);
 				        if (isSelected) {

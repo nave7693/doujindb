@@ -74,4 +74,9 @@ final class EHentaiProvider extends MetadataProvider {
 		}
 	}
 
+	@Override
+	public boolean isEnabled() {
+		return Configuration.provider_ehentai_enable.get();
+	}
+
 }

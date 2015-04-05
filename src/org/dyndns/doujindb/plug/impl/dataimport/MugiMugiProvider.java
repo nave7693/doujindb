@@ -410,4 +410,9 @@ final class MugiMugiProvider extends MetadataProvider {
 			return parsed;
 		}
 	}
+
+	@Override
+	public boolean isEnabled() {
+		return Configuration.provider_mugimugi_enable.get();
+	}
 }

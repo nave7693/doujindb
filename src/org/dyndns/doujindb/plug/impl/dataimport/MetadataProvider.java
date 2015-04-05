@@ -10,6 +10,8 @@ abstract class MetadataProvider
 	public abstract Metadata query(String name);
 	
 	public abstract Metadata query(URI uri);
+	
+	public abstract boolean isEnabled();
 
 	@Override
 	public String toString() {

@@ -43,10 +43,8 @@ final class TaskManager
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
 	{
-		if(Configuration.provider_mugimugi_enable.get())
-			mProviders.add(new MugiMugiProvider());
-		if(Configuration.provider_ehentai_enable.get())
-			mProviders.add(new EHentaiProvider());
+		mProviders.add(new MugiMugiProvider());
+		mProviders.add(new EHentaiProvider());
 	}
 	
 	TaskManager(final File homeDir) {
@@ -401,6 +399,10 @@ final class TaskManager
 					mCurrentTask.setState(State.FETCH_METADATA);
 					mPCS.firePropertyChange("task-info", 0, 1);
 					for(MetadataProvider provider : mProviders) {
+						if(!provider.isEnabled()) {
+							LOG.debug("{} metadata provider [{}] is disabled and will not be used", new Object[]{mCurrentTask, provider});
+							continue;
+						}
 						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
 						if(!isPaused()) {
 							try {

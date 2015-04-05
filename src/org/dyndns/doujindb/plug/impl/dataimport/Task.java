@@ -52,10 +52,11 @@ final class Task
 		FIND_DUPLICATE(4),
 		FETCH_METADATA(5),
 		MAP_METADATA(6),
-		FIND_SIMILAR(7),
-		INSERT_DATABASE(8),
-		INSERT_DATASTORE(9),
-		DONE(10);
+		CHOOSE_METADATA(7),
+		FIND_SIMILAR(8),
+		INSERT_DATABASE(9),
+		INSERT_DATASTORE(10),
+		DONE(11);
 		
 		private Integer value;
 
@@ -106,8 +107,16 @@ final class Task
 		fetchedMetadata.add(md);
 	}
 	
-	public Set<Metadata> metadata() {
+	public Set<Metadata> fetchedMetadata() {
 		return fetchedMetadata;
+	}
+	
+	public void selectMetadata(Metadata md) {
+		selectedMetadata = md;
+	}
+	
+	public Metadata selectedMetadata() {
+		return selectedMetadata;
 	}
 	
 	public void addDuplicate(Duplicate dupe) {
@@ -165,6 +174,7 @@ final class Task
 	public void reset() {
 		this.state = State.NEW;
 		this.fetchedMetadata = new HashSet<Metadata>();
+		this.selectedMetadata = null;
 		this.message = null;
 		this.errors = new HashMap<String,String>();
 		this.warnings = new HashMap<String,String>();

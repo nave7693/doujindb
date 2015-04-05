@@ -329,7 +329,7 @@ public final class DataImport extends Plugin
 				if(task.hasWarnings())
 					return mIcons.task_state_warning;
 				// At least 1 Metadata has experienced errors => "Warning" icon
-				for(Metadata md : task.metadata())
+				for(Metadata md : task.fetchedMetadata())
 					if(md.exception != null)
 						return mIcons.task_state_warning;
 				// Task is done => "Complete" icon
@@ -937,7 +937,7 @@ public final class DataImport extends Plugin
 //							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new MetadataUI(md));
 //						}
 //					}
-					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.metadata()));
+					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.fetchedMetadata()));
 				} else {
 					JTextArea text = new JTextArea();
 					for(String message : task.errors().keySet())

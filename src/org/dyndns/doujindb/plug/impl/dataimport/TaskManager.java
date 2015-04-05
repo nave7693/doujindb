@@ -418,7 +418,7 @@ final class TaskManager
 					// Map fetched Metadata to existing Database objects
 					mCurrentTask.setState(State.MAP_METADATA);
 					mPCS.firePropertyChange("task-info", 0, 1);
-					for(Metadata md : mCurrentTask.metadata()) {
+					for(Metadata md : mCurrentTask.fetchedMetadata()) {
 						// Map Artist items
 						for(Metadata.Artist mobj : md.artist) {
 							QueryArtist query = new QueryArtist();
@@ -532,6 +532,18 @@ final class TaskManager
 							}
 						}
 					}
+					// Choose Metadata
+					mCurrentTask.setState(State.CHOOSE_METADATA);
+					mPCS.firePropertyChange("task-info", 0, 1);
+					Integer score = Integer.MIN_VALUE;
+					Metadata selectedMetadata = null;
+					for(Metadata md : mCurrentTask.fetchedMetadata()) {
+						if(md.score > score && md.exception == null) {
+							selectedMetadata = md;
+							score = md.score;
+						}
+					}
+					mCurrentTask.selectMetadata(selectedMetadata);
 					// Find possible duplicates, this time based on Metadata info, not cover image
 					mCurrentTask.setState(State.FIND_SIMILAR);
 					mPCS.firePropertyChange("task-info", 0, 1);
@@ -539,14 +551,38 @@ final class TaskManager
 						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
 						Set<Integer> duplicates = new HashSet<Integer>();
 						QueryBook query;
-						//TODO Find possible duplicate based on Metadata info
+						Metadata md = mCurrentTask.selectedMetadata();
+						if(!md.name.equals("")) {
+							query = new QueryBook();
+							query.JapaneseName = md.name;
+							for(Book b : DataBase.getBooks(query))
+								duplicates.add(b.getId());
+						}
+						for(String alias : md.alias) {
+							if(!alias.equals("")) {
+								query = new QueryBook();
+								query.JapaneseName = alias;
+								for(Book b : DataBase.getBooks(query))
+									duplicates.add(b.getId());
+							}
+						}
 						if(!duplicates.isEmpty()) {
 							for(Integer book : duplicates)
 								if(!mCurrentTask.duplicates().contains(book))
 									mCurrentTask.addDuplicate(new Task.Duplicate(book));
-							throw new TaskException("Possible duplicate book" + (duplicates.size() > 1 ? "s" : "") + " detected");
+							// Mark this Task as "needAnswer" and skip other steps
+							mCurrentTask.needAnswer(true);
+							continue;
 						}
 					}
+					// Insert Metadata in the Database
+					mCurrentTask.setState(State.INSERT_DATABASE);
+					mPCS.firePropertyChange("task-info", 0, 1);
+					//TODO
+					// Upload data files to the Datastore
+					mCurrentTask.setState(State.INSERT_DATASTORE);
+					mPCS.firePropertyChange("task-info", 0, 1);
+					//TODO
 					// Task is complete
 					mCurrentTask.setState(State.DONE);
 					mPCS.firePropertyChange("task-info", 0, 1);

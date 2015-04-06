@@ -41,6 +41,8 @@ final class Task
 	private Set<Duplicate> duplicates = new HashSet<Duplicate>();
 	@XmlAttribute(name="needInput")
 	private boolean needInput = false;
+	@XmlElement(name="result")
+	private Integer result;
 	
 	private transient boolean selected = false;
 	
@@ -167,8 +169,17 @@ final class Task
 	public void needInput(boolean needAnswer) {
 		this.needInput = needAnswer;
 	}
+	
+	public Integer getResult() {
+		return result;
+	}
+
+	public void setResult(Integer result) {
+		this.result = result;
+	}
 
 	public void reset() {
+		this.result = null;
 		this.state = State.FIND_COVER;
 		this.fetchedMetadata = new HashSet<Metadata>();
 		this.selectedMetadata = null;

@@ -291,7 +291,7 @@ final class TaskManager
 					break;
 				}
 				if(nextTask == null) {
-					LOG.info("{} No more task to processa");
+					LOG.info("{} No more task to process", mCurrentTask);
 					TaskManager.this.pause();
 					continue;
 				} else {
@@ -707,13 +707,103 @@ final class TaskManager
 	
 	private static void doInsertDatabase(Task task) throws TaskException
 	{
-		//TODO
+		Book book;
+		Metadata md = task.selectedMetadata();
+		try {
+			book = DataBase.doInsert(Book.class);
+			task.setResult(book.getId());
+			book.setJapaneseName(md.name);
+			book.setTranslatedName(md.translation);
+			book.setDate(new Date(md.timestamp));
+			book.setPages(md.pages);
+			book.setAdult(md.adult);
+			book.setRating(Rating.UNRATED);
+			book.setInfo(md.info);
+			try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
+			if(md.convention != null) {
+				if(md.convention.getId() != null) {
+					QueryConvention q = new QueryConvention();
+					q.Id = md.convention.getId();
+					book.setConvention(DataBase.getConventions(q).iterator().next());
+				} else {
+					Convention newo = DataBase.doInsert(Convention.class);
+					newo.setTagName(md.convention.getName());
+					DataBase.doCommit();
+				}
+			}
+			for(Metadata.Artist o : md.artist) {
+				if(o.getId() != null) {
+					QueryArtist q = new QueryArtist();
+					q.Id = o.getId();
+					book.addArtist(DataBase.getArtists(q).iterator().next());
+				} else {
+					Artist newo = DataBase.doInsert(Artist.class);
+					newo.setJapaneseName(o.getName());
+					newo.setTranslatedName(o.getName());
+					DataBase.doCommit();
+				}
+			}
+			for(Metadata.Circle o : md.circle) {
+				if(o.getId() != null) {
+					QueryCircle q = new QueryCircle();
+					q.Id = o.getId();
+					book.addCircle(DataBase.getCircles(q).iterator().next());
+				} else {
+					Circle newo = DataBase.doInsert(Circle.class);
+					newo.setJapaneseName(o.getName());
+					newo.setTranslatedName(o.getName());
+					DataBase.doCommit();
+				}
+			}
+			for(Metadata.Content o : md.content) {
+				if(o.getId() != null) {
+					QueryContent q = new QueryContent();
+					q.Id = o.getId();
+					book.addContent(DataBase.getContents(q).iterator().next());
+				} else {
+					Content newo = DataBase.doInsert(Content.class);
+					newo.setTagName(o.getName());
+					DataBase.doCommit();
+				}
+			}
+			for(Metadata.Parody o : md.parody) {
+				if(o.getId() != null) {
+					QueryParody q = new QueryParody();
+					q.Id = o.getId();
+					book.addParody(DataBase.getParodies(q).iterator().next());
+				} else {
+					Parody newo = DataBase.doInsert(Parody.class);
+					newo.setJapaneseName(o.getName());
+					newo.setTranslatedName(o.getName());
+					DataBase.doCommit();
+				}
+			}
+			DataBase.doCommit();
+		} catch (NullPointerException e) {
+			throw new TaskException("Error inserting DataBase info", e);
+		}
 		task.setState(State.INSERT_DATASTORE);
 	}
 	
 	private static void doInsertDatastore(Task task) throws TaskException
 	{
-		//TODO
+		File basepath = new File(task.getFile());
+		try {
+			DataFile store = DataStore.getStore(task.getResult());
+			store.mkdirs();
+			DataStore.fromFile(basepath, store, true);
+		} catch (DataBaseException | IOException | DataStoreException e) {
+			throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
+		}
+		try {
+			DataFile df = DataStore.getThumbnail(task.getResult());
+			OutputStream out = df.openOutputStream();
+			BufferedImage image = javax.imageio.ImageIO.read(new File(task.getThumbnail()));
+			javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
+			out.close();
+		} catch (IOException | DataStoreException e) {
+			throw new TaskException("Error creating preview in the DataStore", e);
+		}
 		task.setState(State.DONE);
 	}
 	
@@ -724,315 +814,6 @@ final class TaskManager
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    String pre = ("KMGTPE").charAt(exp-1) + ("i");
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-	
-	private static boolean execSimilarityCheck(Task task) throws TaskException, TaskException
-	{
-		/*
-		task.setExec(Task.Exec.CHECK_SIMILARITY);
-		
-		Set<Book> books = new HashSet<Book>();
-		QueryBook query;
-		File rspFile;
-		XMLParser.XML_List list;
-		XMLParser.XML_Book book = null;
-		
-		rspFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".xml");
-		try {
-			list = XMLParser.readList(new FileInputStream(rspFile));
-			for(XMLParser.XML_Book _book : list.Books) {
-				if(_book.ID.equals(task.getMugimugiBid())) {
-					book = _book;
-					break;
-				}
-			}
-			if(book == null) {
-				URLConnection urlc;
-				try {
-					urlc = new java.net.URL(DataImport.DOUJINSHIDB_APIURL + DataImport.APIKEY + "/?S=getID&ID=B" + task.getMugimugiBid() + "").openConnection();
-					urlc.setRequestProperty("User-Agent", DataImport.USER_AGENT);
-					book = XMLParser.readList(urlc.getInputStream()).Books.get(0);
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-			if(book == null)
-				throw new TaskErrorException("Error parsing XML : Book '" + task.getMugimugiBid() + "' was not found in Response file '" + task.getId() + ".xml'");
-			
-			if(!book.NAME_JP.equals("")) {
-				query = new QueryBook();
-				query.JapaneseName = book.NAME_JP;
-				for(Book b : DataBase.getBooks(query))
-					books.add(b);
-			}
-			if(!book.NAME_EN.equals("")) {
-				query = new QueryBook();
-				query.TranslatedName = book.NAME_EN;
-				for(Book b : DataBase.getBooks(query))
-					books.add(b);
-			}
-			if(!book.NAME_R.equals("")) {
-				query = new QueryBook();
-				query.RomajiName = book.NAME_R;
-				for(Book b : DataBase.getBooks(query))
-					books.add(b);
-			}
-			if(!books.isEmpty()) {
-				Set<Integer> duplicateList = new HashSet<Integer>();
-				for(Book _book : books)
-					duplicateList.add(_book.getId());
-				task.setDuplicateList(duplicateList);
-				throw new TaskException("Possible duplicate book" + (duplicateList.size() > 1 ? "s" : "") + " detected");
-			}
-		} catch (NullPointerException | JAXBException | FileNotFoundException e) {
-			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
-		}
-		*/
-		return true;
-	}
-	
-	private static boolean execDatabaseInsert(Task task) throws TaskException, TaskException
-	{
-		/*
-		task.setExec(Task.Exec.SAVE_DATABASE);
-		
-		Book book;
-		File rspFile;
-		XMLParser.XML_List list;
-		XMLParser.XML_Book xmlbook = null;
-		
-		rspFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".xml");
-		try {
-			list = XMLParser.readList(new FileInputStream(rspFile));
-			for(XMLParser.XML_Book _book : list.Books) {
-				if(_book.ID.equals(task.getMugimugiBid())) {
-					xmlbook = _book;
-					break;
-				}
-			}
-			if(xmlbook == null) {
-				URLConnection urlc;
-				try {
-					urlc = new java.net.URL(DataImport.DOUJINSHIDB_APIURL + DataImport.APIKEY + "/?S=getID&ID=B" + task.getMugimugiBid() + "").openConnection();
-					urlc.setRequestProperty("User-Agent", DataImport.USER_AGENT);
-					xmlbook = XMLParser.readList(urlc.getInputStream()).Books.get(0);
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-			if(xmlbook == null)
-				throw new TaskErrorException("Error parsing XML : Book '" + task.getMugimugiBid() + "' was not found in Response file '" + task.getId() + ".xml'");
-			
-			book = DataBase.doInsert(Book.class);
-			book.setJapaneseName(xmlbook.NAME_JP);
-			book.setTranslatedName(xmlbook.NAME_EN);
-			book.setRomajiName(xmlbook.NAME_R);
-			book.setDate(xmlbook.DATE_RELEASED);
-			book.setPages(xmlbook.DATA_PAGES);
-			book.setAdult(xmlbook.DATA_AGE == 1);
-			book.setRating(Rating.UNRATED);
-			book.setInfo(xmlbook.DATA_INFO.length() > 255 ? xmlbook.DATA_INFO.substring(0, 255) : xmlbook.DATA_INFO);
-			
-			RecordSet<Artist> artists = DataBase.getArtists(new QueryArtist());
-			RecordSet<Circle> circles = DataBase.getCircles(new QueryCircle());
-			RecordSet<Parody> parodies = DataBase.getParodies(new QueryParody());
-			RecordSet<Content> contents = DataBase.getContents(new QueryContent());
-			RecordSet<Convention> conventions = DataBase.getConventions(new QueryConvention());
-			
-			Map<String, Artist> artists_added = new HashMap<String, Artist>();
-			Map<String, Circle> circles_added = new HashMap<String, Circle>();
-			
-			for(XMLParser.XML_Item xmlitem : xmlbook.LINKS.Items) {
-				try {
-					switch(xmlitem.TYPE) {
-					case type:
-						for(Book.Type type : Book.Type.values())
-							if(type.toString().equals(xmlitem.NAME_JP))
-								book.setType(type);
-						break;
-					case author:
-						_case:{
-							for(Artist artist : artists)
-								if((artist.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-									(artist.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-									(artist.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-								{
-									book.addArtist(artist);
-									artists_added.put(xmlitem.ID, artist);
-									break _case;
-								}
-							Artist a = DataBase.doInsert(Artist.class);
-							a.setJapaneseName(xmlitem.NAME_JP);
-							a.setTranslatedName(xmlitem.NAME_EN);
-							a.setRomajiName(xmlitem.NAME_R);
-							book.addArtist(a);
-							// save Artist reference so we can link it with the appropriate Circle
-							artists_added.put(xmlitem.ID, a);
-						}
-						break;
-					case character:
-						break;
-					case circle:
-						_case:{
-							for(Circle circle : circles)
-								if((circle.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-										(circle.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-										(circle.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-								{
-									book.addCircle(circle);
-									circles_added.put(xmlitem.ID, circle);
-									break _case;
-								}
-							Circle c = DataBase.doInsert(Circle.class);
-							c.setJapaneseName(xmlitem.NAME_JP);
-							c.setTranslatedName(xmlitem.NAME_EN);
-							c.setRomajiName(xmlitem.NAME_R);
-							book.addCircle(c);
-							// save Artist reference so we can link it with the appropriate Circle
-							circles_added.put(xmlitem.ID, c);
-						}
-						break;
-					case collections:
-						break;
-					case contents:
-						_case:{
-							for(Content content : contents)
-								if((content.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-										content.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-										content.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
-										content.getAliases().contains(xmlitem.NAME_JP) ||
-										content.getAliases().contains(xmlitem.NAME_EN) ||
-										content.getAliases().contains(xmlitem.NAME_R))
-								{
-									book.addContent(content);
-									break _case;
-								}
-							Content cn = DataBase.doInsert(Content.class);
-							// Tag Name priority NAME_JP > NAME_EN > NAME_R
-							cn.setTagName(xmlitem.NAME_JP.equals("")?xmlitem.NAME_EN.equals("")?xmlitem.NAME_R:xmlitem.NAME_EN:xmlitem.NAME_JP);
-							book.addContent(cn);
-						}
-						break;
-					case convention:
-						if(book.getConvention() != null)
-							break;
-						_case:{
-							for(Convention convention : conventions)
-								if((convention.getTagName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-										convention.getTagName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals("")) ||
-										convention.getTagName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals("")) ||
-										convention.getAliases().contains(xmlitem.NAME_JP) ||
-										convention.getAliases().contains(xmlitem.NAME_EN) ||
-										convention.getAliases().contains(xmlitem.NAME_R))
-								{
-									book.setConvention(convention);
-									break _case;
-								}
-							Convention cv = DataBase.doInsert(Convention.class);
-							// Tag Name priority NAME_EN > NAME_JP > NAME_R
-							cv.setTagName(xmlitem.NAME_EN.equals("")?xmlitem.NAME_JP.equals("")?xmlitem.NAME_R:xmlitem.NAME_JP:xmlitem.NAME_EN);
-							book.setConvention(cv);
-						}
-						break;
-					case genre:
-						break;
-					case imprint:
-						break;
-					case parody:
-						_case:{
-							for(Parody parody : parodies)
-								if((parody.getJapaneseName().equals(xmlitem.NAME_JP) && (!xmlitem.NAME_JP.equals(""))) ||
-										(parody.getTranslatedName().equals(xmlitem.NAME_EN) && (!xmlitem.NAME_EN.equals(""))) ||
-										(parody.getRomajiName().equals(xmlitem.NAME_R) && (!xmlitem.NAME_R.equals(""))))
-								{
-									book.addParody(parody);
-									break _case;
-								}
-							Parody p = DataBase.doInsert(Parody.class);
-							p.setJapaneseName(xmlitem.NAME_JP);
-							p.setTranslatedName(xmlitem.NAME_EN);
-							p.setRomajiName(xmlitem.NAME_R);
-							book.addParody(p);
-						}
-						break;
-					case publisher:
-						break;
-					}
-				} catch (NullPointerException e) {
-					throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
-				}
-			}
-			
-			DataBase.doCommit();
-			
-			if(artists_added.size() > 0 && circles_added.size() > 0) {
-				String[] ckeys = (String[]) circles_added.keySet().toArray(new String[0]);
-				String[] akeys = (String[]) artists_added.keySet().toArray(new String[0]);
-				String ids = ckeys[0];
-				for(int i=1;i<ckeys.length;i++)
-					ids += ckeys[i] + ",";
-				URLConnection urlc = new java.net.URL(DataImport.DOUJINSHIDB_APIURL + DataImport.APIKEY + "/?S=getID&ID=" + ids + "").openConnection();
-				urlc.setRequestProperty("User-Agent", DataImport.USER_AGENT);
-				InputStream in0 = urlc.getInputStream();
-				DocumentBuilderFactory docfactory = DocumentBuilderFactory.newInstance();
-				docfactory.setNamespaceAware(true);
-				DocumentBuilder builder = docfactory.newDocumentBuilder();
-				Document doc = builder.parse(in0);
-				XPathFactory xmlfactory = XPathFactory.newInstance();
-				XPath xpath = xmlfactory.newXPath();
-				for(String cid : ckeys) {
-					for(String aid : akeys) {
-						XPathExpression expr = xpath.compile("//ITEM[@ID='" + cid + "']/LINKS/ITEM[@ID='" + aid + "']");
-						Node node = (Node) expr.evaluate(doc, XPathConstants.NODE);
-						if(node != null)
-							circles_added.get(cid).addArtist(artists_added.get(aid));
-					}
-				}
-			}
-			
-			DataBase.doCommit();
-			
-			task.setBook(book.getId());
-			
-		} catch (NullPointerException |
-				JAXBException |
-				IOException |
-				ParserConfigurationException |
-				XPathExpressionException |
-				SAXException e) {
-			throw new TaskErrorException(task.getExec() + " : " + e.getMessage());
-		}
-		*/
-		return true;
-	}
-	
-	private static boolean execDatastoreSave(Task task) throws TaskException, TaskException
-	{
-		/*
-		task.setExec(Task.Exec.SAVE_DATASTORE);
-		
-		File basepath;
-		File reqFile;
-		
-		basepath = new File(task.getPath());
-		reqFile = new File(DataImport.PLUGIN_QUERY, task.getId() + ".png");
-		
-		try {
-			DataStore.fromFile(basepath, DataStore.getStore(task.getBook()), true);
-		} catch (DataBaseException | IOException | DataStoreException e) {
-			throw new TaskErrorException("Error copying '" + basepath + "' in  DataStore : " + e.getMessage());
-		}
-		try {
-			DataFile df = DataStore.getThumbnail(task.getBook());
-			OutputStream out = df.openOutputStream();
-			BufferedImage image = javax.imageio.ImageIO.read(reqFile);
-			javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
-			out.close();
-		} catch (IOException | DataStoreException e) {
-			throw new TaskErrorException("Error creating preview in the DataStore : " + e.getMessage());
-		}
-		*/
-		return true;
 	}
 	
 	private static File findImage(String base) {

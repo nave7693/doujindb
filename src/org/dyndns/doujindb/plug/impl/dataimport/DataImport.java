@@ -680,7 +680,7 @@ public final class DataImport extends Plugin
 					if(Task.State.FIND_SIMILAR.equals(task.getState()))
 						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
 				} else
-					mSplitPane.setRightComponent(mStateUI = new JPanel());
+					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.getResult()));
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -895,6 +895,45 @@ public final class DataImport extends Plugin
 					text.setMargin(new Insets(5,5,5,5)); 
 					mScrollPane = new JScrollPane(text);
 					add(mScrollPane);
+				}
+			}
+			
+			private final class DoneUI extends JPanel implements ActionListener
+			{
+				private Integer mBookId;
+				
+				public DoneUI(Integer result) {
+					mBookId = result;
+					ImageIcon duplicateImage;
+					super.setLayout(new GridLayout(1,1));
+					try {
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(mBookId).openInputStream()));
+					} catch (Exception e) {
+						duplicateImage = mIcons.task_preview_missing;
+						LOG.warn("Error loading cover image for Book {}", mBookId, e);
+					}
+					JButton duplicateButton = new BookCoverButton(duplicateImage);
+					duplicateButton.addActionListener(this);
+					duplicateButton.setFocusable(false);
+					duplicateButton.setMinimumSize(new Dimension(180, 180));
+					super.add(duplicateButton);
+				}
+
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					new SwingWorker<Void,Void>() {
+						@Override
+						protected Void doInBackground() throws Exception {
+							if(mBookId != null) {
+								QueryBook qid = new QueryBook();
+								qid.Id = mBookId;
+								RecordSet<Book> set = DataBase.getBooks(qid);
+								if(set.size() == 1)
+									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+							}
+							return null;
+						}
+					}.execute();
 				}
 			}
 			

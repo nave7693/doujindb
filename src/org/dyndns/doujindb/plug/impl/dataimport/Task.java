@@ -25,7 +25,7 @@ final class Task
 	private String file = "";
 	@XmlElement(name="thumbnail")
 	private String thumbnail;
-	@XmlElement(name="state")
+	@XmlAttribute(name="state")
 	private State state;
 	@XmlElement(name="fetchedMetadata")
 	private Set<Metadata> fetchedMetadata = new HashSet<Metadata>();
@@ -39,20 +39,17 @@ final class Task
 	private Map<String,String> errors = new HashMap<String,String>();
 	@XmlElement(name="duplicateBook")
 	private Set<Duplicate> duplicates = new HashSet<Duplicate>();
-	@XmlAttribute(name="needAnswer")
-	private boolean needAnswer = false;
+	@XmlAttribute(name="needInput")
+	private boolean needInput = false;
 	
 	private transient boolean selected = false;
 	
 	static enum State {
-		NEW(0),
 		FIND_COVER(1),
 		CROP_COVER(2),
 		RESIZE_COVER(3),
 		FIND_DUPLICATE(4),
 		FETCH_METADATA(5),
-		MAP_METADATA(6),
-		CHOOSE_METADATA(7),
 		FIND_SIMILAR(8),
 		INSERT_DATABASE(9),
 		INSERT_DATASTORE(10),
@@ -163,16 +160,16 @@ final class Task
 		return file;
 	}
 	
-	public boolean needAnswer() {
-		return needAnswer;
+	public boolean needInput() {
+		return needInput;
 	}
 
-	public void needAnswer(boolean needAnswer) {
-		this.needAnswer = needAnswer;
+	public void needInput(boolean needAnswer) {
+		this.needInput = needAnswer;
 	}
 
 	public void reset() {
-		this.state = State.NEW;
+		this.state = State.FIND_COVER;
 		this.fetchedMetadata = new HashSet<Metadata>();
 		this.selectedMetadata = null;
 		this.message = null;
@@ -180,7 +177,7 @@ final class Task
 		this.warnings = new HashMap<String,String>();
 		this.selected = false;
 		this.duplicates = new HashSet<Duplicate>();
-		this.needAnswer = false;
+		this.needInput = false;
 	}
 	
 	@Override

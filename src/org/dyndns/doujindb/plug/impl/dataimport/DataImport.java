@@ -318,29 +318,24 @@ public final class DataImport extends Plugin
 			// Task is running => "Running" icon
 			if(task.equals(mTaskManager.getRunningTask()))
 				return mIcons.task_state_running;
-			// Task is brand new => "New" icon
-			if(task.getState().equals(Task.State.NEW))
-				return mIcons.task_state_new;
-			else {
-				// Task has experienced at least 1 error => "Error" icon
-				if(task.hasErrors())
-					return mIcons.task_state_error;
-				// Task has experienced at least 1 warning => "Warning" icon
-				if(task.hasWarnings())
+			// Task has experienced at least 1 error => "Error" icon
+			if(task.hasErrors())
+				return mIcons.task_state_error;
+			// Task has experienced at least 1 warning => "Warning" icon
+			if(task.hasWarnings())
+				return mIcons.task_state_warning;
+			// Task is done => "Complete" icon
+			if(Task.State.DONE.equals(task.getState()))
+				return mIcons.task_state_complete;
+			// Task need user input => "UserInput" icon
+			if(task.needInput())
+				return mIcons.task_state_userinput;
+			// At least 1 Metadata has experienced errors => "Warning" icon
+			for(Metadata md : task.fetchedMetadata())
+				if(md.exception != null)
 					return mIcons.task_state_warning;
-				// At least 1 Metadata has experienced errors => "Warning" icon
-				for(Metadata md : task.fetchedMetadata())
-					if(md.exception != null)
-						return mIcons.task_state_warning;
-				// Task is done => "Complete" icon
-				if(task.getState().equals(Task.State.DONE))
-					return mIcons.task_state_complete;
-				// Task need user input => "UserInput" icon
-				if(task.needAnswer())
-					return mIcons.task_state_userinput;
-			}
-			// Task is in unknown state => "Unknown" icon
-			return mIcons.task_state_unknow;
+			// Task is just waiting to be processed
+			return mIcons.task_state_new;
 		}
 		
 		private final class PanelTaskUI extends JTable implements PropertyChangeListener

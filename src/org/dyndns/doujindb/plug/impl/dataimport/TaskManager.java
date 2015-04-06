@@ -27,13 +27,14 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
 import org.dyndns.doujindb.db.record.Book.*;
+import org.dyndns.doujindb.plug.impl.dataimport.Task.Duplicate.Option;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
 import org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch;
 import org.dyndns.doujindb.util.*;
 
 final class TaskManager
 {
-	private Set<MetadataProvider> mProviders = new HashSet<MetadataProvider>();
+	private static final Set<MetadataProvider> mProviders = new HashSet<MetadataProvider>();
 	private java.util.List<Task> mTaskSet = new Vector<Task>();
 	private final File mTaskFile;
 	private final File mTmpDir;
@@ -42,7 +43,7 @@ final class TaskManager
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
-	{
+	static {
 		mProviders.add(new MugiMugiProvider());
 		mProviders.add(new EHentaiProvider());
 	}
@@ -128,7 +129,9 @@ final class TaskManager
 			String uuid = java.util.UUID.randomUUID().toString();
 			while(mTaskSet.contains(uuid))
 				uuid = java.util.UUID.randomUUID().toString();
-			mTaskSet.add(new Task(uuid, file.getAbsolutePath()));
+			Task newTask = new Task(uuid, file.getAbsolutePath());
+			newTask.setThumbnail(new File(mTmpDir, newTask.getId() + ".png").getAbsolutePath());
+			mTaskSet.add(newTask);
 		}
 		mPCS.firePropertyChange("taskmanager-info", 0, 1);
 	}
@@ -276,319 +279,59 @@ final class TaskManager
 					continue;
 				
 				// Get next queued Task
-				for(Task task : tasks())
-					if(task.getState() == State.NEW) {
-						mCurrentTask = task;
-						break;
-					}
-				if(mCurrentTask == null || mCurrentTask.getState() != State.NEW) {
+				Task nextTask = null;
+				for(Task task : tasks()) {
+					if(task.getState() == State.DONE)
+						continue;
+					if(task.hasErrors())
+						continue;
+					if(task.needInput())
+						continue;
+					nextTask = task;
+					break;
+				}
+				if(nextTask == null) {
+					LOG.info("{} No more task to processa");
 					TaskManager.this.pause();
 					continue;
+				} else {
+					mCurrentTask = nextTask;
 				}
 				
-				LOG.info("{} Process started", mCurrentTask);
+				LOG.info("{} Processing {}", new Object[]{mCurrentTask, mCurrentTask.getState()});
 				try {
-					// Find cover image
-					mCurrentTask.setState(State.FIND_COVER);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					File image = findImage(mCurrentTask.getFile());
-					if(image == null) {
-						throw new TaskException("Could not locate any image file in " + mCurrentTask.getFile());
+					switch(mCurrentTask.getState()) {
+					case FIND_COVER:
+						doFindCover(mCurrentTask);
+						break;
+					case CROP_COVER:
+						doCropCover(mCurrentTask);
+						break;
+					case RESIZE_COVER:
+						doResizeCover(mCurrentTask);
+						break;
+					case FIND_DUPLICATE:
+						doFindDuplicate(mCurrentTask);
+						break;
+					case FETCH_METADATA:
+						doFetchMetadata(mCurrentTask);
+						break;
+					case FIND_SIMILAR:
+						doFindSimilar(mCurrentTask);
+						break;
+					case INSERT_DATABASE:
+						doInsertDatabase(mCurrentTask);
+						break;
+					case INSERT_DATASTORE:
+						doInsertDatastore(mCurrentTask);
+						break;
+					case DONE:
+						LOG.error("{} Processing requested for DONE task", mCurrentTask);
+						// This error was not supposed to happen, pause TaskManager
+						TaskManager.this.pause();
+						break;
 					}
-					LOG.debug("{} Found image file {}", mCurrentTask, image.getAbsolutePath());
-					// Crop image
-					mCurrentTask.setState(State.CROP_COVER);
 					mPCS.firePropertyChange("task-info", 0, 1);
-					if(Configuration.options_autocrop.get()) {
-						LOG.debug("{} Cropping image file", mCurrentTask);
-						BufferedImage src = javax.imageio.ImageIO.read(image);
-						if(src == null)
-							throw new TaskException("Error loading image from file" + image.getPath());
-						BufferedImage dest;
-						int img_width = src.getWidth(),
-							img_height = src.getHeight();
-						if(img_width > img_height)
-							dest = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_ARGB);
-						else
-							dest = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_ARGB);
-						Graphics g = dest.getGraphics();
-						g.drawImage(src, 0, 0, img_width, img_height, null);
-						g.dispose();
-						try {
-							image = File.createTempFile(mCurrentTask.getId() + "-crop-", ".png", mTmpDir);
-							image.deleteOnExit();
-							javax.imageio.ImageIO.write(dest, "PNG", image);
-						} catch (Exception e) {
-							throw new TaskException("Could not write image file " + image.getPath(), e);
-						}
-					}
-					// Resize image
-					mCurrentTask.setState(State.RESIZE_COVER);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					if(Configuration.options_autoresize.get()) {
-						LOG.debug("{} Resizing image file", mCurrentTask);
-						BufferedImage src = javax.imageio.ImageIO.read(image);
-						if(src == null)
-							throw new TaskException("Error loading image from file" + image.getPath());
-						BufferedImage dest;
-						try
-						{
-							dest = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
-							dest = ImageTool.getScaledInstance(src, 256, 256, true);
-						} catch (Exception e) {
-							throw new TaskException("Could not resize image file " + image.getPath(), e);
-						}
-						try {
-							image = File.createTempFile(mCurrentTask.getId() + "-resize-", ".png", mTmpDir);
-							image.deleteOnExit();
-							javax.imageio.ImageIO.write(dest, "PNG", image);
-						} catch (Exception e) {
-							throw new TaskException("Could not write image file " + image.getPath(), e);
-						}
-					}
-					// Save "final" image before uploading
-					// Used for retrieval in TaskManager.getImage(Task)
-					{
-						File saved = new File(mTmpDir, mCurrentTask.getId() + ".png");
-						mCurrentTask.setThumbnail(saved.getAbsolutePath());
-						javax.imageio.ImageIO.write(javax.imageio.ImageIO.read(image), "PNG", saved);
-					}
-					// Find duplicates
-					mCurrentTask.setState(State.FIND_DUPLICATE);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					if(Configuration.options_checkdupes.get()) {
-						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
-						Integer found = ImageSearch.search(image);
-						if(found != null) {
-							Task.Duplicate duplicate = new Task.Duplicate(found);
-							if(DataStore.getStore(found).getFile("@japanese").exists())
-								duplicate.annotations.add("missing japanese language");
-							try {
-								long bytesNew = DataStore.diskUsage(new File(mCurrentTask.getFile()));
-								long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
-								if(bytesNew > bytesFound)
-									duplicate.annotations.add("bigger filesize : " + format(bytesNew) + " > " + format(bytesFound) + "");
-							} catch (Exception e) {
-								LOG.warn("{} Exception in sizeCheck", new Object[]{mCurrentTask, e});
-							}
-							try {
-								long filesNew = DataStore.listFiles(new File(mCurrentTask.getFile())).length;
-								long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
-								if(filesNew > filesFound)
-									duplicate.annotations.add("more files : " + filesNew + " > " + filesFound + "");
-							} catch (Exception e) {
-								LOG.warn("{} Exception in countCheck", new Object[]{mCurrentTask, e});
-							}
-							try {
-								BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(mCurrentTask.getFile()))));
-								String resolutionNew = imageNew.getWidth() + "x" + imageNew.getHeight();
-								BufferedImage imageFound = javax.imageio.ImageIO.read(findImage(DataStore.getStore(found)).openInputStream());
-								String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
-								if(imageNew.getHeight() > imageFound.getHeight())
-									duplicate.annotations.add("higher resolution : " + resolutionNew + " > " + resolutionFound + "");
-							} catch (Exception e) {
-								LOG.warn("{} Exception in resolutionCheck", new Object[]{mCurrentTask, e});
-							}
-							mCurrentTask.addDuplicate(duplicate);
-							// Mark this Task as "needAnswer" and skip other steps
-							mCurrentTask.needAnswer(true);
-							continue;
-						}
-					}
-					// Run Metadata providers
-					mCurrentTask.setState(State.FETCH_METADATA);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					for(MetadataProvider provider : mProviders) {
-						if(!provider.isEnabled()) {
-							LOG.debug("{} metadata provider [{}] is disabled and will not be used", new Object[]{mCurrentTask, provider});
-							continue;
-						}
-						LOG.debug("{} Load metadata with provider [{}]", new Object[]{mCurrentTask, provider});
-						if(!isPaused()) {
-							try {
-								Metadata md = provider.query(image);
-								mCurrentTask.addMetadata(md);
-								if(md.exception != null) {
-									LOG.warn("{} Exception from provider [{}]: {}", new Object[]{mCurrentTask, provider, md.message});
-								}
-							} catch (Exception e) {
-								mCurrentTask.warning(e);
-								LOG.warn("{} Exception from provider [{}]", new Object[]{mCurrentTask, provider, e});
-							}
-						}
-					}
-					// Map fetched Metadata to existing Database objects
-					mCurrentTask.setState(State.MAP_METADATA);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					for(Metadata md : mCurrentTask.fetchedMetadata()) {
-						// Map Artist items
-						for(Metadata.Artist mobj : md.artist) {
-							QueryArtist query = new QueryArtist();
-							query.JapaneseName = mobj.getName();
-							query.RomajiName = mobj.getName();
-							query.TranslatedName = mobj.getName();
-							query.QueryType = Query.Type.OR;
-							for(Artist obj : DataBase.getArtists(query)) {
-								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Artist obj : DataBase.getArtists(query)) {
-								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Artist obj : DataBase.getArtists(query)) {
-								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-						}
-						// Map Circle items
-						for(Metadata.Circle mobj : md.circle) {
-							QueryCircle query = new QueryCircle();
-							query.JapaneseName = mobj.getName();
-							query.RomajiName = mobj.getName();
-							query.TranslatedName = mobj.getName();
-							query.QueryType = Query.Type.OR;
-							for(Circle obj : DataBase.getCircles(query)) {
-								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Circle obj : DataBase.getCircles(query)) {
-								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Circle obj : DataBase.getCircles(query)) {
-								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-						}
-						// Map Content items
-						for(Metadata.Content mobj : md.content) {
-							QueryContent query = new QueryContent();
-							query.TagName = mobj.getName();
-							for(Content obj : DataBase.getContents(query)) {
-								if(obj.getTagName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-						}
-						// Map Parody items
-						for(Metadata.Parody mobj : md.parody) {
-							QueryParody query = new QueryParody();
-							query.JapaneseName = mobj.getName();
-							query.RomajiName = mobj.getName();
-							query.TranslatedName = mobj.getName();
-							query.QueryType = Query.Type.OR;
-							for(Parody obj : DataBase.getParodies(query)) {
-								if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Parody obj : DataBase.getParodies(query)) {
-								if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-							if(mobj.getId() != null)
-								break; // Found our match
-							for(Parody obj : DataBase.getParodies(query)) {
-								if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
-									mobj.setId(obj.getId());
-									break;
-								}
-							}
-						}
-						// Map Convention item
-						if(md.convention != null) {
-							QueryConvention query = new QueryConvention();
-							query.TagName = md.convention.getName();
-							for(Convention obj : DataBase.getConventions(query)) {
-								if(obj.getTagName().equalsIgnoreCase(md.convention.getName())) {
-									md.convention.setId(obj.getId());
-									break;
-								}
-							}
-						}
-					}
-					// Choose Metadata
-					mCurrentTask.setState(State.CHOOSE_METADATA);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					Integer score = Integer.MIN_VALUE;
-					Metadata selectedMetadata = null;
-					for(Metadata md : mCurrentTask.fetchedMetadata()) {
-						if(md.score > score && md.exception == null) {
-							selectedMetadata = md;
-							score = md.score;
-						}
-					}
-					mCurrentTask.selectMetadata(selectedMetadata);
-					// Find possible duplicates, this time based on Metadata info, not cover image
-					mCurrentTask.setState(State.FIND_SIMILAR);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					if(Configuration.options_checksimilar.get()) {
-						LOG.debug("{} Checking for duplicate entries", mCurrentTask);
-						Set<Integer> duplicates = new HashSet<Integer>();
-						QueryBook query;
-						Metadata md = mCurrentTask.selectedMetadata();
-						if(!md.name.equals("")) {
-							query = new QueryBook();
-							query.JapaneseName = md.name;
-							for(Book b : DataBase.getBooks(query))
-								duplicates.add(b.getId());
-						}
-						for(String alias : md.alias) {
-							if(!alias.equals("")) {
-								query = new QueryBook();
-								query.JapaneseName = alias;
-								for(Book b : DataBase.getBooks(query))
-									duplicates.add(b.getId());
-							}
-						}
-						if(!duplicates.isEmpty()) {
-							for(Integer book : duplicates)
-								if(!mCurrentTask.duplicates().contains(book))
-									mCurrentTask.addDuplicate(new Task.Duplicate(book));
-							// Mark this Task as "needAnswer" and skip other steps
-							mCurrentTask.needAnswer(true);
-							continue;
-						}
-					}
-					// Insert Metadata in the Database
-					mCurrentTask.setState(State.INSERT_DATABASE);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					//TODO
-					// Upload data files to the Datastore
-					mCurrentTask.setState(State.INSERT_DATASTORE);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					//TODO
-					// Task is complete
-					mCurrentTask.setState(State.DONE);
-					mPCS.firePropertyChange("task-info", 0, 1);
-					LOG.info("{} Process completed with State [{}]", mCurrentTask,  mCurrentTask.getState());
 				} catch (TaskException te) {
 					mCurrentTask.error(te);
 					LOG.error("{} Exception while processing", mCurrentTask, te);
@@ -600,6 +343,378 @@ final class TaskManager
 				}
 			}
 		}
+	}
+	
+	private static void doFindCover(Task task) throws TaskException
+	{
+		LOG.debug("{} Search for cover image file in {}", task, task.getFile());
+		File thumbnail = new File(task.getThumbnail());
+		File image = findImage(task.getFile());
+		if(image == null) {
+			throw new TaskException("Could not locate any image file in " + task.getFile());
+		}
+		LOG.debug("{} Found image file {}", task, image);
+		BufferedImage bImage;
+		try {
+			bImage = javax.imageio.ImageIO.read(image);
+		} catch (IOException ioe) {
+			throw new TaskException("Error loading image from file " + image, ioe);
+		}
+		if(bImage == null) {
+			throw new TaskException("Could not load BufferedImage from " + image);
+		}
+		try {
+			javax.imageio.ImageIO.write(bImage, "PNG", new File(task.getThumbnail()));
+		} catch (IOException ioe) {
+			throw new TaskException("Could not write image file " + thumbnail, ioe);
+		}
+		LOG.debug("{} Saved BufferedImage to file {}", task, task.getThumbnail());
+		// Decide next step
+		if(Configuration.options_autocrop.get()) {
+			task.setState(State.CROP_COVER);
+			return;
+		}
+		if(Configuration.options_autoresize.get()) {
+			task.setState(State.RESIZE_COVER);
+			return;
+		}
+		if(Configuration.options_checkdupes.get()) {
+			task.setState(State.FIND_DUPLICATE);
+			return;
+		}
+		task.setState(State.FETCH_METADATA);
+	}
+	
+	private static void doCropCover(Task task) throws TaskException
+	{
+		LOG.debug("{} Cropping image file", task);
+		File thumbnail = new File(task.getThumbnail());
+		BufferedImage src;
+		try {
+			src = javax.imageio.ImageIO.read(thumbnail);
+		} catch (IOException ioe) {
+			throw new TaskException("Error loading image from file " + thumbnail, ioe);
+		}
+		if(src == null)
+			throw new TaskException("Error loading image from file " + thumbnail);
+		BufferedImage dest;
+		int img_width = src.getWidth(),
+			img_height = src.getHeight();
+		if(img_width > img_height)
+			dest = new BufferedImage(img_width / 2, img_height, BufferedImage.TYPE_INT_ARGB);
+		else
+			dest = new BufferedImage(img_width, img_height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = dest.getGraphics();
+		g.drawImage(src, 0, 0, img_width, img_height, null);
+		g.dispose();
+		try {
+			javax.imageio.ImageIO.write(dest, "PNG", thumbnail);
+		} catch (Exception e) {
+			throw new TaskException("Could not write image file " + thumbnail, e);
+		}
+		// Decide next step
+		if(Configuration.options_autoresize.get()) {
+			task.setState(State.RESIZE_COVER);
+			return;
+		}
+		if(Configuration.options_checkdupes.get()) {
+			task.setState(State.FIND_DUPLICATE);
+			return;
+		}
+		task.setState(State.FETCH_METADATA);
+	}
+	
+	private static void doResizeCover(Task task) throws TaskException
+	{
+		LOG.debug("{} Resizing image file", task);
+		File thumbnail = new File(task.getThumbnail());
+		BufferedImage src;
+		try {
+			src = javax.imageio.ImageIO.read(thumbnail);
+		} catch (IOException ioe) {
+			throw new TaskException("Error loading image from file " + thumbnail, ioe);
+		}
+		if(src == null)
+			throw new TaskException("Error loading image from file " + thumbnail);
+		BufferedImage dest;
+		try
+		{
+			dest = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+			dest = ImageTool.getScaledInstance(src, 256, 256, true);
+		} catch (Exception e) {
+			throw new TaskException("Could not resize image file " + thumbnail, e);
+		}
+		try {
+			javax.imageio.ImageIO.write(dest, "PNG", thumbnail);
+		} catch (IOException ioe) {
+			throw new TaskException("Could not write image file " + thumbnail, ioe);
+		}
+		// Decide next step
+		if(Configuration.options_checkdupes.get()) {
+			task.setState(State.FIND_DUPLICATE);
+			return;
+		}
+		task.setState(State.FETCH_METADATA);
+	}
+	
+	private static void doFindDuplicate(Task task) throws TaskException
+	{
+		LOG.debug("{} Checking for duplicate entries", task);
+		File thumbnail = new File(task.getThumbnail());
+		Integer found = ImageSearch.search(thumbnail);
+		if(found != null) {
+			Task.Duplicate duplicate = new Task.Duplicate(found);
+			try {
+				if(DataStore.getStore(found).getFile("@japanese").exists())
+					duplicate.annotations.add("missing japanese language");
+			} catch (DataStoreException dse) {
+				LOG.warn("{} Exception in langCheck", new Object[]{task, dse});
+			}
+			try {
+				long bytesNew = DataStore.diskUsage(new File(task.getFile()));
+				long bytesFound = DataStore.diskUsage(DataStore.getStore(found));
+				if(bytesNew > bytesFound)
+					duplicate.annotations.add("bigger filesize : " + format(bytesNew) + " > " + format(bytesFound) + "");
+			} catch (Exception e) {
+				LOG.warn("{} Exception in sizeCheck", new Object[]{task, e});
+			}
+			try {
+				long filesNew = DataStore.listFiles(new File(task.getFile())).length;
+				long filesFound = DataStore.listFiles(DataStore.getStore(found)).length;
+				if(filesNew > filesFound)
+					duplicate.annotations.add("more files : " + filesNew + " > " + filesFound + "");
+			} catch (Exception e) {
+				LOG.warn("{} Exception in countCheck", new Object[]{task, e});
+			}
+			try {
+				BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(task.getFile()))));
+				String resolutionNew = imageNew.getWidth() + "x" + imageNew.getHeight();
+				BufferedImage imageFound = javax.imageio.ImageIO.read(findImage(DataStore.getStore(found)).openInputStream());
+				String resolutionFound = imageFound.getWidth() + "x" + imageFound.getHeight();
+				if(imageNew.getHeight() > imageFound.getHeight())
+					duplicate.annotations.add("higher resolution : " + resolutionNew + " > " + resolutionFound + "");
+			} catch (Exception e) {
+				LOG.warn("{} Exception in resolutionCheck", new Object[]{task, e});
+			}
+			task.addDuplicate(duplicate);
+		}
+		// Decide next step
+		if(task.hasDuplicates()) {
+			for(Task.Duplicate dup : task.duplicates()) {
+				if(dup.dataOption == Option.UNSET || dup.metadataOption == Option.UNSET) {
+					// Task needs user input
+					task.needInput(true);
+					return;
+				}
+			}
+		}
+		task.setState(State.FETCH_METADATA);
+	}
+	
+	private static void doFetchMetadata(Task task) throws TaskException
+	{
+		File thumbnail = new File(task.getThumbnail());
+		for(MetadataProvider provider : mProviders) {
+			if(!provider.isEnabled()) {
+				LOG.debug("{} metadata provider [{}] is disabled and will not be used", new Object[]{task, provider});
+				continue;
+			}
+			LOG.debug("{} Load metadata with provider [{}]", new Object[]{task, provider});
+			try {
+				Metadata md = provider.query(thumbnail);
+				task.addMetadata(md);
+				if(md.exception != null) {
+					LOG.warn("{} Exception from provider [{}]: {}", new Object[]{task, provider, md.message});
+				}
+			} catch (Exception e) {
+				task.warning(e);
+				LOG.warn("{} Exception from provider [{}]", new Object[]{task, provider, e});
+			}
+		}
+		for(Metadata md : task.fetchedMetadata()) {
+			// Map Artist items
+			for(Metadata.Artist mobj : md.artist) {
+				QueryArtist query = new QueryArtist();
+				query.JapaneseName = mobj.getName();
+				query.RomajiName = mobj.getName();
+				query.TranslatedName = mobj.getName();
+				query.QueryType = Query.Type.OR;
+				for(Artist obj : DataBase.getArtists(query)) {
+					if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Artist obj : DataBase.getArtists(query)) {
+					if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Artist obj : DataBase.getArtists(query)) {
+					if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+			}
+			// Map Circle items
+			for(Metadata.Circle mobj : md.circle) {
+				QueryCircle query = new QueryCircle();
+				query.JapaneseName = mobj.getName();
+				query.RomajiName = mobj.getName();
+				query.TranslatedName = mobj.getName();
+				query.QueryType = Query.Type.OR;
+				for(Circle obj : DataBase.getCircles(query)) {
+					if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Circle obj : DataBase.getCircles(query)) {
+					if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Circle obj : DataBase.getCircles(query)) {
+					if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+			}
+			// Map Content items
+			for(Metadata.Content mobj : md.content) {
+				QueryContent query = new QueryContent();
+				query.TagName = mobj.getName();
+				for(Content obj : DataBase.getContents(query)) {
+					if(obj.getTagName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+			}
+			// Map Parody items
+			for(Metadata.Parody mobj : md.parody) {
+				QueryParody query = new QueryParody();
+				query.JapaneseName = mobj.getName();
+				query.RomajiName = mobj.getName();
+				query.TranslatedName = mobj.getName();
+				query.QueryType = Query.Type.OR;
+				for(Parody obj : DataBase.getParodies(query)) {
+					if(obj.getJapaneseName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Parody obj : DataBase.getParodies(query)) {
+					if(obj.getRomajiName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+				if(mobj.getId() != null)
+					break; // Found our match
+				for(Parody obj : DataBase.getParodies(query)) {
+					if(obj.getTranslatedName().equalsIgnoreCase(mobj.getName())) {
+						mobj.setId(obj.getId());
+						break;
+					}
+				}
+			}
+			// Map Convention item
+			if(md.convention != null) {
+				QueryConvention query = new QueryConvention();
+				query.TagName = md.convention.getName();
+				for(Convention obj : DataBase.getConventions(query)) {
+					if(obj.getTagName().equalsIgnoreCase(md.convention.getName())) {
+						md.convention.setId(obj.getId());
+						break;
+					}
+				}
+			}
+		}
+		Integer score = Integer.MIN_VALUE;
+		Metadata selectedMetadata = null;
+		for(Metadata md : task.fetchedMetadata()) {
+			if(md.score > score && md.exception == null) {
+				selectedMetadata = md;
+				score = md.score;
+			}
+		}
+		task.selectMetadata(selectedMetadata);
+		// Decide next step
+		if(task.selectedMetadata() == null) {
+			// Task needs user input
+			task.needInput(true);
+			return;
+		}
+		if(Configuration.options_checksimilar.get()) {
+			task.setState(State.FIND_SIMILAR);
+			return;
+		}
+		task.setState(State.INSERT_DATABASE);
+	}
+	
+	private static void doFindSimilar(Task task) throws TaskException
+	{
+		LOG.debug("{} Checking for duplicate entries", task);
+		Set<Integer> duplicates = new HashSet<Integer>();
+		QueryBook query;
+		Metadata md = task.selectedMetadata();
+		if(!md.name.equals("")) {
+			query = new QueryBook();
+			query.JapaneseName = md.name;
+			for(Book b : DataBase.getBooks(query))
+				duplicates.add(b.getId());
+		}
+		for(String alias : md.alias) {
+			if(!alias.equals("")) {
+				query = new QueryBook();
+				query.JapaneseName = alias;
+				for(Book b : DataBase.getBooks(query))
+					duplicates.add(b.getId());
+			}
+		}
+		if(!duplicates.isEmpty()) {
+			for(Integer book : duplicates)
+				if(!task.duplicates().contains(book))
+					task.addDuplicate(new Task.Duplicate(book));
+		}
+		// Decide next step
+		if(task.hasDuplicates()) {
+			for(Task.Duplicate dup : task.duplicates()) {
+				if(dup.dataOption == Option.UNSET || dup.metadataOption == Option.UNSET) {
+					// Task needs user input
+					task.needInput(true);
+					return;
+				}
+			}
+		}		
+		task.setState(State.INSERT_DATABASE);
+	}
+	
+	private static void doInsertDatabase(Task task) throws TaskException
+	{
+		//TODO
+		task.setState(State.INSERT_DATASTORE);
+	}
+	
+	private static void doInsertDatastore(Task task) throws TaskException
+	{
+		//TODO
+		task.setState(State.DONE);
 	}
 	
 	private static String format(long bytes)

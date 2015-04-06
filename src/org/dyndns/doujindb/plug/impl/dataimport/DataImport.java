@@ -563,13 +563,7 @@ public final class DataImport extends Plugin
 			private JButton m_ButtonClose;
 			private JButton m_ButtonOpenFolder;
 			private JButton m_ButtonOpenXML;
-			private JTabbedPane m_TabbedPaneMetadata;
 			private JSplitPane mSplitPane;
-//			private JButton m_ButtonOpenBook;
-//			private JButton m_ButtonRunAgain;
-//			private JButton m_ButtonSkipDuplicate;
-//			private JButton m_ButtonImportBID;
-//			private JTabbedPane m_TabbedPaneImage;
 			private JComponent mStateUI;
 			
 			public TaskUI() {
@@ -621,79 +615,6 @@ public final class DataImport extends Plugin
 				mSplitPane.setEnabled(false);
 				add(mSplitPane);
 				
-//				m_TabbedPaneMetadata = new JTabbedPane();
-//				m_TabbedPaneMetadata.setFocusable(false);
-//				m_TabbedPaneMetadata.setTabPlacement(JTabbedPane.TOP);
-//				m_ButtonOpenBook = new JButton();
-//				
-//				m_ButtonOpenBook.setText("Open Book");
-//				m_ButtonOpenBook.setIcon(Icon.task_book);
-//				m_ButtonOpenBook.setSelected(false);
-//				m_ButtonOpenBook.setFocusable(false);
-//				m_ButtonOpenBook.addActionListener(this);
-//				m_ButtonOpenBook.setOpaque(false);
-//				m_ButtonOpenBook.setIconTextGap(5);
-//				m_ButtonOpenBook.setMargin(new Insets(0,0,0,0));
-//				m_ButtonOpenBook.setHorizontalAlignment(SwingConstants.LEFT);
-//				m_ButtonOpenBook.setHorizontalTextPosition(SwingConstants.RIGHT);
-//				add(m_ButtonOpenBook);
-//				
-//				m_ButtonRunAgain = new JButton();
-//				m_ButtonRunAgain.setText("Re-run Step");
-//				m_ButtonRunAgain.setIcon(Icon.task_reset);
-//				m_ButtonRunAgain.setSelected(false);
-//				m_ButtonRunAgain.setFocusable(false);
-//				m_ButtonRunAgain.addActionListener(this);
-//				m_ButtonRunAgain.setOpaque(false);
-//				m_ButtonRunAgain.setIconTextGap(5);
-//				m_ButtonRunAgain.setMargin(new Insets(0,0,0,0));
-//				m_ButtonRunAgain.setHorizontalAlignment(SwingConstants.LEFT);
-//				m_ButtonRunAgain.setHorizontalTextPosition(SwingConstants.RIGHT);
-//				add(m_ButtonRunAgain);
-//				m_ButtonSkipDuplicate = new JButton();
-//				m_ButtonSkipDuplicate.setText("Skip Duplicate");
-//				m_ButtonSkipDuplicate.setIcon(Icon.task_skip);
-//				m_ButtonSkipDuplicate.setSelected(false);
-//				m_ButtonSkipDuplicate.setFocusable(false);
-//				m_ButtonSkipDuplicate.addActionListener(this);
-//				m_ButtonSkipDuplicate.setOpaque(false);
-//				m_ButtonSkipDuplicate.setIconTextGap(5);
-//				m_ButtonSkipDuplicate.setMargin(new Insets(0,0,0,0));
-//				m_ButtonSkipDuplicate.setHorizontalAlignment(SwingConstants.LEFT);
-//				m_ButtonSkipDuplicate.setHorizontalTextPosition(SwingConstants.RIGHT);
-//				add(m_ButtonSkipDuplicate);
-//				m_ButtonImportBID = new JButton();
-//				m_ButtonImportBID.setText("Import from mugimugi ID");
-//				m_ButtonImportBID.setIcon(Icon.task_import);
-//				m_ButtonImportBID.setSelected(false);
-//				m_ButtonImportBID.setFocusable(false);
-//				m_ButtonImportBID.addActionListener(this);
-//				m_ButtonImportBID.setOpaque(false);
-//				m_ButtonImportBID.setIconTextGap(5);
-//				m_ButtonImportBID.setMargin(new Insets(0,0,0,0));
-//				m_ButtonImportBID.setHorizontalAlignment(SwingConstants.LEFT);
-//				m_ButtonImportBID.setHorizontalTextPosition(SwingConstants.RIGHT);
-//				add(m_ButtonImportBID);
-				
-//				m_TabbedPaneImage = new JTabbedPane();
-//				m_TabbedPaneImage.setFocusable(false);
-//				m_TabbedPaneImage.setTabPlacement(JTabbedPane.RIGHT);
-//				m_TabbedPaneImage.addChangeListener(new ChangeListener()
-//				{
-//                    @Override
-//                    public void stateChanged(ChangeEvent ce) {
-//                        if (ce.getSource() instanceof JTabbedPane) {
-//                            JTabbedPane pane = (JTabbedPane) ce.getSource();
-//                            if(pane.getSelectedIndex() == -1)
-//                            	return;
-//                            JButton selectedTab = (JButton) pane.getComponentAt(pane.getSelectedIndex());
-//                            m_ButtonImportBID.setActionCommand(selectedTab.getActionCommand());
-//                            m_ButtonImportBID.setText("Import from mugimugi ID [" + m_ButtonImportBID.getActionCommand() + "]");
-//                        }
-//                    }
-//                });
-//				add(m_TabbedPaneImage);
-				
 				new SwingWorker<Void,String>()
 				{
 					private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -737,174 +658,10 @@ public final class DataImport extends Plugin
 				mTaskManager.registerListener(this);
 			}
 			
-//			private void fireInfoUpdated()
-//			{
-//				switch (m_Task.getInfo())
-//				{
-//				case COMPLETED:
-//					m_LabelTitle.setIcon(Icon.task_info_completed);
-//					break;
-//				case ERROR:
-//					m_LabelTitle.setIcon(Icon.task_info_error);
-//					break;
-//				case IDLE:
-//					m_LabelTitle.setIcon(Icon.task_info_idle);
-//					break;
-//				case PAUSED:
-//					m_LabelTitle.setIcon(Icon.task_info_paused);
-//					break;
-//				case RUNNING:
-//					m_LabelTitle.setIcon(Icon.task_info_running);
-//					break;
-//				case WARNING:
-//					m_LabelTitle.setIcon(Icon.task_info_warning);
-//					break;
-//				}
-//			}
-//			
-//			private void fireImageUpdated()
-//			{
-//				m_LabelPreview.setIcon(Icon.loading);
-//				new SwingWorker<ImageIcon, Void>()
-//				{
-//					@Override
-//					protected ImageIcon doInBackground() throws Exception
-//					{
-//						return new ImageIcon(javax.imageio.ImageIO.read(new File(PLUGIN_QUERY, m_Task.getId() + ".png")));
-//					}
-//					@Override
-//				    protected void process(List<Void> chunks) { ; }
-//					@Override
-//				    public void done() {
-//				        ImageIcon icon;
-//				        try {
-//				        	icon = get();
-//				        	m_LabelPreview.setIcon(icon);
-//				        } catch (Exception e) {
-//				        	m_LabelPreview.setIcon(Icon.task_preview_missing);
-//				        }
-//				    }
-//				}.execute();
-//			}
-//			
-//			private void fireItemsUpdated()
-//			{
-//				m_TabbedPaneImage.removeAll();
-//				m_ButtonImportBID.setText("Import from mugimugi ID");
-//				
-//				new SwingWorker<Void, Map<String,Object>>()
-//				{
-//					private transient int selectedTab = -1;
-//					
-//					@Override
-//					protected Void doInBackground() throws Exception
-//					{
-//						if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
-//						{
-//							for(Integer id : m_Task.getDuplicatelist())
-//							{
-//								try
-//								{
-//									// Load images from local DataStore
-//									ImageIcon ii = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(id).openInputStream()));
-//									Map<String,Object> data = new HashMap<String,Object>();
-//									data.put("id", id);
-//									data.put("imageicon", ii);
-//									publish(data);
-//								} catch (Exception e) { e.printStackTrace(); }
-//							}
-//						}
-//						if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
-//						{
-//							for(Integer id : m_Task.getMugimugiList())
-//							{
-//								try
-//								{
-//									File file = new File(PLUGIN_IMAGECACHE, "B" + id + ".jpg");
-//									ImageIcon ii = new ImageIcon(ImageIO.read(file));
-//									Map<String,Object> data = new HashMap<String,Object>();
-//									data.put("id", id);
-//									data.put("imageicon", ii);
-//									publish(data);
-//								} catch (Exception e) { e.printStackTrace(); }
-//							}
-//						}
-//						return null;
-//					}
-//					@Override
-//				    protected void process(List<Map<String,Object>> chunks)
-//					{
-//						for(Map<String,Object> data : chunks)
-//						{
-//							final Integer id = (Integer) data.get("id");
-//							final ImageIcon imageicon = (ImageIcon) data.get("imageicon");
-//							
-//							JButton button = new JButton(imageicon);
-//							button.setActionCommand(id.toString());
-//							button.setFocusable(false);
-//							if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) || m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
-//							{
-//								// Open local Book
-//								button.addActionListener(new ActionListener()
-//								{
-//									@Override
-//									public void actionPerformed(ActionEvent ae) {
-//										new SwingWorker<Void, Void>()
-//										{
-//											@Override
-//											protected Void doInBackground() throws Exception
-//											{
-//												QueryBook qid = new QueryBook();
-//												qid.Id = id;
-//												RecordSet<Book> set = DataBase.getBooks(qid);
-//												if(set.size() == 1)
-//													UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
-//												return null;
-//											}
-//										}.execute();
-//									}
-//								});
-//								m_TabbedPaneImage.addTab("", button);
-//							}
-//							if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
-//							{
-//								// Open mugimugi Book
-//								button.addActionListener(new ActionListener()
-//								{
-//									@Override
-//									public void actionPerformed(ActionEvent ae) {
-//										try {
-//											URI uri = new URI(DataImport.DOUJINSHIDB_URL + "book/" + id + "/");
-//											Desktop.getDesktop().browse(uri);
-//										} catch (URISyntaxException urise) {
-//											urise.printStackTrace();
-//										} catch (IOException ioe) {
-//											ioe.printStackTrace();
-//										}
-//									}
-//								});
-//								if((m_Task.getMugimugiBid()).equals(id))
-//								{
-//									m_TabbedPaneImage.addTab("", Icon.task_searchquery_star, button);
-//									selectedTab = m_TabbedPaneImage.getTabCount() - 1;
-//								}
-//								else
-//									m_TabbedPaneImage.addTab("", button);
-//							}
-//						}
-//					}
-//					@Override
-//				    protected void done()
-//					{
-//						if(selectedTab != -1)
-//							m_TabbedPaneImage.setSelectedIndex(selectedTab);
-//					}
-//				}.execute();
-//			}
 
 			public void setTask(Task task) {
 				m_Task = task;
-				m_LabelTitle.setText(m_Task.getFile());
+				m_LabelTitle.setText(m_Task.getState() + " : " + m_Task.getFile());
 				m_LabelTitle.setIcon(getDisplayIcon(task));
 				try {
 					m_LabelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(new File(task.getThumbnail()))));
@@ -912,49 +669,24 @@ public final class DataImport extends Plugin
 					m_LabelPreview.setIcon(mIcons.task_preview_missing);
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
-//				m_TabbedPaneMetadata.removeAll();
-				if(task.hasDuplicates()) {
-					mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
+				if(task.hasErrors()) {
+					mSplitPane.setRightComponent(mStateUI = new ErrorUI(task));
 				} else
-				if(!task.hasErrors()) {
-//					for(Metadata md : task.metadata) {
-//						try {
-//							m_TabbedPaneMetadata.addTab(String.format("%s (%d%%)", md.provider(), md.score), mIcons.task_result_info, new BookCoverLabel(new ImageIcon(new URL("" + md.thumbnail)), md.score));
-//						} catch (MalformedURLException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//					}
-//					for(Metadata md : task.metadata) {
-//						if(md.exception == null) {
-//							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_complete, new MetadataUI(md));
-//						} else {
-//							m_TabbedPaneMetadata.addTab(md.provider(), mIcons.task_state_error, new MetadataUI(md));
-//						}
-//					}
-					mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.fetchedMetadata()));
-				} else {
-					JTextArea text = new JTextArea();
-					for(String message : task.errors().keySet())
-						text.append(message + "\n" + task.errors().get(message) + "\n");
-					text.setEditable(false);
-					text.setFocusable(false);
-					text.setMargin(new Insets(5,5,5,5)); 
-//					m_TabbedPaneMetadata.addTab("exception", mIcons.task_state_error, new JScrollPane(text));
-					mSplitPane.setRightComponent(new JScrollPane(text));
-				}
+				if(task.needInput()) {
+					if(Task.State.FIND_DUPLICATE.equals(task.getState()))
+						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
+					if(Task.State.FETCH_METADATA.equals(task.getState()))
+						mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.fetchedMetadata()));
+					if(Task.State.FIND_SIMILAR.equals(task.getState()))
+						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
+				} else
+					mSplitPane.setRightComponent(mStateUI = new JPanel());
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						doLayout();
 					}
 				});
-//				// Display 'status' Icon
-//				fireInfoUpdated();
-//				// Display scanned Image
-//				fireImageUpdated();
-//				// Display duplicate/queried Items
-//				fireItemsUpdated();
 			}
 
 			@Override
@@ -962,82 +694,10 @@ public final class DataImport extends Plugin
 				int width = parent.getWidth(),
 					height = parent.getHeight();
 				m_LabelTitle.setBounds(0, 0, width - 80, 20);
-//				m_LabelPreview.setBounds(0, 20, 200, 256);
 				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
 				m_ButtonOpenFolder.setBounds(width - 40, 0, 20, 20);
 				m_ButtonOpenXML.setBounds(width - 60, 0, 20, 20);
 				mSplitPane.setBounds(0, 20, width, height - 20);
-//				m_TabbedPaneMetadata.setBounds(200, 20, width - 200, height - 24);
-//				m_ButtonRunAgain.setBounds(200, 40, (width - 200) / 2, 20);
-//				m_ButtonOpenBook.setBounds(200 + (width - 200) / 2, 20, (width - 200) / 2, 20);
-//				m_ButtonSkipDuplicate.setBounds(200 + (width - 200) / 2, 40, (width - 200) / 2, 20);
-//				m_ButtonImportBID.setBounds(200 + (width - 200) / 2, 60, (width - 200) / 2, 20);
-//				m_TabbedPaneImage.setBounds(0, 0, 0, 0);
-//				if(m_Task.isRunning()) {
-//					m_ButtonOpenFolder.setEnabled(true);
-//					m_ButtonRunAgain.setEnabled(false);
-//					m_ButtonOpenXML.setEnabled(false);
-//					m_ButtonOpenBook.setEnabled(false);
-//					m_ButtonSkipDuplicate.setEnabled(false);
-//					m_ButtonImportBID.setEnabled(false);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(Task.Info.COMPLETED)) {
-//					m_ButtonOpenFolder.setEnabled(true);
-//					m_ButtonRunAgain.setEnabled(false);
-//					m_ButtonOpenXML.setEnabled(false);
-//					m_ButtonOpenBook.setEnabled(true);
-//					m_ButtonSkipDuplicate.setEnabled(false);
-//					m_ButtonImportBID.setEnabled(false);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(Task.Info.IDLE))
-//				{
-//					m_ButtonOpenFolder.setEnabled(true);
-//					m_ButtonRunAgain.setEnabled(false);
-//					m_ButtonOpenXML.setEnabled(false);
-//					m_ButtonOpenBook.setEnabled(false);
-//					m_ButtonSkipDuplicate.setEnabled(false);
-//					m_ButtonImportBID.setEnabled(false);
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(Task.Info.WARNING))
-//				{
-//					m_ButtonOpenFolder.setEnabled(true);
-//					m_ButtonRunAgain.setEnabled(false);
-//					m_ButtonOpenBook.setEnabled(false);
-//					if(m_Task.getExec().equals(Task.Exec.CHECK_DUPLICATE) ||
-//						m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY))
-//					{
-//						m_ButtonOpenXML.setEnabled(false);
-//						m_ButtonSkipDuplicate.setEnabled(true);
-//						m_ButtonImportBID.setEnabled(false);
-//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
-//					}
-//					if(m_Task.getExec().equals(Task.Exec.PARSE_XML))
-//					{
-//						m_ButtonOpenXML.setEnabled(true);
-//						m_ButtonSkipDuplicate.setEnabled(false);
-//						m_ButtonImportBID.setEnabled(true);
-//						m_TabbedPaneImage.setBounds(200, 80, width - 200, height - 80);
-//					}
-//					return;
-//				}
-//				if(m_Task.getInfo().equals(Task.Info.ERROR))
-//				{
-//					m_ButtonOpenFolder.setEnabled(true);
-//					m_ButtonRunAgain.setEnabled(true);
-//					if(m_Task.getExec().equals(Task.Exec.CHECK_SIMILARITY) ||
-//						m_Task.getExec().equals(Task.Exec.PARSE_XML) ||
-//						m_Task.getExec().equals(Task.Exec.PARSE_BID) ||
-//						m_Task.getExec().equals(Task.Exec.SAVE_DATABASE) ||
-//						m_Task.getExec().equals(Task.Exec.SAVE_DATASTORE))
-//						m_ButtonOpenXML.setEnabled(true);
-//					m_ButtonOpenBook.setEnabled(false);
-//					m_ButtonSkipDuplicate.setEnabled(false);
-//					m_ButtonImportBID.setEnabled(false);
-//					return;
-//				}
 			}
 			
 			@Override
@@ -1097,6 +757,7 @@ public final class DataImport extends Plugin
 					}.execute();
 					return;
 				}
+				//FIXME
 //				if(ae.getSource() == m_ButtonOpenBook) {
 //					if(m_Task.getBook() == null)
 //						return;
@@ -1116,15 +777,6 @@ public final class DataImport extends Plugin
 //							return null;
 //						}
 //					}.execute();
-//					return;
-//				}
-//				if(ae.getSource() == m_ButtonImportBID) {
-//					m_Task.setMugimugiBid(Integer.parseInt(m_ButtonImportBID.getActionCommand()));
-//					m_Task.setInfo(Task.Info.IDLE);
-//					return;
-//				}
-//				if(ae.getSource() == m_ButtonSkipDuplicate) {
-//					m_Task.setInfo(Task.Info.IDLE);
 //					return;
 //				}
 			}
@@ -1226,6 +878,23 @@ public final class DataImport extends Plugin
 					int baseline = (top+((bottom+1-top)/2) - ((ascent + descent)/2) + ascent);
 					Rectangle2D r = g.getFontMetrics().getStringBounds(label, g);
 					g.drawString(label, (int) (super.getWidth() - width / 2 - r.getWidth() / 2), baseline);
+				}
+			}
+			
+			private final class ErrorUI extends JPanel
+			{
+				private JScrollPane mScrollPane;
+				
+				public ErrorUI(Task task) {
+					super.setLayout(new GridLayout(1,1));
+					JTextArea text = new JTextArea();
+					for(String message : task.errors().keySet())
+						text.append(message + "\n" + task.errors().get(message) + "\n");
+					text.setEditable(false);
+					text.setFocusable(false);
+					text.setMargin(new Insets(5,5,5,5)); 
+					mScrollPane = new JScrollPane(text);
+					add(mScrollPane);
 				}
 			}
 			
@@ -1459,23 +1128,6 @@ public final class DataImport extends Plugin
 
 			private final class MetadataUI extends JPanel implements LayoutManager, ActionListener
 			{
-//				private JLabel mMessage;
-//				private JLabel mMetaName;
-//				private JLabel mMetaThumbnail;
-//				private JLabel mMetaAlias;
-//				private JLabel mMetaTranslation;
-//				private JLabel mMetaPages;
-//				private JLabel mMetaTimestamp;
-//				private JLabel mMetaType;
-//				private JLabel mMetaAdult;
-//				private JLabel mMetaInfo;
-//				private JLabel mMetaSize;
-//				private JLabel mMetaConvention;
-//				private JButton mMetaURI;
-//				private JList<MetaMedia> mMetaList;
-//				private DefaultListModel<MetaMedia> mMetaListModel;
-//				private JScrollPane mMetaListScroll;
-				
 				private JTabbedPane mPanelProviders;
 				private JPanel mPanelInfo;
 				private JLabel mLabelJapaneseName;
@@ -1509,86 +1161,6 @@ public final class DataImport extends Plugin
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
 					super.setPreferredSize(new Dimension(100,100));
-					
-//					// Message
-//					if(md.message != null) {
-//						mMessage  = new JLabel(md.message);
-//						mMessage.setHorizontalAlignment(JLabel.CENTER);
-//						if(md.exception != null) {
-//							mMessage.setForeground(Color.orange);
-//							mMessage.setBorder(BorderFactory.createLineBorder(Color.orange));
-//						}
-//						add(mMessage);
-//					}
-//					
-//					// Metadata.thumbnail
-//					try {
-//						mMetaThumbnail  = new BookCoverLabel(new ImageIcon(new URL("" + md.thumbnail)), md.score);
-//					} catch (MalformedURLException murle) {
-//						mMetaThumbnail  = new JLabel(mIcons.task_preview_missing);
-//					}
-//					add(mMetaThumbnail);
-//					// Metadata.name
-//					mMetaName = new JLabel(String.format("name : %s", ifNull(md.name, "")));
-//					add(mMetaName);
-//					// Metadata.alias
-//					// must first convert Set<String>.class to String.class to be shown in a JLabel
-//					String alias = "[";
-//					int count = 0;
-//					for(String a : md.alias)
-//						if(count++ == 0)
-//							alias += a;
-//						else
-//							alias += ", " + a;
-//					alias += "]";
-//					mMetaAlias = new JLabel(String.format("alias : %s", alias));
-//					add(mMetaAlias);
-//					// Metadata.translation
-//					mMetaTranslation = new JLabel(String.format("translation : %s", ifNull(md.translation, "")));
-//					add(mMetaTranslation);
-//					// Metadata.pages
-//					mMetaPages = new JLabel(String.format("pages : %d", ifNull(md.pages, 0)));
-//					add(mMetaPages);
-//					// Metadata.timestamp
-//					mMetaTimestamp = new JLabel(String.format("timestamp : %s", (md.timestamp == null ? "" : mSDF.format(new Date(md.timestamp * 1000)))));
-//					add(mMetaTimestamp);
-//					// Metadata.type
-//					mMetaType = new JLabel(String.format("type : %s", ifNull(md.type, "")));
-//					add(mMetaType);
-//					// Metadata.adult
-//					mMetaAdult = new JLabel(String.format("adult : %s", ifNull(md.adult, "")));
-//					add(mMetaAdult);
-//					// Metadata.info
-//					mMetaInfo = new JLabel(String.format("info : %s", ifNull(md.info, "")));
-//					add(mMetaInfo);
-//					// Metadata.size
-//					mMetaSize = new JLabel(String.format("size : %s", format(md.size == null ? 0 : md.size)));
-//					add(mMetaSize);
-//					// Metadata.convention
-//					mMetaConvention = new JLabel(String.format("convention : %s", ifNull(md.convention, "")));
-//					add(mMetaConvention);
-//					// Metadata.uri
-//					// don't add to content pane if it's null
-//					mMetaURI = new JButton(md.uri);
-//					mMetaURI.addActionListener(this);
-//					mMetaURI.setFocusable(false);
-//					mMetaURI.setBorder(null);
-//					mMetaURI.setHorizontalAlignment(JButton.LEFT);
-//					if(md.uri != null)
-//						add(mMetaURI);
-//					// Metadata.[artist, circle, content, parody]
-//					mMetaList = new JList<MetaMedia>();
-//					mMetaList.setModel(mMetaListModel = new DefaultListModel<MetaMedia>());
-//					for(String a : md.artist)
-//						mMetaListModel.addElement(new MetaMediaArtist(a));
-//					for(String a : md.circle)
-//						mMetaListModel.addElement(new MetaMediaCircle(a));
-//					for(String a : md.content)
-//						mMetaListModel.addElement(new MetaMediaContent(a));
-//					for(String a : md.parody)
-//						mMetaListModel.addElement(new MetaMediaParody(a));
-//					mMetaList.setCellRenderer(new MetadataListCellRenderer());
-//					add(mMetaListScroll = new JScrollPane(mMetaList));
 					
 					mTabbedPane = new JTabbedPane();
 					mTabbedPane.setFocusable(false);
@@ -1858,13 +1430,9 @@ public final class DataImport extends Plugin
 				private final class MetadataListCellRenderer extends DefaultListCellRenderer
 				{
 					private final JCheckBox mDisplay;
-//					private final Color backgroundSelectionColor;
-//					private final Color textSelectionColor;
 					private MetadataListCellRenderer() {
 						mDisplay = new JCheckBox();
 						mDisplay.setOpaque(true);
-//						backgroundSelectionColor = mDisplay.getBackground();
-//						textSelectionColor = mDisplay.getForeground();
 					}
 					@SuppressWarnings("rawtypes")
 					@Override
@@ -1884,13 +1452,6 @@ public final class DataImport extends Plugin
 				        } else {
 				        	mDisplay.setIcon(null);
 				        }
-//				        if (isSelected) {
-//				        	mDisplay.setBackground(textSelectionColor);
-//				        	mDisplay.setForeground(backgroundSelectionColor);
-//				        } else {
-//				        	mDisplay.setBackground(backgroundSelectionColor);
-//				        	mDisplay.setForeground(textSelectionColor);
-//				        }
 				        return mDisplay;
 				    }
 				}
@@ -1945,25 +1506,6 @@ public final class DataImport extends Plugin
 					int width = parent.getWidth(),
 						height = parent.getHeight();
 					mTabbedPane.setBounds(0, 0, width, height);
-//					int yoffset = 0;
-//					int xoffset = width / 3;
-//					if(mMessage != null) {
-//						mMessage.setBounds(0,0,width,20);
-//						yoffset = 20;
-//					}
-//					mMetaThumbnail.setBounds(0,yoffset,xoffset,height-yoffset);
-//					mMetaListScroll.setBounds(xoffset*2,yoffset,xoffset,height);
-//					mMetaName.setBounds(xoffset,yoffset,xoffset,20);
-//					mMetaAlias.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaTranslation.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaPages.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaTimestamp.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaType.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaAdult.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaInfo.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaSize.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaConvention.setBounds(xoffset,yoffset+=20,xoffset,20);
-//					mMetaURI.setBounds(xoffset,yoffset+=20,xoffset,20);
 				}
 			}
 		}

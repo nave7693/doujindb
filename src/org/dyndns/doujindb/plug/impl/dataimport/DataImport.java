@@ -998,8 +998,8 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					mTabbedPane.setBounds(0, 0, width, height - 20);
-					mButtonNext.setBounds(width / 2 - 40, height - 20, 80, 20);
+					mTabbedPane.setBounds(0, 0, width, height - 30);
+					mButtonNext.setBounds(width / 2 - 40, height - 25, 80, 20);
 				}
 
 				private void addDuplicate(final Task.Duplicate duplicate) {
@@ -1605,8 +1605,8 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					mTabbedPane.setBounds(0, 0, width, height - 20);
-					mButtonNext.setBounds(width / 2 - 40, height - 20, 80, 20);
+					mTabbedPane.setBounds(0, 0, width, height - 30);
+					mButtonNext.setBounds(width / 2 - 40, height - 25, 80, 20);
 				}
 			}
 		}

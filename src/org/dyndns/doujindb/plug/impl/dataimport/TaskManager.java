@@ -369,24 +369,16 @@ final class TaskManager
 			throw new TaskException("Could not write image file " + thumbnail, ioe);
 		}
 		LOG.debug("{} Saved BufferedImage to file {}", task, task.getThumbnail());
-		// Decide next step
-		if(Configuration.options_autocrop.get()) {
-			task.setState(State.CROP_COVER);
-			return;
-		}
-		if(Configuration.options_autoresize.get()) {
-			task.setState(State.RESIZE_COVER);
-			return;
-		}
-		if(Configuration.options_checkdupes.get()) {
-			task.setState(State.FIND_DUPLICATE);
-			return;
-		}
-		task.setState(State.FETCH_METADATA);
+		task.setState(State.CROP_COVER);
 	}
 	
 	private static void doCropCover(Task task) throws TaskException
 	{
+		if(!Configuration.options_autocrop.get()) {
+			task.setState(State.RESIZE_COVER);
+			LOG.debug("{} Image auto-cropping disabled, skipped", task);
+			return;
+		}
 		LOG.debug("{} Cropping image file", task);
 		File thumbnail = new File(task.getThumbnail());
 		BufferedImage src;
@@ -412,20 +404,16 @@ final class TaskManager
 		} catch (Exception e) {
 			throw new TaskException("Could not write image file " + thumbnail, e);
 		}
-		// Decide next step
-		if(Configuration.options_autoresize.get()) {
-			task.setState(State.RESIZE_COVER);
-			return;
-		}
-		if(Configuration.options_checkdupes.get()) {
-			task.setState(State.FIND_DUPLICATE);
-			return;
-		}
-		task.setState(State.FETCH_METADATA);
+		task.setState(State.RESIZE_COVER);
 	}
 	
 	private static void doResizeCover(Task task) throws TaskException
 	{
+		if(!Configuration.options_autoresize.get()) {
+			task.setState(State.FIND_DUPLICATE);
+			LOG.debug("{} Image auto-resizing disabled, skipped", task);
+			return;
+		}
 		LOG.debug("{} Resizing image file", task);
 		File thumbnail = new File(task.getThumbnail());
 		BufferedImage src;
@@ -449,16 +437,16 @@ final class TaskManager
 		} catch (IOException ioe) {
 			throw new TaskException("Could not write image file " + thumbnail, ioe);
 		}
-		// Decide next step
-		if(Configuration.options_checkdupes.get()) {
-			task.setState(State.FIND_DUPLICATE);
-			return;
-		}
-		task.setState(State.FETCH_METADATA);
+		task.setState(State.FIND_DUPLICATE);
 	}
 	
 	private static void doFindDuplicate(Task task) throws TaskException
 	{
+		if(!Configuration.options_checkdupes.get()) {
+			task.setState(State.FETCH_METADATA);
+			LOG.debug("{} Image duplicate scan disabled, skipped", task);
+			return;
+		}
 		LOG.debug("{} Checking for duplicate entries", task);
 		File thumbnail = new File(task.getThumbnail());
 		Integer found = ImageSearch.search(thumbnail);
@@ -660,15 +648,16 @@ final class TaskManager
 			task.needInput(true);
 			return;
 		}
-		if(Configuration.options_checksimilar.get()) {
-			task.setState(State.FIND_SIMILAR);
-			return;
-		}
-		task.setState(State.INSERT_DATABASE);
+		task.setState(State.FIND_SIMILAR);
 	}
 	
 	private static void doFindSimilar(Task task) throws TaskException
 	{
+		if(!Configuration.options_checksimilar.get()) {
+			task.setState(State.INSERT_DATABASE);
+			LOG.debug("{} Metadata duplicate scan disabled, skipped", task);
+			return;
+		}
 		LOG.debug("{} Checking for duplicate entries", task);
 		Set<Integer> duplicates = new HashSet<Integer>();
 		QueryBook query;

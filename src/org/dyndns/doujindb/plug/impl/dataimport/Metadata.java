@@ -171,4 +171,15 @@ abstract class Metadata
 			super(name);
 		}
 	}
+	
+	@XmlRootElement
+	@XmlType(namespace="default", name="Metadata")
+	public static final class Default extends Metadata {
+		Default() { }
+
+		@Override
+		public String provider() {
+			return "default";
+		}
+	}
 }

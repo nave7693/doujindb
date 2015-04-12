@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.plug.*;
+import org.dyndns.doujindb.plug.impl.dataimport.Metadata.*;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.Duplicate.Option;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
@@ -558,11 +560,12 @@ public final class DataImport extends Plugin
 		private final class TaskUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
 		{
 			private Task m_Task;
-			private JLabel m_LabelTitle;
+			private JLabel m_LabelState;
+			private JLabel m_LabelId;
 			private JLabel m_LabelPreview;
-			private JButton m_ButtonClose;
 			private JButton m_ButtonOpenFolder;
 			private JButton m_ButtonOpenXML;
+			private JButton m_ButtonClose;
 			private JSplitPane mSplitPane;
 			private JComponent mStateUI;
 			
@@ -574,10 +577,14 @@ public final class DataImport extends Plugin
 				setMaximumSize(new Dimension(280, 280));
 				setPreferredSize(new Dimension(280, 280));
 				
-				m_LabelTitle = new JLabel();
-				m_LabelTitle.setText("");
-				m_LabelTitle.setIcon(null);
-				add(m_LabelTitle);
+				m_LabelState = new JLabel();
+				m_LabelState.setText("");
+				m_LabelState.setIcon(null);
+				add(m_LabelState);
+				m_LabelId = new JLabel();
+				m_LabelId.setText("");
+				m_LabelId.setIcon(null);
+				add(m_LabelId);
 				m_ButtonClose = new JButton();
 				m_ButtonClose.setText("");
 				m_ButtonClose.setToolTipText("Close");
@@ -661,12 +668,13 @@ public final class DataImport extends Plugin
 
 			public void setTask(Task task) {
 				m_Task = task;
-				m_LabelTitle.setText(m_Task.getState() + " : " + m_Task.getFile());
-				m_LabelTitle.setIcon(getDisplayIcon(task));
+				m_LabelState.setText(m_Task.getState().toString());
+				m_LabelState.setIcon(getDisplayIcon(task));
+				m_LabelId.setText(m_Task.getFile());
 				try {
 					m_LabelPreview.setIcon(new ImageIcon(javax.imageio.ImageIO.read(new File(task.getThumbnail()))));
 				} catch (Exception e) {
-					m_LabelPreview.setIcon(mIcons.task_preview_missing);
+					m_LabelPreview.setIcon(null);
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
 				if(task.hasErrors()) {
@@ -680,7 +688,10 @@ public final class DataImport extends Plugin
 					if(Task.State.FIND_SIMILAR.equals(task.getState()))
 						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
 				} else
+				if(task.getState().equals(Task.State.DONE))
 					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.getResult()));
+				else
+					mSplitPane.setRightComponent(mStateUI = new JPanel());
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -693,7 +704,8 @@ public final class DataImport extends Plugin
 			public void layoutContainer(Container parent) {
 				int width = parent.getWidth(),
 					height = parent.getHeight();
-				m_LabelTitle.setBounds(0, 0, width - 80, 20);
+				m_LabelState.setBounds(0, 0, 140, 20);
+				m_LabelId.setBounds(140, 0, width - 140 - 80, 20);
 				m_ButtonClose.setBounds(width - 20, 0, 20, 20);
 				m_ButtonOpenFolder.setBounds(width - 40, 0, 20, 20);
 				m_ButtonOpenXML.setBounds(width - 60, 0, 20, 20);
@@ -757,28 +769,6 @@ public final class DataImport extends Plugin
 					}.execute();
 					return;
 				}
-				//FIXME
-//				if(ae.getSource() == m_ButtonOpenBook) {
-//					if(m_Task.getBook() == null)
-//						return;
-//					new SwingWorker<Void,Void>()
-//					{
-//						@Override
-//						protected Void doInBackground() throws Exception {
-//							Integer bookid = m_Task.getBook();
-//							if(bookid != null)
-//							{
-//								QueryBook qid = new QueryBook();
-//								qid.Id = bookid;
-//								RecordSet<Book> set = DataBase.getBooks(qid);
-//								if(set.size() == 1)
-//									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
-//							}
-//							return null;
-//						}
-//					}.execute();
-//					return;
-//				}
 			}
 
 			@Override
@@ -940,6 +930,7 @@ public final class DataImport extends Plugin
 			private final class DuplicateUI extends JPanel implements LayoutManager, ActionListener
 			{
 				private JTabbedPane mTabbedPane;
+				private JButton mButtonNext;
 
 				public DuplicateUI(Set<Task.Duplicate> duplicates) {
 					super.setLayout(this);
@@ -947,6 +938,14 @@ public final class DataImport extends Plugin
 					super.setPreferredSize(new Dimension(100,100));
 					mTabbedPane = new JTabbedPane();
 					mTabbedPane.setFocusable(false);
+					mButtonNext = new JButton();
+					mButtonNext.setText("Next");
+					mButtonNext.setToolTipText("Next");
+					mButtonNext.setIcon(mIcons.task_state_userinput);
+					mButtonNext.setSelected(true);
+					mButtonNext.setFocusable(false);
+					mButtonNext.addActionListener(this);
+					add(mButtonNext);
 					super.add(mTabbedPane);
 					super.doLayout();
 					for(Task.Duplicate duplicate : duplicates)
@@ -955,6 +954,16 @@ public final class DataImport extends Plugin
 
 				@Override
 				public void actionPerformed(ActionEvent ae) {
+					if(ae.getSource() == mButtonNext) {
+						m_Task.needInput(false);
+						if(m_Task.getState().equals(Task.State.FIND_DUPLICATE))
+							m_Task.setState(Task.State.FETCH_METADATA);
+						if(m_Task.getState().equals(Task.State.FIND_SIMILAR))
+							m_Task.setState(Task.State.INSERT_DATABASE);
+						m_SplitPane.setBottomComponent(null);
+						m_PanelTasks.clearSelection();
+						return;
+					}
 					final Integer bookId = Integer.parseInt(ae.getActionCommand());
 					new SwingWorker<Void, Void>() {
 						@Override
@@ -989,7 +998,8 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					mTabbedPane.setBounds(0, 0, width, height);
+					mTabbedPane.setBounds(0, 0, width, height - 20);
+					mButtonNext.setBounds(width / 2 - 40, height - 20, 80, 20);
 				}
 
 				private void addDuplicate(final Task.Duplicate duplicate) {
@@ -1193,6 +1203,7 @@ public final class DataImport extends Plugin
 				private JList<MetaWrapper> mListCircles;
 				private JList<MetaWrapper> mListContents;
 				private JList<MetaWrapper> mListParodies;
+				private JButton mButtonNext;
 				
 				private final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
 				
@@ -1339,6 +1350,15 @@ public final class DataImport extends Plugin
 					mListParodies.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 					mListParodies.setCellRenderer(lcr);
 					mListParodies.addMouseListener(ma);
+					
+					mButtonNext = new JButton();
+					mButtonNext.setText("Next");
+					mButtonNext.setToolTipText("Next");
+					mButtonNext.setIcon(mIcons.task_state_userinput);
+					mButtonNext.setSelected(true);
+					mButtonNext.setFocusable(false);
+					mButtonNext.addActionListener(this);
+					add(mButtonNext);
 					
 					super.add(mTabbedPane);
 					super.doLayout();
@@ -1510,18 +1530,59 @@ public final class DataImport extends Plugin
 				
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					/**
-					 * Browse Metadata URI in user Desktop
-					 */
-//					if(ae.getSource().equals(mMetaURI)) {
-//						String uri = mMetaURI.getText();
-//						try {
-//							Desktop.getDesktop().browse(new URI(uri));
-//						} catch (URISyntaxException | IOException e) {
-//							LOG.error("Error opening URI {}", uri,  e);
-//						}
-//						return;
-//					}
+					if(ae.getSource() == mButtonNext) {
+						Metadata md = new Metadata.Default();
+						md.name = mTextJapaneseName.getItemAt(mTextJapaneseName.getSelectedIndex());
+						md.translation = mTextTranslatedName.getItemAt(mTextTranslatedName.getSelectedIndex());
+						md.pages = mTextPages.getItemAt(mTextPages.getSelectedIndex());
+						try {
+							md.timestamp = mSDF.parse(mTextDate.getItemAt(mTextDate.getSelectedIndex())).getTime() / 1000;
+						} catch (ParseException pe) {
+							md.timestamp = new Date().getTime() / 1000;
+						}
+						md.adult = mCheckboxAdult.isSelected();
+						md.convention = mComboboxConvention.getItemAt(mComboboxConvention.getSelectedIndex());
+						
+						{
+							Enumeration<MetaWrapper> elems = ((DefaultListModel<MetaWrapper>)mListArtists.getModel()).elements();
+							while(elems.hasMoreElements()) {
+								MetaWrapper e = elems.nextElement();
+								if(e.isSelected())
+									md.artist.add((Artist)e.getValue());
+							}
+						}
+						{
+							Enumeration<MetaWrapper> elems = ((DefaultListModel<MetaWrapper>)mListCircles.getModel()).elements();
+							while(elems.hasMoreElements()) {
+								MetaWrapper e = elems.nextElement();
+								if(e.isSelected())
+									md.circle.add((Circle)e.getValue());
+							}
+						}
+						{
+							Enumeration<MetaWrapper> elems = ((DefaultListModel<MetaWrapper>)mListContents.getModel()).elements();
+							while(elems.hasMoreElements()) {
+								MetaWrapper e = elems.nextElement();
+								if(e.isSelected())
+									md.content.add((Content)e.getValue());
+							}
+						}
+						{
+							Enumeration<MetaWrapper> elems = ((DefaultListModel<MetaWrapper>)mListParodies.getModel()).elements();
+							while(elems.hasMoreElements()) {
+								MetaWrapper e = elems.nextElement();
+								if(e.isSelected())
+									md.parody.add((Parody)e.getValue());
+							}
+						}
+						m_Task.selectMetadata(md);
+						m_Task.needInput(false);
+						if(m_Task.getState().equals(Task.State.FETCH_METADATA))
+							m_Task.setState(Task.State.FIND_SIMILAR);
+						m_SplitPane.setBottomComponent(null);
+						m_PanelTasks.clearSelection();
+						return;
+					}
 				}
 
 				@Override
@@ -1544,7 +1605,8 @@ public final class DataImport extends Plugin
 				public void layoutContainer(Container parent) {
 					int width = parent.getWidth(),
 						height = parent.getHeight();
-					mTabbedPane.setBounds(0, 0, width, height);
+					mTabbedPane.setBounds(0, 0, width, height - 20);
+					mButtonNext.setBounds(width / 2 - 40, height - 20, 80, 20);
 				}
 			}
 		}

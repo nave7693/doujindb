@@ -42,7 +42,7 @@ final class Task
 	@XmlAttribute(name="needInput")
 	private boolean needInput = false;
 	@XmlElement(name="result")
-	private Integer result;
+	private Set<Integer> results = new HashSet<Integer>();
 	
 	private transient boolean selected = false;
 	
@@ -170,16 +170,20 @@ final class Task
 		this.needInput = needAnswer;
 	}
 	
-	public Integer getResult() {
-		return result;
+	public Set<Integer> results() {
+		return results;
 	}
 
-	public void setResult(Integer result) {
-		this.result = result;
+	public void addResult(Integer result) {
+		this.results.add(result);
+	}
+	
+	public boolean hasResults() {
+		return !results.isEmpty();
 	}
 
 	public void reset() {
-		this.result = null;
+		this.results = new HashSet<Integer>();
 		this.state = State.FIND_COVER;
 		this.fetchedMetadata = new HashSet<Metadata>();
 		this.selectedMetadata = null;

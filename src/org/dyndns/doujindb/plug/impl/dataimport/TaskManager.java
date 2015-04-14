@@ -501,6 +501,16 @@ final class TaskManager
 	
 	private static void doFetchMetadata(Task task) throws TaskException
 	{
+		boolean needMetadata = !task.hasDuplicates(); // No duplicate => need to fetch Metadata
+		for(Task.Duplicate d : task.duplicates())
+			if(d.metadataOption != Task.Duplicate.Option.IGNORE) { // At least 1 duplicate without IGNORE option => need to fetch Metadata
+				needMetadata = true;
+				break;
+			}
+		if(!needMetadata) {
+			LOG.debug("{} does not need Metadata to be fetched", task);
+			return;
+		}
 		File thumbnail = new File(task.getThumbnail());
 		for(MetadataProvider provider : mProviders) {
 			if(!provider.isEnabled()) {

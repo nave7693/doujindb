@@ -1,6 +1,8 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
@@ -18,7 +20,7 @@ final class Task
 		this.id = id;
 		this.file = file;
 	}
-	
+		
 	@XmlAttribute(name="id")
 	private String id = "";
 	@XmlElement(name="file")

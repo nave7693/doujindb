@@ -2,6 +2,8 @@ package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
@@ -17,6 +19,8 @@ abstract class Metadata
 	// Needed by JAXB
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
 	Metadata() { }
+	
+	private static final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
 
 	@XmlElement(name="score")
 	protected Integer score = -1;
@@ -181,5 +185,13 @@ abstract class Metadata
 		public String provider() {
 			return "default";
 		}
+	}
+	
+	public static String toDate(long timestamp) {
+		return mSDF.format(new Date(timestamp * 1000));
+	}
+	
+	public static long toTimestamp(String date) throws ParseException {
+		return mSDF.parse(date).getTime() / 1000;
 	}
 }

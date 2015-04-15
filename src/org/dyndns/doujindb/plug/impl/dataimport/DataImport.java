@@ -1205,8 +1205,6 @@ public final class DataImport extends Plugin
 				private JList<MetaWrapper> mListParodies;
 				private JButton mButtonNext;
 				
-				private final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
-				
 				public MetadataUI(Iterable<Metadata> list) {
 					super.setLayout(this);
 					super.setMinimumSize(new Dimension(100,100));
@@ -1384,7 +1382,7 @@ public final class DataImport extends Plugin
 					if(!isNull(md.pages))
 						mTextPages.addItem(md.pages);
 					if(!isNull(md.timestamp))
-						mTextDate.addItem(mSDF.format(new Date(md.timestamp * 1000)));
+						mTextDate.addItem(Metadata.toDate(md.timestamp));
 					if(!isNull(md.type))
 						mComboboxType.addItem(md.type);
 					if(!isNull(md.adult))
@@ -1536,7 +1534,7 @@ public final class DataImport extends Plugin
 						md.translation = mTextTranslatedName.getItemAt(mTextTranslatedName.getSelectedIndex());
 						md.pages = mTextPages.getItemAt(mTextPages.getSelectedIndex());
 						try {
-							md.timestamp = mSDF.parse(mTextDate.getItemAt(mTextDate.getSelectedIndex())).getTime() / 1000;
+							md.timestamp = Metadata.toTimestamp(mTextDate.getItemAt(mTextDate.getSelectedIndex()));
 						} catch (ParseException pe) {
 							md.timestamp = new Date().getTime() / 1000;
 						}

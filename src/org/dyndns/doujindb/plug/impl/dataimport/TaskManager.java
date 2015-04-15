@@ -6,6 +6,7 @@ import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -30,6 +31,8 @@ import org.dyndns.doujindb.db.record.Book.*;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.Duplicate.Option;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
 import org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch;
+import org.dyndns.doujindb.ui.UI;
+import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.util.*;
 
 final class TaskManager
@@ -40,6 +43,7 @@ final class TaskManager
 	private final File mTmpDir;
 	private Worker mWorker = new Worker();
 	private PropertyChangeSupport mPCS = new PropertyChangeSupport(mTaskSet);
+	private final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
 	
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(TaskManager.class);
 	
@@ -486,15 +490,9 @@ final class TaskManager
 			}
 			task.addDuplicate(duplicate);
 		}
-		// Decide next step
 		if(task.hasDuplicates()) {
-			for(Task.Duplicate dup : task.duplicates()) {
-				if(dup.dataOption == Option.UNSET || dup.metadataOption == Option.UNSET) {
-					// Task needs user input
-					task.needInput(true);
-					return;
-				}
-			}
+			task.needInput(true);
+			return;
 		}
 		task.setState(State.FETCH_METADATA);
 	}
@@ -509,6 +507,7 @@ final class TaskManager
 			}
 		if(!needMetadata) {
 			LOG.debug("{} does not need Metadata to be fetched", task);
+			task.setState(State.FIND_SIMILAR);
 			return;
 		}
 		File thumbnail = new File(task.getThumbnail());
@@ -691,117 +690,288 @@ final class TaskManager
 				if(!task.duplicates().contains(book))
 					task.addDuplicate(new Task.Duplicate(book));
 		}
-		// Decide next step
 		if(task.hasDuplicates()) {
-			for(Task.Duplicate dup : task.duplicates()) {
-				if(dup.dataOption == Option.UNSET || dup.metadataOption == Option.UNSET) {
-					// Task needs user input
-					task.needInput(true);
-					return;
-				}
-			}
+			task.needInput(true);
+			return;
 		}		
 		task.setState(State.INSERT_DATABASE);
 	}
 	
 	private static void doInsertDatabase(Task task) throws TaskException
 	{
-		Book book;
+		Map<Integer, Task.Duplicate.Option> duplicates = new HashMap<Integer, Task.Duplicate.Option>();
+		for(Task.Duplicate duplicate : task.duplicates()) {
+			if(duplicate.dataOption == Task.Duplicate.Option.IGNORE && duplicate.metadataOption == Task.Duplicate.Option.IGNORE)
+				continue;
+			duplicates.put(duplicate.id, duplicate.metadataOption);
+		}
 		Metadata md = task.selectedMetadata();
-		try {
-			book = DataBase.doInsert(Book.class);
-			task.setResult(book.getId());
-			book.setJapaneseName(md.name);
-			book.setTranslatedName(md.translation);
-			book.setDate(new Date(md.timestamp));
-			book.setPages(md.pages);
-			book.setAdult(md.adult);
-			book.setRating(Rating.UNRATED);
-			book.setInfo(md.info);
-			try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
-			if(md.convention != null) {
-				if(md.convention.getId() != null) {
-					QueryConvention q = new QueryConvention();
-					q.Id = md.convention.getId();
-					book.setConvention(DataBase.getConventions(q).iterator().next());
-				} else {
-					Convention newo = DataBase.doInsert(Convention.class);
-					newo.setTagName(md.convention.getName());
-					DataBase.doCommit();
+		if(duplicates.isEmpty()) { // No duplicate to process, create a new Book
+			try {
+				Book book;
+				book = DataBase.doInsert(Book.class);
+				task.setResult(book.getId());
+				//TODO Refactor
+				book.setJapaneseName(md.name);
+				book.setTranslatedName(md.translation);
+				book.setDate(new Date(md.timestamp));
+				book.setPages(md.pages);
+				book.setAdult(md.adult);
+				book.setRating(Rating.UNRATED);
+				book.setInfo(md.info);
+				try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
+				//TODO Refactor
+				if(md.convention != null) {
+					if(md.convention.getId() != null) {
+						QueryConvention q = new QueryConvention();
+						q.Id = md.convention.getId();
+						book.setConvention(DataBase.getConventions(q).iterator().next());
+					} else {
+						Convention newo = DataBase.doInsert(Convention.class);
+						newo.setTagName(md.convention.getName());
+						DataBase.doCommit();
+					}
+				}
+				for(Metadata.Artist o : md.artist) {
+					if(o.getId() != null) {
+						QueryArtist q = new QueryArtist();
+						q.Id = o.getId();
+						book.addArtist(DataBase.getArtists(q).iterator().next());
+					} else {
+						Artist newo = DataBase.doInsert(Artist.class);
+						newo.setJapaneseName(o.getName());
+						newo.setTranslatedName(o.getName());
+						DataBase.doCommit();
+					}
+				}
+				for(Metadata.Circle o : md.circle) {
+					if(o.getId() != null) {
+						QueryCircle q = new QueryCircle();
+						q.Id = o.getId();
+						book.addCircle(DataBase.getCircles(q).iterator().next());
+					} else {
+						Circle newo = DataBase.doInsert(Circle.class);
+						newo.setJapaneseName(o.getName());
+						newo.setTranslatedName(o.getName());
+						DataBase.doCommit();
+					}
+				}
+				for(Metadata.Content o : md.content) {
+					if(o.getId() != null) {
+						QueryContent q = new QueryContent();
+						q.Id = o.getId();
+						book.addContent(DataBase.getContents(q).iterator().next());
+					} else {
+						Content newo = DataBase.doInsert(Content.class);
+						newo.setTagName(o.getName());
+						DataBase.doCommit();
+					}
+				}
+				for(Metadata.Parody o : md.parody) {
+					if(o.getId() != null) {
+						QueryParody q = new QueryParody();
+						q.Id = o.getId();
+						book.addParody(DataBase.getParodies(q).iterator().next());
+					} else {
+						Parody newo = DataBase.doInsert(Parody.class);
+						newo.setJapaneseName(o.getName());
+						newo.setTranslatedName(o.getName());
+						DataBase.doCommit();
+					}
+				}
+				DataBase.doCommit();
+			} catch (NullPointerException e) {
+				throw new TaskException("Error inserting DataBase info", e);
+			}
+		} else { // Process duplicates
+			for(Integer id : duplicates.keySet()) {
+				Book book = null;
+				Task.Duplicate.Option option = duplicates.get(id);
+				{
+					QueryBook qid = new QueryBook();
+					qid.Id = id;
+					RecordSet<Book> set = DataBase.getBooks(qid);
+					if(set.size() == 1)
+						book = set.iterator().next();
+					else {
+						LOG.error("{} Error retrieving Book [{}] from DataBase", new Object[]{task, id});
+						continue;
+					}
+				}
+				switch(option) {
+				case MERGE:
+					LOG.debug("{} Merging Metadata with Book [{}]", new Object[]{task, id});
+					//TODO Refactor
+					if(md.convention != null) {
+						if(md.convention.getId() != null) {
+							QueryConvention q = new QueryConvention();
+							q.Id = md.convention.getId();
+							book.setConvention(DataBase.getConventions(q).iterator().next());
+						} else {
+							Convention newo = DataBase.doInsert(Convention.class);
+							newo.setTagName(md.convention.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Artist o : md.artist) {
+						if(o.getId() != null) {
+							QueryArtist q = new QueryArtist();
+							q.Id = o.getId();
+							book.addArtist(DataBase.getArtists(q).iterator().next());
+						} else {
+							Artist newo = DataBase.doInsert(Artist.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Circle o : md.circle) {
+						if(o.getId() != null) {
+							QueryCircle q = new QueryCircle();
+							q.Id = o.getId();
+							book.addCircle(DataBase.getCircles(q).iterator().next());
+						} else {
+							Circle newo = DataBase.doInsert(Circle.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Content o : md.content) {
+						if(o.getId() != null) {
+							QueryContent q = new QueryContent();
+							q.Id = o.getId();
+							book.addContent(DataBase.getContents(q).iterator().next());
+						} else {
+							Content newo = DataBase.doInsert(Content.class);
+							newo.setTagName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Parody o : md.parody) {
+						if(o.getId() != null) {
+							QueryParody q = new QueryParody();
+							q.Id = o.getId();
+							book.addParody(DataBase.getParodies(q).iterator().next());
+						} else {
+							Parody newo = DataBase.doInsert(Parody.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					break;
+				case REPLACE:
+					LOG.debug("{} Replacing Metadata in Book [{}]", new Object[]{task, id});
+					//TODO Refactor
+					book.setJapaneseName(md.name);
+					book.setTranslatedName(md.translation);
+					book.setDate(new Date(md.timestamp));
+					book.setPages(md.pages);
+					book.setAdult(md.adult);
+					book.setRating(Rating.UNRATED);
+					book.setInfo(md.info);
+					try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
+					// Clear Book
+					book.removeAll();
+					//TODO Refactor
+					if(md.convention != null) {
+						if(md.convention.getId() != null) {
+							QueryConvention q = new QueryConvention();
+							q.Id = md.convention.getId();
+							book.setConvention(DataBase.getConventions(q).iterator().next());
+						} else {
+							Convention newo = DataBase.doInsert(Convention.class);
+							newo.setTagName(md.convention.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Artist o : md.artist) {
+						if(o.getId() != null) {
+							QueryArtist q = new QueryArtist();
+							q.Id = o.getId();
+							book.addArtist(DataBase.getArtists(q).iterator().next());
+						} else {
+							Artist newo = DataBase.doInsert(Artist.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Circle o : md.circle) {
+						if(o.getId() != null) {
+							QueryCircle q = new QueryCircle();
+							q.Id = o.getId();
+							book.addCircle(DataBase.getCircles(q).iterator().next());
+						} else {
+							Circle newo = DataBase.doInsert(Circle.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Content o : md.content) {
+						if(o.getId() != null) {
+							QueryContent q = new QueryContent();
+							q.Id = o.getId();
+							book.addContent(DataBase.getContents(q).iterator().next());
+						} else {
+							Content newo = DataBase.doInsert(Content.class);
+							newo.setTagName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					for(Metadata.Parody o : md.parody) {
+						if(o.getId() != null) {
+							QueryParody q = new QueryParody();
+							q.Id = o.getId();
+							book.addParody(DataBase.getParodies(q).iterator().next());
+						} else {
+							Parody newo = DataBase.doInsert(Parody.class);
+							newo.setJapaneseName(o.getName());
+							newo.setTranslatedName(o.getName());
+							DataBase.doCommit();
+						}
+					}
+					break;
+				case IGNORE:
+					break;
 				}
 			}
-			for(Metadata.Artist o : md.artist) {
-				if(o.getId() != null) {
-					QueryArtist q = new QueryArtist();
-					q.Id = o.getId();
-					book.addArtist(DataBase.getArtists(q).iterator().next());
-				} else {
-					Artist newo = DataBase.doInsert(Artist.class);
-					newo.setJapaneseName(o.getName());
-					newo.setTranslatedName(o.getName());
-					DataBase.doCommit();
-				}
-			}
-			for(Metadata.Circle o : md.circle) {
-				if(o.getId() != null) {
-					QueryCircle q = new QueryCircle();
-					q.Id = o.getId();
-					book.addCircle(DataBase.getCircles(q).iterator().next());
-				} else {
-					Circle newo = DataBase.doInsert(Circle.class);
-					newo.setJapaneseName(o.getName());
-					newo.setTranslatedName(o.getName());
-					DataBase.doCommit();
-				}
-			}
-			for(Metadata.Content o : md.content) {
-				if(o.getId() != null) {
-					QueryContent q = new QueryContent();
-					q.Id = o.getId();
-					book.addContent(DataBase.getContents(q).iterator().next());
-				} else {
-					Content newo = DataBase.doInsert(Content.class);
-					newo.setTagName(o.getName());
-					DataBase.doCommit();
-				}
-			}
-			for(Metadata.Parody o : md.parody) {
-				if(o.getId() != null) {
-					QueryParody q = new QueryParody();
-					q.Id = o.getId();
-					book.addParody(DataBase.getParodies(q).iterator().next());
-				} else {
-					Parody newo = DataBase.doInsert(Parody.class);
-					newo.setJapaneseName(o.getName());
-					newo.setTranslatedName(o.getName());
-					DataBase.doCommit();
-				}
-			}
-			DataBase.doCommit();
-		} catch (NullPointerException e) {
-			throw new TaskException("Error inserting DataBase info", e);
 		}
 		task.setState(State.INSERT_DATASTORE);
 	}
 	
 	private static void doInsertDatastore(Task task) throws TaskException
 	{
-		File basepath = new File(task.getFile());
-		try {
-			DataFile store = DataStore.getStore(task.getResult());
-			store.mkdirs();
-			DataStore.fromFile(basepath, store, true);
-		} catch (DataBaseException | IOException | DataStoreException e) {
-			throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
+		Map<Integer, Task.Duplicate.Option> duplicates = new HashMap<Integer, Task.Duplicate.Option>();
+		for(Task.Duplicate duplicate : task.duplicates()) {
+			if(duplicate.dataOption == Task.Duplicate.Option.IGNORE && duplicate.metadataOption == Task.Duplicate.Option.IGNORE)
+				continue;
+			duplicates.put(duplicate.id, duplicate.dataOption);
 		}
-		try {
-			DataFile df = DataStore.getThumbnail(task.getResult());
-			OutputStream out = df.openOutputStream();
-			BufferedImage image = javax.imageio.ImageIO.read(new File(task.getThumbnail()));
-			javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
-			out.close();
-		} catch (IOException | DataStoreException e) {
-			throw new TaskException("Error creating preview in the DataStore", e);
+		if(duplicates.isEmpty()) { // No duplicate to process, process Result
+			File basepath = new File(task.getFile());
+			try {
+				DataFile store = DataStore.getStore(task.getResult());
+				store.mkdirs();
+				DataStore.fromFile(basepath, store, true);
+			} catch (DataBaseException | IOException | DataStoreException e) {
+				throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
+			}
+			try {
+				DataFile df = DataStore.getThumbnail(task.getResult());
+				OutputStream out = df.openOutputStream();
+				BufferedImage image = javax.imageio.ImageIO.read(new File(task.getThumbnail()));
+				javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
+				out.close();
+			} catch (IOException | DataStoreException e) {
+				throw new TaskException("Error creating preview in the DataStore", e);
+			}
+		} else { // Process duplicates
+			for(Integer id : duplicates.keySet()) {
+				//TODO
+			}
 		}
 		task.setState(State.DONE);
 	}

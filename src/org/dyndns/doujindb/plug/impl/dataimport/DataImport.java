@@ -689,7 +689,7 @@ public final class DataImport extends Plugin
 						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
 				} else
 				if(task.getState().equals(Task.State.DONE))
-					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.results()));
+					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.getResult()));
 				else
 					mSplitPane.setRightComponent(mStateUI = new JPanel());
 				SwingUtilities.invokeLater(new Runnable() {
@@ -890,48 +890,40 @@ public final class DataImport extends Plugin
 			
 			private final class DoneUI extends JPanel implements ActionListener
 			{
-				private JTabbedPane mTabbedPane;
+				private Integer mBookId;
 				
-				public DoneUI(Set<Integer> results) {
+				public DoneUI(Integer result) {
+					mBookId = result;
+					ImageIcon duplicateImage;
 					super.setLayout(new GridLayout(1,1));
-					mTabbedPane = new JTabbedPane();
-					mTabbedPane.setFocusable(false);
-					super.add(mTabbedPane);
-					super.doLayout();
-					for(Integer result : results)
-						addResult(result);
+					try {
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(mBookId).openInputStream()));
+					} catch (Exception e) {
+						duplicateImage = mIcons.task_preview_missing;
+						LOG.warn("Error loading cover image for Book {}", mBookId, e);
+					}
+					JButton duplicateButton = new BookCoverButton(duplicateImage);
+					duplicateButton.addActionListener(this);
+					duplicateButton.setFocusable(false);
+					duplicateButton.setMinimumSize(new Dimension(180, 180));
+					super.add(duplicateButton);
 				}
 
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					final Integer bookId = Integer.parseInt(ae.getActionCommand());
 					new SwingWorker<Void,Void>() {
 						@Override
 						protected Void doInBackground() throws Exception {
-							QueryBook qid = new QueryBook();
-							qid.Id = bookId;
-							RecordSet<Book> set = DataBase.getBooks(qid);
-							if(set.size() == 1)
-								UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+							if(mBookId != null) {
+								QueryBook qid = new QueryBook();
+								qid.Id = mBookId;
+								RecordSet<Book> set = DataBase.getBooks(qid);
+								if(set.size() == 1)
+									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
+							}
 							return null;
 						}
 					}.execute();
-				}
-				
-				private void addResult(final Integer result) {
-					ImageIcon image;
-					try {
-						image = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(result).openInputStream()));
-					} catch (Exception e) {
-						image = mIcons.task_preview_missing;
-						LOG.warn("Error loading cover image for Book {}", result, e);
-					}
-					JButton resultButton = new BookCoverButton(image);
-					resultButton.setActionCommand(result.toString());
-					resultButton.addActionListener(this);
-					resultButton.setFocusable(false);
-					resultButton.setMinimumSize(new Dimension(180, 180));
-					mTabbedPane.addTab("Book [" + result + "]", mIcons.task_metadata_book, resultButton);
 				}
 			}
 			
@@ -1548,6 +1540,7 @@ public final class DataImport extends Plugin
 						} catch (ParseException pe) {
 							md.timestamp = new Date().getTime() / 1000;
 						}
+						md.type = mComboboxType.getItemAt(mComboboxType.getSelectedIndex());
 						md.adult = mCheckboxAdult.isSelected();
 						md.convention = mComboboxConvention.getItemAt(mComboboxConvention.getSelectedIndex());
 						

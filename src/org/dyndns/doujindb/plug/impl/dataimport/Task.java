@@ -42,7 +42,7 @@ final class Task
 	@XmlAttribute(name="needInput")
 	private boolean needInput = false;
 	@XmlElement(name="result")
-	private Set<Integer> results = new HashSet<Integer>();
+	private Integer result;
 	
 	private transient boolean selected = false;
 	
@@ -170,20 +170,16 @@ final class Task
 		this.needInput = needAnswer;
 	}
 	
-	public Set<Integer> results() {
-		return results;
-	}
-
-	public void addResult(Integer result) {
-		this.results.add(result);
+	public void setResult(Integer result) {
+		this.result = result;
 	}
 	
-	public boolean hasResults() {
-		return !results.isEmpty();
+	public Integer getResult() {
+		return result;
 	}
 
 	public void reset() {
-		this.results = new HashSet<Integer>();
+		this.result = null;
 		this.state = State.FIND_COVER;
 		this.fetchedMetadata = new HashSet<Metadata>();
 		this.selectedMetadata = null;
@@ -224,15 +220,14 @@ final class Task
 		public static enum Option {
 			IGNORE,
 			MERGE,
-			REPLACE,
-			UNSET // This is way better to just leave 'null's around and suffer NullPointerExceptions every now and then
+			REPLACE
 		}
 		@XmlAttribute(name="id")
 		public Integer id;
 		@XmlElement(name="metadataOption")
-		public Option metadataOption = Option.UNSET;
+		public Option metadataOption = Option.IGNORE;
 		@XmlElement(name="dataOption")
-		public Option dataOption = Option.UNSET;
+		public Option dataOption = Option.IGNORE;
 		@XmlElement(name="annotation")
 		public Set<String> annotations = new HashSet<String>();
 		

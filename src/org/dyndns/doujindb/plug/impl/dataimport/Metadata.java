@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.*;
 @XmlSeeAlso({
 	org.dyndns.doujindb.plug.impl.dataimport.MugiMugiProvider.Metadata.class,
 	org.dyndns.doujindb.plug.impl.dataimport.EHentaiProvider.Metadata.class,
+	org.dyndns.doujindb.plug.impl.dataimport.Metadata.Default.class,
 })
 abstract class Metadata
 {

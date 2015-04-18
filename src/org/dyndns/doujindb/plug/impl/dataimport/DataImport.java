@@ -331,9 +331,9 @@ public final class DataImport extends Plugin
 			case SIMILAR_SELECT:
 				return mIcons.task_state_userinput;
 			case FACTORY_RESET:
-				return mIcons.task_state_new;
+				return mIcons.task_state_idle;
 			}
-			return mIcons.task_state_unknow;
+			return mIcons.task_state_idle;
 		}
 		
 		private final class PanelTaskUI extends JTable implements TaskListener
@@ -958,10 +958,6 @@ public final class DataImport extends Plugin
 				public void actionPerformed(ActionEvent ae) {
 					if(ae.getSource() == mButtonNext) {
 						m_Task.unlock();
-						if(m_Task.getState().equals(Task.State.SIMILAR_CHECK))
-							m_Task.setState(Task.State.METADATA_FETCH);
-						if(m_Task.getState().equals(Task.State.DUPLICATE_CHECK))
-							m_Task.setState(Task.State.DATABASE_INSERT);
 						m_SplitPane.setBottomComponent(null);
 						m_PanelTasks.clearSelection();
 						return;
@@ -1578,8 +1574,6 @@ public final class DataImport extends Plugin
 						}
 						m_Task.selectMetadata(md);
 						m_Task.unlock();
-						if(m_Task.getState().equals(Task.State.METADATA_FETCH))
-							m_Task.setState(Task.State.DUPLICATE_CHECK);
 						m_SplitPane.setBottomComponent(null);
 						m_PanelTasks.clearSelection();
 						return;

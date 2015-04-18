@@ -34,7 +34,7 @@ public final class Icons
     public final ImageIcon task_download = null;
     public final ImageIcon task_searchquery_star = null;
     public final ImageIcon task_preview_missing = null;
-    public final ImageIcon task_state_new = null;
+    public final ImageIcon task_state_idle = null;
     public final ImageIcon task_state_running = null;
     public final ImageIcon task_state_complete = null;
     public final ImageIcon task_state_warning = null;

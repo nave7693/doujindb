@@ -112,8 +112,20 @@ final class Task implements Runnable
 		this.locked = true;
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	public void unlock() throws TaskException {
 		this.locked = false;
+		switch(state) {
+			case SIMILAR_SELECT:
+				state = State.SIMILAR_CHECK.next();
+				break;
+			case DUPLICATE_SELECT:
+				state = State.DUPLICATE_CHECK.next();
+				break;
+			case METADATA_SELECT:
+				state = State.METADATA_FETCH.next();
+				break;
+		}
 	}
 	
 	public boolean isLocked() {
@@ -130,10 +142,6 @@ final class Task implements Runnable
 
 	public State getState() {
 		return state;
-	}
-
-	public void setState(State state) {
-		this.state = state;
 	}
 
 	public String getId() {
@@ -357,7 +365,7 @@ final class Task implements Runnable
 			@Override
 			State run(Task context) {
 				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
-				if(!Configuration.options_checkdupes.get()) {
+				if(!Configuration.options_check_similar.get()) {
 					LOG.debug("Image similarity scan disabled, skipped");
 					return next();
 				}
@@ -576,7 +584,7 @@ final class Task implements Runnable
 			@Override
 			State run(Task context) {
 				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
-				if(!Configuration.options_checksimilar.get()) {
+				if(!Configuration.options_check_duplicate.get()) {
 					LOG.debug("Metadata duplicate scan disabled, skipped");
 					return next();
 				}
@@ -919,7 +927,13 @@ final class Task implements Runnable
 			}
 
 			@Override
-			State next() { return null; }
+			protected void postRun(Task context) {
+				super.postRun(context);
+				context.lock();
+			}
+
+			@Override
+			State next() { return this; }
 		},
 		SIMILAR_SELECT {
 			@Override
@@ -929,7 +943,13 @@ final class Task implements Runnable
 			}
 
 			@Override
-			State next() { return null; }
+			protected void postRun(Task context) {
+				super.postRun(context);
+				context.lock();
+			}
+
+			@Override
+			State next() { return this; }
 		},
 		DUPLICATE_SELECT {
 			@Override
@@ -939,7 +959,13 @@ final class Task implements Runnable
 			}
 
 			@Override
-			State next() { return null; }
+			protected void postRun(Task context) {
+				super.postRun(context);
+				context.lock();
+			}
+
+			@Override
+			State next() { return this; }
 		},
 		METADATA_SELECT {
 			@Override
@@ -949,7 +975,13 @@ final class Task implements Runnable
 			}
 
 			@Override
-			State next() { return null; }
+			protected void postRun(Task context) {
+				super.postRun(context);
+				context.lock();
+			}
+
+			@Override
+			State next() { return this; }
 		},
 		ERROR_RAISE {
 			@Override
@@ -957,9 +989,15 @@ final class Task implements Runnable
 				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
 				return next();
 			}
+			
+			@Override
+			protected void postRun(Task context) {
+				super.postRun(context);
+				context.lock();
+			}
 
 			@Override
-			State next() { return null; }
+			State next() { return this; }
 		};
 
 		protected void preRun(Task context) {
@@ -996,11 +1034,7 @@ final class Task implements Runnable
 
 	@Override
 	public void run() {
-		State nextState = this.state.process(this);
-		if(nextState == null)
-			lock();
-		else
-			state = nextState;
+		state = this.state.process(this);
 	}
 	
 	private static File findImage(String base) {

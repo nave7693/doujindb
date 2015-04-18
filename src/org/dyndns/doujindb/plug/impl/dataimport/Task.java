@@ -7,9 +7,13 @@ import java.util.*;
 
 import javax.xml.bind.annotation.*;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="Task")
-final class Task
+final class Task implements Runnable
 {
 	// Needed by JAXB
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
@@ -28,7 +32,7 @@ final class Task
 	@XmlElement(name="thumbnail")
 	private String thumbnail;
 	@XmlAttribute(name="state")
-	private State state;
+	private State state = State.FACTORY_RESET;
 	@XmlElement(name="fetchedMetadata")
 	private Set<Metadata> fetchedMetadata = new HashSet<Metadata>();
 	@XmlElement(name="selectedMetadata")
@@ -48,23 +52,7 @@ final class Task
 	
 	private transient boolean selected = false;
 	
-	static enum State {
-		FIND_COVER(1),
-		CROP_COVER(2),
-		RESIZE_COVER(3),
-		FIND_DUPLICATE(4),
-		FETCH_METADATA(5),
-		FIND_SIMILAR(8),
-		INSERT_DATABASE(9),
-		INSERT_DATASTORE(10),
-		DONE(11);
-		
-		private Integer value;
-
-		private State(Integer value) { this.value = value; }
-		
-		public Integer getValue() { return this.value; }
-	}
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(Task.class);
 	
 	public void error(Throwable t) {
 		try {
@@ -77,31 +65,8 @@ final class Task
 		}
 	}
 	
-	public boolean hasErrors() {
-		return !errors.isEmpty();
-	}
-	
 	public Map<String,String> errors() {
 		return errors;
-	}
-	
-	public void warning(Throwable t) {
-		try {
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			PrintStream ps = new PrintStream(os);
-			t.printStackTrace(ps);
-			warnings.put(t.getMessage(), os.toString("UTF8"));
-		} catch (Exception e) {
-			warnings.put(t.getMessage(), "");
-		}
-	}
-	
-	public boolean hasWarnings() {
-		return !warnings.isEmpty();
-	}
-	
-	public Map<String,String> warnings() {
-		return warnings;
 	}
 	
 	public void addMetadata(Metadata md) {
@@ -120,16 +85,12 @@ final class Task
 		return selectedMetadata;
 	}
 	
-	public void addDuplicate(Duplicate dupe) {
-		duplicates.add(dupe);
+	public void addDuplicate(Duplicate duplicate) {
+		duplicates.add(duplicate);
 	}
 	
 	public Set<Duplicate> duplicates() {
 		return duplicates;
-	}
-	
-	public boolean hasDuplicates() {
-		return !duplicates.isEmpty();
 	}
 	
 	public void setSelected(boolean selected) {
@@ -182,7 +143,7 @@ final class Task
 
 	public void reset() {
 		this.result = null;
-		this.state = State.FIND_COVER;
+		this.state = State.FACTORY_RESET;
 		this.fetchedMetadata = new HashSet<Metadata>();
 		this.selectedMetadata = null;
 		this.message = null;
@@ -261,5 +222,147 @@ final class Task
 		public String toString() {
 			return getClass().getSimpleName() + "@" + id;
 		}
+	}
+
+	public static enum State {
+
+		FACTORY_RESET {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return IMAGE_SEARCH;
+			}
+		},
+		IMAGE_SEARCH {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return IMAGE_CROP;
+			}
+		},
+		IMAGE_CROP {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return IMAGE_RESIZE;
+			}
+		},
+		IMAGE_RESIZE {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return SIMILAR_CHECK;
+			}
+		},
+		SIMILAR_CHECK {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return METADATA_FETCH;
+			}
+		},
+		METADATA_FETCH {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return DUPLICATE_CHECK;
+			}
+		},
+		DUPLICATE_CHECK {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return DATABASE_INSERT;
+			}
+		},
+		DATABASE_INSERT {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return DATASTORE_INSERT;
+			}
+		},
+		DATASTORE_INSERT {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return TASK_CLEANUP;
+			}
+		},
+		TASK_CLEANUP {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return TASK_COMPLETE;
+			}
+		},
+		TASK_COMPLETE {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		},
+		TASK_PAUSE {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		},
+		SIMILAR_SELECT {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		},
+		DUPLICATE_SELECT {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		},
+		METADATA_SELECT {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		},
+		ERROR_RAISE {
+			@Override
+			State run(Task context) {
+				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
+				return this;
+			}
+		};
+
+		protected void preRun(Task context) { LOG.debug("call preRun(Task={}, State={})", new Object[]{context.getId(), this}); }
+		abstract State run(Task context);
+		protected void postRun(Task context) { LOG.debug("call postRun(Task={}, State={})", new Object[]{context.getId(), this}); }
+		
+		State processWrapper(Task context) {
+			try {
+				preRun(context);
+				State state = run(context);
+				postRun(context);
+				TaskManager.fireTaskChanged(context);
+				return state;
+			} catch (TaskException te) {
+				LOG.error("Exception while processing Task Id={}", context.getId(), te);
+				return ERROR_RAISE;
+			} catch (Exception e) {
+				LOG.error("Exception while processing Task Id={}", context.getId(), e);
+				// This error was not supposed to happen, re-throw it
+				throw new TaskException(e);
+			}
+		}
+	}
+
+	@Override
+	public void run() {
+		state = state.processWrapper(this);
 	}
 }

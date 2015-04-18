@@ -11,7 +11,6 @@ import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.*;
 import java.text.ParseException;
@@ -114,7 +113,7 @@ public final class DataImport extends Plugin
 	}
 	
 	@SuppressWarnings("serial")
-	private final class PluginUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
+	private final class PluginUI extends JPanel implements LayoutManager, ActionListener, TaskListener
 	{
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
@@ -188,7 +187,7 @@ public final class DataImport extends Plugin
 			panelConfig.setConfigurationFile(CONFIG_FILE);
 			m_TabbedPane.addTab("Configuration", mIcons.settings, m_TabConfiguration = panelConfig);
 			super.add(m_TabbedPane);
-			mTaskManager.registerListener(this);
+			mTaskManager.addTaskListener(this);
 		}
 		
 		@Override
@@ -321,13 +320,10 @@ public final class DataImport extends Plugin
 			if(task.equals(mTaskManager.getRunningTask()))
 				return mIcons.task_state_running;
 			// Task has experienced at least 1 error => "Error" icon
-			if(task.hasErrors())
+			if(!task.errors().isEmpty())
 				return mIcons.task_state_error;
-			// Task has experienced at least 1 warning => "Warning" icon
-			if(task.hasWarnings())
-				return mIcons.task_state_warning;
 			// Task is done => "Complete" icon
-			if(Task.State.DONE.equals(task.getState()))
+			if(Task.State.TASK_COMPLETE.equals(task.getState()))
 				return mIcons.task_state_complete;
 			// Task need user input => "UserInput" icon
 			if(task.needInput())
@@ -340,7 +336,7 @@ public final class DataImport extends Plugin
 			return mIcons.task_state_new;
 		}
 		
-		private final class PanelTaskUI extends JTable implements PropertyChangeListener
+		private final class PanelTaskUI extends JTable implements TaskListener
 		{
 			private Class<?>[] m_Types = new Class[] {
 				Task.State.class,
@@ -419,7 +415,7 @@ public final class DataImport extends Plugin
 					}
 				});
 				
-				mTaskManager.registerListener(this);
+				mTaskManager.addTaskListener(this);
 			}
 			
 			public void dataChanged() {
@@ -549,15 +545,17 @@ public final class DataImport extends Plugin
 			}
 
 			@Override
-			public void propertyChange(PropertyChangeEvent pce) {
-				if(pce.getPropertyName().equals("task-info"))
-					dataChanged();
-				if(pce.getPropertyName().equals("taskmanager-info"))
-					dataChanged();
+			public void taskChanged(Task task) {
+				dataChanged();
+			}
+			
+			@Override
+			public void taskmanagerChanged() {
+				dataChanged();
 			}
 		}
 		
-		private final class TaskUI extends JPanel implements LayoutManager, ActionListener, PropertyChangeListener
+		private final class TaskUI extends JPanel implements LayoutManager, ActionListener, TaskListener
 		{
 			private Task m_Task;
 			private JLabel m_LabelState;
@@ -662,7 +660,7 @@ public final class DataImport extends Plugin
 					@Override
 					protected void done() { }
 				}.execute();
-				mTaskManager.registerListener(this);
+				mTaskManager.addTaskListener(this);
 			}
 			
 
@@ -677,18 +675,18 @@ public final class DataImport extends Plugin
 					m_LabelPreview.setIcon(null);
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
-				if(task.hasErrors()) {
+				if(!task.errors().isEmpty()) {
 					mSplitPane.setRightComponent(mStateUI = new ErrorUI(task));
 				} else
 				if(task.needInput()) {
-					if(Task.State.FIND_DUPLICATE.equals(task.getState()))
+					if(Task.State.SIMILAR_CHECK.equals(task.getState()))
 						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
-					if(Task.State.FETCH_METADATA.equals(task.getState()))
+					if(Task.State.METADATA_FETCH.equals(task.getState()))
 						mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.fetchedMetadata()));
-					if(Task.State.FIND_SIMILAR.equals(task.getState()))
+					if(Task.State.DUPLICATE_CHECK.equals(task.getState()))
 						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
 				} else
-				if(task.getState().equals(Task.State.DONE))
+				if(task.getState().equals(Task.State.TASK_COMPLETE))
 					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.getResult()));
 				else
 					mSplitPane.setRightComponent(mStateUI = new JPanel());
@@ -772,9 +770,8 @@ public final class DataImport extends Plugin
 			}
 
 			@Override
-			public void propertyChange(PropertyChangeEvent pce) {
-				if(pce.getPropertyName().equals("taskmanager-info"))
-					doLayout();
+			public void taskmanagerChanged() {
+				doLayout();
 			}
 			
 			private final class BookCoverButton extends JButton {
@@ -956,10 +953,10 @@ public final class DataImport extends Plugin
 				public void actionPerformed(ActionEvent ae) {
 					if(ae.getSource() == mButtonNext) {
 						m_Task.needInput(false);
-						if(m_Task.getState().equals(Task.State.FIND_DUPLICATE))
-							m_Task.setState(Task.State.FETCH_METADATA);
-						if(m_Task.getState().equals(Task.State.FIND_SIMILAR))
-							m_Task.setState(Task.State.INSERT_DATABASE);
+						if(m_Task.getState().equals(Task.State.SIMILAR_CHECK))
+							m_Task.setState(Task.State.METADATA_FETCH);
+						if(m_Task.getState().equals(Task.State.DUPLICATE_CHECK))
+							m_Task.setState(Task.State.DATABASE_INSERT);
 						m_SplitPane.setBottomComponent(null);
 						m_PanelTasks.clearSelection();
 						return;
@@ -1576,8 +1573,8 @@ public final class DataImport extends Plugin
 						}
 						m_Task.selectMetadata(md);
 						m_Task.needInput(false);
-						if(m_Task.getState().equals(Task.State.FETCH_METADATA))
-							m_Task.setState(Task.State.FIND_SIMILAR);
+						if(m_Task.getState().equals(Task.State.METADATA_FETCH))
+							m_Task.setState(Task.State.DUPLICATE_CHECK);
 						m_SplitPane.setBottomComponent(null);
 						m_PanelTasks.clearSelection();
 						return;
@@ -1608,19 +1605,22 @@ public final class DataImport extends Plugin
 					mButtonNext.setBounds(width / 2 - 40, height - 25, 80, 20);
 				}
 			}
+
+			@Override
+			public void taskChanged(Task task) { }
 		}
 
 		@Override
-		public void propertyChange(PropertyChangeEvent pce) {
-			if(pce.getPropertyName().equals("taskmanager-info")) {
-				m_LabelTasks.setText("Tasks : " + mTaskManager.size());
-				if(mTaskManager.isRunning())
-					m_ButtonTaskManagerCtl.setIcon(mIcons.task_pause);
-				else
-					m_ButtonTaskManagerCtl.setIcon(mIcons.task_resume);
-				return;
-			}
+		public void taskmanagerChanged() {
+			m_LabelTasks.setText("Tasks : " + mTaskManager.size());
+			if(mTaskManager.isRunning())
+				m_ButtonTaskManagerCtl.setIcon(mIcons.task_pause);
+			else
+				m_ButtonTaskManagerCtl.setIcon(mIcons.task_resume);
 		}
+
+		@Override
+		public void taskChanged(Task task) { }
 	}
 
 	@Override

@@ -75,25 +75,38 @@ public final class DataStore
 		return instance.getStore(bookId);
 	}
 	
-	public static void fromFile(File srcPath, DataFile dstPath, boolean contentsOnly) throws DataStoreException, IOException
+	public static void fromFile(File srcPath, DataFile dstPath, CopyOption ... options) throws DataStoreException, IOException
 	{
-		LOG.debug("call fromFile({}, {}, {})", new Object[]{ srcPath, dstPath, contentsOnly });
+		LOG.debug("call fromFile({}, {}, {})", new Object[]{ srcPath, dstPath, options });
 		checkOpen();
+		boolean contentsOnly = false;
+		boolean overwrite = false;
+		for(CopyOption option : options) {
+			switch(option) {
+			case CONTENTS_ONLY:
+				contentsOnly = true;
+				break;
+			case OVERWRITE:
+				overwrite = true;
+				break;
+			}
+		}
 		if(contentsOnly)
 			for(File file : srcPath.listFiles())
-				fromFile(file, dstPath);
+				fromFile(file, dstPath, overwrite);
 		else
-			fromFile(srcPath, dstPath);
+			fromFile(srcPath, dstPath, overwrite);
 	}
 	
 	/**
 	 * Recursively transfer all data contained in srcPath directory into dstPath.
 	 * @param srcPath
 	 * @param dstPath
+	 * @param overwrite
 	 * @throws DataStoreException
 	 * @throws IOException
 	 */
-	public static void fromFile(File srcPath, DataFile dstPath) throws DataStoreException, IOException
+	public static void fromFile(File srcPath, DataFile dstPath, boolean overwrite) throws DataStoreException, IOException
 	{
 		LOG.debug("call fromFile({}, {})", srcPath, dstPath);
 		checkOpen();
@@ -102,31 +115,46 @@ public final class DataStore
 		{
 			dataFile.mkdirs();
 			for(File file : srcPath.listFiles())
-				fromFile(file, dataFile);
+				fromFile(file, dataFile, overwrite);
 		} else {
+			if(!overwrite && dataFile.exists())
+				return;
 			Files.copy(srcPath.toPath(), dataFile.openOutputStream());
 		}
 	}
 	
-	public static void toFile(DataFile srcPath, File dstPath, boolean contentsOnly) throws DataStoreException, IOException
+	public static void toFile(DataFile srcPath, File dstPath, CopyOption ... options) throws DataStoreException, IOException
 	{
-		LOG.debug("call toFile({}, {}, {})", new Object[]{ srcPath, dstPath, contentsOnly });
+		LOG.debug("call toFile({}, {}, {})", new Object[]{ srcPath, dstPath, options });
 		checkOpen();
+		boolean contentsOnly = false;
+		boolean overwrite = false;
+		for(CopyOption option : options) {
+			switch(option) {
+			case CONTENTS_ONLY:
+				contentsOnly = true;
+				break;
+			case OVERWRITE:
+				overwrite = true;
+				break;
+			}
+		}
 		if(contentsOnly)
 			for(DataFile file : srcPath.listFiles())
-				toFile(file, dstPath);
+				toFile(file, dstPath, overwrite);
 		else
-			toFile(srcPath, dstPath);
+			toFile(srcPath, dstPath, overwrite);
 	}
 	
 	/**
 	 * Recursively transfer all data contained in srcPath directory into dstPath.
 	 * @param srcPath
 	 * @param dstPath
+	 * @param overwrite
 	 * @throws DataStoreException
 	 * @throws IOException
 	 */
-	public static void toFile(DataFile srcPath, File dstPath) throws DataStoreException, IOException
+	public static void toFile(DataFile srcPath, File dstPath, boolean overwrite) throws DataStoreException, IOException
 	{
 		LOG.debug("call toFile({}, {})", srcPath, dstPath);
 		checkOpen();
@@ -135,8 +163,10 @@ public final class DataStore
 		{
 			file.mkdirs();
 			for(DataFile dataFile : srcPath.listFiles())
-				toFile(dataFile, file);
+				toFile(dataFile, file, overwrite);
 		} else {
+			if(!overwrite && file.exists())
+				return;
 			Files.copy(srcPath.openInputStream(), file.toPath());
 		}
 	}
@@ -216,5 +246,10 @@ public final class DataStore
 			if(!file.isDirectory())
 				du += file.length();
 		return du;
+	}
+	
+	public static enum CopyOption {
+		CONTENTS_ONLY,
+		OVERWRITE
 	}
 }

@@ -28,10 +28,11 @@ final class Task implements Runnable
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
 	Task() { }
 	
-	Task(String id, String file) {
+	Task(String id, String file, String thumbnail) {
 		reset();
 		this.id = id;
 		this.file = file;
+		this.thumbnail = thumbnail;
 	}
 		
 	@XmlAttribute(name="id")
@@ -44,8 +45,8 @@ final class Task implements Runnable
 	private State state = State.FACTORY_RESET;
 	@XmlElement(name="fetchedMetadata")
 	private Set<Metadata> fetchedMetadata = new HashSet<Metadata>();
-	@XmlElement(name="selectedMetadata")
-	private Metadata selectedMetadata;
+	@XmlElement(name="metadata")
+	private Metadata metadata;
 	@XmlElement(name="infoMessage")
 	private String message;
 	@XmlElement(name="errorMessage")
@@ -84,12 +85,8 @@ final class Task implements Runnable
 		return fetchedMetadata;
 	}
 	
-	public void selectMetadata(Metadata md) {
-		selectedMetadata = md;
-	}
-	
-	public Metadata selectedMetadata() {
-		return selectedMetadata;
+	public void setMetadata(Metadata md) {
+		metadata = md;
 	}
 	
 	public void addDuplicate(Duplicate duplicate) {
@@ -136,10 +133,6 @@ final class Task implements Runnable
 		return thumbnail;
 	}
 
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
-
 	public State getState() {
 		return state;
 	}
@@ -164,7 +157,7 @@ final class Task implements Runnable
 		this.result = null;
 		this.state = State.FACTORY_RESET;
 		this.fetchedMetadata = new HashSet<Metadata>();
-		this.selectedMetadata = null;
+		this.metadata = null;
 		this.message = null;
 		this.errors = new HashMap<String,String>();
 		this.locked = false;
@@ -428,7 +421,7 @@ final class Task implements Runnable
 						break;
 					}
 				if(!needMetadata) {
-					LOG.debug("{} does not need Metadata to be fetched", context);
+					LOG.debug("Task Id={} does not need Metadata to be fetched", context.getId());
 					return next();
 				}
 				File thumbnail = new File(context.getThumbnail());
@@ -570,8 +563,8 @@ final class Task implements Runnable
 						score = md.score;
 					}
 				}
-				context.selectMetadata(selectedMetadata);
-				if(context.selectedMetadata() == null) {
+				context.setMetadata(selectedMetadata);
+				if(context.metadata == null) {
 					return METADATA_SELECT;
 				}
 				return next();
@@ -588,10 +581,14 @@ final class Task implements Runnable
 					LOG.debug("Metadata duplicate scan disabled, skipped");
 					return next();
 				}
+				if(context.metadata == null) {
+					LOG.debug("Metadata duplicate scan not needed, skipped");
+					return next();
+				}
 				LOG.debug("Checking for duplicate entries");
 				Set<Integer> duplicates = new HashSet<Integer>();
 				QueryBook query;
-				Metadata md = context.selectedMetadata();
+				Metadata md = context.metadata;
 				if(!md.name.equals("")) {
 					query = new QueryBook();
 					query.JapaneseName = md.name;
@@ -630,7 +627,7 @@ final class Task implements Runnable
 						continue;
 					duplicates.put(duplicate.id, duplicate.metadataOption);
 				}
-				Metadata md = context.selectedMetadata();
+				Metadata md = context.metadata;
 				if(duplicates.isEmpty()) { // No duplicate to process, create a new Book
 					try {
 						Book book;
@@ -900,7 +897,42 @@ final class Task implements Runnable
 					}
 				} else { // Process duplicates
 					for(Integer id : duplicates.keySet()) {
-						//TODO
+						Task.Duplicate.Option option = duplicates.get(id);
+						File basepath = new File(context.getFile());
+						switch(option) {
+						case IGNORE:
+							break;
+						case MERGE:
+							try {
+								DataFile store = DataStore.getStore(context.getResult());
+								store.mkdirs();
+								DataStore.fromFile(basepath, store, true);
+							} catch (DataBaseException | IOException | DataStoreException e) {
+								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
+							}
+							break;
+						case REPLACE:
+							try {
+								DataFile store = DataStore.getStore(context.getResult());
+								store.delete(true);
+								store.mkdirs();
+								DataStore.fromFile(basepath, store, true);
+							} catch (DataBaseException | IOException | DataStoreException e) {
+								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
+							}
+							try {
+								DataFile df = DataStore.getThumbnail(context.getResult());
+								OutputStream out = df.openOutputStream();
+								BufferedImage image = javax.imageio.ImageIO.read(new File(context.getThumbnail()));
+								javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
+								out.close();
+							} catch (IOException | DataStoreException e) {
+								throw new TaskException("Error creating preview in the DataStore", e);
+							}
+							break;
+						default:
+							break;
+						}
 					}
 				}
 				return next();

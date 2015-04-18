@@ -1572,7 +1572,7 @@ public final class DataImport extends Plugin
 									md.parody.add((Parody)e.getValue());
 							}
 						}
-						m_Task.selectMetadata(md);
+						m_Task.setMetadata(md);
 						m_Task.unlock();
 						m_SplitPane.setBottomComponent(null);
 						m_PanelTasks.clearSelection();

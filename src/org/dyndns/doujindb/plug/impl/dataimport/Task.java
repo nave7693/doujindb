@@ -10,6 +10,7 @@ import java.util.*;
 import javax.xml.bind.annotation.*;
 
 import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.dat.DataStore.CopyOption;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
@@ -882,7 +883,7 @@ final class Task implements Runnable
 					try {
 						DataFile store = DataStore.getStore(context.getResult());
 						store.mkdirs();
-						DataStore.fromFile(basepath, store, true);
+						DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY);
 					} catch (DataBaseException | IOException | DataStoreException e) {
 						throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 					}
@@ -906,7 +907,7 @@ final class Task implements Runnable
 							try {
 								DataFile store = DataStore.getStore(context.getResult());
 								store.mkdirs();
-								DataStore.fromFile(basepath, store, true);
+								DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY);
 							} catch (DataBaseException | IOException | DataStoreException e) {
 								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 							}
@@ -916,7 +917,7 @@ final class Task implements Runnable
 								DataFile store = DataStore.getStore(context.getResult());
 								store.delete(true);
 								store.mkdirs();
-								DataStore.fromFile(basepath, store, true);
+								DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY, CopyOption.OVERWRITE);
 							} catch (DataBaseException | IOException | DataStoreException e) {
 								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 							}

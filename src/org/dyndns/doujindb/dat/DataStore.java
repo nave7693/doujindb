@@ -106,7 +106,7 @@ public final class DataStore
 	 * @throws DataStoreException
 	 * @throws IOException
 	 */
-	public static void fromFile(File srcPath, DataFile dstPath, boolean overwrite) throws DataStoreException, IOException
+	private static void fromFile(File srcPath, DataFile dstPath, boolean overwrite) throws DataStoreException, IOException
 	{
 		LOG.debug("call fromFile({}, {})", srcPath, dstPath);
 		checkOpen();
@@ -154,7 +154,7 @@ public final class DataStore
 	 * @throws DataStoreException
 	 * @throws IOException
 	 */
-	public static void toFile(DataFile srcPath, File dstPath, boolean overwrite) throws DataStoreException, IOException
+	private static void toFile(DataFile srcPath, File dstPath, boolean overwrite) throws DataStoreException, IOException
 	{
 		LOG.debug("call toFile({}, {})", srcPath, dstPath);
 		checkOpen();

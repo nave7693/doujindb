@@ -23,6 +23,7 @@ import ch.qos.logback.classic.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.dat.DataStore.CopyOption;
 import org.dyndns.doujindb.db.*;
 import org.dyndns.doujindb.db.query.*;
 import org.dyndns.doujindb.db.record.*;
@@ -1047,7 +1048,7 @@ final class TaskManager
 		reqFile = new File(DoujinshiDBScanner.PLUGIN_QUERY, task.getId() + ".png");
 		
 		try {
-			DataStore.fromFile(basepath, DataStore.getStore(task.getBook()), true);
+			DataStore.fromFile(basepath, DataStore.getStore(task.getBook()), CopyOption.CONTENTS_ONLY);
 		} catch (DataBaseException | IOException | DataStoreException e) {
 			throw new TaskErrorException("Error copying '" + basepath + "' in  DataStore : " + e.getMessage());
 		}

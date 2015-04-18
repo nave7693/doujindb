@@ -21,7 +21,17 @@ abstract class Metadata
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
 	Metadata() { }
 	
+	private static final Set<MetadataProvider> mProviders = new HashSet<MetadataProvider>();
 	private static final SimpleDateFormat mSDF = new SimpleDateFormat("yyyy-MM-dd");
+	
+	static {
+		mProviders.add(new MugiMugiProvider());
+		mProviders.add(new EHentaiProvider());
+	}
+	
+	public static Set<MetadataProvider> providers() {
+		return mProviders;
+	}
 
 	@XmlElement(name="score")
 	protected Integer score = -1;

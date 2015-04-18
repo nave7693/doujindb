@@ -315,25 +315,25 @@ public final class DataImport extends Plugin
 		/**
 		 * Return a "display" (Image)Icon based on current Task status
 		 */
+		@SuppressWarnings("incomplete-switch")
 		private Icon getDisplayIcon(Task task) {
-			// Task is running => "Running" icon
 			if(task.equals(mTaskManager.getRunningTask()))
 				return mIcons.task_state_running;
-			// Task has experienced at least 1 error => "Error" icon
-			if(!task.errors().isEmpty())
+			switch(task.getState()) {
+			case ERROR_RAISE:
 				return mIcons.task_state_error;
-			// Task is done => "Complete" icon
-			if(Task.State.TASK_COMPLETE.equals(task.getState()))
+			case TASK_COMPLETE:
 				return mIcons.task_state_complete;
-			// Task need user input => "UserInput" icon
-			if(task.needInput())
+			case METADATA_SELECT:
 				return mIcons.task_state_userinput;
-			// At least 1 Metadata has experienced errors => "Warning" icon
-			for(Metadata md : task.fetchedMetadata())
-				if(md.exception != null)
-					return mIcons.task_state_warning;
-			// Task is just waiting to be processed
-			return mIcons.task_state_new;
+			case DUPLICATE_SELECT:
+				return mIcons.task_state_userinput;
+			case SIMILAR_SELECT:
+				return mIcons.task_state_userinput;
+			case FACTORY_RESET:
+				return mIcons.task_state_new;
+			}
+			return mIcons.task_state_unknow;
 		}
 		
 		private final class PanelTaskUI extends JTable implements TaskListener
@@ -675,21 +675,26 @@ public final class DataImport extends Plugin
 					m_LabelPreview.setIcon(null);
 				}
 				mSplitPane.setLeftComponent(m_LabelPreview);
-				if(!task.errors().isEmpty()) {
-					mSplitPane.setRightComponent(mStateUI = new ErrorUI(task));
-				} else
-				if(task.needInput()) {
-					if(Task.State.SIMILAR_CHECK.equals(task.getState()))
-						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
-					if(Task.State.METADATA_FETCH.equals(task.getState()))
-						mSplitPane.setRightComponent(mStateUI = new MetadataUI(task.fetchedMetadata()));
-					if(Task.State.DUPLICATE_CHECK.equals(task.getState()))
-						mSplitPane.setRightComponent(mStateUI = new DuplicateUI(task.duplicates()));
-				} else
-				if(task.getState().equals(Task.State.TASK_COMPLETE))
-					mSplitPane.setRightComponent(mStateUI = new DoneUI(task.getResult()));
-				else
-					mSplitPane.setRightComponent(mStateUI = new JPanel());
+				switch(task.getState()) {
+					case ERROR_RAISE:
+						mStateUI = new ErrorUI(task);
+						break;
+					case TASK_COMPLETE:
+						mStateUI = new DoneUI(task.getResult());
+						break;
+					case METADATA_SELECT:
+						mStateUI = new MetadataUI(task.fetchedMetadata());
+						break;
+					case DUPLICATE_SELECT:
+						mStateUI = new DuplicateUI(task.duplicates());
+						break;
+					case SIMILAR_SELECT:
+						mStateUI = new DuplicateUI(task.duplicates());
+						break;
+					default:
+						mStateUI = new JPanel();
+				}
+				mSplitPane.setRightComponent(mStateUI);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -952,7 +957,7 @@ public final class DataImport extends Plugin
 				@Override
 				public void actionPerformed(ActionEvent ae) {
 					if(ae.getSource() == mButtonNext) {
-						m_Task.needInput(false);
+						m_Task.unlock();
 						if(m_Task.getState().equals(Task.State.SIMILAR_CHECK))
 							m_Task.setState(Task.State.METADATA_FETCH);
 						if(m_Task.getState().equals(Task.State.DUPLICATE_CHECK))
@@ -1572,7 +1577,7 @@ public final class DataImport extends Plugin
 							}
 						}
 						m_Task.selectMetadata(md);
-						m_Task.needInput(false);
+						m_Task.unlock();
 						if(m_Task.getState().equals(Task.State.METADATA_FETCH))
 							m_Task.setState(Task.State.DUPLICATE_CHECK);
 						m_SplitPane.setBottomComponent(null);

@@ -680,7 +680,7 @@ public final class DataImport extends Plugin
 						mStateUI = new ErrorUI(task);
 						break;
 					case TASK_COMPLETE:
-						mStateUI = new DoneUI(task.getResult());
+						mStateUI = new DoneUI(task);
 						break;
 					case METADATA_SELECT:
 						mStateUI = new MetadataUI(task.fetchedMetadata());
@@ -892,40 +892,55 @@ public final class DataImport extends Plugin
 			
 			private final class DoneUI extends JPanel implements ActionListener
 			{
-				private Integer mBookId;
+				private JTabbedPane mTabbedPane;
 				
-				public DoneUI(Integer result) {
-					mBookId = result;
-					ImageIcon duplicateImage;
+				public DoneUI(Task task) {
 					super.setLayout(new GridLayout(1,1));
-					try {
-						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(mBookId).openInputStream()));
-					} catch (Exception e) {
-						duplicateImage = mIcons.task_preview_missing;
-						LOG.warn("Error loading cover image for Book {}", mBookId, e);
+					super.setMinimumSize(new Dimension(100,100));
+					super.setPreferredSize(new Dimension(100,100));
+					mTabbedPane = new JTabbedPane();
+					mTabbedPane.setFocusable(false);
+					super.add(mTabbedPane);
+					super.doLayout();
+					if(task.getResult() != null)
+						addResult(task.getResult());
+					for(Task.Duplicate duplicate : task.duplicates()) {
+						if(duplicate.dataOption == Option.IGNORE && duplicate.metadataOption == Option.IGNORE)
+							continue;
+						addResult(duplicate.id);
 					}
-					JButton duplicateButton = new BookCoverButton(duplicateImage);
-					duplicateButton.addActionListener(this);
-					duplicateButton.setFocusable(false);
-					duplicateButton.setMinimumSize(new Dimension(180, 180));
-					super.add(duplicateButton);
 				}
 
 				@Override
 				public void actionPerformed(ActionEvent ae) {
-					new SwingWorker<Void,Void>() {
+					final Integer bookId = Integer.parseInt(ae.getActionCommand());
+					new SwingWorker<Void, Void>() {
 						@Override
 						protected Void doInBackground() throws Exception {
-							if(mBookId != null) {
-								QueryBook qid = new QueryBook();
-								qid.Id = mBookId;
-								RecordSet<Book> set = DataBase.getBooks(qid);
-								if(set.size() == 1)
-									UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
-							}
+							QueryBook qid = new QueryBook();
+							qid.Id = bookId;
+							RecordSet<Book> set = DataBase.getBooks(qid);
+							if(set.size() == 1)
+								UI.Desktop.showRecordWindow(WindowEx.Type.WINDOW_BOOK, set.iterator().next());
 							return null;
 						}
 					}.execute();
+				}
+				
+				private void addResult(final Integer bookId) {
+					ImageIcon duplicateImage;
+					try {
+						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream()));
+					} catch (Exception e) {
+						duplicateImage = mIcons.task_preview_missing;
+						LOG.warn("Error loading cover image for Book Id={}", bookId, e);
+					}
+					JButton duplicateButton = new BookCoverButton(duplicateImage);
+					duplicateButton.setActionCommand("" + bookId);
+					duplicateButton.addActionListener(this);
+					duplicateButton.setFocusable(false);
+					duplicateButton.setMinimumSize(new Dimension(180, 180));
+					mTabbedPane.addTab("Book (Id=" + bookId + ")", mIcons.task_metadata_book, duplicateButton);
 				}
 			}
 			
@@ -1006,7 +1021,7 @@ public final class DataImport extends Plugin
 						duplicateImage = new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(duplicate.id).openInputStream()));
 					} catch (Exception e) {
 						duplicateImage = mIcons.task_preview_missing;
-						LOG.warn("Error loading cover image for Book {}", duplicate.id, e);
+						LOG.warn("Error loading cover image for Book Id={}", duplicate.id, e);
 					}
 					JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 					split.setDividerSize(1);
@@ -1169,7 +1184,7 @@ public final class DataImport extends Plugin
 						split.setRightComponent(options);
 					}
 					
-					mTabbedPane.addTab("Book [" + duplicate.id + "]", mIcons.task_metadata_book, split);
+					mTabbedPane.addTab("Book (Id=" + duplicate.id + ")", mIcons.task_metadata_book, split);
 				}
 			}
 

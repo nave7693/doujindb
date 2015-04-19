@@ -735,6 +735,7 @@ final class Task implements Runnable
 							try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
 							// Clear Book
 							book.removeAll();
+							DataBase.doCommit();
 							// Don't break, let other MERGE steps to be executed
 						case MERGE:
 							LOG.debug("Merging Metadata in Book Id={}", id);
@@ -797,6 +798,7 @@ final class Task implements Runnable
 									DataBase.doCommit();
 								}
 							}
+							DataBase.doCommit();
 						case IGNORE:
 						}
 					}

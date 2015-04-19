@@ -3,6 +3,7 @@ package org.dyndns.doujindb.plug.impl.dataimport;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,11 +30,18 @@ final class Task implements Runnable
 	// Define this or suffer an IllegalAnnotationsException : Task does not have a no-arg default constructor.
 	Task() { }
 	
-	Task(String id, String file, String thumbnail) {
+	Task(String id, File file, File thumbnail) {
 		reset();
 		this.id = id;
-		this.file = file;
-		this.thumbnail = thumbnail;
+		this.file = file.getAbsolutePath();
+		this.thumbnail = thumbnail.getAbsolutePath();
+	}
+	
+	Task(String id, File file, URL url) {
+		reset();
+		this.id = id;
+		this.file = file.getAbsolutePath();
+		this.thumbnail = url.toString();
 	}
 		
 	@XmlAttribute(name="id")
@@ -42,6 +50,8 @@ final class Task implements Runnable
 	private String file = "";
 	@XmlElement(name="thumbnail")
 	private String thumbnail;
+	@XmlElement(name="url")
+	private String url;
 	@XmlAttribute(name="state")
 	private State state = State.FACTORY_RESET;
 	@XmlElement(name="fetchedMetadata")
@@ -132,6 +142,10 @@ final class Task implements Runnable
 	
 	public String getThumbnail() {
 		return thumbnail;
+	}
+	
+	public String getURL() {
+		return url;
 	}
 
 	public State getState() {

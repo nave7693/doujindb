@@ -126,7 +126,7 @@ final class TaskManager
 			String uuid = java.util.UUID.randomUUID().toString();
 			while(mTaskSet.contains(uuid))
 				uuid = java.util.UUID.randomUUID().toString();
-			Task newTask = new Task(uuid, file.getAbsolutePath(), new File(mTmpDir, uuid + ".png").getAbsolutePath());
+			Task newTask = new Task(uuid, file, new File(mTmpDir, uuid + ".png"));
 			mTaskSet.add(newTask);
 		}
 		fireTaskmanagerChanged();

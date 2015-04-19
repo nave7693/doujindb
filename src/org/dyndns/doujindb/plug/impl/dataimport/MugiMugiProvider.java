@@ -127,8 +127,12 @@ final class MugiMugiProvider extends MetadataProvider {
 			for(APIClient.XML_Book b : list.Books) {
 				book = b;
 			}
+			// Generate Metadata
+			Metadata md = toMetadata(book);
+			// Set 'score' field
+			md.score = Integer.MAX_VALUE;
 			// Return Metadata object
-			return toMetadata(book);
+			return md;
 		} catch (TaskException te) {
 			Metadata md = new Metadata();
 			md.message = te.getMessage();

@@ -1014,8 +1014,7 @@ final class Task implements Runnable
 	}
 	
 	private static File findImage(File base) {
-		File[] files = base.listFiles(new FilenameFilter()
-		{
+		File[] files = base.listFiles(new FilenameFilter() {
 			private String getExtension(String file) {
 				if(file.lastIndexOf(".") == -1)
 					return "";
@@ -1027,8 +1026,7 @@ final class Task implements Runnable
 				return !(file.isHidden()) && (file.isDirectory() || getExtension(fname).matches("^.(png|jp(e)?g|gif|bmp|tiff)$"));
 			}
 		});
-		Arrays.sort(files, new Comparator<File>()
-		{
+		Arrays.sort(files, new Comparator<File>() {
 			@Override
 			public int compare(File f1, File f2) {
 				return f1.getName().compareTo(f2.getName());
@@ -1037,15 +1035,17 @@ final class Task implements Runnable
 		for(File file : files)
 			if(file.isFile())
 				return file;
-			else
-				return findImage(file);
+			else {
+				File ret = findImage(file);
+				if(ret != null)
+					return ret;
+			}
 		return null;
 	}
 	
 	private static DataFile findImage(DataFile base) throws DataStoreException {
 		DataFile[] files = base.listFiles("^(png|jp(e)?g|gif|bmp|tiff)$");
-		Arrays.sort(files, new Comparator<DataFile>()
-		{
+		Arrays.sort(files, new Comparator<DataFile>() {
 			@Override
 			public int compare(DataFile f1, DataFile f2) {
 				try {
@@ -1058,13 +1058,15 @@ final class Task implements Runnable
 		for(DataFile file : files)
 			if(file.isFile())
 				return file;
-			else
-				return findImage(file);
+			else {
+				DataFile ret = findImage(file);
+				if(ret != null)
+					return ret;
+			}
 		return null;
 	}
 	
-	private static String format(long bytes)
-	{
+	private static String format(long bytes) {
 		int unit = 1024;
 	    if (bytes < unit) return bytes + " B";
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));

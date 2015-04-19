@@ -415,16 +415,6 @@ final class Task implements Runnable
 			@Override
 			State run(Task context) {
 				LOG.debug("call run(Task={}, State={})", new Object[]{context.getId(), this});
-				boolean needMetadata = context.duplicates().isEmpty(); // No duplicate => need to fetch Metadata
-				for(Task.Duplicate d : context.duplicates())
-					if(d.metadataOption != Task.Duplicate.Option.IGNORE) { // At least 1 duplicate without IGNORE option => need to fetch Metadata
-						needMetadata = true;
-						break;
-					}
-				if(!needMetadata) {
-					LOG.debug("Task Id={} does not need Metadata to be fetched", context.getId());
-					return next();
-				}
 				File thumbnail = new File(context.getThumbnail());
 				for(MetadataProvider provider : Metadata.providers()) {
 					if(!provider.isEnabled()) {

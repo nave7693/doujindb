@@ -550,6 +550,24 @@ public final class ImageSearch extends Plugin
 		}
 		return result;
 	}
+	
+	public static void add(Book book) {
+		add(book.getId());
+	}
+	
+	public static void add(Integer bookId) {
+		try {
+			DataFile thumbn = DataStore.getThumbnail(bookId);
+			try {
+				String hash = new ImageAHash().getHash(thumbn.openInputStream());
+				mHashMap.put(hash, bookId);
+			} catch (IIOException iioe) {
+				LOG.error("Error computing hash for Book {} with image {}", new Object[]{bookId, thumbn.getPath(), iioe});
+			}
+		} catch (Exception e) {
+			LOG.error("Error computing hash for Book {}", bookId, e);
+		}
+	}
 
 	@Override
 	protected void doInstall() { }

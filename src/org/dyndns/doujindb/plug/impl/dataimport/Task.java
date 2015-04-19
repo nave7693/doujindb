@@ -3,6 +3,7 @@ package org.dyndns.doujindb.plug.impl.dataimport;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -445,6 +446,16 @@ final class Task implements Runnable
 					} catch (Exception e) {
 						LOG.warn("Exception from provider [{}]", new Object[]{provider, e});
 					}
+					if(context.getURL() != null)
+						try {
+							Metadata md = provider.query(new URI(context.getURL()));
+							context.addMetadata(md);
+							if(md.exception != null) {
+								LOG.warn("Exception from provider [{}]: {}", new Object[]{provider, md.message});
+							}
+						} catch (Exception e) {
+							LOG.warn("Exception from provider [{}]", new Object[]{provider, e});
+						}
 				}
 				for(Metadata md : context.metadata()) {
 					// Map Artist items

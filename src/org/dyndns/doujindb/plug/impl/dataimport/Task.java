@@ -820,16 +820,17 @@ final class Task implements Runnable
 					duplicates.put(duplicate.id, duplicate.dataOption);
 				}
 				if(duplicates.isEmpty()) { // No duplicate to process, process Result
+					Integer bookId = context.getResult();
 					File basepath = new File(context.getFile());
 					try {
-						DataFile store = DataStore.getStore(context.getResult());
+						DataFile store = DataStore.getStore(bookId);
 						store.mkdirs();
 						DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY);
 					} catch (DataBaseException | IOException | DataStoreException e) {
 						throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 					}
 					try {
-						DataFile df = DataStore.getThumbnail(context.getResult());
+						DataFile df = DataStore.getThumbnail(bookId);
 						OutputStream out = df.openOutputStream();
 						BufferedImage image = javax.imageio.ImageIO.read(new File(context.getThumbnail()));
 						javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);
@@ -837,6 +838,7 @@ final class Task implements Runnable
 					} catch (IOException | DataStoreException e) {
 						throw new TaskException("Error creating preview in the DataStore", e);
 					}
+					ImageSearch.add(bookId);
 				} else { // Process duplicates
 					for(Integer id : duplicates.keySet()) {
 						Task.Duplicate.Option option = duplicates.get(id);
@@ -852,6 +854,7 @@ final class Task implements Runnable
 							} catch (DataBaseException | IOException | DataStoreException e) {
 								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 							}
+							ImageSearch.add(id);
 							break;
 						case REPLACE:
 							try {
@@ -871,6 +874,7 @@ final class Task implements Runnable
 							} catch (IOException | DataStoreException e) {
 								throw new TaskException("Error creating preview in the DataStore", e);
 							}
+							ImageSearch.add(id);
 							break;
 						default:
 							break;

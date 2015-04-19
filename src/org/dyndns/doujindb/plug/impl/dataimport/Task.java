@@ -372,7 +372,7 @@ final class Task implements Runnable
 						if(DataStore.getStore(found).getFile("@japanese").exists())
 							duplicate.annotations.add("missing japanese language");
 					} catch (DataStoreException dse) {
-						LOG.warn("{} Exception in langCheck", new Object[]{context, dse});
+						LOG.warn("Exception in langCheck", dse);
 					}
 					try {
 						long bytesNew = DataStore.diskUsage(new File(context.getFile()));
@@ -380,7 +380,7 @@ final class Task implements Runnable
 						if(bytesNew > bytesFound)
 							duplicate.annotations.add("bigger filesize : " + format(bytesNew) + " > " + format(bytesFound) + "");
 					} catch (Exception e) {
-						LOG.warn("{} Exception in sizeCheck", new Object[]{context, e});
+						LOG.warn("Exception in sizeCheck", e);
 					}
 					try {
 						long filesNew = DataStore.listFiles(new File(context.getFile())).length;
@@ -388,7 +388,7 @@ final class Task implements Runnable
 						if(filesNew > filesFound)
 							duplicate.annotations.add("more files : " + filesNew + " > " + filesFound + "");
 					} catch (Exception e) {
-						LOG.warn("{} Exception in countCheck", new Object[]{context, e});
+						LOG.warn("Exception in countCheck", e);
 					}
 					try {
 						BufferedImage imageNew = javax.imageio.ImageIO.read(new FileInputStream(findImage(new File(context.getFile()))));
@@ -398,7 +398,7 @@ final class Task implements Runnable
 						if(imageNew.getHeight() > imageFound.getHeight())
 							duplicate.annotations.add("higher resolution : " + resolutionNew + " > " + resolutionFound + "");
 					} catch (Exception e) {
-						LOG.warn("{} Exception in resolutionCheck", new Object[]{context, e});
+						LOG.warn("Exception in resolutionCheck", e);
 					}
 					context.addDuplicate(duplicate);
 				}
@@ -428,18 +428,18 @@ final class Task implements Runnable
 				File thumbnail = new File(context.getThumbnail());
 				for(MetadataProvider provider : Metadata.providers()) {
 					if(!provider.isEnabled()) {
-						LOG.debug("{} metadata provider [{}] is disabled and will not be used", new Object[]{context, provider});
+						LOG.debug("Metadata provider [{}] is disabled and will not be used", provider);
 						continue;
 					}
-					LOG.debug("{} Load metadata with provider [{}]", new Object[]{context, provider});
+					LOG.debug("Load Metadata with provider [{}]", provider);
 					try {
 						Metadata md = provider.query(thumbnail);
 						context.addMetadata(md);
 						if(md.exception != null) {
-							LOG.warn("{} Exception from provider [{}]: {}", new Object[]{context, provider, md.message});
+							LOG.warn("Exception from provider [{}]: {}", new Object[]{provider, md.message});
 						}
 					} catch (Exception e) {
-						LOG.warn("{} Exception from provider [{}]", new Object[]{context, provider, e});
+						LOG.warn("Exception from provider [{}]", new Object[]{provider, e});
 					}
 				}
 				for(Metadata md : context.fetchedMetadata()) {
@@ -722,6 +722,20 @@ final class Task implements Runnable
 							}
 						}
 						switch(option) {
+						case REPLACE:
+							LOG.debug("Replacing Metadata in Book Id={}", id);
+							//TODO Refactor
+							book.setJapaneseName(md.name);
+							book.setTranslatedName(md.translation);
+							book.setDate(new Date(md.timestamp));
+							book.setPages(md.pages);
+							book.setAdult(md.adult);
+							book.setRating(Rating.UNRATED);
+							book.setInfo(md.info);
+							try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
+							// Clear Book
+							book.removeAll();
+							// Don't break, let other MERGE steps to be executed
 						case MERGE:
 							LOG.debug("Merging Metadata in Book Id={}", id);
 							//TODO Refactor
@@ -783,82 +797,7 @@ final class Task implements Runnable
 									DataBase.doCommit();
 								}
 							}
-							break;
-						case REPLACE:
-							LOG.debug("Replacing Metadata in Book Id={}", id);
-							//TODO Refactor
-							book.setJapaneseName(md.name);
-							book.setTranslatedName(md.translation);
-							book.setDate(new Date(md.timestamp));
-							book.setPages(md.pages);
-							book.setAdult(md.adult);
-							book.setRating(Rating.UNRATED);
-							book.setInfo(md.info);
-							try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
-							// Clear Book
-							book.removeAll();
-							//TODO Refactor
-							if(md.convention != null) {
-								if(md.convention.getId() != null) {
-									QueryConvention q = new QueryConvention();
-									q.Id = md.convention.getId();
-									book.setConvention(DataBase.getConventions(q).iterator().next());
-								} else {
-									Convention newo = DataBase.doInsert(Convention.class);
-									newo.setTagName(md.convention.getName());
-									DataBase.doCommit();
-								}
-							}
-							for(Metadata.Artist o : md.artist) {
-								if(o.getId() != null) {
-									QueryArtist q = new QueryArtist();
-									q.Id = o.getId();
-									book.addArtist(DataBase.getArtists(q).iterator().next());
-								} else {
-									Artist newo = DataBase.doInsert(Artist.class);
-									newo.setJapaneseName(o.getName());
-									newo.setTranslatedName(o.getName());
-									DataBase.doCommit();
-								}
-							}
-							for(Metadata.Circle o : md.circle) {
-								if(o.getId() != null) {
-									QueryCircle q = new QueryCircle();
-									q.Id = o.getId();
-									book.addCircle(DataBase.getCircles(q).iterator().next());
-								} else {
-									Circle newo = DataBase.doInsert(Circle.class);
-									newo.setJapaneseName(o.getName());
-									newo.setTranslatedName(o.getName());
-									DataBase.doCommit();
-								}
-							}
-							for(Metadata.Content o : md.content) {
-								if(o.getId() != null) {
-									QueryContent q = new QueryContent();
-									q.Id = o.getId();
-									book.addContent(DataBase.getContents(q).iterator().next());
-								} else {
-									Content newo = DataBase.doInsert(Content.class);
-									newo.setTagName(o.getName());
-									DataBase.doCommit();
-								}
-							}
-							for(Metadata.Parody o : md.parody) {
-								if(o.getId() != null) {
-									QueryParody q = new QueryParody();
-									q.Id = o.getId();
-									book.addParody(DataBase.getParodies(q).iterator().next());
-								} else {
-									Parody newo = DataBase.doInsert(Parody.class);
-									newo.setJapaneseName(o.getName());
-									newo.setTranslatedName(o.getName());
-									DataBase.doCommit();
-								}
-							}
-							break;
 						case IGNORE:
-							break;
 						}
 					}
 				}
@@ -905,7 +844,7 @@ final class Task implements Runnable
 							break;
 						case MERGE:
 							try {
-								DataFile store = DataStore.getStore(context.getResult());
+								DataFile store = DataStore.getStore(id);
 								store.mkdirs();
 								DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY);
 							} catch (DataBaseException | IOException | DataStoreException e) {
@@ -914,7 +853,7 @@ final class Task implements Runnable
 							break;
 						case REPLACE:
 							try {
-								DataFile store = DataStore.getStore(context.getResult());
+								DataFile store = DataStore.getStore(id);
 								store.delete(true);
 								store.mkdirs();
 								DataStore.fromFile(basepath, store, CopyOption.CONTENTS_ONLY, CopyOption.OVERWRITE);
@@ -922,7 +861,7 @@ final class Task implements Runnable
 								throw new TaskException("Error copying '" + basepath + "' in DataStore", e);
 							}
 							try {
-								DataFile df = DataStore.getThumbnail(context.getResult());
+								DataFile df = DataStore.getThumbnail(id);
 								OutputStream out = df.openOutputStream();
 								BufferedImage image = javax.imageio.ImageIO.read(new File(context.getThumbnail()));
 								javax.imageio.ImageIO.write(ImageTool.getScaledInstance(image, 256, 256, true), "PNG", out);

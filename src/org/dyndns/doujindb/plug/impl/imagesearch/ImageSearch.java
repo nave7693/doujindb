@@ -162,7 +162,7 @@ public final class ImageSearch extends Plugin
 			mProgressBarSearch.setMinimum(1);
 			mProgressBarSearch.setValue(mProgressBarSearch.getMinimum());
 			mProgressBarSearch.setStringPainted(true);
-			mProgressBarSearch.setString("");
+			mProgressBarSearch.setString(String.format("Size : %d", mHashMap.size()));
 			mTabSearch.add(mProgressBarSearch);
 			mButtonSearchInput = new JButton();
 			mButtonSearchInput.setIcon(mIcons.search_preview);
@@ -378,7 +378,7 @@ public final class ImageSearch extends Plugin
 			protected void done() {
 				mIsHasherRunning = false;
 				mProgressBarSearch.setValue(0);
-				mProgressBarSearch.setString("");
+				mProgressBarSearch.setString(String.format("Size : %d", mHashMap.size()));
 				mTabSearch.doLayout();
 			}
 

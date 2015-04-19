@@ -82,7 +82,7 @@ final class Task implements Runnable
 		fetchedMetadata.add(md);
 	}
 	
-	public Set<Metadata> fetchedMetadata() {
+	public Set<Metadata> metadata() {
 		return fetchedMetadata;
 	}
 	
@@ -432,7 +432,7 @@ final class Task implements Runnable
 						LOG.warn("Exception from provider [{}]", new Object[]{provider, e});
 					}
 				}
-				for(Metadata md : context.fetchedMetadata()) {
+				for(Metadata md : context.metadata()) {
 					// Map Artist items
 					for(Metadata.Artist mobj : md.artist) {
 						QueryArtist query = new QueryArtist();
@@ -548,7 +548,7 @@ final class Task implements Runnable
 				}
 				Integer score = Integer.MIN_VALUE;
 				Metadata selectedMetadata = null;
-				for(Metadata md : context.fetchedMetadata()) {
+				for(Metadata md : context.metadata()) {
 					if(md.score > score && md.exception == null) {
 						selectedMetadata = md;
 						score = md.score;

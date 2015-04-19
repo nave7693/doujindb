@@ -683,7 +683,7 @@ public final class DataImport extends Plugin
 						mStateUI = new DoneUI(task);
 						break;
 					case METADATA_SELECT:
-						mStateUI = new MetadataUI(task.fetchedMetadata());
+						mStateUI = new MetadataUI(task.metadata());
 						break;
 					case DUPLICATE_SELECT:
 						mStateUI = new DuplicateUI(task.duplicates());

@@ -161,7 +161,7 @@ final class MugiMugiProvider extends MetadataProvider {
 		md.alias.add(book.NAME_R);
 		for(String name_alt : book.NAME_ALT)
 			md.alias.add(name_alt);
-		md.timestamp = book.DATE_RELEASED.getTime() / 1000;
+		md.timestamp = book.DATE_RELEASED.getTime();
 		md.pages = book.DATA_PAGES;
 		md.adult = book.DATA_AGE == 1;
 		md.info = book.DATA_INFO;

@@ -579,8 +579,9 @@ final class Task implements Runnable
 						score = md.score;
 					}
 				}
-				context.setMetadata(selectedMetadata);
-				if(context.metadata == null) {
+				if(context.metadata != null) {
+					context.setMetadata(selectedMetadata);
+				} else {
 					return METADATA_SELECT;
 				}
 				return next();

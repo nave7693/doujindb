@@ -199,10 +199,10 @@ abstract class Metadata
 	}
 	
 	public static String toDate(long timestamp) {
-		return mSDF.format(new Date(timestamp * 1000));
+		return mSDF.format(new Date(timestamp));
 	}
 	
 	public static long toTimestamp(String date) throws ParseException {
-		return mSDF.parse(date).getTime() / 1000;
+		return mSDF.parse(date).getTime();
 	}
 }

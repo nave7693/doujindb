@@ -1543,18 +1543,18 @@ public final class DataImport extends Plugin
 				public void actionPerformed(ActionEvent ae) {
 					if(ae.getSource() == mButtonNext) {
 						Metadata md = new Metadata.Default();
-						md.name = mTextJapaneseName.getItemAt(mTextJapaneseName.getSelectedIndex());
-						md.translation = mTextTranslatedName.getItemAt(mTextTranslatedName.getSelectedIndex());
-						md.pages = mTextPages.getItemAt(mTextPages.getSelectedIndex());
+						md.name = ifNull(mTextJapaneseName.getItemAt(mTextJapaneseName.getSelectedIndex()), "");
+						md.translation = ifNull(mTextTranslatedName.getItemAt(mTextTranslatedName.getSelectedIndex()), "");
+						md.pages = ifNull(mTextPages.getItemAt(mTextPages.getSelectedIndex()), 0);
 						try {
 							md.timestamp = Metadata.toTimestamp(mTextDate.getItemAt(mTextDate.getSelectedIndex()));
 						} catch (ParseException pe) {
-							md.timestamp = new Date().getTime() / 1000;
+							md.timestamp = new Date().getTime();
 						}
-						md.type = mComboboxType.getItemAt(mComboboxType.getSelectedIndex());
+						md.type = ifNull(mComboboxType.getItemAt(mComboboxType.getSelectedIndex()), Book.Type.不詳.toString());
 						md.adult = mCheckboxAdult.isSelected();
 						md.convention = mComboboxConvention.getItemAt(mComboboxConvention.getSelectedIndex());
-						
+						md.info = ifNull(mTextInfo.getText(), "");
 						{
 							Enumeration<MetaWrapper> elems = ((DefaultListModel<MetaWrapper>)mListArtists.getModel()).elements();
 							while(elems.hasMoreElements()) {

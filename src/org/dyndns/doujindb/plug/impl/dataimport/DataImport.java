@@ -1,58 +1,87 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import static org.dyndns.doujindb.ui.UI.Icon;
-
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.*;
+import java.util.Set;
+import java.util.Vector;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.plaf.TabbedPaneUI;
-import javax.swing.plaf.basic.BasicProgressBarUI;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
 import org.dyndns.doujindb.conf.ConfigurationParser;
-import org.dyndns.doujindb.dat.DataFile;
 import org.dyndns.doujindb.dat.DataStore;
-import org.dyndns.doujindb.dat.DataStoreException;
-import org.dyndns.doujindb.db.*;
+import org.dyndns.doujindb.db.DataBase;
+import org.dyndns.doujindb.db.RecordSet;
 import org.dyndns.doujindb.db.query.QueryBook;
 import org.dyndns.doujindb.db.record.Book;
-import org.dyndns.doujindb.plug.*;
-import org.dyndns.doujindb.plug.impl.dataimport.Metadata.*;
+import org.dyndns.doujindb.plug.Plugin;
+import org.dyndns.doujindb.plug.impl.dataimport.Metadata.Artist;
+import org.dyndns.doujindb.plug.impl.dataimport.Metadata.Circle;
+import org.dyndns.doujindb.plug.impl.dataimport.Metadata.Content;
+import org.dyndns.doujindb.plug.impl.dataimport.Metadata.Parody;
 import org.dyndns.doujindb.plug.impl.dataimport.Task.Duplicate.Option;
 import org.dyndns.doujindb.ui.UI;
 import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.ui.dialog.PanelBook;
-import org.dyndns.doujindb.ui.dialog.PanelBookMedia;
 import org.dyndns.doujindb.ui.dialog.PanelConfiguration;
-import org.dyndns.doujindb.ui.dialog.util.BookRatingEditor;
-import org.dyndns.doujindb.ui.dialog.util.TabbedPaneUIEx;
-import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxConvention;
-import org.dyndns.doujindb.ui.dialog.util.list.ListArtist;
-import org.dyndns.doujindb.ui.dialog.util.list.ListCircle;
-import org.dyndns.doujindb.ui.dialog.util.list.ListContent;
-import org.dyndns.doujindb.ui.dialog.util.list.ListParody;
-import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
-import org.dyndns.doujindb.util.ImageTool;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
@@ -118,7 +147,6 @@ public final class DataImport extends Plugin
 		private JTabbedPane m_TabbedPane;
 		@SuppressWarnings("unused")
 		private JPanel m_TabConfiguration;
-		@SuppressWarnings("unused")
 		private JPanel m_TabTasks;
 		private JButton m_ButtonTaskAdd;
 		private JButton m_ButtonTaskManagerCtl;
@@ -620,46 +648,6 @@ public final class DataImport extends Plugin
 				mSplitPane.setEnabled(false);
 				add(mSplitPane);
 				
-				new SwingWorker<Void,String>()
-				{
-					private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-					private String prevData = "";
-					
-					@Override
-					protected Void doInBackground() throws Exception {
-						Thread.currentThread().setName("plugin-dataimport-clipboardmonitor");
-						String data = "";
-						while(true)
-							try
-							{
-								// Prevent CPU hogging
-								Thread.sleep(1000);
-								// Read Clipboard data
-								Transferable transferable = clipboard.getContents(this);
-								if (!transferable.isDataFlavorSupported(DataFlavor.stringFlavor))
-									continue;
-								data = (String) clipboard.getData(DataFlavor.stringFlavor);
-								// Skip parsing data if it's the same as before
-								if(data.equals(prevData))
-									continue;
-								else
-									prevData = data;
-								// Parse Clipboard data
-								publish(new URL(data).toExternalForm());
-							} catch (MalformedURLException murle) {
-								; // Not a valid URL, do nothing
-							} catch (Exception e) {
-								LOG.error("Error parsing Clipboard data {}", data, e);
-							}
-					}
-					@Override
-				    protected void process(List<String> chunks) {
-						String url = chunks.iterator().next();
-						//TODO Parse Metadata from URL
-					}
-					@Override
-					protected void done() { }
-				}.execute();
 				mTaskManager.addTaskListener(this);
 			}
 			
@@ -1524,15 +1512,6 @@ public final class DataImport extends Plugin
 				        }
 				        return mDisplay;
 				    }
-				}
-				
-				private String format(long bytes)
-				{
-					int unit = 1024;
-				    if (bytes < unit) return bytes + " B";
-				    int exp = (int) (Math.log(bytes) / Math.log(unit));
-				    String pre = ("KMGTPE").charAt(exp-1) + ("i");
-				    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 				}
 				
 				private <T> T ifNull(T couldBeNull, T returnNotNull) {

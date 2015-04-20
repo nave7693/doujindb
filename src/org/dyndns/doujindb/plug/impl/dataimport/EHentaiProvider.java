@@ -1,11 +1,12 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.net.*;
+import java.io.File;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.*;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.slf4j.LoggerFactory;
 

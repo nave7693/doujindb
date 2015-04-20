@@ -2,21 +2,50 @@ package org.dyndns.doujindb.plug.impl.dataimport;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.dyndns.doujindb.dat.*;
+import org.dyndns.doujindb.dat.DataFile;
+import org.dyndns.doujindb.dat.DataStore;
 import org.dyndns.doujindb.dat.DataStore.CopyOption;
-import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.record.*;
+import org.dyndns.doujindb.dat.DataStoreException;
+import org.dyndns.doujindb.db.DataBase;
+import org.dyndns.doujindb.db.DataBaseException;
+import org.dyndns.doujindb.db.RecordSet;
+import org.dyndns.doujindb.db.query.Query;
+import org.dyndns.doujindb.db.query.QueryArtist;
+import org.dyndns.doujindb.db.query.QueryBook;
+import org.dyndns.doujindb.db.query.QueryCircle;
+import org.dyndns.doujindb.db.query.QueryContent;
+import org.dyndns.doujindb.db.query.QueryConvention;
+import org.dyndns.doujindb.db.query.QueryParody;
+import org.dyndns.doujindb.db.record.Artist;
+import org.dyndns.doujindb.db.record.Book;
 import org.dyndns.doujindb.db.record.Book.Rating;
+import org.dyndns.doujindb.db.record.Circle;
+import org.dyndns.doujindb.db.record.Content;
+import org.dyndns.doujindb.db.record.Convention;
+import org.dyndns.doujindb.db.record.Parody;
 import org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch;
 import org.dyndns.doujindb.util.ImageTool;
 import org.slf4j.LoggerFactory;
@@ -650,7 +679,6 @@ final class Task implements Runnable
 						Book book;
 						book = DataBase.doInsert(Book.class);
 						context.setResult(book.getId());
-						//TODO Refactor
 						book.setJapaneseName(md.name);
 						book.setTranslatedName(md.translation);
 						book.setDate(new Date(md.timestamp));
@@ -659,7 +687,6 @@ final class Task implements Runnable
 						book.setRating(Rating.UNRATED);
 						book.setInfo(md.info);
 						try { book.setType(Book.Type.valueOf(md.type)); } catch (Exception e) { book.setType(Book.Type.不詳); }
-						//TODO Refactor
 						if(md.convention != null) {
 							if(md.convention.getId() != null) {
 								QueryConvention q = new QueryConvention();
@@ -740,7 +767,6 @@ final class Task implements Runnable
 						switch(option) {
 						case REPLACE:
 							LOG.debug("Replacing Metadata in Book Id={}", id);
-							//TODO Refactor
 							book.setJapaneseName(md.name);
 							book.setTranslatedName(md.translation);
 							book.setDate(new Date(md.timestamp));
@@ -755,7 +781,6 @@ final class Task implements Runnable
 							// Don't break, let other MERGE steps to be executed
 						case MERGE:
 							LOG.debug("Merging Metadata in Book Id={}", id);
-							//TODO Refactor
 							if(md.convention != null) {
 								if(md.convention.getId() != null) {
 									QueryConvention q = new QueryConvention();

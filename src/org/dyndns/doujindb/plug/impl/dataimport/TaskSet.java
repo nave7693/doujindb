@@ -1,8 +1,10 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.util.*;
+import java.util.HashSet;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(namespace="org.dyndns.doujindb.plug.impl.dataimport", name="TaskSet")
 final class TaskSet

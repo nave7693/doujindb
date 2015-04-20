@@ -1,39 +1,20 @@
 package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.beans.*;
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.xml.bind.*;
-import javax.xml.bind.annotation.*;
-import javax.xml.parsers.*;
-import javax.xml.xpath.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.*;
-
-import org.w3c.dom.*;
-import org.xml.sax.*;
-import org.dyndns.doujindb.dat.*;
-import org.dyndns.doujindb.db.*;
-import org.dyndns.doujindb.db.query.*;
-import org.dyndns.doujindb.db.record.*;
-import org.dyndns.doujindb.db.record.Book.*;
-import org.dyndns.doujindb.plug.impl.dataimport.Task.Duplicate.Option;
-import org.dyndns.doujindb.plug.impl.dataimport.Task.State;
-import org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch;
-import org.dyndns.doujindb.ui.UI;
-import org.dyndns.doujindb.ui.WindowEx;
-import org.dyndns.doujindb.util.*;
+import ch.qos.logback.classic.Logger;
 
 final class TaskManager
 {

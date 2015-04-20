@@ -138,6 +138,7 @@ public final class Icons
 	public final ImageIcon fileview_archive = null;
 	public final ImageIcon fileview_image = null;
 	public final ImageIcon fileview_text = null;
+	public final ImageIcon fileview_executable = null;
 	public final ImageIcon jpanel_togglebutton_checked = null;
 	public final ImageIcon jpanel_togglebutton_unchecked = null;
 	public final ImageIcon jslider_thumbicon = null;

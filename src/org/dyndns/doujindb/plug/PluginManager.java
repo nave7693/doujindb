@@ -26,7 +26,7 @@ public final class PluginManager
 	
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
-	private static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
 	
@@ -66,7 +66,7 @@ public final class PluginManager
 			}
 		}))
 		{
-			LOG.debug("scanning file {} ...", file.getName());
+			LOG.debug("Scanning file {}", file.getName());
 			try {
 				// Open .jar file as JarFile
 				JarFile jf = new JarFile(file);
@@ -82,7 +82,7 @@ public final class PluginManager
 				    		classes.add(clazz.getCanonicalName());
 				    	}
 					} catch (ClassNotFoundException cnfe) {
-						LOG.error("IOException while inspecting class {}", className, cnfe);
+						LOG.error("Error inspecting class {}", className, cnfe);
 					}
 				    // Check if Plugin.class is implemented
 				    if(classes.contains(Plugin.class.getCanonicalName())) {
@@ -92,26 +92,26 @@ public final class PluginManager
 				}
 				jf.close();
 			} catch (IOException ioe) {
-				LOG.error("IOException while scanning jar file {}", file, ioe);
+				LOG.error("Error scanning jar file {}", file.getName(), ioe);
 			}
 		}
 		for(String pluginName : new String[]{
-				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
+				"org.dyndns.doujindb.plug.impl.dataimport.DataImport",
 				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
 			})
 			try {
 				LOG.info("Found plugin [{}]", pluginName);
 				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
 				install(plugin);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Error | Exception e) {
+				LOG.error("Error loading plugin [{}]", pluginName, e);
 			}
 	}
 	
 	private static void startup()
 	{
 		LOG.debug("call startup()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.load_timeout");
+		final int timeout = Configuration.plugin_load_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -120,8 +120,9 @@ public final class PluginManager
 				{
 					try {
 						plugin.doStartup();
+						LOG.debug("Starting plugin [{}]", plugin);
 						firePluginStarted(plugin);
-						LOG.info("Plugin [{}] started", plugin.getName());
+						LOG.info("Started plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						pe.printStackTrace();
@@ -134,12 +135,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-startup-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getName(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getName(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) {
+				LOG.warn("Error starting plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -149,7 +146,7 @@ public final class PluginManager
 	private static void shutdown()
 	{
 		LOG.debug("call shutdown()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.unload_timeout");
+		final int timeout = Configuration.plugin_unload_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -157,9 +154,10 @@ public final class PluginManager
 				public Void call()
 				{
 					try {
+						LOG.debug("Stopping plugin [{}]", plugin);
 						plugin.doShutdown();
 						firePluginStopped(plugin);
-						LOG.info("Plugin [{}] stopped", plugin.getName());
+						LOG.info("Stopped plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -171,12 +169,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-shutdown-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getName(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getName(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) { 
+				LOG.warn("Error stopping plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -185,21 +179,22 @@ public final class PluginManager
 	
 	private static void install(Plugin plugin) throws PluginException
 	{
+		LOG.debug("call install({})", plugin);
 		plugin.doInstall();
 		firePluginInstalled(plugin);
 		plugins.add(plugin);
 	}
 	
-	public static void addPluginListener(PluginListener pl)
+	public static void addPluginListener(PluginListener listener)
 	{
-		LOG.debug("call addPluginListener({})", pl);
-		listeners.add(pl);
+		LOG.debug("call addPluginListener({})", listener);
+		listeners.add(listener);
 	}
 	
-	public static void removePluginListener(PluginListener pl)
+	public static void removePluginListener(PluginListener listener)
 	{
-		LOG.debug("call removePluginListener({})", pl);
-		listeners.remove(pl);
+		LOG.debug("call removePluginListener({})", listener);
+		listeners.remove(listener);
 	}
 	
 	static void firePluginInstalled(Plugin plugin)

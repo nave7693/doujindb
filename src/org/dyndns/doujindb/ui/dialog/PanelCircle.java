@@ -29,7 +29,6 @@ import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.list.ListArtist;
 import org.dyndns.doujindb.ui.dialog.util.list.ListBook;
 import org.dyndns.doujindb.ui.dialog.util.list.RecordList;
-import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -111,9 +110,9 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 								BufferedImage image = null;
 								File imageFile = fc.getSelectedFile();
 								try {
-									image = ImageTool.read(imageFile);
+									image = javax.imageio.ImageIO.read(imageFile);
 								} catch (IOException ioe) {
-									LOG.error("Error loading banner image for [{}] from file [{}]", new Object[]{tokenCircle, imageFile}, ioe);
+									LOG.error("Error loading banner image for [{}] from file [{}]", new Object[]{tokenCircle, imageFile, ioe});
 								}
 								if(image == null)
 									return null;
@@ -125,7 +124,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 									graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 									graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 									graphics2D.drawImage(image, 0, 0, null);
-									ImageTool.write(resized_image, out);
+									javax.imageio.ImageIO.write(resized_image, "PNG", out);
 									
 									final ImageIcon ii = new ImageIcon(resized_image);
 									SwingUtilities.invokeLater(new Runnable()
@@ -349,7 +348,7 @@ public final class PanelCircle extends JPanel implements DataBaseListener, Layou
 						return null;
 					DataFile banner = DataStore.getBanner(tokenCircle.getId());
 					InputStream in = banner.openInputStream();
-					labelBanner.setIcon(new ImageIcon(ImageTool.read(in)));
+					labelBanner.setIcon(new ImageIcon(javax.imageio.ImageIO.read(in)));
 					labelBanner.setName("banner");
 					in.close();
 				} catch (NullPointerException npe) {

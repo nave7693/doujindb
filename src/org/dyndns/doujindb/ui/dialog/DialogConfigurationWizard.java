@@ -17,6 +17,9 @@ import org.dyndns.doujindb.conf.*;
 import org.dyndns.doujindb.ui.DialogEx;
 import org.dyndns.doujindb.ui.Icons;
 import org.dyndns.doujindb.ui.UI;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings({"serial","unused"})
 public final class DialogConfigurationWizard  extends DialogEx implements LayoutManager
@@ -39,12 +42,14 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 	// STEP 5
 	private Dialog uiCompFinish;
 	
-	private static final Color foreground = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-	private static final Color background = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private static final Color foreground = Configuration.ui_theme_foreground.get();
+	private static final Color background = Configuration.ui_theme_background.get();
 	private static final Color linecolor = background.brighter();
 	
 	public static final Icons Icon = UI.Icon;
 	public static final Font Font = UI.Font;
+	
+	private static final Logger LOG = (Logger) LoggerFactory.getLogger(DialogConfigurationWizard.class);
 	
 	enum Progress
 	{
@@ -134,7 +139,11 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 			@Override
 			public void actionPerformed(ActionEvent ae) 
 			{
-				Configuration.configSave();
+				try {
+					ConfigurationParser.toXML(Configuration.class, Configuration.CONFIG_FILE);
+				} catch (IOException ioe) {
+					LOG.error("Error saving Configuration to {}", Configuration.CONFIG_FILE, ioe);
+				}
 				dispose();
 			}					
 		});
@@ -588,10 +597,10 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 						dbURL = uiTextURL.getText(),
 						dbUsername = uiTextUsername.getText(),
 						dbPassword = uiTextPassword.getText();
-					Configuration.configWrite("org.dyndns.doujindb.db.driver", dbDriver);
-					Configuration.configWrite("org.dyndns.doujindb.db.url", dbURL);
-					Configuration.configWrite("org.dyndns.doujindb.db.username", dbUsername);
-					Configuration.configWrite("org.dyndns.doujindb.db.password", dbPassword);
+					Configuration.db_connection_driver.set(dbDriver);
+					Configuration.db_connection_url.set(dbURL);
+					Configuration.db_connection_username.set(dbUsername);
+					Configuration.db_connection_password.set(dbPassword);
 					
 					new Thread()
 					{
@@ -744,8 +753,8 @@ public final class DialogConfigurationWizard  extends DialogEx implements Layout
 					uiTextStore.setEditable(false);
 					uiTextCache.setEditable(false);
 					
-					Configuration.configWrite("org.dyndns.doujindb.dat.datastore", uiTextStore.getText());
-					Configuration.configWrite("org.dyndns.doujindb.dat.cache_dir", uiTextCache.getText());
+					Configuration.dat_media_filestore.set(new File(uiTextStore.getText()));
+					Configuration.dat_cache_filestore.set(new File(uiTextCache.getText()));
 					
 					new Thread()
 					{

@@ -1,5 +1,7 @@
 package org.dyndns.doujindb.plug;
 
+import java.io.File;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
@@ -12,14 +14,22 @@ public abstract class Plugin
 {
 	public enum State
 	{
-		RUNNING,
-		STOPPED,
-		LOADING,
-		UPDATING
+		RUN,
+		IDLE,
+		LOAD,
+		UNLOAD,
+		UPDATE
+	}
+	
+	protected final File PLUGIN_HOME;
+	protected final File CONFIG_FILE;
+	
+	{
+		PLUGIN_HOME = new File(PluginManager.PLUGIN_HOME, getNamespace());
+		CONFIG_FILE = new File(PLUGIN_HOME, "config.xml");
 	}
 
-	public final String getNamespace()
-	{
+	public final String getNamespace() {
 		return getClass().getCanonicalName();
 	}
 
@@ -60,5 +70,10 @@ public abstract class Plugin
 	@Override
 	public int hashCode() {
 		return getNamespace().hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return getNamespace();
 	}
 }

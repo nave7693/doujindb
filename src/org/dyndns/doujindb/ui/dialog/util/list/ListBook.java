@@ -19,7 +19,6 @@ import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.WrapLayout;
 import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxBook;
 import org.dyndns.doujindb.ui.dialog.util.dnd.TransferHandlerBook;
-import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -29,7 +28,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 	private JPanel recordPreview;
 	private JScrollPane scrollRecordPreview;
 	private boolean previewToggled = false;
-	private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
+	private boolean previewEnabled = Configuration.ui_panel_book_preview.get();
 	private JButton toggleList;
 	private JButton togglePreview;
 	
@@ -91,9 +90,7 @@ public class ListBook extends RecordList<Book> implements ActionListener, Layout
 		{
 			JButton bookButton;
 			try {
-				bookButton = new JButton(
-					new ImageIcon(
-						ImageTool.read(DataStore.getThumbnail(bookId).openInputStream())));
+				bookButton = new JButton(new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(bookId).openInputStream())));
 				bookButton.setName(bookId.toString());
 				bookButton.setActionCommand(bookId.toString());
 				bookButton.addActionListener(this);

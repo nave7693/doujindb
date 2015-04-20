@@ -91,9 +91,9 @@ public final class Core implements Runnable
 		 */
 		boolean isConfigurationWizard = false;
 		try {
-			Configuration.configLoad();
-		} catch (ConfigurationException ce) {
-			LOG.error("Error loading system Configuration", ce);
+			ConfigurationParser.fromXML(Configuration.class, Configuration.CONFIG_FILE);
+		} catch (ConfigurationException | IOException e) {
+			LOG.error("Error loading system Configuration", e);
 			LOG.info("Scheduling Configuration Wizard");
 			isConfigurationWizard = true;
 		}
@@ -107,36 +107,17 @@ public final class Core implements Runnable
 			System.exit(1);
 		}
 		
-		//FIXME should be checked by the DataStore itself
-		if(Configuration.configRead("org.dyndns.doujindb.dat.datastore").equals(Configuration.configRead("org.dyndns.doujindb.dat.temp")))
-			LOG.warn("datastore directory is set to the temporary system directory");
-		
 		/**
-		 * Load and setup Logging related Configuration
-		 * Defaults to level 'INFO' in case of any Exception
+		 * Setup Logging
 		 */
-		String baseConfiguration = "org.dyndns.doujindb.log.";
-		String[] configurationSet = new String[]{
-			"org.apache.cayenne",
-			"org.dyndns.doujindb.conf",
-			"org.dyndns.doujindb.dat",
-			"org.dyndns.doujindb.db",
-			"org.dyndns.doujindb.plug",
-			"org.dyndns.doujindb.ui",
-			"org.dyndns.doujindb.util",
-			"org.dyndns.doujindb.net"
-		};
-		for(String configurationKey : configurationSet) {
-			try {
-				String level = (String) Configuration.configRead(baseConfiguration + configurationKey);
-				((Logger) LoggerFactory.getLogger(configurationKey)).setLevel(Level.valueOf(level));
-				LOG.info("Configured log level [{}] for [{}]", level, configurationKey);
-			} catch (Exception e) {
-				LOG.error("Error loading logging configuration level for [{}]", configurationKey, e);
-				LOG.info("Configuring log level [{}] for [{}]", "INFO", configurationKey);
-				((Logger) LoggerFactory.getLogger(configurationKey)).setLevel(Level.INFO);
-			}
-		}
+		((Logger)LoggerFactory.getLogger("org.apache.cayenne")).setLevel(Configuration.log_org_apache_cayenne.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.conf")).setLevel(Configuration.log_org_dyndns_doujindb_conf.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.dat")).setLevel(Configuration.log_org_dyndns_doujindb_dat.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.db")).setLevel(Configuration.log_org_dyndns_doujindb_db.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.plug")).setLevel(Configuration.log_org_dyndns_doujindb_plug.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.ui")).setLevel(Configuration.log_org_dyndns_doujindb_ui.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.util")).setLevel(Configuration.log_org_dyndns_doujindb_util.get());
+		((Logger)LoggerFactory.getLogger("org.dyndns.doujindb.net")).setLevel(Configuration.log_org_dyndns_doujindb_net.get());
 		
 		/**
 		 * Start the main User Interface

@@ -64,31 +64,31 @@ public final class PluginManager
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".jar");
 			}
-		}))
-		{
+		})) {
 			LOG.debug("Scanning file {}", file.getName());
 			try {
 				// Open .jar file as JarFile
 				JarFile jf = new JarFile(file);
 				// Search 'Main-Class' manifest attribute
-				if(jf.getManifest().getMainAttributes().getValue("Main-Class") != null) {
-				    String className = jf.getManifest().getMainAttributes().getValue("Main-Class");
-				    Set<String> classes = new HashSet<String>();
-				    // Create a new ClassLoader from the .jar file
-				    URLClassLoader child = new URLClassLoader(new URL[]{file.toURI().toURL()}, PluginManager.class.getClassLoader());
-				    try {
-				    	// List 'Main-Class' public classes
-				    	for(Class<?> clazz : Class.forName(className, false, child).getClasses()) {
-				    		classes.add(clazz.getCanonicalName());
-				    	}
-					} catch (ClassNotFoundException cnfe) {
-						LOG.error("Error inspecting class {}", className, cnfe);
+				String mainClass = jf.getManifest().getMainAttributes().getValue("Main-Class");
+				if(mainClass != null) {
+					// Create a new ClassLoader from the .jar file
+					URLClassLoader urlcl = new URLClassLoader(new URL[]{file.toURI().toURL()}, PluginManager.class.getClassLoader());
+					try {
+						// Check if Plugin.class is implemented
+						Class<?> clazz = Class.forName(mainClass, false, urlcl);
+						if(clazz.getSuperclass().equals(Plugin.class)) {
+							LOG.info("Found plugin [{}]", mainClass);
+							Plugin plugin = (Plugin) clazz.newInstance();
+							try {
+								install(plugin);
+							} catch (PluginException pe) {
+								LOG.error("Error loading plugin [{}]", mainClass, pe);
+							}
+						}
+					} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+						LOG.error("Error inspecting class {}", mainClass, e);
 					}
-				    // Check if Plugin.class is implemented
-				    if(classes.contains(Plugin.class.getCanonicalName())) {
-				    	LOG.info("Found plugin [{}]", className);
-				    	; //TODO Add file.jar to SystemClassLoader, then load Plugin
-				    }
 				}
 				jf.close();
 			} catch (IOException ioe) {

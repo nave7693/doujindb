@@ -28,6 +28,7 @@ public final class PluginManager
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
 	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	static final File PLUGIN_LIBS = new File(Core.DOUJINDB_HOME, "lib");
 	
 	private static final PluginClassLoader mClassLoader = new PluginClassLoader();
 
@@ -68,14 +69,15 @@ public final class PluginManager
 				return name.endsWith(".jar");
 			}
 		})) {
-			LOG.debug("Scanning file {}", file.getName());
+			LOG.debug("Scanning file {} ...", file.getName());
 			try {
 				// Open .jar file as JarFile
 				JarFile jf = new JarFile(file);
 				// Search 'Main-Class' manifest attribute
-				String mainClass = jf.getManifest().getMainAttributes().getValue("Main-Class");
+				String mainClass = jf.getManifest().getMainAttributes().getValue("X-Plugin-Class");
 				if(mainClass != null) {
 					// Add .jar file to PluginManager ClassLoader
+					LOG.info("Adding file {} to ClassPath ...", file);
 					mClassLoader.addJar(file);
 					try {
 						// Load Main-Class from PluginManager ClassLoader
@@ -83,6 +85,19 @@ public final class PluginManager
 						// Check if Plugin.class is implemented
 						if(clazz.getSuperclass().equals(Plugin.class)) {
 							LOG.info("Found plugin [{}]", mainClass);
+							{
+								String classPath = jf.getManifest().getMainAttributes().getValue("X-Plugin-Class-Path");
+								if(classPath != null) {
+									StringTokenizer st = new StringTokenizer(classPath);
+									while(st.hasMoreTokens()) {
+										String libraryName = st.nextToken();
+										File libraryFile = new File(PLUGIN_LIBS, libraryName);
+										// Add library .jar file to ClassLoader
+										LOG.info("Adding library {} to ClassPath ...", libraryFile);
+										mClassLoader.addJar(libraryFile);
+									}
+								}
+							}
 							Plugin plugin = (Plugin) clazz.newInstance();
 							try {
 								install(plugin);
@@ -99,17 +114,6 @@ public final class PluginManager
 				LOG.error("Error scanning jar file {}", file.getName(), ioe);
 			}
 		}
-		for(String pluginName : new String[]{
-				"org.dyndns.doujindb.plug.impl.dataimport.DataImport",
-				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
-			})
-			try {
-				LOG.info("Found plugin [{}]", pluginName);
-				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
-				install(plugin);
-			} catch (Error | Exception e) {
-				LOG.error("Error loading plugin [{}]", pluginName, e);
-			}
 	}
 	
 	private static void startup()

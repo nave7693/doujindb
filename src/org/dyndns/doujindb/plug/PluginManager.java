@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.plug;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -27,6 +28,8 @@ public final class PluginManager
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
 	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	
+	private static final PluginClassLoader mClassLoader = new PluginClassLoader();
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
 	
@@ -72,11 +75,12 @@ public final class PluginManager
 				// Search 'Main-Class' manifest attribute
 				String mainClass = jf.getManifest().getMainAttributes().getValue("Main-Class");
 				if(mainClass != null) {
-					// Create a new ClassLoader from the .jar file
-					URLClassLoader urlcl = new URLClassLoader(new URL[]{file.toURI().toURL()}, PluginManager.class.getClassLoader());
+					// Add .jar file to PluginManager ClassLoader
+					mClassLoader.addJar(file);
 					try {
+						// Load Main-Class from PluginManager ClassLoader
+						Class<?> clazz = Class.forName(mainClass, false, mClassLoader);
 						// Check if Plugin.class is implemented
-						Class<?> clazz = Class.forName(mainClass, false, urlcl);
 						if(clazz.getSuperclass().equals(Plugin.class)) {
 							LOG.info("Found plugin [{}]", mainClass);
 							Plugin plugin = (Plugin) clazz.newInstance();
@@ -230,5 +234,15 @@ public final class PluginManager
 		LOG.debug("call firePluginUpdated({})", plugin);
 		for(PluginListener pl : listeners)
 			pl.pluginUpdated(plugin);
+	}
+	
+	private static final class PluginClassLoader extends URLClassLoader
+	{
+		public PluginClassLoader() {
+			super(new URL[]{});
+		}
+		public void addJar(File jarFile) throws MalformedURLException {
+			super.addURL(jarFile.toURI().toURL());
+		}
 	}
 }

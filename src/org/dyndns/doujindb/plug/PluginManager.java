@@ -114,6 +114,17 @@ public final class PluginManager
 				LOG.error("Error scanning jar file {}", file.getName(), ioe);
 			}
 		}
+		for(String pluginName : new String[]{
+				"org.dyndns.doujindb.plug.impl.dataimport.DataImport",
+				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
+			})
+			try {
+				LOG.info("Found plugin [{}]", pluginName);
+				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
+				install(plugin);
+			} catch (Error | Exception e) {
+				LOG.error("Error loading plugin [{}]", pluginName, e);
+			}
 	}
 	
 	private static void startup()

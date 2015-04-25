@@ -684,6 +684,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			TableModel = new DefaultTableModel();
 			TableModel.addColumn("");
 			TableModel.addColumn("Name");
+			TableModel.addColumn("Namespace");
 			TableModel.addColumn("Version");
 			super.setModel(TableModel);
 			TableRender = new Renderer();
@@ -698,8 +699,7 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.getTableHeader().setFont(Font);
 			super.getTableHeader().setReorderingAllowed(false);
 			super.getTableHeader().setDefaultRenderer(TableRender);
-			for(int k = 0;k<super.getColumnModel().getColumnCount();k++)
-			{
+			for(int k = 0;k<super.getColumnModel().getColumnCount();k++) {
 				super.getColumnModel().getColumn(k).setCellRenderer(TableRender);
 				super.getColumnModel().getColumn(k).setCellEditor(TableEditor);
 			}
@@ -707,18 +707,22 @@ public final class UI extends JFrame implements LayoutManager, ActionListener, W
 			super.getColumnModel().getColumn(0).setMaxWidth(20);
 			super.getColumnModel().getColumn(0).setMinWidth(20);
 			super.getColumnModel().getColumn(0).setWidth(20);
-			super.getColumnModel().getColumn(1).setMinWidth(150);
+			super.getColumnModel().getColumn(1).setResizable(false);
+			super.getColumnModel().getColumn(1).setWidth(150);
+			super.getColumnModel().getColumn(1).setMaxWidth(150);
 			super.getColumnModel().getColumn(2).setResizable(false);
-			super.getColumnModel().getColumn(2).setMinWidth(50);
-			super.getColumnModel().getColumn(2).setMaxWidth(50);
-			super.getColumnModel().getColumn(2).setWidth(50);
-			super.getColumnModel().getColumn(2).setPreferredWidth(50);
-			super.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+			super.getColumnModel().getColumn(3).setResizable(false);
+			super.getColumnModel().getColumn(3).setMinWidth(50);
+			super.getColumnModel().getColumn(3).setMaxWidth(50);
+			super.getColumnModel().getColumn(3).setWidth(50);
+			super.getColumnModel().getColumn(3).setPreferredWidth(50);
+			super.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		}
 		
 		public void add(Plugin plugin) {
 			TableModel.addRow(new Object[]{"{Plugin}",
 				plugin.getName(),
+				plugin.getNamespace(),
 				plugin.getVersion()});
 		}
 

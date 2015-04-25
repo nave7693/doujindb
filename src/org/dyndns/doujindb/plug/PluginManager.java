@@ -63,7 +63,7 @@ public final class PluginManager
 	{
 		LOG.debug("call discover()");
 		// Search for .jar files in PLUGIN_HOME directory
-		for(File file : PLUGIN_HOME.listFiles(new FilenameFilter() {
+		for(File file : PLUGIN_LIBS.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".jar");

@@ -74,7 +74,7 @@
 	   <property name="author" value="loli10K"/>
 		<property name="vendor" value="NOPE Inc."/>
 		<property name="version.major" value="0"/>
-		<property name="version.minor" value="3"/>
+		<property name="version.minor" value="4"/>
 		<property name="version.patch" value="0"/>
 		<buildnumber file="build.version"/>
 		<tstamp>

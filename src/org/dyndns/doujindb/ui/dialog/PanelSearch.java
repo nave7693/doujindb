@@ -31,7 +31,6 @@ import org.dyndns.doujindb.ui.WindowEx;
 import org.dyndns.doujindb.ui.dialog.util.*;
 import org.dyndns.doujindb.ui.dialog.util.combobox.ComboBoxContent;
 import org.dyndns.doujindb.ui.dialog.util.dnd.*;
-import org.dyndns.doujindb.util.ImageTool;
 
 import static org.dyndns.doujindb.ui.UI.Icon;
 
@@ -589,7 +588,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 		private JPanel recordPreview;
 		private JScrollPane scrollRecordPreview;
 		private boolean previewToggled = false;
-		private boolean previewEnabled = (boolean) Configuration.configRead("org.dyndns.doujindb.ui.book_preview");
+		private boolean previewEnabled = Configuration.ui_panel_book_preview.get();
 		private JButton toggleList;
 		private JButton togglePreview;
 		
@@ -874,9 +873,7 @@ public abstract class PanelSearch<T extends Record> extends JPanel implements Da
 					{
 						JButton bookButton;
 						try {
-							bookButton = new JButton(
-							new ImageIcon(
-								ImageTool.read(DataStore.getThumbnail(o.getId()).openInputStream())));
+							bookButton = new JButton(new ImageIcon(javax.imageio.ImageIO.read(DataStore.getThumbnail(o.getId()).openInputStream())));
 						} catch (DataStoreException dse) {
 							bookButton = new JButton(Icon.desktop_explorer_book_cover);
 						}

@@ -810,10 +810,10 @@ final class DataBaseImpl extends IDataBase
 			throw new DataBaseException("DataBase already connected.");
 		try
 		{
-			String driver =   (String) Configuration.configRead("org.dyndns.doujindb.db.driver");
-			String url =      (String) Configuration.configRead("org.dyndns.doujindb.db.url");
-			String username = (String) Configuration.configRead("org.dyndns.doujindb.db.username");
-			String password = (String) Configuration.configRead("org.dyndns.doujindb.db.password");
+			String driver =   Configuration.db_connection_driver.get();
+			String url =      Configuration.db_connection_url.get();
+			String username = Configuration.db_connection_username.get();
+			String password = Configuration.db_connection_password.get();
 			PoolManager pool = new PoolManager(driver,
 					url,
 			        1,
@@ -822,7 +822,7 @@ final class DataBaseImpl extends IDataBase
 			        password);
 			// Doesn't work, handle timeout manually
 			// pool.setLoginTimeout(3);
-			checkContext(pool, (Integer) Configuration.configRead("org.dyndns.doujindb.db.connection_timeout"));
+			checkContext(pool, Configuration.db_connection_timeout.get());
 			
 			// Pool is valid
 			node.setDataSource(pool);

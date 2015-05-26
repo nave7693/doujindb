@@ -1,6 +1,7 @@
 package org.dyndns.doujindb.plug;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -26,7 +27,10 @@ public final class PluginManager
 	
 	private static CopyOnWriteArraySet<PluginListener> listeners = new CopyOnWriteArraySet<PluginListener>();
 	
-	private static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	static final File PLUGIN_HOME = new File(Core.DOUJINDB_HOME, "plugin");
+	static final File PLUGIN_LIBS = new File(Core.DOUJINDB_HOME, "lib");
+	
+	private static final PluginClassLoader mClassLoader = new PluginClassLoader();
 
 	private static final Logger LOG = (Logger) LoggerFactory.getLogger(PluginManager.class);
 	
@@ -59,59 +63,74 @@ public final class PluginManager
 	{
 		LOG.debug("call discover()");
 		// Search for .jar files in PLUGIN_HOME directory
-		for(File file : PLUGIN_HOME.listFiles(new FilenameFilter() {
+		for(File file : PLUGIN_LIBS.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".jar");
 			}
-		}))
-		{
-			LOG.debug("scanning file {} ...", file.getName());
+		})) {
+			LOG.debug("Scanning file {} ...", file.getName());
 			try {
 				// Open .jar file as JarFile
 				JarFile jf = new JarFile(file);
 				// Search 'Main-Class' manifest attribute
-				if(jf.getManifest().getMainAttributes().getValue("Main-Class") != null) {
-				    String className = jf.getManifest().getMainAttributes().getValue("Main-Class");
-				    Set<String> classes = new HashSet<String>();
-				    // Create a new ClassLoader from the .jar file
-				    URLClassLoader child = new URLClassLoader(new URL[]{file.toURI().toURL()}, PluginManager.class.getClassLoader());
-				    try {
-				    	// List 'Main-Class' public classes
-				    	for(Class<?> clazz : Class.forName(className, false, child).getClasses()) {
-				    		classes.add(clazz.getCanonicalName());
-				    	}
-					} catch (ClassNotFoundException cnfe) {
-						LOG.error("IOException while inspecting class {}", className, cnfe);
+				String mainClass = jf.getManifest().getMainAttributes().getValue("X-Plugin-Class");
+				if(mainClass != null) {
+					// Add .jar file to PluginManager ClassLoader
+					LOG.info("Adding file {} to ClassPath ...", file);
+					mClassLoader.addJar(file);
+					try {
+						// Load Main-Class from PluginManager ClassLoader
+						Class<?> clazz = Class.forName(mainClass, false, mClassLoader);
+						// Check if Plugin.class is implemented
+						if(clazz.getSuperclass().equals(Plugin.class)) {
+							LOG.info("Found plugin [{}]", mainClass);
+							{
+								String classPath = jf.getManifest().getMainAttributes().getValue("X-Plugin-Class-Path");
+								if(classPath != null) {
+									StringTokenizer st = new StringTokenizer(classPath);
+									while(st.hasMoreTokens()) {
+										String libraryName = st.nextToken();
+										File libraryFile = new File(PLUGIN_LIBS, libraryName);
+										// Add library .jar file to ClassLoader
+										LOG.info("Adding library {} to ClassPath ...", libraryFile);
+										mClassLoader.addJar(libraryFile);
+									}
+								}
+							}
+							Plugin plugin = (Plugin) clazz.newInstance();
+							try {
+								install(plugin);
+							} catch (PluginException pe) {
+								LOG.error("Error loading plugin [{}]", mainClass, pe);
+							}
+						}
+					} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+						LOG.error("Error inspecting class {}", mainClass, e);
 					}
-				    // Check if Plugin.class is implemented
-				    if(classes.contains(Plugin.class.getCanonicalName())) {
-				    	LOG.info("Found plugin [{}]", className);
-				    	; //TODO Add file.jar to SystemClassLoader, then load Plugin
-				    }
 				}
 				jf.close();
 			} catch (IOException ioe) {
-				LOG.error("IOException while scanning jar file {}", file, ioe);
+				LOG.error("Error scanning jar file {}", file.getName(), ioe);
 			}
 		}
 		for(String pluginName : new String[]{
-				"org.dyndns.doujindb.plug.impl.mugimugi.DoujinshiDBScanner",
+				"org.dyndns.doujindb.plug.impl.dataimport.DataImport",
 				"org.dyndns.doujindb.plug.impl.imagesearch.ImageSearch"
 			})
 			try {
 				LOG.info("Found plugin [{}]", pluginName);
 				Plugin plugin = (Plugin) Class.forName(pluginName).newInstance();
 				install(plugin);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Error | Exception e) {
+				LOG.error("Error loading plugin [{}]", pluginName, e);
 			}
 	}
 	
 	private static void startup()
 	{
 		LOG.debug("call startup()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.load_timeout");
+		final int timeout = Configuration.plugin_load_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -120,8 +139,9 @@ public final class PluginManager
 				{
 					try {
 						plugin.doStartup();
+						LOG.debug("Starting plugin [{}]", plugin);
 						firePluginStarted(plugin);
-						LOG.info("Plugin [{}] started", plugin.getName());
+						LOG.info("Started plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						pe.printStackTrace();
@@ -134,12 +154,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-startup-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot startup plugin [{}]", plugin.getName(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot startup plugin [{}]", plugin.getName(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot startup plugin [{}]", plugin.getName(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) {
+				LOG.warn("Error starting plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -149,7 +165,7 @@ public final class PluginManager
 	private static void shutdown()
 	{
 		LOG.debug("call shutdown()");
-		final int timeout = (Integer) Configuration.configRead("org.dyndns.doujindb.plugin.unload_timeout");
+		final int timeout = Configuration.plugin_unload_timeout.get();
 		for(final Plugin plugin : plugins)
 		{
 			Callable<Void> task = new Callable<Void>()
@@ -157,9 +173,10 @@ public final class PluginManager
 				public Void call()
 				{
 					try {
+						LOG.debug("Stopping plugin [{}]", plugin);
 						plugin.doShutdown();
 						firePluginStopped(plugin);
-						LOG.info("Plugin [{}] stopped", plugin.getName());
+						LOG.info("Stopped plugin [{}]", plugin);
 						return null;
 					} catch (PluginException pe) {
 						return null;
@@ -171,12 +188,8 @@ public final class PluginManager
 			{
 				new Thread(future, "pluginmanager-shutdown-plugin").start();
 				future.get(timeout, TimeUnit.SECONDS);
-			} catch (TimeoutException te) {
-				LOG.warn("TimeoutException : Cannot shutdown plugin [{}]", plugin.getName(), te);
-			} catch (InterruptedException ie) {
-				LOG.warn("InterruptedException : Cannot shutdown plugin [{}]", plugin.getName(), ie);
-			} catch (ExecutionException ee) {
-				LOG.warn("ExecutionException : Cannot shutdown plugin [{}]", plugin.getName(), ee);
+			} catch (TimeoutException | InterruptedException | ExecutionException e) { 
+				LOG.warn("Error stopping plugin [{}]", plugin, e);
 			} finally {
 			   future.cancel(true);
 			}
@@ -185,21 +198,22 @@ public final class PluginManager
 	
 	private static void install(Plugin plugin) throws PluginException
 	{
+		LOG.debug("call install({})", plugin);
 		plugin.doInstall();
 		firePluginInstalled(plugin);
 		plugins.add(plugin);
 	}
 	
-	public static void addPluginListener(PluginListener pl)
+	public static void addPluginListener(PluginListener listener)
 	{
-		LOG.debug("call addPluginListener({})", pl);
-		listeners.add(pl);
+		LOG.debug("call addPluginListener({})", listener);
+		listeners.add(listener);
 	}
 	
-	public static void removePluginListener(PluginListener pl)
+	public static void removePluginListener(PluginListener listener)
 	{
-		LOG.debug("call removePluginListener({})", pl);
-		listeners.remove(pl);
+		LOG.debug("call removePluginListener({})", listener);
+		listeners.remove(listener);
 	}
 	
 	static void firePluginInstalled(Plugin plugin)
@@ -235,5 +249,15 @@ public final class PluginManager
 		LOG.debug("call firePluginUpdated({})", plugin);
 		for(PluginListener pl : listeners)
 			pl.pluginUpdated(plugin);
+	}
+	
+	private static final class PluginClassLoader extends URLClassLoader
+	{
+		public PluginClassLoader() {
+			super(new URL[]{});
+		}
+		public void addJar(File jarFile) throws MalformedURLException {
+			super.addURL(jarFile.toURI().toURL());
+		}
 	}
 }

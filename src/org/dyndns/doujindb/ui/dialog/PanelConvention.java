@@ -37,8 +37,8 @@ public final class PanelConvention extends JPanel implements DataBaseListener, L
 {
 	private Convention tokenConvention;
 	
-	private final Color foregroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.color");
-	private final Color backgroundColor = (Color) Configuration.configRead("org.dyndns.doujindb.ui.theme.background");
+	private final Color foregroundColor = Configuration.ui_theme_foreground.get();
+	private final Color backgroundColor = Configuration.ui_theme_background.get();
 	
 	private JLabel labelTagName;
 	private JTextField textTagName;

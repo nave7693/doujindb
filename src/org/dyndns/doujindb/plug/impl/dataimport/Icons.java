@@ -1,13 +1,13 @@
-package org.dyndns.doujindb.plug.impl.mugimugi;
+package org.dyndns.doujindb.plug.impl.dataimport;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
 
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.Logger;
 
 public final class Icons
 {
@@ -34,16 +34,31 @@ public final class Icons
     public final ImageIcon task_download = null;
     public final ImageIcon task_searchquery_star = null;
     public final ImageIcon task_preview_missing = null;
-    public final ImageIcon task_info_idle = null;
-    public final ImageIcon task_info_running = null;
-    public final ImageIcon task_info_completed = null;
-    public final ImageIcon task_info_warning = null;
-    public final ImageIcon task_info_error = null;
-    public final ImageIcon task_info_stopped = null;
-    public final ImageIcon task_info_paused = null;
+    public final ImageIcon task_state_idle = null;
+    public final ImageIcon task_state_running = null;
+    public final ImageIcon task_state_complete = null;
+    public final ImageIcon task_state_warning = null;
+    public final ImageIcon task_state_error = null;
+    public final ImageIcon task_state_abort = null;
+    public final ImageIcon task_state_userinput = null;
+    public final ImageIcon task_state_unknow = null;
     public final ImageIcon search_open = null;
     public final ImageIcon search_preview = null;
     public final ImageIcon search_star = null;
+    public final ImageIcon task_metadata_artist = null;
+    public final ImageIcon task_metadata_book = null;
+    public final ImageIcon task_metadata_circle = null;
+    public final ImageIcon task_metadata_content = null;
+    public final ImageIcon task_metadata_convention = null;
+    public final ImageIcon task_metadata_parody = null;
+    public final ImageIcon task_result_info = null;
+    public final ImageIcon task_result_artist = null;
+    public final ImageIcon task_result_circle = null;
+    public final ImageIcon task_result_content = null;
+    public final ImageIcon task_result_convention = null;
+    public final ImageIcon task_result_parody = null;
+    public final ImageIcon task_result_missing = null;
+    public final ImageIcon task_annotation = null;
 	
     private static final Logger LOG = (Logger) LoggerFactory.getLogger(Icons.class);
 	
